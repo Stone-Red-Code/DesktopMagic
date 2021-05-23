@@ -1,0 +1,20 @@
+﻿DesktopMagic
+1.0.0.0
+
+winexe
+C#
+.cs
+C:\Users\David\Google Drive\Programmieren\DesktopMagic\DesktopMagic\obj\Release\net5.0-windows\
+DesktopMagic
+none
+false
+TRACE;RELEASE;NET;NET5_0;NETCOREAPP
+C:\Users\David\Google Drive\Programmieren\DesktopMagic\DesktopMagic\App.xaml
+102076153406
+
+1738894491
+2261759227370
+CalendarWindow.xaml;CpuUsageWindow.xaml;DateWindow.xaml;InputDialog.xaml;MainWindow.xaml;ModWindow.xaml;MusicVisualizerWindow.xaml;Resources\StringResources.de.xaml;Resources\StringResources.en.xaml;TimeWindow.xaml;
+
+True
+
