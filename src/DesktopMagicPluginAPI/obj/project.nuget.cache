@@ -1,0 +1,12 @@
+{
+  "version": 2,
+  "dgSpecHash": "Qzr0JTsc+GHp4Nc6TyVUGYhwnb8N5jqORI8UY2aaFXul2ZXBx3F6erzhUn49cTbe8BgF4ZI3AnGtegGqv7EPiA==",
+  "success": true,
+  "projectFilePath": "C:\\Users\\David\\Google Drive\\Programmieren\\DesktopMagic\\src\\DesktopMagicPluginAPI\\DesktopMagicPluginAPI.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\David\\.nuget\\packages\\microsoft.netcore.platforms\\5.0.0\\microsoft.netcore.platforms.5.0.0.nupkg.sha512",
+    "C:\\Users\\David\\.nuget\\packages\\microsoft.win32.systemevents\\5.0.0\\microsoft.win32.systemevents.5.0.0.nupkg.sha512",
+    "C:\\Users\\David\\.nuget\\packages\\system.drawing.common\\5.0.2\\system.drawing.common.5.0.2.nupkg.sha512"
+  ],
+  "logs": []
+}
