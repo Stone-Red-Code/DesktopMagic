@@ -10,7 +10,7 @@
 ## Usage
 
 1. [Download](https://github.com/Stone-Red-Code/DesktopMagic/releases) one of the releases
-2. Execute the `DesktopMagic.exe` installer file
+2. Execute the `DesktopMagic-Installer.exe` file
 3. (Optional) Put a shortcut to the `DesktopMagic.exe` file in the install directory into the `shell:startup` directory
 
 ## Preview
