@@ -10,3 +10,15 @@ C:\Users\David\Google Drive\Programmieren\DesktopMagic\DesktopMagicPluginAPI\obj
 C:\Users\David\Google Drive\Programmieren\DesktopMagic\DesktopMagicPluginAPI\obj\Release\net5.0\DesktopMagicPluginAPI.dll
 C:\Users\David\Google Drive\Programmieren\DesktopMagic\DesktopMagicPluginAPI\obj\Release\net5.0\ref\DesktopMagicPluginAPI.dll
 C:\Users\David\Google Drive\Programmieren\DesktopMagic\DesktopMagicPluginAPI\obj\Release\net5.0\DesktopMagicPluginAPI.pdb
+C:\Users\David\Google Drive\Programmieren\DesktopMagic\src\DesktopMagicPluginAPI\bin\Release\net5.0\DesktopMagicPluginAPI.deps.json
+C:\Users\David\Google Drive\Programmieren\DesktopMagic\src\DesktopMagicPluginAPI\bin\Release\net5.0\DesktopMagicPluginAPI.dll
+C:\Users\David\Google Drive\Programmieren\DesktopMagic\src\DesktopMagicPluginAPI\bin\Release\net5.0\ref\DesktopMagicPluginAPI.dll
+C:\Users\David\Google Drive\Programmieren\DesktopMagic\src\DesktopMagicPluginAPI\bin\Release\net5.0\DesktopMagicPluginAPI.pdb
+C:\Users\David\Google Drive\Programmieren\DesktopMagic\src\DesktopMagicPluginAPI\obj\Release\net5.0\DesktopMagicPluginAPI.csprojAssemblyReference.cache
+C:\Users\David\Google Drive\Programmieren\DesktopMagic\src\DesktopMagicPluginAPI\obj\Release\net5.0\DesktopMagicPluginAPI.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\David\Google Drive\Programmieren\DesktopMagic\src\DesktopMagicPluginAPI\obj\Release\net5.0\DesktopMagicPluginAPI.AssemblyInfoInputs.cache
+C:\Users\David\Google Drive\Programmieren\DesktopMagic\src\DesktopMagicPluginAPI\obj\Release\net5.0\DesktopMagicPluginAPI.AssemblyInfo.cs
+C:\Users\David\Google Drive\Programmieren\DesktopMagic\src\DesktopMagicPluginAPI\obj\Release\net5.0\DesktopMagicPluginAPI.csproj.CoreCompileInputs.cache
+C:\Users\David\Google Drive\Programmieren\DesktopMagic\src\DesktopMagicPluginAPI\obj\Release\net5.0\DesktopMagicPluginAPI.dll
+C:\Users\David\Google Drive\Programmieren\DesktopMagic\src\DesktopMagicPluginAPI\obj\Release\net5.0\ref\DesktopMagicPluginAPI.dll
+C:\Users\David\Google Drive\Programmieren\DesktopMagic\src\DesktopMagicPluginAPI\obj\Release\net5.0\DesktopMagicPluginAPI.pdb

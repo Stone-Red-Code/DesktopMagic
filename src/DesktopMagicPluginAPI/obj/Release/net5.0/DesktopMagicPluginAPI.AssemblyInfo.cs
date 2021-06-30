@@ -11,13 +11,14 @@
 using System;
 using System.Reflection;
 
-[assembly: System.Reflection.AssemblyCompanyAttribute("DesktopMagicPluginAPI")]
+[assembly: System.Reflection.AssemblyCompanyAttribute("Stone_Red")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
-[assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
-[assembly: System.Reflection.AssemblyProductAttribute("DesktopMagicPluginAPI")]
+[assembly: System.Reflection.AssemblyFileVersionAttribute("0.0.0.1")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("0.0.0.1")]
+[assembly: System.Reflection.AssemblyProductAttribute("Stone_Red")]
 [assembly: System.Reflection.AssemblyTitleAttribute("DesktopMagicPluginAPI")]
-[assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
+[assembly: System.Reflection.AssemblyVersionAttribute("0.0.0.1")]
+[assembly: System.Reflection.AssemblyMetadataAttribute("RepositoryUrl", "https://github.com/Stone-Red-Code/DesktopMagic")]
 
 // Von der MSBuild WriteCodeFragment-Klasse generiert.
 

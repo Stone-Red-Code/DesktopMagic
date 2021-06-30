@@ -51,7 +51,7 @@
           }
         }
       },
-      "DesktopMagicPluginAPI/1.0.0": {
+      "DesktopMagicPluginAPI/0.0.0.1": {
         "type": "project",
         "framework": ".NETCoreApp,Version=v5.0",
         "dependencies": {
@@ -155,7 +155,7 @@
         "version.txt"
       ]
     },
-    "DesktopMagicPluginAPI/1.0.0": {
+    "DesktopMagicPluginAPI/0.0.0.1": {
       "type": "project",
       "path": "../DesktopMagicPluginAPI/DesktopMagicPluginAPI.csproj",
       "msbuildProject": "../DesktopMagicPluginAPI/DesktopMagicPluginAPI.csproj"
@@ -163,7 +163,7 @@
   },
   "projectFileDependencyGroups": {
     "net5.0": [
-      "DesktopMagicPluginAPI >= 1.0.0",
+      "DesktopMagicPluginAPI >= 0.0.0.1",
       "System.Drawing.Common >= 5.0.2"
     ]
   },
@@ -238,7 +238,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.203\\RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.301\\RuntimeIdentifierGraph.json"
       }
     }
   }

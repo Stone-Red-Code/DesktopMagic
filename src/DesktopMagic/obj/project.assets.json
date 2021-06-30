@@ -401,7 +401,7 @@
           "lib/netcoreapp3.0/System.Text.Json.dll": {}
         }
       },
-      "DesktopMagicPluginAPI/1.0.0": {
+      "DesktopMagicPluginAPI/0.0.0.1": {
         "type": "project",
         "framework": ".NETCoreApp,Version=v5.0",
         "dependencies": {
@@ -1070,7 +1070,7 @@
         "version.txt"
       ]
     },
-    "DesktopMagicPluginAPI/1.0.0": {
+    "DesktopMagicPluginAPI/0.0.0.1": {
       "type": "project",
       "path": "../DesktopMagicPluginAPI/DesktopMagicPluginAPI.csproj",
       "msbuildProject": "../DesktopMagicPluginAPI/DesktopMagicPluginAPI.csproj"
@@ -1079,7 +1079,7 @@
   "projectFileDependencyGroups": {
     "net5.0-windows7.0": [
       "AlwaysUpToDate >= 1.0.0.2",
-      "DesktopMagicPluginAPI >= 1.0.0",
+      "DesktopMagicPluginAPI >= 0.0.0.1",
       "Extended.Wpf.Toolkit >= 4.1.0",
       "Google.Apis.Calendar.v3 >= 1.51.0.2312",
       "Hardcodet.NotifyIcon.Wpf >= 1.1.0",
@@ -1186,7 +1186,7 @@
             "privateAssets": "none"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.203\\RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.301\\RuntimeIdentifierGraph.json"
       }
     }
   },

@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "5yebJ3X65YwK4D5JQuCU8WSxPyOBvw8kpsJXJ+bdglI65/f2USRXOqDjC05rLWEQ8AJGrAwlf5AGJvtlT4HkBA==",
+  "dgSpecHash": "tlThlZfHuTZwobJjU75y3KvStqi+h3O2tjISpgJdLKJYu5qrwpxJb1thGk5nDPbXqcgoO6C3ixMf9KFSQ304qw==",
   "success": true,
   "projectFilePath": "C:\\Users\\David\\Google Drive\\Programmieren\\DesktopMagic\\src\\DesktopMagic\\DesktopMagic.csproj",
   "expectedPackageFiles": [
@@ -29,7 +29,8 @@
     "C:\\Users\\David\\.nuget\\packages\\system.management\\5.0.0\\system.management.5.0.0.nupkg.sha512",
     "C:\\Users\\David\\.nuget\\packages\\system.security.accesscontrol\\5.0.0\\system.security.accesscontrol.5.0.0.nupkg.sha512",
     "C:\\Users\\David\\.nuget\\packages\\system.security.principal.windows\\5.0.0\\system.security.principal.windows.5.0.0.nupkg.sha512",
-    "C:\\Users\\David\\.nuget\\packages\\system.text.json\\5.0.2\\system.text.json.5.0.2.nupkg.sha512"
+    "C:\\Users\\David\\.nuget\\packages\\system.text.json\\5.0.2\\system.text.json.5.0.2.nupkg.sha512",
+    "C:\\Users\\David\\.nuget\\packages\\desktopmagicpluginapi\\0.0.0.1\\desktopmagicpluginapi.0.0.0.1.nupkg.sha512"
   ],
   "logs": [
     {
