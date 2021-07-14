@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "TuOcZPLALDGmU9LTAGn5iVicebN0kr4uGLHmPWAVlWjcIsPkr3qjci7XHJAa5QBVONH2TKxVLFrdKt/80PwHrg==",
+  "dgSpecHash": "bKNVRlJTkB1Q+qxz0L+/WVz3V7NPh6sYzdnDCosqJqTOuhzldTVhcpE7nvRH5DKOS1NAr66gqn7IiXnRcoxYkw==",
   "success": true,
-  "projectFilePath": "C:\\Users\\David\\Google Drive\\Programmieren\\DesktopMagic\\src\\DesktopMagicPlugin.Test\\DesktopMagicPlugin.Test.csproj",
+  "projectFilePath": "C:\\Users\\David\\Programmieren\\DesktopMagic\\src\\DesktopMagicPlugin.Test\\DesktopMagicPlugin.Test.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\David\\.nuget\\packages\\microsoft.netcore.platforms\\5.0.0\\microsoft.netcore.platforms.5.0.0.nupkg.sha512",
     "C:\\Users\\David\\.nuget\\packages\\microsoft.win32.systemevents\\5.0.0\\microsoft.win32.systemevents.5.0.0.nupkg.sha512",

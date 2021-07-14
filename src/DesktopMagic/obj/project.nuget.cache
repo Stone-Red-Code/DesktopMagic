@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "tlThlZfHuTZwobJjU75y3KvStqi+h3O2tjISpgJdLKJYu5qrwpxJb1thGk5nDPbXqcgoO6C3ixMf9KFSQ304qw==",
+  "dgSpecHash": "iO1J8G7zPvBH5piB9vrLjZFUdqKDO2srDSAqkIfbx66tUrR5z+jECTqkPX0cYsO47B833HpbduDM90H+WxtyCw==",
   "success": true,
-  "projectFilePath": "C:\\Users\\David\\Google Drive\\Programmieren\\DesktopMagic\\src\\DesktopMagic\\DesktopMagic.csproj",
+  "projectFilePath": "C:\\Users\\David\\Programmieren\\DesktopMagic\\src\\DesktopMagic\\DesktopMagic.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\David\\.nuget\\packages\\alwaysuptodate\\1.0.0.2\\alwaysuptodate.1.0.0.2.nupkg.sha512",
     "C:\\Users\\David\\.nuget\\packages\\extended.wpf.toolkit\\4.1.0\\extended.wpf.toolkit.4.1.0.nupkg.sha512",

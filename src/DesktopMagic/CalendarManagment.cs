@@ -24,6 +24,9 @@ namespace DesktopMagic
             List<string> upcomingEventTimes = new List<string>();
             UserCredential credential;
             Console.WriteLine("1");
+
+            if (!File.Exists("credentials.json"))
+                return (new(), new());
             using (var stream =
                 new FileStream("credentials.json", FileMode.Open, FileAccess.Read))
             {
