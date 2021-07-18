@@ -32,7 +32,9 @@ namespace DesktopMagic
         private string pluginFolderPath = "";
         private bool stop = false;
 
-        public PluginWindow(string _PluginName)
+        public event Action PluginLoaded;
+
+        public PluginWindow(string pluginName)
         {
             InitializeComponent();
 
@@ -55,7 +57,7 @@ namespace DesktopMagic
             t.Elapsed += Elapsed;
             t.Start();
 
-            pluginName = _PluginName;
+            this.pluginName = pluginName;
 
             key = Registry.CurrentUser.CreateSubKey(@"Software\" + MainWindow.AppName);
             this.Top = double.Parse(key.GetValue(pluginName + "WindowTop", 100).ToString());
@@ -146,6 +148,7 @@ namespace DesktopMagic
                 MessageBox.Show("File execution error:\n" + e, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
+            PluginLoaded?.Invoke();
         }
 
         private void ExecuteSource(string sourceText)

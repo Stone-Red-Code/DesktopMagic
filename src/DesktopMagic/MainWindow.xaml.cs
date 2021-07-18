@@ -43,11 +43,7 @@ namespace DesktopMagic
 
         #endregion Plugins settings
 
-        #region App Name
-
-        public static string AppName { get; } = "Desktop Magic";
-
-        #endregion App Name
+        public const string AppName = "Desktop Magic";
 
         public static List<Window> Windows { get; protected set; } = new List<Window>();
         public static List<string> WindowNames { get; protected set; } = new List<string>();
@@ -117,17 +113,6 @@ namespace DesktopMagic
         private void LoadPlugins()
         {
             string PluginsPath = applicationDataPath + "\\Plugins";
-
-            foreach (string fileName in Directory.GetFiles(PluginsPath, "*.cs"))
-            {
-                string PluginName = fileName[(fileName.LastIndexOf("\\", StringComparison.InvariantCulture) + 1)..].Replace(fileName[fileName.LastIndexOf(".", StringComparison.InvariantCulture)..], "");
-                try
-                {
-                    _ = Directory.CreateDirectory(PluginsPath + "\\" + PluginName);
-                    File.Move(fileName, $"{PluginsPath}\\{PluginName}\\{PluginName}.cs");
-                }
-                catch (Exception ex) { Console.WriteLine(ex); }
-            }
 
             foreach (string fileName in Directory.GetFiles(PluginsPath, "*.dll"))
             {
@@ -226,20 +211,27 @@ namespace DesktopMagic
                 {
                     Dispatcher.Invoke(() =>
                     {
-                        /*
-                        for (int i = 0; i < OptionsList.Count; i++)
+                        if (window is PluginWindow pluginWindow)
                         {
-                            if (OptionsList[i].Item1 == checkBox.Content.ToString())
+                            Action onPluginLoaded = null;
+                            onPluginLoaded = () =>
                             {
-                                if (!optionsComboBox.Items.Contains(new Tuple<string, int>(checkBox.Content.ToString(), i)))
-                                    optionsComboBox.Items.Add(new Tuple<string, int>(checkBox.Content.ToString(), i));
-                            }
+                                Dispatcher.Invoke(() =>
+                                {
+                                    if (!optionsComboBox.Items.Contains(new Tuple<string, int>(checkBox.Content.ToString(), 0)))
+                                    {
+                                        _ = optionsComboBox.Items.Add(new Tuple<string, int>(checkBox.Content.ToString(), 0));
+                                    }
+                                    optionsComboBox.SelectedIndex = -1;
+                                    optionsComboBox.SelectedIndex = optionsComboBox.Items.IndexOf(new Tuple<string, int>(checkBox.Content.ToString(), 0));
+                                    pluginWindow.PluginLoaded -= onPluginLoaded;
+                                });
+                            };
+                            pluginWindow.PluginLoaded += onPluginLoaded;
                         }
-                        */
-
-                        if (!optionsComboBox.Items.Contains(checkBox.Content.ToString()))
+                        else if (window is MusicVisualizerWindow musicVisualizerWindow)
                         {
-                            _ = optionsComboBox.Items.Add(new Tuple<string, int>(checkBox.Content.ToString(), 0));
+                            optionsComboBox.SelectedIndex = optionsComboBox.Items.IndexOf(new Tuple<string, int>(checkBox.Content.ToString(), 0));
                         }
 
                         window.ShowInTaskbar = false;
@@ -282,7 +274,6 @@ namespace DesktopMagic
             {
                 window.Hide();
             }
-            //taskbarIcon.Visibility = Visibility.Collapsed;
             Environment.Exit(0);
         }
 
@@ -303,9 +294,9 @@ namespace DesktopMagic
 
         private void AmplifierLevelSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
-            amplifierLevelLabel.Content = (int)amplifierLevelSlider.Value + 1;
+            amplifierLevelLabel.Content = (int)amplifierLevelSlider.Value;
             AmplifierLevel = (int)amplifierLevelSlider.Value;
-            key.SetValue("AmplifierLevel", (int)amplifierLevelSlider.Value);
+            key.SetValue("AmplifierLevel", AmplifierLevel);
             SaveLayout();
         }
 
@@ -430,7 +421,8 @@ namespace DesktopMagic
                     TextBlock label = new()
                     {
                         Text = settingElement.Name,
-                        Padding = new Thickness(0, 0, 3, 0)
+                        Padding = new Thickness(0, 0, 3, 0),
+                        VerticalAlignment = VerticalAlignment.Center
                     };
 
                     _ = stackPanel.Children.Add(label);
@@ -444,12 +436,24 @@ namespace DesktopMagic
                         label.FontWeight = FontWeights.Bold;
                         label.Width = optionsPanel.ActualWidth;
                         label.TextWrapping = TextWrapping.WrapWithOverflow;
+                        eHeading.OnValueChanged += () =>
+                        {
+                            Dispatcher.Invoke(() =>
+                            {
+                                label.Text = eHeading.Value;
+                                Option_ValueChanged();
+                            });
+                        };
                     }
                     else if (settingElement.Element is DesktopMagicPluginAPI.Inputs.CheckBox eCheckBox)
                     {
-                        CheckBox checkBox = new();
-                        checkBox.IsChecked = eCheckBox.Value;
-                        checkBox.Width = optionsPanel.ActualWidth - label.ActualWidth;
+                        CheckBox checkBox = new()
+                        {
+                            IsChecked = eCheckBox.Value,
+                            Width = optionsPanel.ActualWidth - label.ActualWidth,
+                            Style = (Style)FindResource("MaterialDesignDarkCheckBox"),
+                            VerticalAlignment = VerticalAlignment.Center
+                        };
                         checkBox.Click += (_s, _e) =>
                         {
                             eCheckBox.Value = checkBox.IsChecked.GetValueOrDefault();
@@ -471,7 +475,8 @@ namespace DesktopMagic
                         {
                             Text = eTextBox.Value,
                             TextWrapping = TextWrapping.Wrap,
-                            Width = optionsPanel.ActualWidth - label.ActualWidth
+                            Width = optionsPanel.ActualWidth - label.ActualWidth,
+                            VerticalAlignment = VerticalAlignment.Center
                         };
                         textBox.TextChanged += (_s, _e) =>
                         {
@@ -489,12 +494,14 @@ namespace DesktopMagic
                     }
                     else if (settingElement.Element is DesktopMagicPluginAPI.Inputs.IntegerUpDown eIntegerUpDown)
                     {
-                        Xceed.Wpf.Toolkit.IntegerUpDown integerUpDown = new();
-
-                        integerUpDown.Value = eIntegerUpDown.Value;
-                        integerUpDown.Minimum = eIntegerUpDown.Minimum;
-                        integerUpDown.Maximum = eIntegerUpDown.Maximum;
-                        integerUpDown.Width = optionsPanel.ActualWidth - label.ActualWidth;
+                        Xceed.Wpf.Toolkit.IntegerUpDown integerUpDown = new()
+                        {
+                            Value = eIntegerUpDown.Value,
+                            Minimum = eIntegerUpDown.Minimum,
+                            Maximum = eIntegerUpDown.Maximum,
+                            Width = optionsPanel.ActualWidth - label.ActualWidth,
+                            VerticalAlignment = VerticalAlignment.Center
+                        };
                         integerUpDown.ValueChanged += (_s, _e) =>
                         {
                             eIntegerUpDown.Value = integerUpDown.Value.GetValueOrDefault();
@@ -511,14 +518,16 @@ namespace DesktopMagic
                     }
                     else if (settingElement.Element is DesktopMagicPluginAPI.Inputs.Slider eSlider)
                     {
-                        Slider slider = new();
-
-                        slider.Value = eSlider.Value;
-                        slider.Minimum = eSlider.Minimum;
-                        slider.Maximum = eSlider.Maximum;
-                        slider.TickFrequency = 1;
-                        slider.IsSnapToTickEnabled = true;
-                        slider.Width = optionsPanel.ActualWidth - label.ActualWidth;
+                        Slider slider = new()
+                        {
+                            Value = eSlider.Value,
+                            Minimum = eSlider.Minimum,
+                            Maximum = eSlider.Maximum,
+                            TickFrequency = 1,
+                            IsSnapToTickEnabled = true,
+                            Width = optionsPanel.ActualWidth - label.ActualWidth,
+                            VerticalAlignment = VerticalAlignment.Center
+                        };
                         slider.ValueChanged += (_s, _e) =>
                         {
                             eSlider.Value = slider.Value;
@@ -541,8 +550,12 @@ namespace DesktopMagic
         private void Option_ValueChanged()
         {
             string pluginName = ((Tuple<string, int>)optionsComboBox.SelectedItem).Item1.ToString();
-            string jsonSettings = JsonSerializer.Serialize(PluginsSettings[pluginName]);
-            File.WriteAllText($"{applicationDataPath}\\Plugins\\{pluginName}\\{pluginName}.save", jsonSettings);
+
+            if (PluginsSettings.ContainsKey(pluginName))
+            {
+                string jsonSettings = JsonSerializer.Serialize(PluginsSettings[pluginName]);
+                File.WriteAllText($"{applicationDataPath}\\Plugins\\{pluginName}\\{pluginName}.save", jsonSettings);
+            }
         }
 
         #endregion options
@@ -550,7 +563,7 @@ namespace DesktopMagic
         private void TextBlock_Loaded(object sender, RoutedEventArgs e)
         {
             int index = 0;
-            char[] chars = { '1', '0' };
+            char[] chars = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' };
             foreach (FontFamily ff in Fonts.SystemFontFamilies)
             {
                 double charWidth = -1;
@@ -712,7 +725,9 @@ namespace DesktopMagic
                 content += inputDialog.ResponseText + "\n";
 
                 File.AppendAllText(applicationDataPath + "\\layouts.save", content);
+                key.SetValue("SelectedLayout", -1);
                 LoadLayoutNames();
+                layoutsComboBox.SelectedIndex = layoutsComboBox.Items.Count - 1;
             }
         }
 
@@ -882,8 +897,8 @@ namespace DesktopMagic
 
         private void SetLanguageDictionary()
         {
-            ResourceDictionary dict = new();
-            string currentCulture = (Thread.CurrentThread.CurrentCulture.ToString());
+            ResourceDictionary dict = new ResourceDictionary();
+            string currentCulture = Thread.CurrentThread.CurrentCulture.ToString();
 
             if (currentCulture.Contains("de"))
             {

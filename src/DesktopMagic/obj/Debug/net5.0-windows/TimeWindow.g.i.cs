@@ -85,7 +85,7 @@ namespace DesktopMagic {
                 return;
             }
             _contentLoaded = true;
-            System.Uri resourceLocater = new System.Uri("/DesktopMagic;component/timewindow.xaml", System.UriKind.Relative);
+            System.Uri resourceLocater = new System.Uri("/DesktopMagic;V1.0.0.0;component/timewindow.xaml", System.UriKind.Relative);
             
             #line 1 "..\..\..\TimeWindow.xaml"
             System.Windows.Application.LoadComponent(this, resourceLocater);

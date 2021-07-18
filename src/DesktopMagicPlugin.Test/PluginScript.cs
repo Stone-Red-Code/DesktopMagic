@@ -9,7 +9,7 @@ namespace DesktopMagicPlugin.Test
     public class PluginScript : Plugin
     {
         [Element("Heading")]
-        private Heading heading = new Heading("test");
+        private Heading heading = new Heading("");
 
         [Element("Slider:")]
         private Slider slider = new Slider(1, 23, 4);
@@ -35,11 +35,16 @@ namespace DesktopMagicPlugin.Test
 
         public override Bitmap Main()
         {
+            string str = $"{textBox.Value}: {slider.Value}";
+
             Bitmap bmp = new Bitmap(100, 100);
             using Graphics g = Graphics.FromImage(bmp);
             g.Clear(Application.Color);
-            g.DrawString(slider.Value.ToString(), new Font("arial", 10), Brushes.Black, new PointF(0, 0));
+            g.DrawString(str, new Font("arial", 10), Brushes.Black, new PointF(0, 0));
+
+            heading.Value = str;
             slider.Value++;
+
             return bmp;
         }
     }
