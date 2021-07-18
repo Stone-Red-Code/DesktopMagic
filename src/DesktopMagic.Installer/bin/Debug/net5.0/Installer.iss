@@ -37,7 +37,7 @@ Name: "quicklaunchicon"; Description: "{cm:CreateQuickLaunchIcon}"; GroupDescrip
 
 [Files]
 Source: "..\DesktopMagic\bin\Release\net5.0-windows\DesktopMagic.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\DesktopMagic\bin\Release\net5.0-windows\AlwaysUpToDate.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\DesktopMagic\bin\Release\net5.0-windows\Stone_Red-C-Sharp-Utilities.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\DesktopMagic\bin\Release\net5.0-windows\DesktopMagic.deps.json"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\DesktopMagic\bin\Release\net5.0-windows\DesktopMagic.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\DesktopMagic\bin\Release\net5.0-windows\DesktopMagic.exe"; DestDir: "{app}"; Flags: ignoreversion
@@ -64,7 +64,6 @@ Source: "..\DesktopMagic\bin\Release\net5.0-windows\NAudio.WinMM.dll"; DestDir: 
 Source: "..\DesktopMagic\bin\Release\net5.0-windows\Newtonsoft.Json.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\DesktopMagic\bin\Release\net5.0-windows\System.Drawing.Common.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\DesktopMagic\bin\Release\net5.0-windows\System.Management.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\DesktopMagic\bin\Release\net5.0-windows\System.Text.Json.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\DesktopMagic\bin\Release\net5.0-windows\Xceed.Wpf.AvalonDock.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\DesktopMagic\bin\Release\net5.0-windows\Xceed.Wpf.AvalonDock.Themes.Aero.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\DesktopMagic\bin\Release\net5.0-windows\Xceed.Wpf.AvalonDock.Themes.Metro.dll"; DestDir: "{app}"; Flags: ignoreversion

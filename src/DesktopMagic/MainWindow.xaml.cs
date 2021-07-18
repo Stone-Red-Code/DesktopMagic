@@ -9,6 +9,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Text.Json;
+using Stone_Red_Utilities.Logging;
 
 namespace DesktopMagic
 {
@@ -45,6 +46,8 @@ namespace DesktopMagic
 
         public const string AppName = "Desktop Magic";
 
+        public static Logger Logger { get; private set; }
+
         public static List<Window> Windows { get; protected set; } = new List<Window>();
         public static List<string> WindowNames { get; protected set; } = new List<string>();
         private readonly RegistryKey key;
@@ -59,6 +62,7 @@ namespace DesktopMagic
         public MainWindow()
         {
             logFilePath = applicationDataPath + "\\Log.txt";
+            Logger = new Logger(LogTarget.File, logFilePath, "{<dateTime>:HH:mm:ss} | {<level>,-7} | {<source>,-15} | {<lineNumber>,-4} | {<memberName>,10} | {<message>}");
             key = Registry.CurrentUser.CreateSubKey(@"Software\" + AppName);
 
             Stream iconStream = Application.GetResourceStream(new Uri("pack://application:,,,/DesktopMagic;component/icon.ico")).Stream;
@@ -77,21 +81,20 @@ namespace DesktopMagic
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
+            Logger.ClearLogFile();
+            Logger.Log("Create ApplicationData Folder", "Main");
             if (!Directory.Exists(applicationDataPath))
             {
                 _ = Directory.CreateDirectory(applicationDataPath);
             }
 
-            File.Create(logFilePath).Close();
-            File.WriteAllText(logFilePath, "");
-            File.AppendAllText(logFilePath, "\nCreate ApplicationData Folder");
-
-            File.AppendAllText(logFilePath, "\nCreate Plugins Folder");
+            Logger.Log("Create Plugins Folder", "Main");
             if (!Directory.Exists(applicationDataPath + "\\Plugins"))
             {
                 _ = Directory.CreateDirectory(applicationDataPath + "\\Plugins");
             }
-            File.AppendAllText(logFilePath, "\nCreate layouts.save");
+
+            Logger.Log("Create layouts.save file", "Main");
             if (!File.Exists(applicationDataPath + "\\layouts.save"))
             {
                 File.WriteAllText(applicationDataPath + "\\layouts.save", ";" + (string)FindResource("default"));
@@ -100,14 +103,16 @@ namespace DesktopMagic
             _ = optionsComboBox.Items.Add(new Tuple<string, int>((string)FindResource("musicVisualizer"), 0));
 
             //Write To Log File and Load Elements
-            File.AppendAllText(logFilePath, "\nLoading Plugin names");
+
+            Logger.Log("Loading Plugin names", "Main");
             LoadPlugins();
-            File.AppendAllText(logFilePath, "\nLoading Layout names");
+            Logger.Log("Loading Layout names", "Main");
             LoadLayoutNames();
-            File.AppendAllText(logFilePath, "\nLoading Layout");
+            Logger.Log("Loading Layout", "Main");
             LoadLayout();
-            File.AppendAllText(logFilePath, "\nWindow Loaded");
+
             loaded = true;
+            Logger.Log("Window Loaded", "Main");
         }
 
         private void LoadPlugins()
@@ -227,6 +232,11 @@ namespace DesktopMagic
                                     pluginWindow.PluginLoaded -= onPluginLoaded;
                                 });
                             };
+                            pluginWindow.OnExit += () =>
+                            {
+                                checkBox.IsChecked = false;
+                                CheckBox_Click(checkBox, null);
+                            };
                             pluginWindow.PluginLoaded += onPluginLoaded;
                         }
                         else if (window is MusicVisualizerWindow musicVisualizerWindow)
@@ -245,6 +255,7 @@ namespace DesktopMagic
             else
             {
                 int index = WindowNames.IndexOf(window.Title);
+
                 Windows[index].Close();
                 Windows.RemoveAt(index);
                 WindowNames.RemoveAt(index);
@@ -833,14 +844,14 @@ namespace DesktopMagic
                     }
                     catch (Exception ex)
                     {
-                        File.AppendAllText(logFilePath, "\n" + ex);
+                        Logger.Log(ex.ToString(), "Main");
                         MessageBox.Show(ex.ToString());
                     }
                 }
             }
             catch (Exception ex)
             {
-                File.AppendAllText(logFilePath, "\n" + ex);
+                Logger.Log(ex.ToString(), "Main");
                 _ = MessageBox.Show(ex.ToString());
             }
 

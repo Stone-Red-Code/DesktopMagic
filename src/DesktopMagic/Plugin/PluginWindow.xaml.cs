@@ -34,6 +34,8 @@ namespace DesktopMagic
 
         public event Action PluginLoaded;
 
+        public event Action OnExit;
+
         public PluginWindow(string pluginName)
         {
             InitializeComponent();
@@ -95,7 +97,7 @@ namespace DesktopMagic
                 {
                     panel.Visibility = Visibility.Visible;
                     new WindowPos().SetIsLocked(this, false);
-                    tileBar.CaptionHeight = this.ActualHeight - 10;
+                    tileBar.CaptionHeight = tileBar.CaptionHeight = this.ActualHeight - 10 < 0 ? 0 : this.ActualHeight - 10;
                     this.ResizeMode = ResizeMode.CanResize;
                 }
                 else
@@ -126,6 +128,7 @@ namespace DesktopMagic
             else
             {
                 MessageBox.Show("File does not exist!", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                Exit();
                 return;
             }
 
@@ -133,9 +136,11 @@ namespace DesktopMagic
             {
                 sourceText = File.ReadAllText(PluginPath);
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                MessageBox.Show("File could not be read:\n" + e.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MainWindow.Logger.Log(ex.ToString(), "Plugin");
+                MessageBox.Show("File could not be read:\n" + ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                Exit();
                 return;
             }
 
@@ -143,9 +148,11 @@ namespace DesktopMagic
             {
                 ExecuteSource(sourceText);
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                MessageBox.Show("File execution error:\n" + e, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MainWindow.Logger.Log(ex.ToString(), "Plugin");
+                MessageBox.Show("File execution error:\n" + ex, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                Exit();
                 return;
             }
             PluginLoaded?.Invoke();
@@ -160,6 +167,7 @@ namespace DesktopMagic
             if (instanceType is null)
             {
                 MessageBox.Show($"The \"PluginScript\" class could not be found!", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                Exit();
                 return;
             }
 
@@ -172,12 +180,14 @@ namespace DesktopMagic
             else
             {
                 MessageBox.Show($"The \"PluginScript\" class has to inherit from \"{nameof(DesktopMagicPluginAPI)}.{nameof(Plugin)}\"", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                Exit();
                 return;
             }
 
             if (instanceType.Namespace == nameof(DesktopMagic))
             {
                 MessageBox.Show("NO!", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                Exit();
                 return;
             }
 
@@ -264,6 +274,14 @@ namespace DesktopMagic
 
             bitmap.UnlockBits(bitmapData);
             return bitmapSource;
+        }
+
+        private void Exit()
+        {
+            Dispatcher.Invoke(() =>
+            {
+                OnExit?.Invoke();
+            });
         }
 
         #region Window Events

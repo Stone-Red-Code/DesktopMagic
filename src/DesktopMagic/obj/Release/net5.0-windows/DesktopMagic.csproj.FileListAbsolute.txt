@@ -162,7 +162,6 @@ C:\Users\David\Google Drive\Programmieren\DesktopMagic\src\DesktopMagic\obj\Rele
 C:\Users\David\Google Drive\Programmieren\DesktopMagic\src\DesktopMagic\obj\Release\net5.0-windows\ref\DesktopMagic.dll
 C:\Users\David\Google Drive\Programmieren\DesktopMagic\src\DesktopMagic\obj\Release\net5.0-windows\DesktopMagic.pdb
 C:\Users\David\Google Drive\Programmieren\DesktopMagic\src\DesktopMagic\obj\Release\net5.0-windows\DesktopMagic.genruntimeconfig.cache
-C:\Users\David\Programmieren\DesktopMagic\src\DesktopMagic\bin\Release\net5.0-windows\AlwaysUpToDate.dll
 C:\Users\David\Programmieren\DesktopMagic\src\DesktopMagic\bin\Release\net5.0-windows\Xceed.Wpf.AvalonDock.Themes.Aero.dll
 C:\Users\David\Programmieren\DesktopMagic\src\DesktopMagic\bin\Release\net5.0-windows\Xceed.Wpf.AvalonDock.Themes.Metro.dll
 C:\Users\David\Programmieren\DesktopMagic\src\DesktopMagic\bin\Release\net5.0-windows\Xceed.Wpf.AvalonDock.Themes.VS2010.dll
@@ -186,7 +185,6 @@ C:\Users\David\Programmieren\DesktopMagic\src\DesktopMagic\bin\Release\net5.0-wi
 C:\Users\David\Programmieren\DesktopMagic\src\DesktopMagic\bin\Release\net5.0-windows\Newtonsoft.Json.dll
 C:\Users\David\Programmieren\DesktopMagic\src\DesktopMagic\bin\Release\net5.0-windows\System.Drawing.Common.dll
 C:\Users\David\Programmieren\DesktopMagic\src\DesktopMagic\bin\Release\net5.0-windows\System.Management.dll
-C:\Users\David\Programmieren\DesktopMagic\src\DesktopMagic\bin\Release\net5.0-windows\System.Text.Json.dll
 C:\Users\David\Programmieren\DesktopMagic\src\DesktopMagic\bin\Release\net5.0-windows\cs-CZ\Xceed.Wpf.AvalonDock.resources.dll
 C:\Users\David\Programmieren\DesktopMagic\src\DesktopMagic\bin\Release\net5.0-windows\de\Xceed.Wpf.AvalonDock.resources.dll
 C:\Users\David\Programmieren\DesktopMagic\src\DesktopMagic\bin\Release\net5.0-windows\es\Xceed.Wpf.AvalonDock.resources.dll
@@ -244,3 +242,4 @@ C:\Users\David\Programmieren\DesktopMagic\src\DesktopMagic\bin\Release\net5.0-wi
 C:\Users\David\Programmieren\DesktopMagic\src\DesktopMagic\bin\Release\net5.0-windows\DesktopMagic.pdb
 C:\Users\David\Programmieren\DesktopMagic\src\DesktopMagic\obj\Release\net5.0-windows\DesktopMagic.csproj.CopyComplete
 C:\Users\David\Programmieren\DesktopMagic\src\DesktopMagic\obj\Release\net5.0-windows\DesktopMagic.genruntimeconfig.cache
+C:\Users\David\Programmieren\DesktopMagic\src\DesktopMagic\bin\Release\net5.0-windows\Stone_Red-C-Sharp-Utilities.dll

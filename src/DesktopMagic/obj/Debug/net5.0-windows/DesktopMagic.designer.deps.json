@@ -6,17 +6,6 @@
   "compilationOptions": {},
   "targets": {
     ".NETCoreApp,Version=v5.0": {
-      "AlwaysUpToDate/1.0.0.2": {
-        "dependencies": {
-          "System.Text.Json": "5.0.2"
-        },
-        "runtime": {
-          "lib/netstandard2.1/AlwaysUpToDate.dll": {
-            "assemblyVersion": "1.0.0.2",
-            "fileVersion": "1.0.0.2"
-          }
-        }
-      },
       "Extended.Wpf.Toolkit/4.1.0": {
         "runtime": {
           "lib/net40/Xceed.Wpf.AvalonDock.Themes.Aero.dll": {
@@ -285,6 +274,14 @@
           }
         }
       },
+      "Stone_Red-C-Sharp-Utilities/1.0.2.1": {
+        "runtime": {
+          "lib/netstandard2.1/Stone_Red-C-Sharp-Utilities.dll": {
+            "assemblyVersion": "1.0.2.1",
+            "fileVersion": "1.0.2.1"
+          }
+        }
+      },
       "System.CodeDom/5.0.0": {
         "runtime": {
           "lib/netstandard2.0/System.CodeDom.dll": {
@@ -380,25 +377,10 @@
             "fileVersion": "5.0.20.51904"
           }
         }
-      },
-      "System.Text.Json/5.0.2": {
-        "runtime": {
-          "lib/netcoreapp3.0/System.Text.Json.dll": {
-            "assemblyVersion": "5.0.0.0",
-            "fileVersion": "5.0.521.16609"
-          }
-        }
       }
     }
   },
   "libraries": {
-    "AlwaysUpToDate/1.0.0.2": {
-      "type": "package",
-      "serviceable": true,
-      "sha512": "sha512-LUr8adUXFo86T3Ta2+U3YWVcn9bmjOCK/0QAPf2GvWLm0fLAfvsVzmZLZXVS5B01t88HAT0Ew2DH6b6M24UWzA==",
-      "path": "alwaysuptodate/1.0.0.2",
-      "hashPath": "alwaysuptodate.1.0.0.2.nupkg.sha512"
-    },
     "Extended.Wpf.Toolkit/4.1.0": {
       "type": "package",
       "serviceable": true,
@@ -532,6 +514,13 @@
       "path": "newtonsoft.json/12.0.3",
       "hashPath": "newtonsoft.json.12.0.3.nupkg.sha512"
     },
+    "Stone_Red-C-Sharp-Utilities/1.0.2.1": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-QzwH0QvsDiBvCJTFroZBhN/pMEIiz0C8TNkQci+pxCbnjfTtVkxAYsgmlshCl5oHFJh7VYDLcGAULcMBARSb+w==",
+      "path": "stone_red-c-sharp-utilities/1.0.2.1",
+      "hashPath": "stone_red-c-sharp-utilities.1.0.2.1.nupkg.sha512"
+    },
     "System.CodeDom/5.0.0": {
       "type": "package",
       "serviceable": true,
@@ -566,13 +555,6 @@
       "sha512": "sha512-t0MGLukB5WAVU9bO3MGzvlGnyJPgUlcwerXn1kzBRjwLKixT96XV0Uza41W49gVd8zEMFu9vQEFlv0IOrytICA==",
       "path": "system.security.principal.windows/5.0.0",
       "hashPath": "system.security.principal.windows.5.0.0.nupkg.sha512"
-    },
-    "System.Text.Json/5.0.2": {
-      "type": "package",
-      "serviceable": true,
-      "sha512": "sha512-I47dVIGiV6SfAyppphxqupertT/5oZkYLDCX6vC3HpOI4ZLjyoKAreUoem2ie6G0RbRuFrlqz/PcTQjfb2DOfQ==",
-      "path": "system.text.json/5.0.2",
-      "hashPath": "system.text.json.5.0.2.nupkg.sha512"
     }
   }
 }
