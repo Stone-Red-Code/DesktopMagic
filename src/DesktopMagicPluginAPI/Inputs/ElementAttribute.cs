@@ -9,7 +9,7 @@ namespace DesktopMagicPluginAPI.Inputs
         public string Name { get; }
         public int OrderIndex { get; }
 
-        public ElementAttribute(string name, int orderIndex = 0)
+        public ElementAttribute(string name = "", int orderIndex = 0)
         {
             Name = name;
             OrderIndex = orderIndex;

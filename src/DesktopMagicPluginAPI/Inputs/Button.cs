@@ -1,7 +1,15 @@
-﻿namespace DesktopMagicPluginAPI.Inputs
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace DesktopMagicPluginAPI.Inputs
 {
-    public class Heading : Element
+    public class Button : Element
     {
+        public event Action OnClick;
+
         private string _value;
 
         public string Value
@@ -17,9 +25,14 @@
             }
         }
 
-        public Heading(string value)
+        public Button(string value)
         {
             Value = value;
+        }
+
+        public void Click()
+        {
+            OnClick?.Invoke();
         }
     }
 }

@@ -423,9 +423,10 @@ namespace DesktopMagic
 
                 foreach (SettingElement settingElement in settingElements)
                 {
-                    StackPanel stackPanel = new()
+                    DockPanel stackPanel = new()
                     {
-                        Orientation = Orientation.Horizontal
+                        LastChildFill = true,
+                        HorizontalAlignment = HorizontalAlignment.Stretch
                     };
                     _ = optionsPanel.Children.Add(stackPanel);
 
@@ -440,30 +441,61 @@ namespace DesktopMagic
                     stackPanel.UpdateLayout();
                     label.UpdateLayout();
 
-                    if (settingElement.Element is DesktopMagicPluginAPI.Inputs.Heading eHeading)
+                    if (settingElement.Element is DesktopMagicPluginAPI.Inputs.Label eLabel)
                     {
-                        label.Text = eHeading.Value;
+                        label.Text = eLabel.Value;
                         label.Margin = new Thickness(0, 5, 3, 0);
-                        label.FontWeight = FontWeights.Bold;
-                        label.Width = optionsPanel.ActualWidth;
+                        label.HorizontalAlignment = HorizontalAlignment.Stretch;
                         label.TextWrapping = TextWrapping.WrapWithOverflow;
-                        eHeading.OnValueChanged += () =>
+
+                        if (eLabel.Bold)
+                        {
+                            label.FontWeight = FontWeights.Bold;
+                        }
+                        eLabel.OnValueChanged += () =>
                         {
                             Dispatcher.Invoke(() =>
                             {
-                                label.Text = eHeading.Value;
+                                label.Text = eLabel.Value;
                                 Option_ValueChanged();
                             });
                         };
+                    }
+                    else if (settingElement.Element is DesktopMagicPluginAPI.Inputs.Button eButton)
+                    {
+                        Button button = new()
+                        {
+                            Content = eButton.Value,
+                            FontSize = 10,
+                            Height = 20,
+                            Margin = new Thickness(0, 10, 0, 10),
+                            Padding = new Thickness(0),
+                            VerticalAlignment = VerticalAlignment.Center,
+                            HorizontalAlignment = HorizontalAlignment.Stretch
+                        };
+                        button.Click += (_s, _e) =>
+                        {
+                            eButton.Click();
+                        };
+                        eButton.OnValueChanged += () =>
+                        {
+                            Dispatcher.Invoke(() =>
+                            {
+                                button.Content = eButton.Value;
+                                Option_ValueChanged();
+                            });
+                        };
+
+                        _ = stackPanel.Children.Add(button);
                     }
                     else if (settingElement.Element is DesktopMagicPluginAPI.Inputs.CheckBox eCheckBox)
                     {
                         CheckBox checkBox = new()
                         {
                             IsChecked = eCheckBox.Value,
-                            Width = optionsPanel.ActualWidth - label.ActualWidth,
                             Style = (Style)FindResource("MaterialDesignDarkCheckBox"),
-                            VerticalAlignment = VerticalAlignment.Center
+                            VerticalAlignment = VerticalAlignment.Center,
+                            HorizontalAlignment = HorizontalAlignment.Stretch
                         };
                         checkBox.Click += (_s, _e) =>
                         {
@@ -486,8 +518,8 @@ namespace DesktopMagic
                         {
                             Text = eTextBox.Value,
                             TextWrapping = TextWrapping.Wrap,
-                            Width = optionsPanel.ActualWidth - label.ActualWidth,
-                            VerticalAlignment = VerticalAlignment.Center
+                            VerticalAlignment = VerticalAlignment.Center,
+                            HorizontalAlignment = HorizontalAlignment.Stretch
                         };
                         textBox.TextChanged += (_s, _e) =>
                         {
@@ -510,8 +542,8 @@ namespace DesktopMagic
                             Value = eIntegerUpDown.Value,
                             Minimum = eIntegerUpDown.Minimum,
                             Maximum = eIntegerUpDown.Maximum,
-                            Width = optionsPanel.ActualWidth - label.ActualWidth,
-                            VerticalAlignment = VerticalAlignment.Center
+                            VerticalAlignment = VerticalAlignment.Center,
+                            HorizontalAlignment = HorizontalAlignment.Stretch
                         };
                         integerUpDown.ValueChanged += (_s, _e) =>
                         {
@@ -536,8 +568,8 @@ namespace DesktopMagic
                             Maximum = eSlider.Maximum,
                             TickFrequency = 1,
                             IsSnapToTickEnabled = true,
-                            Width = optionsPanel.ActualWidth - label.ActualWidth,
-                            VerticalAlignment = VerticalAlignment.Center
+                            VerticalAlignment = VerticalAlignment.Center,
+                            HorizontalAlignment = HorizontalAlignment.Stretch
                         };
                         slider.ValueChanged += (_s, _e) =>
                         {

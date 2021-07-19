@@ -8,8 +8,11 @@ namespace DesktopMagicPlugin.Test
 {
     public class PluginScript : Plugin
     {
-        [Element("Heading")]
-        private Heading heading = new Heading("");
+        [Element]
+        private Label heading = new Label("Heading", true);
+
+        [Element]
+        private Label label = new Label("");
 
         [Element("Slider:")]
         private Slider slider = new Slider(1, 23, 4);
@@ -17,10 +20,22 @@ namespace DesktopMagicPlugin.Test
         [Element("Text:")]
         private TextBox textBox = new TextBox("abc");
 
+        [Element]
+        private Button button = new Button("Press me!");
+
+        public override int UpdateInterval { get; set; }
+
         public PluginScript()
         {
             slider.OnValueChanged += Slider_OnValueChanged;
             textBox.OnValueChanged += TextBox_OnValueChanged;
+            button.OnClick += Button_OnClick; ;
+        }
+
+        private void Button_OnClick()
+        {
+            Debug.WriteLine("Button pressed");
+            Application.UpdateWindow();
         }
 
         private void TextBox_OnValueChanged()
@@ -42,7 +57,7 @@ namespace DesktopMagicPlugin.Test
             g.Clear(Application.Color);
             g.DrawString(str, new Font("arial", 10), Brushes.Black, new PointF(0, 0));
 
-            heading.Value = str;
+            label.Value = str;
             slider.Value++;
 
             return bmp;
