@@ -14,5 +14,14 @@ namespace DesktopMagicPluginAPI.Inputs
             Name = name;
             OrderIndex = orderIndex;
         }
+
+        public ElementAttribute(int orderIndex = 0)
+        {
+            OrderIndex = orderIndex;
+        }
+
+        public ElementAttribute()
+        {
+        }
     }
 }

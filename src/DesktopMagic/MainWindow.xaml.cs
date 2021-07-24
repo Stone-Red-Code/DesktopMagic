@@ -592,6 +592,8 @@ namespace DesktopMagic
 
         private void Option_ValueChanged()
         {
+            //Plugin settings save currenty disabled. Not sure if I want to add it back in the future.
+            /*
             string pluginName = ((Tuple<string, int>)optionsComboBox.SelectedItem).Item1.ToString();
 
             if (PluginsSettings.ContainsKey(pluginName))
@@ -599,6 +601,7 @@ namespace DesktopMagic
                 string jsonSettings = JsonSerializer.Serialize(PluginsSettings[pluginName]);
                 File.WriteAllText($"{applicationDataPath}\\Plugins\\{pluginName}\\{pluginName}.save", jsonSettings);
             }
+            */
         }
 
         #endregion options
