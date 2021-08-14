@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Drawing.Imaging;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Timers;
@@ -132,9 +133,13 @@ namespace DesktopMagic
             {
                 int v = i;
                 if (v < 20)
+                {
                     v = 20;
+                }
 
-                fft.Add(Math.Abs(e.Result[i].Y * v / (100 - MainWindow.AmplifierLevel)));
+                int multiplier = 100 - MainWindow.AmplifierLevel * 2;
+                multiplier = multiplier == 0 ? 1 : multiplier;
+                fft.Add(Math.Abs(e.Result[i].Y * v / multiplier));
             }
 
             if (lastFft.Count != 0)
@@ -246,8 +251,8 @@ namespace DesktopMagic
 
                                 if (!fftIndexReverse)
                                 {
-                                    points[pointIndex + 1] = new PointF(bm.Width - 15 - 4 * pointIndex, bm.Height / 2 + value);
-                                    points[points.Length / 2 + pointIndex + 1] = new PointF(bm.Width - 15 - 4 * pointIndex, bm.Height / 2 - value);
+                                    points[pointIndex + 1] = new PointF(bm.Width - 4 * pointIndex, bm.Height / 2 + value);
+                                    points[points.Length / 2 + pointIndex + 1] = new PointF(bm.Width - 4 * pointIndex, bm.Height / 2 - value);
                                 }
                                 break;
 
@@ -337,11 +342,11 @@ namespace DesktopMagic
 
         private BitmapSource BitmapToImageSource(Bitmap bitmap)
         {
-            var bitmapData = bitmap.LockBits(
-        new Rectangle(0, 0, bitmap.Width, bitmap.Height),
-        System.Drawing.Imaging.ImageLockMode.ReadOnly, bitmap.PixelFormat);
+            BitmapData bitmapData = bitmap.LockBits(
+                new Rectangle(0, 0, bitmap.Width, bitmap.Height),
+                ImageLockMode.ReadOnly, bitmap.PixelFormat);
 
-            var bitmapSource = BitmapSource.Create(
+            BitmapSource bitmapSource = BitmapSource.Create(
                 bitmapData.Width, bitmapData.Height,
                 bitmap.HorizontalResolution, bitmap.VerticalResolution,
                 System.Windows.Media.PixelFormats.Bgra32, null,

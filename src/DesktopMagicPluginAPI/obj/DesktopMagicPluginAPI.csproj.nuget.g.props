@@ -16,4 +16,7 @@
   <PropertyGroup>
     <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
   </PropertyGroup>
+  <PropertyGroup Condition=" '$(ExcludeRestorePackageImports)' != 'true' ">
+    <PkgVsxmd Condition=" '$(PkgVsxmd)' == '' ">C:\Users\David\.nuget\packages\vsxmd\1.4.5</PkgVsxmd>
+  </PropertyGroup>
 </Project>

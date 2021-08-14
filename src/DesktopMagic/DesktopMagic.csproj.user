@@ -22,7 +22,7 @@
     <Page Update="MainWindow.xaml">
       <SubType>Designer</SubType>
     </Page>
-    <Page Update="PluginWindow.xaml">
+    <Page Update="Plugin\PluginWindow.xaml">
       <SubType>Designer</SubType>
     </Page>
     <Page Update="MusicVisualizerWindow.xaml">

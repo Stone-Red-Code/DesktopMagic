@@ -12,11 +12,11 @@
         Width="550"
         MinHeight="520"
         MinWidth="500"
+        WindowState="Minimized"
         StateChanged="Window_StateChanged"
         Loaded="Window_Loaded">
 
     <Grid x:Name="grid">
-        <!--<tb:TaskbarIcon x:Name="taskbarIcon" Visibility="Visible" ToolTipText="Helfer V4" TrayLeftMouseUp="TaskbarIcon_TrayLeftMouseUp" IconSource="icons8_volunteering_26_85L_icon.ico" Grid.RowSpan="2" />-->
         <TextBlock x:Name="textBlock" TextWrapping="Wrap" Text="0" VerticalAlignment="Top" FontFamily="Comic Sans MS" Loaded="TextBlock_Loaded" Foreground="Transparent" />
         <Grid>
             <Grid.RowDefinitions>
@@ -30,8 +30,8 @@
                 </Grid.ColumnDefinitions>
                 <DockPanel Margin="0,0,2.5,0">
                     <Grid DockPanel.Dock="Top">
-                        <Rectangle Grid.Row="1" Fill="#FFECECEC" Height="22" />
-                        <CheckBox x:Name="EditCheckBox" VerticalAlignment="Center" Grid.Row="1" Content="{DynamicResource edit}" Click="EditCheckBox_Click" Foreground="Black" BorderBrush="#FF323232" Style="{StaticResource MaterialDesignDarkCheckBox}" IsChecked="True" />
+                        <Rectangle Grid.Row="1" Fill="#FFECECEC" Height="24" />
+                        <CheckBox x:Name="EditCheckBox" VerticalAlignment="Center" Grid.Row="1" Content="{DynamicResource edit}" Click="EditCheckBox_Click" Foreground="Black" BorderBrush="#FF323232" Style="{StaticResource MaterialDesignDarkCheckBox}" IsChecked="True"/>
                     </Grid>
                     <ScrollViewer Background="#FFBBBBBB" PreviewMouseWheel="ScrollViewer_PreviewMouseWheel">
                         <StackPanel x:Name="stackPanel">
@@ -45,10 +45,10 @@
                 </DockPanel>
 
                 <DockPanel Grid.Column="1"  Margin="2.5,0,0,0">
-                    <ComboBox x:Name="optionsComboBox" DockPanel.Dock="Top"  Height="22"  SelectedIndex="0" DisplayMemberPath="Item1" SelectionChanged="OptionsComboBox_SelectionChanged" Background="#FFECECEC" />
+                    <ComboBox x:Name="optionsComboBox" DockPanel.Dock="Top" Height="24"  SelectedIndex="0" DisplayMemberPath="Item1" SelectionChanged="OptionsComboBox_SelectionChanged" Background="#FFECECEC" />
                     <ScrollViewer Background="#FFBBBBBB">
                         <Grid>
-                            <StackPanel x:Name="optionsPanel" Margin="3,3,3,0" Visibility="Collapsed">
+                            <StackPanel x:Name="optionsPanel" Margin="3,3,3,0" HorizontalAlignment="Stretch" Visibility="Collapsed" >
                             </StackPanel>
                             <StackPanel x:Name="musicVisualizerOptionsPanel" Margin="3,3,3,0">
                                 <Label Content="{DynamicResource color}" HorizontalAlignment="Left" VerticalAlignment="Top" Padding="0,1" />
@@ -61,7 +61,7 @@
                                 <CheckBox x:Name="mirrorPlugineCheckBox" Content="{DynamicResource mirrorPlugine}" Click="MirrorPlugineCheckBox_Click" Style="{StaticResource MaterialDesignDarkCheckBox}" />
                                 <CheckBox x:Name="linePlugineCheckBox" Content="{DynamicResource linePlugine}" Click="LinePlugineCheckBox_Click" Style="{StaticResource MaterialDesignDarkCheckBox}" />
                                 <Label Content="{DynamicResource amplifier}" HorizontalAlignment="Left" VerticalAlignment="Top" Padding="0,1" />
-                                <Slider x:Name="amplifierLevelSlider" Margin="-2,0,10,0" HorizontalAlignment="Stretch" VerticalAlignment="Top" ValueChanged="AmplifierLevelSlider_ValueChanged" Maximum="99" SmallChange="1" LargeChange="5" Foreground="Gray" />
+                                <Slider x:Name="amplifierLevelSlider" Margin="-2,0,10,0" HorizontalAlignment="Stretch" VerticalAlignment="Top" ValueChanged="AmplifierLevelSlider_ValueChanged" Maximum="50" Minimum="-50" SmallChange="1" LargeChange="5" Foreground="Gray" />
                                 <Label x:Name="amplifierLevelLabel" Content="Label" HorizontalAlignment="Left" VerticalAlignment="Top" Padding="0,1" />
                             </StackPanel>
                         </Grid>
