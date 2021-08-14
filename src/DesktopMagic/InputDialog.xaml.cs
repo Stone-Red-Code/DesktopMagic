@@ -1,6 +1,4 @@
-﻿using System;
-using System.Threading;
-using System.Windows;
+﻿using System.Windows;
 
 namespace DesktopMagic
 {
@@ -14,7 +12,6 @@ namespace DesktopMagic
             InitializeComponent();
             label.Content = content;
             this.Title = title;
-            SetLanguageDictionary();
         }
 
         public string ResponseText
@@ -23,30 +20,14 @@ namespace DesktopMagic
             set { textBox.Text = value; }
         }
 
-        private void OkButton_Click(object sender, RoutedEventArgs e)
+        private void okButton_Click(object sender, RoutedEventArgs e)
         {
             DialogResult = true;
         }
 
-        private void CancelButton_Click(object sender, RoutedEventArgs e)
+        private void cancelButton_Click(object sender, RoutedEventArgs e)
         {
             DialogResult = false;
-        }
-
-        private void SetLanguageDictionary()
-        {
-            ResourceDictionary dict = new ResourceDictionary();
-            string currentCulture = Thread.CurrentThread.CurrentCulture.ToString();
-
-            if (currentCulture.Contains("de"))
-            {
-                dict.Source = new Uri("..\\Resources\\StringResources.de.xaml", UriKind.Relative);
-            }
-            else
-            {
-                dict.Source = new Uri("..\\Resources\\StringResources.en.xaml", UriKind.Relative);
-            }
-            this.Resources.MergedDictionaries.Add(dict);
         }
     }
 }

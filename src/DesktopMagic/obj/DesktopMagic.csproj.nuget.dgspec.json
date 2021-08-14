@@ -48,12 +48,6 @@
             "System.Drawing.Common": {
               "target": "Package",
               "version": "[5.0.2, )"
-            },
-            "Vsxmd": {
-              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
-              "suppressParent": "All",
-              "target": "Package",
-              "version": "[1.4.5, )"
             }
           },
           "imports": [
@@ -120,6 +114,10 @@
         "net5.0-windows7.0": {
           "targetAlias": "net5.0-windows",
           "dependencies": {
+            "AlwaysUpToDate": {
+              "target": "Package",
+              "version": "[1.0.0.2, )"
+            },
             "Extended.Wpf.Toolkit": {
               "target": "Package",
               "version": "[4.1.0, )"
@@ -139,10 +137,6 @@
             "NAudio": {
               "target": "Package",
               "version": "[2.0.0, )"
-            },
-            "Stone_Red-C-Sharp-Utilities": {
-              "target": "Package",
-              "version": "[1.0.2.1, )"
             },
             "System.Management": {
               "target": "Package",

@@ -12,12 +12,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DesktopMagicPluginAPI", "De
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DesktopMagicPlugin.Test", "DesktopMagicPlugin.Test\DesktopMagicPlugin.Test.csproj", "{EF8407AB-28AE-4B5E-AC2E-D4C4A575FBC7}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DesktopMagic.Installer", "DesktopMagic.Installer\DesktopMagic.Installer.csproj", "{A06BD685-7F92-4799-846B-3EC38345108E}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{10A138D6-41F0-4DBB-BC39-D93467B4D982}"
-	ProjectSection(SolutionItems) = preProject
-		.editorconfig = .editorconfig
-	EndProjectSection
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DesktopMagic.Installer", "DesktopMagic.Installer\DesktopMagic.Installer.csproj", "{A06BD685-7F92-4799-846B-3EC38345108E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

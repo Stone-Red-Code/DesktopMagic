@@ -21,8 +21,6 @@
     <system:String x:Key="amplifier">Signal Amplification:</system:String>
     <system:String x:Key="newLayout">New Layout</system:String>
     <system:String x:Key="deleteLayout">Delete Layout</system:String>
-    <system:String x:Key="ok">Ok</system:String>
-    <system:String x:Key="cancel">Cancel</system:String>
     <col:ArrayList x:Key="musicVisualizerOptionsComboboxItems">
         <system:String>Bottom</system:String>
         <system:String>Middle</system:String>

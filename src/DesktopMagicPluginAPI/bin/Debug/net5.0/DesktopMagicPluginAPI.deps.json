@@ -6,10 +6,9 @@
   "compilationOptions": {},
   "targets": {
     ".NETCoreApp,Version=v5.0": {
-      "DesktopMagicPluginAPI/0.0.0.1": {
+      "DesktopMagicPluginAPI/1.0.0": {
         "dependencies": {
-          "System.Drawing.Common": "5.0.2",
-          "Vsxmd": "1.4.5"
+          "System.Drawing.Common": "5.0.2"
         },
         "runtime": {
           "DesktopMagicPluginAPI.dll": {}
@@ -59,12 +58,11 @@
             "fileVersion": "5.0.421.11614"
           }
         }
-      },
-      "Vsxmd/1.4.5": {}
+      }
     }
   },
   "libraries": {
-    "DesktopMagicPluginAPI/0.0.0.1": {
+    "DesktopMagicPluginAPI/1.0.0": {
       "type": "project",
       "serviceable": false,
       "sha512": ""
@@ -89,13 +87,6 @@
       "sha512": "sha512-rvr/M1WPf24ljpvvrVd74+NdjRUJu1bBkspkZcnzSZnmAUQWSvanlQ0k/hVHk+cHufZbZfu7vOh/vYc0q5Uu/A==",
       "path": "system.drawing.common/5.0.2",
       "hashPath": "system.drawing.common.5.0.2.nupkg.sha512"
-    },
-    "Vsxmd/1.4.5": {
-      "type": "package",
-      "serviceable": true,
-      "sha512": "sha512-mvTZKIhKUFvcjYv/p9dxgSFHrAlNFIemT3ai1XAFV4yJYGu/6e73NgzfHwhDi0QevuYURVdd+p088CG6KQFENg==",
-      "path": "vsxmd/1.4.5",
-      "hashPath": "vsxmd.1.4.5.nupkg.sha512"
     }
   }
 }

@@ -8,7 +8,7 @@
     ".NETCoreApp,Version=v5.0": {
       "DesktopMagicPlugin.Test/1.0.0": {
         "dependencies": {
-          "DesktopMagicPluginAPI": "0.0.0.1",
+          "DesktopMagicPluginAPI": "1.0.0",
           "System.Drawing.Common": "5.0.2"
         },
         "runtime": {
@@ -60,7 +60,7 @@
           }
         }
       },
-      "DesktopMagicPluginAPI/0.0.0.1": {
+      "DesktopMagicPluginAPI/1.0.0": {
         "dependencies": {
           "System.Drawing.Common": "5.0.2"
         },
@@ -97,7 +97,7 @@
       "path": "system.drawing.common/5.0.2",
       "hashPath": "system.drawing.common.5.0.2.nupkg.sha512"
     },
-    "DesktopMagicPluginAPI/0.0.0.1": {
+    "DesktopMagicPluginAPI/1.0.0": {
       "type": "project",
       "serviceable": false,
       "sha512": ""
