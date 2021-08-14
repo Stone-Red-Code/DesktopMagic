@@ -52,10 +52,10 @@ namespace DesktopMagicPlugin.Test
         {
             string str = $"{textBox.Value}: {slider.Value}";
 
-            Bitmap bmp = new Bitmap(100, 100);
+            Bitmap bmp = new Bitmap(1000, 1000);
             using Graphics g = Graphics.FromImage(bmp);
             g.Clear(Application.Color);
-            g.DrawString(str, new Font("arial", 10), Brushes.Black, new PointF(0, 0));
+            g.DrawString(str, new Font(Application.Font, 100), Brushes.Black, new PointF(0, 0));
 
             label.Value = str;
             slider.Value++;
