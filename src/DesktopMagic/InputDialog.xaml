@@ -8,9 +8,13 @@
         Title="InputDialog" Height="152.812" Width="322.812"
         ResizeMode="NoResize">
     <Grid>
-        <Button x:Name="okButton" Content="Ok" HorizontalAlignment="Left" Margin="126,76,0,0" VerticalAlignment="Top" Width="76" Click="okButton_Click"/>
-        <Button x:Name="cancelButton" Content="Abbrechen" HorizontalAlignment="Left" Margin="213,76,0,0" VerticalAlignment="Top" Width="76" Click="cancelButton_Click"/>
-        <Label x:Name="label" Content="Label" HorizontalAlignment="Left" Margin="10,15,0,0" VerticalAlignment="Top" Padding="0"/>
-        <TextBox x:Name="textBox" HorizontalAlignment="Left" Height="23" Margin="10,36,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="279" VerticalContentAlignment="Center"/>
+        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Margin="10">
+            <Label x:Name="label" Content="Label" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+            <TextBox x:Name="textBox" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" VerticalAlignment="Top" Width="279" VerticalContentAlignment="Center"/>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,0,0">
+                <Button x:Name="okButton" Content="{DynamicResource ok }" HorizontalAlignment="Left" Margin="0,0,10,0" VerticalAlignment="Top" Width="100" Click="OkButton_Click" Cursor="Hand"/>
+                <Button x:Name="cancelButton" Content="{DynamicResource cancel }" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top" Width="100" Click="CancelButton_Click"/>
+            </StackPanel>
+        </StackPanel>
     </Grid>
 </Window>

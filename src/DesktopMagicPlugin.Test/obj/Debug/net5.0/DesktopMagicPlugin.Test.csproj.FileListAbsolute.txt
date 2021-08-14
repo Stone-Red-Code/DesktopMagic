@@ -13,3 +13,18 @@ C:\Users\David\Google Drive\Programmieren\DesktopMagic\DesktopMagicPlugin.Test\o
 C:\Users\David\Google Drive\Programmieren\DesktopMagic\DesktopMagicPlugin.Test\obj\Debug\net5.0\DesktopMagicPlugin.Test.dll
 C:\Users\David\Google Drive\Programmieren\DesktopMagic\DesktopMagicPlugin.Test\obj\Debug\net5.0\ref\DesktopMagicPlugin.Test.dll
 C:\Users\David\Google Drive\Programmieren\DesktopMagic\DesktopMagicPlugin.Test\obj\Debug\net5.0\DesktopMagicPlugin.Test.pdb
+C:\Users\David\Programmieren\DesktopMagic\src\DesktopMagicPlugin.Test\bin\Debug\net5.0\DesktopMagicPlugin.Test.deps.json
+C:\Users\David\Programmieren\DesktopMagic\src\DesktopMagicPlugin.Test\bin\Debug\net5.0\DesktopMagicPlugin.Test.dll
+C:\Users\David\Programmieren\DesktopMagic\src\DesktopMagicPlugin.Test\bin\Debug\net5.0\ref\DesktopMagicPlugin.Test.dll
+C:\Users\David\Programmieren\DesktopMagic\src\DesktopMagicPlugin.Test\bin\Debug\net5.0\DesktopMagicPlugin.Test.pdb
+C:\Users\David\Programmieren\DesktopMagic\src\DesktopMagicPlugin.Test\bin\Debug\net5.0\DesktopMagicPluginAPI.dll
+C:\Users\David\Programmieren\DesktopMagic\src\DesktopMagicPlugin.Test\bin\Debug\net5.0\DesktopMagicPluginAPI.pdb
+C:\Users\David\Programmieren\DesktopMagic\src\DesktopMagicPlugin.Test\obj\Debug\net5.0\DesktopMagicPlugin.Test.csproj.AssemblyReference.cache
+C:\Users\David\Programmieren\DesktopMagic\src\DesktopMagicPlugin.Test\obj\Debug\net5.0\DesktopMagicPlugin.Test.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\David\Programmieren\DesktopMagic\src\DesktopMagicPlugin.Test\obj\Debug\net5.0\DesktopMagicPlugin.Test.AssemblyInfoInputs.cache
+C:\Users\David\Programmieren\DesktopMagic\src\DesktopMagicPlugin.Test\obj\Debug\net5.0\DesktopMagicPlugin.Test.AssemblyInfo.cs
+C:\Users\David\Programmieren\DesktopMagic\src\DesktopMagicPlugin.Test\obj\Debug\net5.0\DesktopMagicPlugin.Test.csproj.CoreCompileInputs.cache
+C:\Users\David\Programmieren\DesktopMagic\src\DesktopMagicPlugin.Test\obj\Debug\net5.0\DesktopMagicPlugin.Test.csproj.CopyComplete
+C:\Users\David\Programmieren\DesktopMagic\src\DesktopMagicPlugin.Test\obj\Debug\net5.0\DesktopMagicPlugin.Test.dll
+C:\Users\David\Programmieren\DesktopMagic\src\DesktopMagicPlugin.Test\obj\Debug\net5.0\ref\DesktopMagicPlugin.Test.dll
+C:\Users\David\Programmieren\DesktopMagic\src\DesktopMagicPlugin.Test\obj\Debug\net5.0\DesktopMagicPlugin.Test.pdb

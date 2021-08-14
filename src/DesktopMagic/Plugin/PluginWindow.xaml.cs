@@ -1,7 +1,9 @@
 ﻿using DesktopMagicPluginAPI;
+using DesktopMagicPluginAPI.Inputs;
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -27,11 +29,14 @@ namespace DesktopMagic
 
         private Plugin pluginClassInstance;
         private readonly string pluginName = "";
-        private int optionsIndex = 0;
         private string pluginFolderPath = "";
         private bool stop = false;
 
-        public PluginWindow(string _PluginName)
+        public event Action PluginLoaded;
+
+        public event Action OnExit;
+
+        public PluginWindow(string pluginName)
         {
             InitializeComponent();
 
@@ -54,7 +59,7 @@ namespace DesktopMagic
             t.Elapsed += Elapsed;
             t.Start();
 
-            pluginName = _PluginName;
+            this.pluginName = pluginName;
 
             key = Registry.CurrentUser.CreateSubKey(@"Software\" + MainWindow.AppName);
             this.Top = double.Parse(key.GetValue(pluginName + "WindowTop", 100).ToString());
@@ -92,7 +97,7 @@ namespace DesktopMagic
                 {
                     panel.Visibility = Visibility.Visible;
                     new WindowPos().SetIsLocked(this, false);
-                    tileBar.CaptionHeight = this.ActualHeight - 10;
+                    tileBar.CaptionHeight = tileBar.CaptionHeight = this.ActualHeight - 10 < 0 ? 0 : this.ActualHeight - 10;
                     this.ResizeMode = ResizeMode.CanResize;
                 }
                 else
@@ -123,6 +128,7 @@ namespace DesktopMagic
             else
             {
                 MessageBox.Show("File does not exist!", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                Exit();
                 return;
             }
 
@@ -130,9 +136,11 @@ namespace DesktopMagic
             {
                 sourceText = File.ReadAllText(PluginPath);
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                MessageBox.Show("File could not be read:\n" + e.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MainWindow.Logger.Log(ex.ToString(), "Plugin");
+                MessageBox.Show("File could not be read:\n" + ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                Exit();
                 return;
             }
 
@@ -140,11 +148,14 @@ namespace DesktopMagic
             {
                 ExecuteSource(sourceText);
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                MessageBox.Show("File execution error:\n" + e, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MainWindow.Logger.Log(ex.ToString(), "Plugin");
+                MessageBox.Show("File execution error:\n" + ex, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                Exit();
                 return;
             }
+            PluginLoaded?.Invoke();
         }
 
         private void ExecuteSource(string sourceText)
@@ -156,6 +167,7 @@ namespace DesktopMagic
             if (instanceType is null)
             {
                 MessageBox.Show($"The \"PluginScript\" class could not be found!", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                Exit();
                 return;
             }
 
@@ -168,30 +180,18 @@ namespace DesktopMagic
             else
             {
                 MessageBox.Show($"The \"PluginScript\" class has to inherit from \"{nameof(DesktopMagicPluginAPI)}.{nameof(Plugin)}\"", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                Exit();
                 return;
             }
 
             if (instanceType.Namespace == nameof(DesktopMagic))
             {
                 MessageBox.Show("NO!", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                Exit();
                 return;
             }
 
-            string[,] optionsArray = pluginClassInstance.Inputs;
-
-            int index = 0;
-            List<Tuple<string, string[,]>> optionsList = new();
-            optionsList.AddRange(MainWindow.OptionsList);
-            foreach (Tuple<string, string[,]> option in optionsList)
-            {
-                if (option.Item1 == pluginName)
-                {
-                    optionsIndex = index;
-                    LoadOptions(optionsArray);
-                    break;
-                }
-                index++;
-            }
+            LoadOptions(instance);
 
             valueTimer = new System.Timers.Timer();
             valueTimer.Interval = 1000;
@@ -206,35 +206,41 @@ namespace DesktopMagic
             }
         }
 
-        private void LoadOptions(string[,] optionsArray)
+        private void LoadOptions(object instance)
         {
-            if (File.Exists($"{pluginFolderPath}\\{pluginName}.save"))
-            {
-                string[] lines = File.ReadAllLines($"{pluginFolderPath}\\{pluginName}.save");
+            Debug.WriteLine(instance.GetType().FullName);
+            FieldInfo[] props = instance.GetType().GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.GetField);
 
-                for (int i = 0; i < lines.Length; i++)
+            List<SettingElement> settingElements = new List<SettingElement>();
+            foreach (FieldInfo prop in props)
+            {
+                if (prop.GetValue(instance) is Element element)
                 {
-                    string[] splitOptions = lines[i].Split('\t');
-                    for (int j = 0; j < optionsArray.GetLength(0); j++)
+                    object[] attrs = prop.GetCustomAttributes(true);
+                    foreach (object attr in attrs)
                     {
-                        if (optionsArray[j, 2] == splitOptions[2])
+                        if (attr is ElementAttribute elementAttribute)
                         {
-                            optionsArray[j, 0] = splitOptions[0];
+                            settingElements.Add(new SettingElement(element, elementAttribute.Name, elementAttribute.OrderIndex));
                             break;
                         }
                     }
                 }
             }
-            MainWindow.OptionsList[optionsIndex] = new Tuple<string, string[,]>(pluginName, optionsArray);
+
+            settingElements = settingElements.OrderBy(x => x.OrderIndex).ToList();
+            if (MainWindow.PluginsSettings.ContainsKey(pluginName))
+            {
+                MainWindow.PluginsSettings[pluginName] = settingElements;
+            }
+            else
+            {
+                MainWindow.PluginsSettings.Add(pluginName, settingElements);
+            }
         }
 
         private void ValueTimer_Elapsed(object sender, ElapsedEventArgs e)
         {
-            if (MainWindow.OptionsList[optionsIndex].Item2.GetLength(0) > 0)
-            {
-                pluginClassInstance.Inputs = MainWindow.OptionsList[optionsIndex].Item2;
-            }
-
             //Set Arguments
             SolidBrush newBrush = (SolidBrush)MainWindow.GlobalSystemColor;
             Color color = newBrush.Color;
@@ -270,6 +276,14 @@ namespace DesktopMagic
             return bitmapSource;
         }
 
+        private void Exit()
+        {
+            Dispatcher.Invoke(() =>
+            {
+                OnExit?.Invoke();
+            });
+        }
+
         #region Window Events
 
         private void Window_LocationChanged(object sender, EventArgs e)
@@ -303,11 +317,6 @@ namespace DesktopMagic
         #endregion Window Events
 
         #region Plugin Methods
-
-        public void OptionChanged(int optionIndex)
-        {
-            pluginClassInstance.OnOptionChanged(optionIndex);
-        }
 
         private void Clicked(System.Drawing.Point positon)
         {

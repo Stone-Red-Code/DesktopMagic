@@ -50,6 +50,12 @@
             "rid": "win"
           }
         }
+      },
+      "Vsxmd/1.4.5": {
+        "type": "package",
+        "build": {
+          "build/Vsxmd.targets": {}
+        }
       }
     }
   },
@@ -141,42 +147,60 @@
         "useSharedDesignerContext.txt",
         "version.txt"
       ]
+    },
+    "Vsxmd/1.4.5": {
+      "sha512": "mvTZKIhKUFvcjYv/p9dxgSFHrAlNFIemT3ai1XAFV4yJYGu/6e73NgzfHwhDi0QevuYURVdd+p088CG6KQFENg==",
+      "type": "package",
+      "path": "vsxmd/1.4.5",
+      "hasTools": true,
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "LICENSE",
+        "build/Vsxmd.targets",
+        "tools/linux-musl-x64/Vsxmd",
+        "tools/linux-x64/Vsxmd",
+        "tools/osx-x64/Vsxmd",
+        "tools/win-x64/Vsxmd.exe",
+        "tools/win-x86/Vsxmd.exe",
+        "vsxmd.1.4.5.nupkg.sha512",
+        "vsxmd.nuspec"
+      ]
     }
   },
   "projectFileDependencyGroups": {
     "net5.0": [
-      "System.Drawing.Common >= 5.0.2"
+      "System.Drawing.Common >= 5.0.2",
+      "Vsxmd >= 1.4.5"
     ]
   },
   "packageFolders": {
     "C:\\Users\\David\\.nuget\\packages\\": {},
-    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {},
-    "C:\\Program Files (x86)\\Microsoft\\Xamarin\\NuGet\\": {}
+    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "0.0.0.1",
     "restore": {
-      "projectUniqueName": "C:\\Users\\David\\Google Drive\\Programmieren\\DesktopMagic\\src\\DesktopMagicPluginAPI\\DesktopMagicPluginAPI.csproj",
+      "projectUniqueName": "C:\\Users\\David\\Programmieren\\DesktopMagic\\src\\DesktopMagicPluginAPI\\DesktopMagicPluginAPI.csproj",
       "projectName": "DesktopMagicPluginAPI",
-      "projectPath": "C:\\Users\\David\\Google Drive\\Programmieren\\DesktopMagic\\src\\DesktopMagicPluginAPI\\DesktopMagicPluginAPI.csproj",
+      "projectPath": "C:\\Users\\David\\Programmieren\\DesktopMagic\\src\\DesktopMagicPluginAPI\\DesktopMagicPluginAPI.csproj",
       "packagesPath": "C:\\Users\\David\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\David\\Google Drive\\Programmieren\\DesktopMagic\\src\\DesktopMagicPluginAPI\\obj\\",
+      "outputPath": "C:\\Users\\David\\Programmieren\\DesktopMagic\\src\\DesktopMagicPluginAPI\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
-        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages",
-        "C:\\Program Files (x86)\\Microsoft\\Xamarin\\NuGet\\"
+        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
       ],
       "configFilePaths": [
         "C:\\Users\\David\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\Xamarin.Offline.config"
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
         "net5.0"
       ],
       "sources": {
         "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+        "C:\\Users\\David\\AppData\\Roaming\\Cosmos User Kit\\packages\\": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
@@ -198,6 +222,12 @@
           "System.Drawing.Common": {
             "target": "Package",
             "version": "[5.0.2, )"
+          },
+          "Vsxmd": {
+            "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+            "suppressParent": "All",
+            "target": "Package",
+            "version": "[1.4.5, )"
           }
         },
         "imports": [
@@ -215,7 +245,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.301\\RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.303\\RuntimeIdentifierGraph.json"
       }
     }
   }

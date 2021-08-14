@@ -3,4 +3,7 @@
   <PropertyGroup>
     <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
   </PropertyGroup>
+  <ImportGroup Condition=" '$(ExcludeRestorePackageImports)' != 'true' ">
+    <Import Project="$(NuGetPackageRoot)vsxmd\1.4.5\build\Vsxmd.targets" Condition="Exists('$(NuGetPackageRoot)vsxmd\1.4.5\build\Vsxmd.targets')" />
+  </ImportGroup>
 </Project>

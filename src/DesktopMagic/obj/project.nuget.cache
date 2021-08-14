@@ -1,10 +1,9 @@
 {
   "version": 2,
-  "dgSpecHash": "tlThlZfHuTZwobJjU75y3KvStqi+h3O2tjISpgJdLKJYu5qrwpxJb1thGk5nDPbXqcgoO6C3ixMf9KFSQ304qw==",
+  "dgSpecHash": "JZM99dJz2p7TbTCWZTdLYPMlr/Leh3du+SbhEWPYBkbAvGKox5ZMY2/JgbTSTrEW46p/gcElepoKSMvKCVbMPQ==",
   "success": true,
-  "projectFilePath": "C:\\Users\\David\\Google Drive\\Programmieren\\DesktopMagic\\src\\DesktopMagic\\DesktopMagic.csproj",
+  "projectFilePath": "C:\\Users\\David\\Programmieren\\DesktopMagic\\src\\DesktopMagic\\DesktopMagic.csproj",
   "expectedPackageFiles": [
-    "C:\\Users\\David\\.nuget\\packages\\alwaysuptodate\\1.0.0.2\\alwaysuptodate.1.0.0.2.nupkg.sha512",
     "C:\\Users\\David\\.nuget\\packages\\extended.wpf.toolkit\\4.1.0\\extended.wpf.toolkit.4.1.0.nupkg.sha512",
     "C:\\Users\\David\\.nuget\\packages\\google.apis\\1.51.0\\google.apis.1.51.0.nupkg.sha512",
     "C:\\Users\\David\\.nuget\\packages\\google.apis.auth\\1.51.0\\google.apis.auth.1.51.0.nupkg.sha512",
@@ -24,12 +23,12 @@
     "C:\\Users\\David\\.nuget\\packages\\naudio.winforms\\2.0.0\\naudio.winforms.2.0.0.nupkg.sha512",
     "C:\\Users\\David\\.nuget\\packages\\naudio.winmm\\2.0.0\\naudio.winmm.2.0.0.nupkg.sha512",
     "C:\\Users\\David\\.nuget\\packages\\newtonsoft.json\\12.0.3\\newtonsoft.json.12.0.3.nupkg.sha512",
+    "C:\\Users\\David\\.nuget\\packages\\stone_red-c-sharp-utilities\\1.0.2.1\\stone_red-c-sharp-utilities.1.0.2.1.nupkg.sha512",
     "C:\\Users\\David\\.nuget\\packages\\system.codedom\\5.0.0\\system.codedom.5.0.0.nupkg.sha512",
     "C:\\Users\\David\\.nuget\\packages\\system.drawing.common\\5.0.2\\system.drawing.common.5.0.2.nupkg.sha512",
     "C:\\Users\\David\\.nuget\\packages\\system.management\\5.0.0\\system.management.5.0.0.nupkg.sha512",
     "C:\\Users\\David\\.nuget\\packages\\system.security.accesscontrol\\5.0.0\\system.security.accesscontrol.5.0.0.nupkg.sha512",
     "C:\\Users\\David\\.nuget\\packages\\system.security.principal.windows\\5.0.0\\system.security.principal.windows.5.0.0.nupkg.sha512",
-    "C:\\Users\\David\\.nuget\\packages\\system.text.json\\5.0.2\\system.text.json.5.0.2.nupkg.sha512",
     "C:\\Users\\David\\.nuget\\packages\\desktopmagicpluginapi\\0.0.0.1\\desktopmagicpluginapi.0.0.0.1.nupkg.sha512"
   ],
   "logs": [

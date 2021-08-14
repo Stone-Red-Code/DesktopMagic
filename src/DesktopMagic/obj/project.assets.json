@@ -2,18 +2,6 @@
   "version": 3,
   "targets": {
     "net5.0-windows7.0": {
-      "AlwaysUpToDate/1.0.0.2": {
-        "type": "package",
-        "dependencies": {
-          "System.Text.Json": "5.0.2"
-        },
-        "compile": {
-          "lib/netstandard2.1/AlwaysUpToDate.dll": {}
-        },
-        "runtime": {
-          "lib/netstandard2.1/AlwaysUpToDate.dll": {}
-        }
-      },
       "Extended.Wpf.Toolkit/4.1.0": {
         "type": "package",
         "compile": {
@@ -303,6 +291,15 @@
           "lib/netstandard2.0/Newtonsoft.Json.dll": {}
         }
       },
+      "Stone_Red-C-Sharp-Utilities/1.0.2.1": {
+        "type": "package",
+        "compile": {
+          "lib/netstandard2.1/Stone_Red-C-Sharp-Utilities.dll": {}
+        },
+        "runtime": {
+          "lib/netstandard2.1/Stone_Red-C-Sharp-Utilities.dll": {}
+        }
+      },
       "System.CodeDom/5.0.0": {
         "type": "package",
         "compile": {
@@ -392,15 +389,6 @@
           }
         }
       },
-      "System.Text.Json/5.0.2": {
-        "type": "package",
-        "compile": {
-          "lib/netcoreapp3.0/System.Text.Json.dll": {}
-        },
-        "runtime": {
-          "lib/netcoreapp3.0/System.Text.Json.dll": {}
-        }
-      },
       "DesktopMagicPluginAPI/0.0.0.1": {
         "type": "project",
         "framework": ".NETCoreApp,Version=v5.0",
@@ -417,19 +405,6 @@
     }
   },
   "libraries": {
-    "AlwaysUpToDate/1.0.0.2": {
-      "sha512": "LUr8adUXFo86T3Ta2+U3YWVcn9bmjOCK/0QAPf2GvWLm0fLAfvsVzmZLZXVS5B01t88HAT0Ew2DH6b6M24UWzA==",
-      "type": "package",
-      "path": "alwaysuptodate/1.0.0.2",
-      "files": [
-        ".nupkg.metadata",
-        ".signature.p7s",
-        "LICENSE",
-        "alwaysuptodate.1.0.0.2.nupkg.sha512",
-        "alwaysuptodate.nuspec",
-        "lib/netstandard2.1/AlwaysUpToDate.dll"
-      ]
-    },
     "Extended.Wpf.Toolkit/4.1.0": {
       "sha512": "wXyuHE2ut8OIDUgi1dfyX1qVDQClc4ARmM9yfB0MAshudfaWhtXedWR34zSCIN2gu7CPzE3+u9iLvBv5uBxROg==",
       "type": "package",
@@ -855,6 +830,20 @@
         "packageIcon.png"
       ]
     },
+    "Stone_Red-C-Sharp-Utilities/1.0.2.1": {
+      "sha512": "QzwH0QvsDiBvCJTFroZBhN/pMEIiz0C8TNkQci+pxCbnjfTtVkxAYsgmlshCl5oHFJh7VYDLcGAULcMBARSb+w==",
+      "type": "package",
+      "path": "stone_red-c-sharp-utilities/1.0.2.1",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "LICENSE",
+        "lib/netstandard2.1/Stone_Red-C-Sharp-Utilities.dll",
+        "lib/netstandard2.1/Stone_Red-C-Sharp-Utilities.xml",
+        "stone_red-c-sharp-utilities.1.0.2.1.nupkg.sha512",
+        "stone_red-c-sharp-utilities.nuspec"
+      ]
+    },
     "System.CodeDom/5.0.0": {
       "sha512": "JPJArwA1kdj8qDAkY2XGjSWoYnqiM7q/3yRNkt6n28Mnn95MuEGkZXUbPBf7qc3IjwrGY5ttQon7yqHZyQJmOQ==",
       "type": "package",
@@ -1048,28 +1037,6 @@
         "version.txt"
       ]
     },
-    "System.Text.Json/5.0.2": {
-      "sha512": "I47dVIGiV6SfAyppphxqupertT/5oZkYLDCX6vC3HpOI4ZLjyoKAreUoem2ie6G0RbRuFrlqz/PcTQjfb2DOfQ==",
-      "type": "package",
-      "path": "system.text.json/5.0.2",
-      "files": [
-        ".nupkg.metadata",
-        ".signature.p7s",
-        "Icon.png",
-        "LICENSE.TXT",
-        "THIRD-PARTY-NOTICES.TXT",
-        "lib/net461/System.Text.Json.dll",
-        "lib/net461/System.Text.Json.xml",
-        "lib/netcoreapp3.0/System.Text.Json.dll",
-        "lib/netcoreapp3.0/System.Text.Json.xml",
-        "lib/netstandard2.0/System.Text.Json.dll",
-        "lib/netstandard2.0/System.Text.Json.xml",
-        "system.text.json.5.0.2.nupkg.sha512",
-        "system.text.json.nuspec",
-        "useSharedDesignerContext.txt",
-        "version.txt"
-      ]
-    },
     "DesktopMagicPluginAPI/0.0.0.1": {
       "type": "project",
       "path": "../DesktopMagicPluginAPI/DesktopMagicPluginAPI.csproj",
@@ -1078,53 +1045,51 @@
   },
   "projectFileDependencyGroups": {
     "net5.0-windows7.0": [
-      "AlwaysUpToDate >= 1.0.0.2",
       "DesktopMagicPluginAPI >= 0.0.0.1",
       "Extended.Wpf.Toolkit >= 4.1.0",
       "Google.Apis.Calendar.v3 >= 1.51.0.2312",
       "Hardcodet.NotifyIcon.Wpf >= 1.1.0",
       "MaterialDesignThemes >= 4.0.0",
       "NAudio >= 2.0.0",
+      "Stone_Red-C-Sharp-Utilities >= 1.0.2.1",
       "System.Management >= 5.0.0"
     ]
   },
   "packageFolders": {
     "C:\\Users\\David\\.nuget\\packages\\": {},
-    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {},
-    "C:\\Program Files (x86)\\Microsoft\\Xamarin\\NuGet\\": {}
+    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\David\\Google Drive\\Programmieren\\DesktopMagic\\src\\DesktopMagic\\DesktopMagic.csproj",
+      "projectUniqueName": "C:\\Users\\David\\Programmieren\\DesktopMagic\\src\\DesktopMagic\\DesktopMagic.csproj",
       "projectName": "DesktopMagic",
-      "projectPath": "C:\\Users\\David\\Google Drive\\Programmieren\\DesktopMagic\\src\\DesktopMagic\\DesktopMagic.csproj",
+      "projectPath": "C:\\Users\\David\\Programmieren\\DesktopMagic\\src\\DesktopMagic\\DesktopMagic.csproj",
       "packagesPath": "C:\\Users\\David\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\David\\Google Drive\\Programmieren\\DesktopMagic\\src\\DesktopMagic\\obj\\",
+      "outputPath": "C:\\Users\\David\\Programmieren\\DesktopMagic\\src\\DesktopMagic\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
-        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages",
-        "C:\\Program Files (x86)\\Microsoft\\Xamarin\\NuGet\\"
+        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
       ],
       "configFilePaths": [
         "C:\\Users\\David\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config",
-        "C:\\Program Files (x86)\\NuGet\\Config\\Xamarin.Offline.config"
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
         "net5.0-windows7.0"
       ],
       "sources": {
         "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+        "C:\\Users\\David\\AppData\\Roaming\\Cosmos User Kit\\packages\\": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
         "net5.0-windows7.0": {
           "targetAlias": "net5.0-windows",
           "projectReferences": {
-            "C:\\Users\\David\\Google Drive\\Programmieren\\DesktopMagic\\src\\DesktopMagicPluginAPI\\DesktopMagicPluginAPI.csproj": {
-              "projectPath": "C:\\Users\\David\\Google Drive\\Programmieren\\DesktopMagic\\src\\DesktopMagicPluginAPI\\DesktopMagicPluginAPI.csproj"
+            "C:\\Users\\David\\Programmieren\\DesktopMagic\\src\\DesktopMagicPluginAPI\\DesktopMagicPluginAPI.csproj": {
+              "projectPath": "C:\\Users\\David\\Programmieren\\DesktopMagic\\src\\DesktopMagicPluginAPI\\DesktopMagicPluginAPI.csproj"
             }
           }
         }
@@ -1139,10 +1104,6 @@
       "net5.0-windows7.0": {
         "targetAlias": "net5.0-windows",
         "dependencies": {
-          "AlwaysUpToDate": {
-            "target": "Package",
-            "version": "[1.0.0.2, )"
-          },
           "Extended.Wpf.Toolkit": {
             "target": "Package",
             "version": "[4.1.0, )"
@@ -1162,6 +1123,10 @@
           "NAudio": {
             "target": "Package",
             "version": "[2.0.0, )"
+          },
+          "Stone_Red-C-Sharp-Utilities": {
+            "target": "Package",
+            "version": "[1.0.2.1, )"
           },
           "System.Management": {
             "target": "Package",
@@ -1186,7 +1151,7 @@
             "privateAssets": "none"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.301\\RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.303\\RuntimeIdentifierGraph.json"
       }
     }
   },

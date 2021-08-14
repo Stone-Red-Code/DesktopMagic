@@ -12,8 +12,6 @@ namespace DesktopMagic
 {
     internal class CalendarManagment
     {
-        // If Pluginifying these scopes, delete your previously saved credentials
-        // at ~/.credentials/calendar-dotnet-quickstart.json
         private static string[] Scopes = { CalendarService.Scope.CalendarReadonly };
 
         private static string ApplicationName = "Google Calendar API .NET " + MainWindow.AppName;
@@ -24,6 +22,9 @@ namespace DesktopMagic
             List<string> upcomingEventTimes = new List<string>();
             UserCredential credential;
             Console.WriteLine("1");
+
+            if (!File.Exists("credentials.json"))
+                return (new(), new());
             using (var stream =
                 new FileStream("credentials.json", FileMode.Open, FileAccess.Read))
             {

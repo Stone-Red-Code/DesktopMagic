@@ -1,33 +1,32 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\David\\Google Drive\\Programmieren\\DesktopMagic\\src\\DesktopMagic\\DesktopMagic.csproj": {}
+    "C:\\Users\\David\\Programmieren\\DesktopMagic\\src\\DesktopMagic\\DesktopMagic.csproj": {}
   },
   "projects": {
-    "C:\\Users\\David\\Google Drive\\Programmieren\\DesktopMagic\\src\\DesktopMagicPluginAPI\\DesktopMagicPluginAPI.csproj": {
+    "C:\\Users\\David\\Programmieren\\DesktopMagic\\src\\DesktopMagicPluginAPI\\DesktopMagicPluginAPI.csproj": {
       "version": "0.0.0.1",
       "restore": {
-        "projectUniqueName": "C:\\Users\\David\\Google Drive\\Programmieren\\DesktopMagic\\src\\DesktopMagicPluginAPI\\DesktopMagicPluginAPI.csproj",
+        "projectUniqueName": "C:\\Users\\David\\Programmieren\\DesktopMagic\\src\\DesktopMagicPluginAPI\\DesktopMagicPluginAPI.csproj",
         "projectName": "DesktopMagicPluginAPI",
-        "projectPath": "C:\\Users\\David\\Google Drive\\Programmieren\\DesktopMagic\\src\\DesktopMagicPluginAPI\\DesktopMagicPluginAPI.csproj",
+        "projectPath": "C:\\Users\\David\\Programmieren\\DesktopMagic\\src\\DesktopMagicPluginAPI\\DesktopMagicPluginAPI.csproj",
         "packagesPath": "C:\\Users\\David\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\David\\Google Drive\\Programmieren\\DesktopMagic\\src\\DesktopMagicPluginAPI\\obj\\",
+        "outputPath": "C:\\Users\\David\\Programmieren\\DesktopMagic\\src\\DesktopMagicPluginAPI\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
-          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages",
-          "C:\\Program Files (x86)\\Microsoft\\Xamarin\\NuGet\\"
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
           "C:\\Users\\David\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Xamarin.Offline.config"
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
           "net5.0"
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Users\\David\\AppData\\Roaming\\Cosmos User Kit\\packages\\": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -49,6 +48,12 @@
             "System.Drawing.Common": {
               "target": "Package",
               "version": "[5.0.2, )"
+            },
+            "Vsxmd": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[1.4.5, )"
             }
           },
           "imports": [
@@ -66,42 +71,41 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.301\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.303\\RuntimeIdentifierGraph.json"
         }
       }
     },
-    "C:\\Users\\David\\Google Drive\\Programmieren\\DesktopMagic\\src\\DesktopMagic\\DesktopMagic.csproj": {
+    "C:\\Users\\David\\Programmieren\\DesktopMagic\\src\\DesktopMagic\\DesktopMagic.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\David\\Google Drive\\Programmieren\\DesktopMagic\\src\\DesktopMagic\\DesktopMagic.csproj",
+        "projectUniqueName": "C:\\Users\\David\\Programmieren\\DesktopMagic\\src\\DesktopMagic\\DesktopMagic.csproj",
         "projectName": "DesktopMagic",
-        "projectPath": "C:\\Users\\David\\Google Drive\\Programmieren\\DesktopMagic\\src\\DesktopMagic\\DesktopMagic.csproj",
+        "projectPath": "C:\\Users\\David\\Programmieren\\DesktopMagic\\src\\DesktopMagic\\DesktopMagic.csproj",
         "packagesPath": "C:\\Users\\David\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\David\\Google Drive\\Programmieren\\DesktopMagic\\src\\DesktopMagic\\obj\\",
+        "outputPath": "C:\\Users\\David\\Programmieren\\DesktopMagic\\src\\DesktopMagic\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
-          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages",
-          "C:\\Program Files (x86)\\Microsoft\\Xamarin\\NuGet\\"
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
           "C:\\Users\\David\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Xamarin.Offline.config"
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
           "net5.0-windows7.0"
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Users\\David\\AppData\\Roaming\\Cosmos User Kit\\packages\\": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net5.0-windows7.0": {
             "targetAlias": "net5.0-windows",
             "projectReferences": {
-              "C:\\Users\\David\\Google Drive\\Programmieren\\DesktopMagic\\src\\DesktopMagicPluginAPI\\DesktopMagicPluginAPI.csproj": {
-                "projectPath": "C:\\Users\\David\\Google Drive\\Programmieren\\DesktopMagic\\src\\DesktopMagicPluginAPI\\DesktopMagicPluginAPI.csproj"
+              "C:\\Users\\David\\Programmieren\\DesktopMagic\\src\\DesktopMagicPluginAPI\\DesktopMagicPluginAPI.csproj": {
+                "projectPath": "C:\\Users\\David\\Programmieren\\DesktopMagic\\src\\DesktopMagicPluginAPI\\DesktopMagicPluginAPI.csproj"
               }
             }
           }
@@ -116,10 +120,6 @@
         "net5.0-windows7.0": {
           "targetAlias": "net5.0-windows",
           "dependencies": {
-            "AlwaysUpToDate": {
-              "target": "Package",
-              "version": "[1.0.0.2, )"
-            },
             "Extended.Wpf.Toolkit": {
               "target": "Package",
               "version": "[4.1.0, )"
@@ -139,6 +139,10 @@
             "NAudio": {
               "target": "Package",
               "version": "[2.0.0, )"
+            },
+            "Stone_Red-C-Sharp-Utilities": {
+              "target": "Package",
+              "version": "[1.0.2.1, )"
             },
             "System.Management": {
               "target": "Package",
@@ -163,7 +167,7 @@
               "privateAssets": "none"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.301\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.303\\RuntimeIdentifierGraph.json"
         }
       }
     }

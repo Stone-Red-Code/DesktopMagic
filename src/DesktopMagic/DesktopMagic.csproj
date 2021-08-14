@@ -15,12 +15,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="AlwaysUpToDate" Version="1.0.0.2" />
     <PackageReference Include="Extended.Wpf.Toolkit" Version="4.1.0" />
     <PackageReference Include="Google.Apis.Calendar.v3" Version="1.51.0.2312" />
     <PackageReference Include="Hardcodet.NotifyIcon.Wpf" Version="1.1.0" />
     <PackageReference Include="MaterialDesignThemes" Version="4.0.0" />
     <PackageReference Include="NAudio" Version="2.0.0" />
+    <PackageReference Include="Stone_Red-C-Sharp-Utilities" Version="1.0.2.1" />
     <PackageReference Include="System.Management" Version="5.0.0" />
   </ItemGroup>
 
