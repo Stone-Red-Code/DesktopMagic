@@ -21,7 +21,7 @@ UsedUserAreasWarning=no
 ; Remove the following line to run in administrative install mode (install for all users.)
 PrivilegesRequired=lowest
 PrivilegesRequiredOverridesAllowed=dialog
-OutputBaseFilename=DesktopMagic
+OutputBaseFilename=DesktopMagic-Installer
 OutputDir=.
 Compression=lzma
 SolidCompression=yes
