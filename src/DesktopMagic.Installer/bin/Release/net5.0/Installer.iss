@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "DesktopMagic"
-#define MyAppVersion "0"
+#define MyAppVersion "0.0.2.0"
 #define MyAppPublisher "Stone_Red"
 #define MyAppExeName "DesktopMagic.exe"
 
