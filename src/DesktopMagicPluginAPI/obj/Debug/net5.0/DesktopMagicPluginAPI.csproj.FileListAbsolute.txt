@@ -22,3 +22,4 @@ C:\Users\David\Programmieren\DesktopMagic\src\DesktopMagicPluginAPI\obj\Debug\ne
 C:\Users\David\Programmieren\DesktopMagic\src\DesktopMagicPluginAPI\obj\Debug\net5.0\ref\DesktopMagicPluginAPI.dll
 C:\Users\David\Programmieren\DesktopMagic\src\DesktopMagicPluginAPI\obj\Debug\net5.0\DesktopMagicPluginAPI.pdb
 C:\Users\David\Programmieren\DesktopMagic\src\DesktopMagicPluginAPI\bin\Debug\net5.0\DesktopMagicPluginAPI.xml
+C:\Users\David\Programmieren\DesktopMagic\src\DesktopMagicPluginAPI\obj\Debug\net5.0\DesktopMagicPluginAPI.csproj.AssemblyReference.cache
