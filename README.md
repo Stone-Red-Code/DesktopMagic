@@ -4,7 +4,7 @@
 > You can add useful elements to your desktop like a clock, a audio visualizer or even your own plugins!
 
 - [Releases](https://github.com/Stone-Red-Code/DesktopMagic/releases)
-- [Plugin Documentation](https://github.com/Stone-Red-Code/DesktopMagic/wiki) (coming soon)
+- [Plugin Documentation](https://github.com/Stone-Red-Code/DesktopMagic/wiki)
 - [Licence](https://github.com/Stone-Red-Code/DesktopMagic/blob/main/LICENSE)
 
 ## Usage
