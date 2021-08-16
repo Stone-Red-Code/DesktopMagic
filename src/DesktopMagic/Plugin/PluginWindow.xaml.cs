@@ -162,11 +162,17 @@ namespace DesktopMagic
         {
             byte[] assemblyBytes = File.ReadAllBytes($"{pluginFolderPath}\\{pluginName}.dll");
             Assembly dll = Assembly.Load(assemblyBytes);
-            Type instanceType = dll.GetTypes().FirstOrDefault(type => type.Name == "PluginScript");
+            Type instanceType = dll.GetTypes().FirstOrDefault(type => type.GetTypeInfo().BaseType == typeof(Plugin));
+
+            foreach (var item in dll.GetTypes())
+            {
+                Debug.WriteLine(item.Name);
+                Debug.WriteLine(typeof(Plugin).Name);
+            }
 
             if (instanceType is null)
             {
-                MessageBox.Show($"The \"PluginScript\" class could not be found!", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"The \"Plugin\" class could not be found! It has to inherit from \"{typeof(Plugin).FullName}\"", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 Exit();
                 return;
             }
@@ -179,7 +185,7 @@ namespace DesktopMagic
             }
             else
             {
-                MessageBox.Show($"The \"PluginScript\" class has to inherit from \"{nameof(DesktopMagicPluginAPI)}.{nameof(Plugin)}\"", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show($"The \"Plugin\" class has to inherit from \"{typeof(Plugin).FullName}\"", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 Exit();
                 return;
             }

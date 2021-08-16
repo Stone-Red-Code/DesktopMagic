@@ -93,7 +93,7 @@ namespace DesktopMagic {
                 return;
             }
             _contentLoaded = true;
-            System.Uri resourceLocater = new System.Uri("/DesktopMagic;component/musicvisualizerwindow.xaml", System.UriKind.Relative);
+            System.Uri resourceLocater = new System.Uri("/DesktopMagic;V1.0.0.0;component/musicvisualizerwindow.xaml", System.UriKind.Relative);
             
             #line 1 "..\..\..\MusicVisualizerWindow.xaml"
             System.Windows.Application.LoadComponent(this, resourceLocater);

@@ -28,3 +28,4 @@ C:\Users\David\Programmieren\DesktopMagic\src\DesktopMagicPlugin.Test\obj\Debug\
 C:\Users\David\Programmieren\DesktopMagic\src\DesktopMagicPlugin.Test\obj\Debug\net5.0\DesktopMagicPlugin.Test.dll
 C:\Users\David\Programmieren\DesktopMagic\src\DesktopMagicPlugin.Test\obj\Debug\net5.0\ref\DesktopMagicPlugin.Test.dll
 C:\Users\David\Programmieren\DesktopMagic\src\DesktopMagicPlugin.Test\obj\Debug\net5.0\DesktopMagicPlugin.Test.pdb
+C:\Users\David\Programmieren\DesktopMagic\src\DesktopMagicPlugin.Test\bin\Debug\net5.0\DesktopMagicPluginAPI.xml

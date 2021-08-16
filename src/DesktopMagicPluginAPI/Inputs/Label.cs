@@ -8,7 +8,7 @@
         private string _value;
 
         /// <summary>
-        /// Gets or sets the text associated with this control.
+        /// Gets or sets the text associated with this <see cref="Label"/>.
         /// </summary>
         public string Value
         {
@@ -31,8 +31,8 @@
         /// <summary>
         /// Initializes a new instance of the <see cref="Label"/> class with the provided <paramref name="value"/>.
         /// </summary>
-        /// <param name="value"></param>
-        /// <param name="bold"></param>
+        /// <param name="value">The text associated with this <see cref="Label"/></param>
+        /// <param name="bold">A value indicating whether the content of the <see cref="Label"/> is bold or not.</param>
         public Label(string value, bool bold = false)
         {
             Value = value;

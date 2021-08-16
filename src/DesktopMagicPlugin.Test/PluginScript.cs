@@ -6,7 +6,7 @@ using System.Drawing;
 
 namespace DesktopMagicPlugin.Test
 {
-    public class PluginScript : Plugin
+    public class KEK : Plugin
     {
         [Element]
         private Label heading = new Label("Heading", true);
@@ -25,11 +25,11 @@ namespace DesktopMagicPlugin.Test
 
         public override int UpdateInterval { get; set; }
 
-        public PluginScript()
+        public KEK()
         {
             slider.OnValueChanged += Slider_OnValueChanged;
             textBox.OnValueChanged += TextBox_OnValueChanged;
-            button.OnClick += Button_OnClick; ;
+            button.OnClick += Button_OnClick;
         }
 
         private void Button_OnClick()
