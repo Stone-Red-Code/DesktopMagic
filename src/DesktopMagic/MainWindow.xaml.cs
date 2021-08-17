@@ -82,23 +82,24 @@ namespace DesktopMagic
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
             Logger.ClearLogFile();
-            Logger.Log("Create ApplicationData Folder", "Main");
+
             if (!Directory.Exists(applicationDataPath))
             {
                 _ = Directory.CreateDirectory(applicationDataPath);
             }
+            Logger.Log("Created ApplicationData Folder", "Main");
 
-            Logger.Log("Create Plugins Folder", "Main");
             if (!Directory.Exists(applicationDataPath + "\\Plugins"))
             {
                 _ = Directory.CreateDirectory(applicationDataPath + "\\Plugins");
             }
+            Logger.Log("Created Plugins Folder", "Main");
 
-            Logger.Log("Create layouts.save file", "Main");
             if (!File.Exists(applicationDataPath + "\\layouts.save"))
             {
                 File.WriteAllText(applicationDataPath + "\\layouts.save", ";" + (string)FindResource("default"));
             }
+            Logger.Log("Created layouts.save file", "Main");
 
             _ = optionsComboBox.Items.Add(new Tuple<string, int>((string)FindResource("musicVisualizer"), 0));
 
