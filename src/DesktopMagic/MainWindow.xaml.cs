@@ -61,59 +61,73 @@ namespace DesktopMagic
 
         public MainWindow()
         {
-            logFilePath = applicationDataPath + "\\Log.txt";
-            Logger = new Logger(LogTarget.File, logFilePath, "{<dateTime>:HH:mm:ss} | {<level>,-7} | {<source>,-15} | {<lineNumber>,-4} | {<memberName>,10} | {<message>}");
-            key = Registry.CurrentUser.CreateSubKey(@"Software\" + AppName);
+            try
+            {
+                logFilePath = applicationDataPath + "\\Log.txt";
+                Logger = new Logger(LogTarget.File, logFilePath, "{<dateTime>:HH:mm:ss} | {<level>,-7} | {<source>,-15} | {<lineNumber>,-4} | {<memberName>,10} | {<message>}");
+                key = Registry.CurrentUser.CreateSubKey(@"Software\" + AppName);
 
-            Stream iconStream = Application.GetResourceStream(new Uri("pack://application:,,,/DesktopMagic;component/icon.ico")).Stream;
-            notifyIcon.Click += TaskbarIcon_TrayLeftClick;
-            notifyIcon.Visible = true;
-            notifyIcon.Text = AppName;
-            notifyIcon.Icon = new System.Drawing.Icon(iconStream);
+                Stream iconStream = Application.GetResourceStream(new Uri("pack://application:,,,/DesktopMagic;component/icon.ico")).Stream;
+                notifyIcon.Click += TaskbarIcon_TrayLeftClick;
+                notifyIcon.Visible = true;
+                notifyIcon.Text = AppName;
+                notifyIcon.Icon = new System.Drawing.Icon(iconStream);
 
-            InitializeComponent();
+                InitializeComponent();
 
-            SetLanguageDictionary();
-            this.Title = AppName;
+                SetLanguageDictionary();
+                this.Title = AppName;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.ToString());
+            }
         }
 
         #region load
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            Logger.ClearLogFile();
-
-            if (!Directory.Exists(applicationDataPath))
+            try
             {
-                _ = Directory.CreateDirectory(applicationDataPath);
-            }
-            Logger.Log("Created ApplicationData Folder", "Main");
+                Logger.ClearLogFile();
 
-            if (!Directory.Exists(applicationDataPath + "\\Plugins"))
+                if (!Directory.Exists(applicationDataPath))
+                {
+                    _ = Directory.CreateDirectory(applicationDataPath);
+                }
+                Logger.Log("Created ApplicationData Folder", "Main");
+
+                if (!Directory.Exists(applicationDataPath + "\\Plugins"))
+                {
+                    _ = Directory.CreateDirectory(applicationDataPath + "\\Plugins");
+                }
+                Logger.Log("Created Plugins Folder", "Main");
+
+                if (!File.Exists(applicationDataPath + "\\layouts.save"))
+                {
+                    File.WriteAllText(applicationDataPath + "\\layouts.save", ";" + (string)FindResource("default"));
+                }
+                Logger.Log("Created layouts.save file", "Main");
+
+                _ = optionsComboBox.Items.Add(new Tuple<string, int>((string)FindResource("musicVisualizer"), 0));
+
+                //Write To Log File and Load Elements
+
+                Logger.Log("Loading Plugin names", "Main");
+                LoadPlugins();
+                Logger.Log("Loading Layout names", "Main");
+                LoadLayoutNames();
+                Logger.Log("Loading Layout", "Main");
+                LoadLayout();
+
+                loaded = true;
+                Logger.Log("Window Loaded", "Main");
+            }
+            catch (Exception ex)
             {
-                _ = Directory.CreateDirectory(applicationDataPath + "\\Plugins");
+                MessageBox.Show(ex.ToString());
             }
-            Logger.Log("Created Plugins Folder", "Main");
-
-            if (!File.Exists(applicationDataPath + "\\layouts.save"))
-            {
-                File.WriteAllText(applicationDataPath + "\\layouts.save", ";" + (string)FindResource("default"));
-            }
-            Logger.Log("Created layouts.save file", "Main");
-
-            _ = optionsComboBox.Items.Add(new Tuple<string, int>((string)FindResource("musicVisualizer"), 0));
-
-            //Write To Log File and Load Elements
-
-            Logger.Log("Loading Plugin names", "Main");
-            LoadPlugins();
-            Logger.Log("Loading Layout names", "Main");
-            LoadLayoutNames();
-            Logger.Log("Loading Layout", "Main");
-            LoadLayout();
-
-            loaded = true;
-            Logger.Log("Window Loaded", "Main");
         }
 
         private void LoadPlugins()
