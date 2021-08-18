@@ -4,6 +4,55 @@
         <name>DesktopMagicPluginAPI</name>
     </assembly>
     <members>
+        <member name="T:DesktopMagicPluginAPI.Drawing.GraphicsExtentions">
+            <summary>
+            Extentions for the <see cref="T:System.Drawing.Graphics"/> class.
+            </summary>
+        </member>
+        <member name="M:DesktopMagicPluginAPI.Drawing.GraphicsExtentions.DrawStringMonospace(System.Drawing.Graphics,System.String,System.Drawing.Font,System.Drawing.Brush,System.Single,System.Single)">
+            <summary>
+            Draws the specified text string at the specified location with the specified <see cref="T:System.Drawing.Brush"/> and <see cref="T:System.Drawing.Font"/> objects.
+            </summary>
+            <param name="graphics">Graphics object.</param>
+            <param name="s">String to draw.</param>
+            <param name="font"><see cref="T:System.Drawing.Font"/> that defines the text format of the string.</param>
+            <param name="brush"><see cref="T:System.Drawing.Brush"/> that determines the color and texture of the drawn text.</param>
+            <param name="x">The x-coordinate of the upper-left corner of the drawn text.</param>
+            <param name="y">The y-coordinate of the upper-left corner of the drawn text.</param>
+        </member>
+        <member name="M:DesktopMagicPluginAPI.Drawing.GraphicsExtentions.DrawStringMonospace(System.Drawing.Graphics,System.String,System.Drawing.Font,System.Drawing.Brush,System.Drawing.PointF)">
+            <summary>
+            Draws the specified text string at the specified location with the specified <see cref="T:System.Drawing.Brush"/> and <see cref="T:System.Drawing.Font"/> objects.
+            </summary>
+            <param name="graphics">Graphics object.</param>
+            <param name="s">String to draw.</param>
+            <param name="font"><see cref="T:System.Drawing.Font"/> that defines the text format of the string.</param>
+            <param name="brush"><see cref="T:System.Drawing.Brush"/> that determines the color and texture of the drawn text.</param>
+            <param name="point"><see cref="T:System.Drawing.PointF"/> structure that specifies the upper-left corner of the drawn text.</param>
+        </member>
+        <member name="M:DesktopMagicPluginAPI.Drawing.GraphicsExtentions.DrawStringFixedWidth(System.Drawing.Graphics,System.String,System.Drawing.Font,System.Drawing.Brush,System.Single,System.Single,System.Single)">
+            <summary>
+            Draws the specified text string at the specified location with the specified <see cref="T:System.Drawing.Brush"/> and <see cref="T:System.Drawing.Font"/> objects.
+            </summary>
+            <param name="graphics">Graphics object.</param>
+            <param name="s">String to draw.</param>
+            <param name="font"><see cref="T:System.Drawing.Font"/> that defines the text format of the string.</param>
+            <param name="brush"><see cref="T:System.Drawing.Brush"/> that determines the color and texture of the drawn text.</param>
+            <param name="x">The x-coordinate of the upper-left corner of the drawn text.</param>
+            <param name="y">The y-coordinate of the upper-left corner of the drawn text.</param>
+            /// <param name="width">The specified width.</param>
+        </member>
+        <member name="M:DesktopMagicPluginAPI.Drawing.GraphicsExtentions.DrawStringFixedWidth(System.Drawing.Graphics,System.String,System.Drawing.Font,System.Drawing.Brush,System.Drawing.PointF,System.Single)">
+            <summary>
+            Draws the specified text string at the specified location with the specified <see cref="T:System.Drawing.Brush"/> and <see cref="T:System.Drawing.Font"/> objects.
+            </summary>
+            <param name="graphics">Graphics object.</param>
+            <param name="s">String to draw.</param>
+            <param name="font"><see cref="T:System.Drawing.Font"/> that defines the text format of the string.</param>
+            <param name="brush"><see cref="T:System.Drawing.Brush"/> that determines the color and texture of the drawn text.</param>
+            <param name="point"><see cref="T:System.Drawing.PointF"/> structure that specifies the upper-left corner of the drawn text.</param>
+            <param name="width">The specified width.</param>
+        </member>
         <member name="T:DesktopMagicPluginAPI.Inputs.Button">
             <summary>
             Represents a button control.
@@ -48,17 +97,17 @@
         </member>
         <member name="T:DesktopMagicPluginAPI.Inputs.Element">
             <summary>
-            The element base class
+            The element base class.
             </summary>
         </member>
         <member name="E:DesktopMagicPluginAPI.Inputs.Element.OnValueChanged">
             <summary>
-            Occurs when the value has been changed
+            Occurs when the value has been changed.
             </summary>
         </member>
         <member name="M:DesktopMagicPluginAPI.Inputs.Element.ValueChanged">
             <summary>
-            Triggers the <see cref="E:DesktopMagicPluginAPI.Inputs.Element.OnValueChanged"/> event
+            Triggers the <see cref="E:DesktopMagicPluginAPI.Inputs.Element.OnValueChanged"/> event.
             </summary>
         </member>
         <member name="T:DesktopMagicPluginAPI.Inputs.ElementAttribute">
@@ -128,7 +177,7 @@
         </member>
         <member name="P:DesktopMagicPluginAPI.Inputs.Label.Value">
             <summary>
-            Gets or sets the text associated with this control.
+            Gets or sets the text associated with this <see cref="T:DesktopMagicPluginAPI.Inputs.Label"/>.
             </summary>
         </member>
         <member name="P:DesktopMagicPluginAPI.Inputs.Label.Bold">
@@ -140,8 +189,8 @@
             <summary>
             Initializes a new instance of the <see cref="T:DesktopMagicPluginAPI.Inputs.Label"/> class with the provided <paramref name="value"/>.
             </summary>
-            <param name="value"></param>
-            <param name="bold"></param>
+            <param name="value">The text associated with this <see cref="T:DesktopMagicPluginAPI.Inputs.Label"/></param>
+            <param name="bold">A value indicating whether the content of the <see cref="T:DesktopMagicPluginAPI.Inputs.Label"/> is bold or not.</param>
         </member>
         <member name="T:DesktopMagicPluginAPI.Inputs.Slider">
             <summary>
@@ -178,14 +227,14 @@
         </member>
         <member name="P:DesktopMagicPluginAPI.Inputs.TextBox.Value">
             <summary>
-            Gets or sets the text associated with this control.
+            Gets or sets the text associated with this <see cref="T:DesktopMagicPluginAPI.Inputs.TextBox"/>.
             </summary>
         </member>
         <member name="M:DesktopMagicPluginAPI.Inputs.TextBox.#ctor(System.String)">
             <summary>
             Initializes a new instance of the <see cref="T:DesktopMagicPluginAPI.Inputs.TextBox"/> class with the provided <paramref name="value"/>.
             </summary>
-            <param name="value"></param>
+            <param name="value">The text associated with this control.</param>
         </member>
         <member name="T:DesktopMagicPluginAPI.IPluginData">
             <summary>
