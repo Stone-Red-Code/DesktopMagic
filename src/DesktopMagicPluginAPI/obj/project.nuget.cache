@@ -1,0 +1,16 @@
+{
+  "version": 2,
+  "dgSpecHash": "ztYU0cVoZINBHAaAPNy5M0w/MqUUs2P1PxmiG36fzd1MSKmhHYayWyQa0H6apXODMcjRL5wdpujRtbMCjjfpmA==",
+  "success": true,
+  "projectFilePath": "C:\\Users\\David\\Programmieren\\DesktopMagic\\src\\DesktopMagicPluginAPI\\DesktopMagicPluginAPI.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\David\\.nuget\\packages\\microsoft.netcore.platforms\\5.0.0\\microsoft.netcore.platforms.5.0.0.nupkg.sha512",
+    "C:\\Users\\David\\.nuget\\packages\\microsoft.win32.systemevents\\5.0.0\\microsoft.win32.systemevents.5.0.0.nupkg.sha512",
+    "C:\\Users\\David\\.nuget\\packages\\system.drawing.common\\5.0.2\\system.drawing.common.5.0.2.nupkg.sha512",
+    "C:\\Users\\David\\.nuget\\packages\\vsxmd\\1.4.5\\vsxmd.1.4.5.nupkg.sha512",
+    "C:\\Users\\David\\.nuget\\packages\\microsoft.netcore.app.runtime.win-x86\\5.0.9\\microsoft.netcore.app.runtime.win-x86.5.0.9.nupkg.sha512",
+    "C:\\Users\\David\\.nuget\\packages\\microsoft.windowsdesktop.app.runtime.win-x86\\5.0.9\\microsoft.windowsdesktop.app.runtime.win-x86.5.0.9.nupkg.sha512",
+    "C:\\Users\\David\\.nuget\\packages\\microsoft.aspnetcore.app.runtime.win-x86\\5.0.9\\microsoft.aspnetcore.app.runtime.win-x86.5.0.9.nupkg.sha512"
+  ],
+  "logs": []
+}
