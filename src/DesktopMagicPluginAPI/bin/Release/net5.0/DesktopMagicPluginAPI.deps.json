@@ -6,7 +6,7 @@
   "compilationOptions": {},
   "targets": {
     ".NETCoreApp,Version=v5.0": {
-      "DesktopMagicPluginAPI/0.0.0.1": {
+      "DesktopMagicPluginAPI/0.0.0.2": {
         "dependencies": {
           "System.Drawing.Common": "5.0.2",
           "Vsxmd": "1.4.5"
@@ -64,7 +64,7 @@
     }
   },
   "libraries": {
-    "DesktopMagicPluginAPI/0.0.0.1": {
+    "DesktopMagicPluginAPI/0.0.0.2": {
       "type": "project",
       "serviceable": false,
       "sha512": ""

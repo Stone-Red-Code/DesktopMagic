@@ -1,66 +1,39 @@
 ﻿using DesktopMagicPluginAPI;
 using DesktopMagicPluginAPI.Inputs;
-using System;
-using System.Diagnostics;
+using DesktopMagicPluginAPI.Drawing;
 using System.Drawing;
 
 namespace DesktopMagicPlugin.Test
 {
-    public class KEK : Plugin
+    public class InputExamplePlugin : Plugin
     {
-        [Element]
-        private Label heading = new Label("Heading", true);
+        public override int UpdateInterval { get; set; } = 0;
 
-        [Element]
-        private Label label = new Label("");
+        [Element("Text:")] //Mark the property as element with the specified description
+        private TextBox textBox = new TextBox("abc"); //Create a text box with the specified default value.
 
-        [Element("Slider:")]
-        private Slider slider = new Slider(1, 23, 4);
-
-        [Element("Text:")]
-        private TextBox textBox = new TextBox("abc");
-
-        [Element]
-        private Button button = new Button("Press me!");
-
-        public override int UpdateInterval { get; set; }
-
-        public KEK()
+        public InputExamplePlugin()
         {
-            slider.OnValueChanged += Slider_OnValueChanged;
-            textBox.OnValueChanged += TextBox_OnValueChanged;
-            button.OnClick += Button_OnClick;
-        }
-
-        private void Button_OnClick()
-        {
-            Debug.WriteLine("Button pressed");
-            Application.UpdateWindow();
+            textBox.OnValueChanged += TextBox_OnValueChanged; //Add an event handler to the "OnValueChanged" event.
         }
 
         private void TextBox_OnValueChanged()
         {
-            Debug.WriteLine("TextBox value changed:" + textBox.Value);
-        }
-
-        private void Slider_OnValueChanged()
-        {
-            Debug.WriteLine("Slider value changed:" + slider.Value);
+            Application.UpdateWindow(); //Update the pugin window. (Calls the "Main" method.)
         }
 
         public override Bitmap Main()
         {
-            string str = $"{textBox.Value}: {slider.Value}";
-
             Bitmap bmp = new Bitmap(1000, 1000);
-            using Graphics g = Graphics.FromImage(bmp);
-            g.Clear(Application.Color);
-            g.DrawString(str, new Font(Application.Font, 100), Brushes.Black, new PointF(0, 0));
 
-            label.Value = str;
-            slider.Value++;
+            using (Graphics g = Graphics.FromImage(bmp))
+            {
+                g.Clear(Application.Color); //Set the background color to the color specified in the Desktop Magic application.
 
-            return bmp;
+                g.DrawStringFixedWidth(textBox.Value, new Font(Application.Font, 100), Brushes.Black, new PointF(0, 0), 120); //Draw the value of the text box to the image.
+            }
+
+            return bmp; //Return the image.
         }
     }
 }
