@@ -255,7 +255,10 @@ namespace DesktopMagic
 
             Bitmap result = pluginClassInstance.Main();
 
-            valueTimer.Interval = pluginClassInstance.UpdateInterval;
+            if (pluginClassInstance.UpdateInterval > 0)
+            {
+                valueTimer.Interval = pluginClassInstance.UpdateInterval;
+            }
 
             //Update Image
             Dispatcher.Invoke(() =>
