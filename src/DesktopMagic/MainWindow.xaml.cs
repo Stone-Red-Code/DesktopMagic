@@ -72,6 +72,7 @@ namespace DesktopMagic
                 notifyIcon.Visible = true;
                 notifyIcon.Text = AppName;
                 notifyIcon.Icon = new System.Drawing.Icon(iconStream);
+                notifyIcon.ContextMenuStrip = new System.Windows.Forms.ContextMenuStrip();
 
                 InitializeComponent();
 

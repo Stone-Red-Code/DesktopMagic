@@ -28,7 +28,7 @@ namespace DesktopMagicPluginAPI
         Point WindowPosition { get; }
 
         /// <summary>
-        /// Updates the plugin window
+        /// Updates the plugin window.
         /// </summary>
         void UpdateWindow();
     }

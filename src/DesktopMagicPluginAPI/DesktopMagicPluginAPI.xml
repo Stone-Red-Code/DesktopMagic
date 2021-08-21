@@ -263,17 +263,17 @@
         </member>
         <member name="M:DesktopMagicPluginAPI.IPluginData.UpdateWindow">
             <summary>
-            Updates the plugin window
+            Updates the plugin window.
             </summary>
         </member>
         <member name="T:DesktopMagicPluginAPI.Plugin">
             <summary>
-            The plugin class
+            The plugin class.
             </summary>
         </member>
         <member name="P:DesktopMagicPluginAPI.Plugin.Application">
             <summary>
-            Informations about the main application
+            Informations about the main application.
             </summary>
         </member>
         <member name="P:DesktopMagicPluginAPI.Plugin.UpdateInterval">

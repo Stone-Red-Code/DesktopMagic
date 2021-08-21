@@ -338,7 +338,7 @@ Gets the window size of the main application.
 
 ##### Summary
 
-Updates the plugin window
+Updates the plugin window.
 
 ##### Parameters
 
@@ -445,14 +445,14 @@ DesktopMagicPluginAPI
 
 ##### Summary
 
-The plugin class
+The plugin class.
 
 <a name='P-DesktopMagicPluginAPI-Plugin-Application'></a>
 ### Application `property`
 
 ##### Summary
 
-Informations about the main application
+Informations about the main application.
 
 <a name='P-DesktopMagicPluginAPI-Plugin-UpdateInterval'></a>
 ### UpdateInterval `property`

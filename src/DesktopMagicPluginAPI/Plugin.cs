@@ -4,14 +4,14 @@ using System.Drawing;
 namespace DesktopMagicPluginAPI
 {
     /// <summary>
-    /// The plugin class
+    /// The plugin class.
     /// </summary>
     public abstract class Plugin
     {
         private IPluginData application = null;
 
         /// <summary>
-        /// Informations about the main application
+        /// Informations about the main application.
         /// </summary>
         public IPluginData Application
         {

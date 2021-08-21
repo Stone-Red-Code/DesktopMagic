@@ -13,6 +13,7 @@ using System.Threading;
 using System.Timers;
 using System.Windows;
 using System.Windows.Interop;
+using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
 namespace DesktopMagic
@@ -249,10 +250,12 @@ namespace DesktopMagic
         {
             //Set Arguments
             SolidBrush newBrush = (SolidBrush)MainWindow.GlobalSystemColor;
-            Color color = newBrush.Color;
+            System.Drawing.Color color = newBrush.Color;
             string font = MainWindow.GlobalFont;
 
             Bitmap result = pluginClassInstance.Main();
+
+            valueTimer.Interval = pluginClassInstance.UpdateInterval;
 
             //Update Image
             Dispatcher.Invoke(() =>
@@ -312,12 +315,20 @@ namespace DesktopMagic
 
         private void Window_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            Clicked(new System.Drawing.Point((int)e.GetPosition(this).X, (int)e.GetPosition(this).Y));
+            ImageSource imageSource = image.Source;
+            BitmapSource bitmapImage = (BitmapSource)imageSource;
+            double pixelMousePositionX = e.GetPosition(image).X * bitmapImage.PixelWidth / image.ActualHeight;
+            double pixelMousePositionY = e.GetPosition(image).Y * bitmapImage.PixelHeight / image.ActualHeight;
+            Clicked(new System.Drawing.Point((int)pixelMousePositionX, (int)pixelMousePositionY));
         }
 
         private void Window_MouseMove(object sender, System.Windows.Input.MouseEventArgs e)
         {
-            Moved(new System.Drawing.Point((int)e.GetPosition(this).X, (int)e.GetPosition(this).Y));
+            ImageSource imageSource = image.Source;
+            BitmapSource bitmapImage = (BitmapSource)imageSource;
+            double pixelMousePositionX = e.GetPosition(image).X * bitmapImage.PixelWidth / image.ActualHeight;
+            double pixelMousePositionY = e.GetPosition(image).Y * bitmapImage.PixelHeight / image.ActualHeight;
+            Moved(new System.Drawing.Point((int)pixelMousePositionX, (int)pixelMousePositionY));
         }
 
         #endregion Window Events

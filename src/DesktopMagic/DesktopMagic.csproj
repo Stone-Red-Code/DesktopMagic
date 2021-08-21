@@ -12,6 +12,7 @@
   <ItemGroup>
     <None Remove="icon.ico" />
     <None Remove="icons8_volunteering_26_85L_icon.ico" />
+    <None Remove="icon_Dark.ico" />
   </ItemGroup>
 
   <ItemGroup>
@@ -29,6 +30,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Resource Include="icon.ico" />
+    <Resource Include="icon_Dark.ico">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="icon.ico">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
   </ItemGroup>
 </Project>
