@@ -35,6 +35,13 @@ namespace DesktopMagicPluginAPI
         public virtual int UpdateInterval { get; set; } = 1000;
 
         /// <summary>
+        /// Occurs once when the pugin gets activated.
+        /// </summary>
+        public virtual void Start()
+        {
+        }
+
+        /// <summary>
         /// Occurs when the <see cref="UpdateInterval"/> elapses.
         /// </summary>
         /// <returns></returns>

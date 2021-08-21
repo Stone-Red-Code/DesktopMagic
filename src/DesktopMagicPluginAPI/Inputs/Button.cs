@@ -12,7 +12,7 @@ namespace DesktopMagicPluginAPI.Inputs
     public class Button : Element
     {
         /// <summary>
-        /// Occurs when the button is clicked.
+        /// Occurs when the button gets clicked.
         /// </summary>
         public event Action OnClick;
 
