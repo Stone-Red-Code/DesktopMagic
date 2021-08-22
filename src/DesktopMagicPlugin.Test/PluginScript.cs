@@ -16,9 +16,24 @@ namespace DesktopMagicPlugin.Test
 
         private Color color = Color.Black;
 
-        public InputExamplePlugin()
+        public override void Start()
         {
             textBox.OnValueChanged += TextBox_OnValueChanged; //Add an event handler to the "OnValueChanged" event.
+        }
+
+        public override Bitmap Main()
+        {
+            Bitmap bmp = new Bitmap(1000, 1000);
+
+            using (Graphics g = Graphics.FromImage(bmp))
+            {
+                g.InterpolationMode = InterpolationMode.HighQualityBilinear;
+                g.PixelOffsetMode = PixelOffsetMode.HighQuality;
+                g.Clear(color);
+                g.DrawStringFixedWidth(textBox.Value, new Font(Application.Font, 100), Brushes.Black, new PointF(0, 0), 120); //Draw the value of the text box to the image.
+            }
+
+            return bmp; //Return the image.
         }
 
         private void TextBox_OnValueChanged()
@@ -40,21 +55,6 @@ namespace DesktopMagicPlugin.Test
                 color = Color.Black;
                 Application.UpdateWindow();
             }
-        }
-
-        public override Bitmap Main()
-        {
-            Bitmap bmp = new Bitmap(1000, 1000);
-
-            using (Graphics g = Graphics.FromImage(bmp))
-            {
-                g.InterpolationMode = InterpolationMode.HighQualityBilinear;
-                g.PixelOffsetMode = PixelOffsetMode.HighQuality;
-                g.Clear(color);
-                g.DrawStringFixedWidth(textBox.Value, new Font(Application.Font, 100), Brushes.Black, new PointF(0, 0), 120); //Draw the value of the text box to the image.
-            }
-
-            return bmp; //Return the image.
         }
     }
 }

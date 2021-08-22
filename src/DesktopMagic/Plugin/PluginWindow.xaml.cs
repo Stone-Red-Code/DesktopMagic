@@ -204,6 +204,7 @@ namespace DesktopMagic
             valueTimer.Interval = 1000;
             valueTimer.Elapsed += ValueTimer_Elapsed;
 
+            pluginClassInstance.Start();
             UpdatePluginWindow();
 
             if (pluginClassInstance.UpdateInterval > 0)
