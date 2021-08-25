@@ -191,13 +191,6 @@ namespace DesktopMagic
                 return;
             }
 
-            if (instanceType.Namespace == nameof(DesktopMagic))
-            {
-                MessageBox.Show("NO!", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                Exit();
-                return;
-            }
-
             LoadOptions(instance);
 
             valueTimer = new System.Timers.Timer();
@@ -254,18 +247,32 @@ namespace DesktopMagic
             System.Drawing.Color color = newBrush.Color;
             string font = MainWindow.GlobalFont;
 
-            Bitmap result = pluginClassInstance.Main();
-
-            if (pluginClassInstance.UpdateInterval > 0)
+            try
             {
-                valueTimer.Interval = pluginClassInstance.UpdateInterval;
+                Bitmap result = pluginClassInstance.Main();
+
+                if (pluginClassInstance.UpdateInterval > 0)
+                {
+                    valueTimer.Interval = pluginClassInstance.UpdateInterval;
+                }
+                else
+                {
+                    valueTimer.Stop();
+                }
+
+                //Update Image
+                Dispatcher.Invoke(() =>
+                {
+                    image.Source = BitmapToImageSource(result);
+                });
             }
-
-            //Update Image
-            Dispatcher.Invoke(() =>
+            catch (Exception ex)
             {
-                image.Source = BitmapToImageSource(result);
-            });
+                MainWindow.Logger.Log(ex.ToString(), "Plugin");
+                MessageBox.Show("File execution error:\n" + ex, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                Exit();
+                return;
+            }
 
             if (stop)
             {
