@@ -773,7 +773,7 @@ namespace DesktopMagic
 
         private void NewLayoutButton_Click(object sender, RoutedEventArgs e)
         {
-            InputDialog inputDialog = new("Layoutnamen eingeben:");
+            InputDialog inputDialog = new((string)FindResource("enterLayoutName"));
             if (inputDialog.ShowDialog() == true)
             {
                 string content = "";

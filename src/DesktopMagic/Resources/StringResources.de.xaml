@@ -23,6 +23,7 @@
     <system:String x:Key="deleteLayout">Layout Löschen</system:String>
     <system:String x:Key="ok">Ok</system:String>
     <system:String x:Key="cancel">Abbrechen</system:String>
+    <system:String x:Key="enterLayoutName">Layoutnamen eingeben:</system:String>
     <col:ArrayList x:Key="musicVisualizerOptionsComboboxItems">
         <system:String>Unten</system:String>
         <system:String>Mitte</system:String>

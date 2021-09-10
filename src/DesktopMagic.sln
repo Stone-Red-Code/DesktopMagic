@@ -4,9 +4,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 16.0.31205.134
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DesktopMagic", "DesktopMagic\DesktopMagic.csproj", "{B56B4CCC-CF92-4C05-9DEA-57666D81889A}"
-	ProjectSection(ProjectDependencies) = postProject
-		{A06BD685-7F92-4799-846B-3EC38345108E} = {A06BD685-7F92-4799-846B-3EC38345108E}
-	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DesktopMagicPluginAPI", "DesktopMagicPluginAPI\DesktopMagicPluginAPI.csproj", "{9D193A10-3E8E-447F-89F1-4B316C2EE37D}"
 EndProject

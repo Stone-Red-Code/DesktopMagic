@@ -7,6 +7,10 @@
     <RootNamespace>DesktopMagic</RootNamespace>
     <ApplicationIcon>icon.ico</ApplicationIcon>
     <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
+    <Authors>Stone_Red</Authors>
+    <Version>0.0.2.2</Version>
+    <PackageProjectUrl>https://github.com/Stone-Red-Code/DesktopMagic</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/Stone-Red-Code/DesktopMagic</RepositoryUrl>
   </PropertyGroup>
 
   <ItemGroup>

@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "DesktopMagic"
-#define MyAppVersion "0.0.2.1"
+#define MyAppVersion "0.0.2.2"
 #define MyAppPublisher "Stone_Red"
 #define MyAppExeName "DesktopMagic.exe"
 
@@ -36,40 +36,7 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 Name: "quicklaunchicon"; Description: "{cm:CreateQuickLaunchIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked; OnlyBelowVersion: 6.1; Check: not IsAdminInstallMode
 
 [Files]
-Source: "..\DesktopMagic\bin\Release\net5.0-windows\DesktopMagic.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\DesktopMagic\bin\Release\net5.0-windows\Stone_Red-C-Sharp-Utilities.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\DesktopMagic\bin\Release\net5.0-windows\DesktopMagic.deps.json"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\DesktopMagic\bin\Release\net5.0-windows\DesktopMagic.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\DesktopMagic\bin\Release\net5.0-windows\DesktopMagic.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\DesktopMagic\bin\Release\net5.0-windows\DesktopMagic.pdb"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\DesktopMagic\bin\Release\net5.0-windows\DesktopMagic.runtimeconfig.dev.json"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\DesktopMagic\bin\Release\net5.0-windows\DesktopMagic.runtimeconfig.json"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\DesktopMagic\bin\Release\net5.0-windows\DesktopMagicPluginAPI.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\DesktopMagic\bin\Release\net5.0-windows\DesktopMagicPluginAPI.pdb"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\DesktopMagic\bin\Release\net5.0-windows\Google.Apis.Auth.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\DesktopMagic\bin\Release\net5.0-windows\Google.Apis.Auth.PlatformServices.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\DesktopMagic\bin\Release\net5.0-windows\Google.Apis.Calendar.v3.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\DesktopMagic\bin\Release\net5.0-windows\Google.Apis.Core.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\DesktopMagic\bin\Release\net5.0-windows\Google.Apis.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\DesktopMagic\bin\Release\net5.0-windows\Hardcodet.NotifyIcon.Wpf.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\DesktopMagic\bin\Release\net5.0-windows\MaterialDesignColors.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\DesktopMagic\bin\Release\net5.0-windows\MaterialDesignThemes.Wpf.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\DesktopMagic\bin\Release\net5.0-windows\NAudio.Asio.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\DesktopMagic\bin\Release\net5.0-windows\NAudio.Core.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\DesktopMagic\bin\Release\net5.0-windows\NAudio.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\DesktopMagic\bin\Release\net5.0-windows\NAudio.Midi.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\DesktopMagic\bin\Release\net5.0-windows\NAudio.Wasapi.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\DesktopMagic\bin\Release\net5.0-windows\NAudio.WinForms.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\DesktopMagic\bin\Release\net5.0-windows\NAudio.WinMM.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\DesktopMagic\bin\Release\net5.0-windows\Newtonsoft.Json.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\DesktopMagic\bin\Release\net5.0-windows\System.Drawing.Common.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\DesktopMagic\bin\Release\net5.0-windows\System.Management.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\DesktopMagic\bin\Release\net5.0-windows\Xceed.Wpf.AvalonDock.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\DesktopMagic\bin\Release\net5.0-windows\Xceed.Wpf.AvalonDock.Themes.Aero.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\DesktopMagic\bin\Release\net5.0-windows\Xceed.Wpf.AvalonDock.Themes.Metro.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\DesktopMagic\bin\Release\net5.0-windows\Xceed.Wpf.AvalonDock.Themes.VS2010.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\DesktopMagic\bin\Release\net5.0-windows\Xceed.Wpf.Toolkit.dll"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\DesktopMagic\bin\Release\net5.0-windows\runtimes\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\DesktopMagic\bin\Release\net5.0-windows\publish\DesktopMagic.exe"; DestDir: "{app}"; Flags: ignoreversion
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
