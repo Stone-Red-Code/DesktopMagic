@@ -13,6 +13,7 @@ using System.Threading;
 using System.Timers;
 using System.Windows;
 using System.Windows.Interop;
+using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
 namespace DesktopMagic
@@ -190,19 +191,13 @@ namespace DesktopMagic
                 return;
             }
 
-            if (instanceType.Namespace == nameof(DesktopMagic))
-            {
-                MessageBox.Show("NO!", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                Exit();
-                return;
-            }
-
             LoadOptions(instance);
 
             valueTimer = new System.Timers.Timer();
             valueTimer.Interval = 1000;
             valueTimer.Elapsed += ValueTimer_Elapsed;
 
+            pluginClassInstance.Start();
             UpdatePluginWindow();
 
             if (pluginClassInstance.UpdateInterval > 0)
@@ -249,16 +244,35 @@ namespace DesktopMagic
         {
             //Set Arguments
             SolidBrush newBrush = (SolidBrush)MainWindow.GlobalSystemColor;
-            Color color = newBrush.Color;
+            System.Drawing.Color color = newBrush.Color;
             string font = MainWindow.GlobalFont;
 
-            Bitmap result = pluginClassInstance.Main();
-
-            //Update Image
-            Dispatcher.Invoke(() =>
+            try
             {
-                image.Source = BitmapToImageSource(result);
-            });
+                Bitmap result = pluginClassInstance.Main();
+
+                if (pluginClassInstance.UpdateInterval > 0)
+                {
+                    valueTimer.Interval = pluginClassInstance.UpdateInterval;
+                }
+                else
+                {
+                    valueTimer.Stop();
+                }
+
+                //Update Image
+                Dispatcher.Invoke(() =>
+                {
+                    image.Source = BitmapToImageSource(result);
+                });
+            }
+            catch (Exception ex)
+            {
+                MainWindow.Logger.Log(ex.ToString(), "Plugin");
+                MessageBox.Show("File execution error:\n" + ex, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                Exit();
+                return;
+            }
 
             if (stop)
             {
@@ -312,12 +326,20 @@ namespace DesktopMagic
 
         private void Window_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            Clicked(new System.Drawing.Point((int)e.GetPosition(this).X, (int)e.GetPosition(this).Y));
+            ImageSource imageSource = image.Source;
+            BitmapSource bitmapImage = (BitmapSource)imageSource;
+            double pixelMousePositionX = e.GetPosition(image).X * bitmapImage.PixelWidth / image.ActualHeight;
+            double pixelMousePositionY = e.GetPosition(image).Y * bitmapImage.PixelHeight / image.ActualHeight;
+            Clicked(new System.Drawing.Point((int)pixelMousePositionX, (int)pixelMousePositionY));
         }
 
         private void Window_MouseMove(object sender, System.Windows.Input.MouseEventArgs e)
         {
-            Moved(new System.Drawing.Point((int)e.GetPosition(this).X, (int)e.GetPosition(this).Y));
+            ImageSource imageSource = image.Source;
+            BitmapSource bitmapImage = (BitmapSource)imageSource;
+            double pixelMousePositionX = e.GetPosition(image).X * bitmapImage.PixelWidth / image.ActualHeight;
+            double pixelMousePositionY = e.GetPosition(image).Y * bitmapImage.PixelHeight / image.ActualHeight;
+            Moved(new System.Drawing.Point((int)pixelMousePositionX, (int)pixelMousePositionY));
         }
 
         #endregion Window Events

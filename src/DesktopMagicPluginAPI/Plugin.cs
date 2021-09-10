@@ -4,14 +4,14 @@ using System.Drawing;
 namespace DesktopMagicPluginAPI
 {
     /// <summary>
-    /// The plugin class
+    /// The plugin class.
     /// </summary>
     public abstract class Plugin
     {
         private IPluginData application = null;
 
         /// <summary>
-        /// Informations about the main application
+        /// Informations about the main application.
         /// </summary>
         public IPluginData Application
         {
@@ -33,6 +33,13 @@ namespace DesktopMagicPluginAPI
         /// Gets or sets the interval, expressed in milliseconds, at which to call the <see cref="Main"/> method.
         /// </summary>
         public virtual int UpdateInterval { get; set; } = 1000;
+
+        /// <summary>
+        /// Occurs once when the pugin gets activated.
+        /// </summary>
+        public virtual void Start()
+        {
+        }
 
         /// <summary>
         /// Occurs when the <see cref="UpdateInterval"/> elapses.

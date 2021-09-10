@@ -60,7 +60,7 @@
         </member>
         <member name="E:DesktopMagicPluginAPI.Inputs.Button.OnClick">
             <summary>
-            Occurs when the button is clicked.
+            Occurs when the button gets clicked.
             </summary>
         </member>
         <member name="P:DesktopMagicPluginAPI.Inputs.Button.Value">
@@ -263,22 +263,27 @@
         </member>
         <member name="M:DesktopMagicPluginAPI.IPluginData.UpdateWindow">
             <summary>
-            Updates the plugin window
+            Updates the plugin window.
             </summary>
         </member>
         <member name="T:DesktopMagicPluginAPI.Plugin">
             <summary>
-            The plugin class
+            The plugin class.
             </summary>
         </member>
         <member name="P:DesktopMagicPluginAPI.Plugin.Application">
             <summary>
-            Informations about the main application
+            Informations about the main application.
             </summary>
         </member>
         <member name="P:DesktopMagicPluginAPI.Plugin.UpdateInterval">
             <summary>
             Gets or sets the interval, expressed in milliseconds, at which to call the <see cref="M:DesktopMagicPluginAPI.Plugin.Main"/> method.
+            </summary>
+        </member>
+        <member name="M:DesktopMagicPluginAPI.Plugin.Start">
+            <summary>
+            Occurs once when the pugin gets activated.
             </summary>
         </member>
         <member name="M:DesktopMagicPluginAPI.Plugin.Main">

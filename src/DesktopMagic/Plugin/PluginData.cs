@@ -20,9 +20,6 @@ namespace DesktopMagic
 
         public Point WindowPosition => new Point((int)window.Left, (int)window.Top);
 
-        public void UpdateWindow()
-        {
-            window.UpdatePluginWindow();
-        }
+        public void UpdateWindow() => window.UpdatePluginWindow();
     }
 }

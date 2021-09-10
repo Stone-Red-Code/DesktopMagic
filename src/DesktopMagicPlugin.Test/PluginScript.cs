@@ -1,39 +1,54 @@
 ﻿using DesktopMagicPluginAPI;
 using DesktopMagicPluginAPI.Inputs;
-using DesktopMagicPluginAPI.Drawing;
 using System.Drawing;
+using System.Drawing.Imaging;
+using System.Drawing.Drawing2D;
+using System.IO;
+using System.Collections.Generic;
 
 namespace DesktopMagicPlugin.Test
 {
-    public class InputExamplePlugin : Plugin
+    public class GifPlugin : Plugin
     {
-        public override int UpdateInterval { get; set; } = 0;
+        [Element("Gif path:")]
+        private TextBox input = new TextBox("");
 
-        [Element("Text:")] //Mark the property as element with the specified description
-        private TextBox textBox = new TextBox("abc"); //Create a text box with the specified default value.
+        private List<Bitmap> bitmaps = new List<Bitmap>();
 
-        public InputExamplePlugin()
+        public override int UpdateInterval { get; set; } = 100;
+        private int frameCount = -1;
+
+        public GifPlugin()
         {
-            textBox.OnValueChanged += TextBox_OnValueChanged; //Add an event handler to the "OnValueChanged" event.
+            input.OnValueChanged += Input_OnValueChanged;
         }
 
-        private void TextBox_OnValueChanged()
+        private void Input_OnValueChanged()
         {
-            Application.UpdateWindow(); //Update the pugin window. (Calls the "Main" method.)
+            if (File.Exists(input.Value))
+            {
+                Image gif = Image.FromFile(input.Value);
+                bitmaps.Clear();
+                for (int i = 0; i < gif.GetFrameCount(FrameDimension.Time); i++)
+                {
+                    gif.SelectActiveFrame(FrameDimension.Time, i);
+
+                    bitmaps.Add(new Bitmap(gif));
+                }
+            }
         }
 
         public override Bitmap Main()
         {
-            Bitmap bmp = new Bitmap(1000, 1000);
+            if (bitmaps.Count == 0)
+                return new Bitmap(1, 1);
 
-            using (Graphics g = Graphics.FromImage(bmp))
-            {
-                g.Clear(Application.Color); //Set the background color to the color specified in the Desktop Magic application.
+            frameCount++;
 
-                g.DrawStringFixedWidth(textBox.Value, new Font(Application.Font, 100), Brushes.Black, new PointF(0, 0), 120); //Draw the value of the text box to the image.
-            }
+            if (frameCount >= bitmaps.Count)
+                frameCount = 0;
 
-            return bmp; //Return the image.
+            return bitmaps[frameCount];
         }
     }
 }

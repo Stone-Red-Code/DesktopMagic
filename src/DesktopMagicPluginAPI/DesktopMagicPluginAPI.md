@@ -44,6 +44,7 @@
   - [Main()](#M-DesktopMagicPluginAPI-Plugin-Main 'DesktopMagicPluginAPI.Plugin.Main')
   - [OnMouseClick(position)](#M-DesktopMagicPluginAPI-Plugin-OnMouseClick-System-Drawing-Point- 'DesktopMagicPluginAPI.Plugin.OnMouseClick(System.Drawing.Point)')
   - [OnMouseMove(position)](#M-DesktopMagicPluginAPI-Plugin-OnMouseMove-System-Drawing-Point- 'DesktopMagicPluginAPI.Plugin.OnMouseMove(System.Drawing.Point)')
+  - [Start()](#M-DesktopMagicPluginAPI-Plugin-Start 'DesktopMagicPluginAPI.Plugin.Start')
 - [Slider](#T-DesktopMagicPluginAPI-Inputs-Slider 'DesktopMagicPluginAPI.Inputs.Slider')
   - [#ctor(min,max,value)](#M-DesktopMagicPluginAPI-Inputs-Slider-#ctor-System-Double,System-Double,System-Double- 'DesktopMagicPluginAPI.Inputs.Slider.#ctor(System.Double,System.Double,System.Double)')
   - [Maximum](#P-DesktopMagicPluginAPI-Inputs-Slider-Maximum 'DesktopMagicPluginAPI.Inputs.Slider.Maximum')
@@ -338,7 +339,7 @@ Gets the window size of the main application.
 
 ##### Summary
 
-Updates the plugin window
+Updates the plugin window.
 
 ##### Parameters
 
@@ -445,14 +446,14 @@ DesktopMagicPluginAPI
 
 ##### Summary
 
-The plugin class
+The plugin class.
 
 <a name='P-DesktopMagicPluginAPI-Plugin-Application'></a>
 ### Application `property`
 
 ##### Summary
 
-Informations about the main application
+Informations about the main application.
 
 <a name='P-DesktopMagicPluginAPI-Plugin-UpdateInterval'></a>
 ### UpdateInterval `property`
@@ -501,6 +502,17 @@ Occurs when the mouse pointer is moved over the control.
 | Name | Type | Description |
 | ---- | ---- | ----------- |
 | position | [System.Drawing.Point](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.Drawing.Point 'System.Drawing.Point') |  |
+
+<a name='M-DesktopMagicPluginAPI-Plugin-Start'></a>
+### Start() `method`
+
+##### Summary
+
+Occurs once when the pugin gets activated.
+
+##### Parameters
+
+This method has no parameters.
 
 <a name='T-DesktopMagicPluginAPI-Inputs-Slider'></a>
 ## Slider `type`
