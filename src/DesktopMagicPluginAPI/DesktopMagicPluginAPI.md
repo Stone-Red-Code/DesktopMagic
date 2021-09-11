@@ -38,11 +38,15 @@
   - [#ctor(value,bold)](#M-DesktopMagicPluginAPI-Inputs-Label-#ctor-System-String,System-Boolean- 'DesktopMagicPluginAPI.Inputs.Label.#ctor(System.String,System.Boolean)')
   - [Bold](#P-DesktopMagicPluginAPI-Inputs-Label-Bold 'DesktopMagicPluginAPI.Inputs.Label.Bold')
   - [Value](#P-DesktopMagicPluginAPI-Inputs-Label-Value 'DesktopMagicPluginAPI.Inputs.Label.Value')
+- [MouseButton](#T-DesktopMagicPluginAPI-Inputs-MouseButton 'DesktopMagicPluginAPI.Inputs.MouseButton')
+  - [Left](#F-DesktopMagicPluginAPI-Inputs-MouseButton-Left 'DesktopMagicPluginAPI.Inputs.MouseButton.Left')
+  - [Middle](#F-DesktopMagicPluginAPI-Inputs-MouseButton-Middle 'DesktopMagicPluginAPI.Inputs.MouseButton.Middle')
+  - [Right](#F-DesktopMagicPluginAPI-Inputs-MouseButton-Right 'DesktopMagicPluginAPI.Inputs.MouseButton.Right')
 - [Plugin](#T-DesktopMagicPluginAPI-Plugin 'DesktopMagicPluginAPI.Plugin')
   - [Application](#P-DesktopMagicPluginAPI-Plugin-Application 'DesktopMagicPluginAPI.Plugin.Application')
   - [UpdateInterval](#P-DesktopMagicPluginAPI-Plugin-UpdateInterval 'DesktopMagicPluginAPI.Plugin.UpdateInterval')
   - [Main()](#M-DesktopMagicPluginAPI-Plugin-Main 'DesktopMagicPluginAPI.Plugin.Main')
-  - [OnMouseClick(position)](#M-DesktopMagicPluginAPI-Plugin-OnMouseClick-System-Drawing-Point- 'DesktopMagicPluginAPI.Plugin.OnMouseClick(System.Drawing.Point)')
+  - [OnMouseClick(position,mouseButton)](#M-DesktopMagicPluginAPI-Plugin-OnMouseClick-System-Drawing-Point,DesktopMagicPluginAPI-Inputs-MouseButton- 'DesktopMagicPluginAPI.Plugin.OnMouseClick(System.Drawing.Point,DesktopMagicPluginAPI.Inputs.MouseButton)')
   - [OnMouseMove(position)](#M-DesktopMagicPluginAPI-Plugin-OnMouseMove-System-Drawing-Point- 'DesktopMagicPluginAPI.Plugin.OnMouseMove(System.Drawing.Point)')
   - [Start()](#M-DesktopMagicPluginAPI-Plugin-Start 'DesktopMagicPluginAPI.Plugin.Start')
 - [Slider](#T-DesktopMagicPluginAPI-Inputs-Slider 'DesktopMagicPluginAPI.Inputs.Slider')
@@ -325,14 +329,14 @@ Gets the font of the main application.
 
 ##### Summary
 
-Gets the window position of the main application.
+Gets the window position of the plugin window.
 
 <a name='P-DesktopMagicPluginAPI-IPluginData-WindowSize'></a>
 ### WindowSize `property`
 
 ##### Summary
 
-Gets the window size of the main application.
+Gets the window size of the plugin window.
 
 <a name='M-DesktopMagicPluginAPI-IPluginData-UpdateWindow'></a>
 ### UpdateWindow() `method`
@@ -437,6 +441,38 @@ Gets or set a value indicating whether the content of the [Label](#T-DesktopMagi
 
 Gets or sets the text associated with this [Label](#T-DesktopMagicPluginAPI-Inputs-Label 'DesktopMagicPluginAPI.Inputs.Label').
 
+<a name='T-DesktopMagicPluginAPI-Inputs-MouseButton'></a>
+## MouseButton `type`
+
+##### Namespace
+
+DesktopMagicPluginAPI.Inputs
+
+##### Summary
+
+Mouse Buttons
+
+<a name='F-DesktopMagicPluginAPI-Inputs-MouseButton-Left'></a>
+### Left `constants`
+
+##### Summary
+
+The left mouse button.
+
+<a name='F-DesktopMagicPluginAPI-Inputs-MouseButton-Middle'></a>
+### Middle `constants`
+
+##### Summary
+
+The middle mouse button.
+
+<a name='F-DesktopMagicPluginAPI-Inputs-MouseButton-Right'></a>
+### Right `constants`
+
+##### Summary
+
+The right mouse button.
+
 <a name='T-DesktopMagicPluginAPI-Plugin'></a>
 ## Plugin `type`
 
@@ -477,8 +513,8 @@ Occurs when the [UpdateInterval](#P-DesktopMagicPluginAPI-Plugin-UpdateInterval 
 
 This method has no parameters.
 
-<a name='M-DesktopMagicPluginAPI-Plugin-OnMouseClick-System-Drawing-Point-'></a>
-### OnMouseClick(position) `method`
+<a name='M-DesktopMagicPluginAPI-Plugin-OnMouseClick-System-Drawing-Point,DesktopMagicPluginAPI-Inputs-MouseButton-'></a>
+### OnMouseClick(position,mouseButton) `method`
 
 ##### Summary
 
@@ -488,7 +524,8 @@ Occurs when the window is clicked by the mouse.
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| position | [System.Drawing.Point](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.Drawing.Point 'System.Drawing.Point') |  |
+| position | [System.Drawing.Point](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.Drawing.Point 'System.Drawing.Point') | The x- and y-coordinates of the mouse pointer position relative to the plugin window. |
+| mouseButton | [DesktopMagicPluginAPI.Inputs.MouseButton](#T-DesktopMagicPluginAPI-Inputs-MouseButton 'DesktopMagicPluginAPI.Inputs.MouseButton') | Gets the button associated with the event. |
 
 <a name='M-DesktopMagicPluginAPI-Plugin-OnMouseMove-System-Drawing-Point-'></a>
 ### OnMouseMove(position) `method`
@@ -501,7 +538,7 @@ Occurs when the mouse pointer is moved over the control.
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| position | [System.Drawing.Point](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.Drawing.Point 'System.Drawing.Point') |  |
+| position | [System.Drawing.Point](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.Drawing.Point 'System.Drawing.Point') | The x- and y-coordinates of the mouse pointer position relative to the plugin window. |
 
 <a name='M-DesktopMagicPluginAPI-Plugin-Start'></a>
 ### Start() `method`

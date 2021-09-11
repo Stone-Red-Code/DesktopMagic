@@ -192,6 +192,26 @@
             <param name="value">The text associated with this <see cref="T:DesktopMagicPluginAPI.Inputs.Label"/></param>
             <param name="bold">A value indicating whether the content of the <see cref="T:DesktopMagicPluginAPI.Inputs.Label"/> is bold or not.</param>
         </member>
+        <member name="T:DesktopMagicPluginAPI.Inputs.MouseButton">
+            <summary>
+            Mouse Buttons
+            </summary>
+        </member>
+        <member name="F:DesktopMagicPluginAPI.Inputs.MouseButton.Left">
+            <summary>
+            The left mouse button.
+            </summary>
+        </member>
+        <member name="F:DesktopMagicPluginAPI.Inputs.MouseButton.Middle">
+            <summary>
+            The middle mouse button.
+            </summary>
+        </member>
+        <member name="F:DesktopMagicPluginAPI.Inputs.MouseButton.Right">
+            <summary>
+             The right mouse button.
+            </summary>
+        </member>
         <member name="T:DesktopMagicPluginAPI.Inputs.Slider">
             <summary>
             Represents a slider control.
@@ -253,12 +273,12 @@
         </member>
         <member name="P:DesktopMagicPluginAPI.IPluginData.WindowSize">
             <summary>
-            Gets the window size of the main application.
+            Gets the window size of the plugin window.
             </summary>
         </member>
         <member name="P:DesktopMagicPluginAPI.IPluginData.WindowPosition">
             <summary>
-            Gets the window position of the main application.
+            Gets the window position of the plugin window.
             </summary>
         </member>
         <member name="M:DesktopMagicPluginAPI.IPluginData.UpdateWindow">
@@ -292,17 +312,18 @@
             </summary>
             <returns></returns>
         </member>
-        <member name="M:DesktopMagicPluginAPI.Plugin.OnMouseClick(System.Drawing.Point)">
+        <member name="M:DesktopMagicPluginAPI.Plugin.OnMouseClick(System.Drawing.Point,DesktopMagicPluginAPI.Inputs.MouseButton)">
             <summary>
             Occurs when the window is clicked by the mouse.
             </summary>
-            <param name="position"></param>
+            <param name="position">The x- and y-coordinates of the mouse pointer position relative to the plugin window.</param>
+            <param name="mouseButton">Gets the button associated with the event.</param>
         </member>
         <member name="M:DesktopMagicPluginAPI.Plugin.OnMouseMove(System.Drawing.Point)">
             <summary>
             Occurs when the mouse pointer is moved over the control.
             </summary>
-            <param name="position"></param>
+            <param name="position">The x- and y-coordinates of the mouse pointer position relative to the plugin window.</param>
         </member>
     </members>
 </doc>

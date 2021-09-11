@@ -210,7 +210,7 @@ namespace DesktopMagic
         private void LoadOptions(object instance)
         {
             Debug.WriteLine(instance.GetType().FullName);
-            FieldInfo[] props = instance.GetType().GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.GetField);
+            FieldInfo[] props = instance.GetType().GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.GetField);
 
             List<SettingElement> settingElements = new List<SettingElement>();
             foreach (FieldInfo prop in props)
@@ -330,7 +330,26 @@ namespace DesktopMagic
             BitmapSource bitmapImage = (BitmapSource)imageSource;
             double pixelMousePositionX = e.GetPosition(image).X * bitmapImage.PixelWidth / image.ActualHeight;
             double pixelMousePositionY = e.GetPosition(image).Y * bitmapImage.PixelHeight / image.ActualHeight;
-            Clicked(new System.Drawing.Point((int)pixelMousePositionX, (int)pixelMousePositionY));
+
+            MouseButton mouseButton;
+
+            switch (e.ChangedButton)
+            {
+                case System.Windows.Input.MouseButton.Left:
+                    mouseButton = MouseButton.Left;
+                    break;
+
+                case System.Windows.Input.MouseButton.Middle:
+                    mouseButton = MouseButton.Middle;
+                    break;
+
+                case System.Windows.Input.MouseButton.Right:
+                    mouseButton = MouseButton.Right;
+                    break;
+
+                default: return;
+            };
+            Clicked(new System.Drawing.Point((int)pixelMousePositionX, (int)pixelMousePositionY), mouseButton);
         }
 
         private void Window_MouseMove(object sender, System.Windows.Input.MouseEventArgs e)
@@ -346,9 +365,9 @@ namespace DesktopMagic
 
         #region Plugin Methods
 
-        private void Clicked(System.Drawing.Point positon)
+        private void Clicked(System.Drawing.Point positon, MouseButton mouseButton)
         {
-            pluginClassInstance.OnMouseClick(positon);
+            pluginClassInstance.OnMouseClick(positon, mouseButton);
         }
 
         private void Moved(System.Drawing.Point positon)

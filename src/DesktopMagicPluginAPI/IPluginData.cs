@@ -18,12 +18,12 @@ namespace DesktopMagicPluginAPI
         Color Color { get; }
 
         /// <summary>
-        /// Gets the window size of the main application.
+        /// Gets the window size of the plugin window.
         /// </summary>
         Point WindowSize { get; }
 
         /// <summary>
-        /// Gets the window position of the main application.
+        /// Gets the window position of the plugin window.
         /// </summary>
         Point WindowPosition { get; }
 

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DesktopMagicPluginAPI.Inputs;
+using System;
 using System.Drawing;
 
 namespace DesktopMagicPluginAPI
@@ -50,15 +51,16 @@ namespace DesktopMagicPluginAPI
         /// <summary>
         /// Occurs when the window is clicked by the mouse.
         /// </summary>
-        /// <param name="position"></param>
-        public virtual void OnMouseClick(Point position)
+        /// <param name="position">The x- and y-coordinates of the mouse pointer position relative to the plugin window.</param>
+        /// <param name="mouseButton">Gets the button associated with the event.</param>
+        public virtual void OnMouseClick(Point position, MouseButton mouseButton)
         {
         }
 
         /// <summary>
         /// Occurs when the mouse pointer is moved over the control.
         /// </summary>
-        /// <param name="position"></param>
+        /// <param name="position">The x- and y-coordinates of the mouse pointer position relative to the plugin window.</param>
         public virtual void OnMouseMove(Point position)
         {
         }
