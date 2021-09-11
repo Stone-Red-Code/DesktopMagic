@@ -349,7 +349,9 @@ namespace DesktopMagic
 
                 default: return;
             };
-            Clicked(new System.Drawing.Point((int)pixelMousePositionX, (int)pixelMousePositionY), mouseButton);
+
+            System.Drawing.Point point = new System.Drawing.Point((int)pixelMousePositionX, (int)pixelMousePositionY);
+            pluginClassInstance.OnMouseClick(point, mouseButton);
         }
 
         private void Window_MouseMove(object sender, System.Windows.Input.MouseEventArgs e)
@@ -358,23 +360,22 @@ namespace DesktopMagic
             BitmapSource bitmapImage = (BitmapSource)imageSource;
             double pixelMousePositionX = e.GetPosition(image).X * bitmapImage.PixelWidth / image.ActualHeight;
             double pixelMousePositionY = e.GetPosition(image).Y * bitmapImage.PixelHeight / image.ActualHeight;
-            Moved(new System.Drawing.Point((int)pixelMousePositionX, (int)pixelMousePositionY));
+
+            System.Drawing.Point point = new System.Drawing.Point((int)pixelMousePositionX, (int)pixelMousePositionY);
+            pluginClassInstance.OnMouseMove(point);
+        }
+
+        private void Window_MouseWheel(object sender, System.Windows.Input.MouseWheelEventArgs e)
+        {
+            ImageSource imageSource = image.Source;
+            BitmapSource bitmapImage = (BitmapSource)imageSource;
+            double pixelMousePositionX = e.GetPosition(image).X * bitmapImage.PixelWidth / image.ActualHeight;
+            double pixelMousePositionY = e.GetPosition(image).Y * bitmapImage.PixelHeight / image.ActualHeight;
+
+            System.Drawing.Point point = new System.Drawing.Point((int)pixelMousePositionX, (int)pixelMousePositionY);
+            pluginClassInstance.OnMouseWheel(point, e.Delta);
         }
 
         #endregion Window Events
-
-        #region Plugin Methods
-
-        private void Clicked(System.Drawing.Point positon, MouseButton mouseButton)
-        {
-            pluginClassInstance.OnMouseClick(positon, mouseButton);
-        }
-
-        private void Moved(System.Drawing.Point positon)
-        {
-            pluginClassInstance.OnMouseMove(positon);
-        }
-
-        #endregion Plugin Methods
     }
 }

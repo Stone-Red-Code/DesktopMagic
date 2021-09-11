@@ -52,7 +52,7 @@ namespace DesktopMagicPluginAPI
         /// Occurs when the window is clicked by the mouse.
         /// </summary>
         /// <param name="position">The x- and y-coordinates of the mouse pointer position relative to the plugin window.</param>
-        /// <param name="mouseButton">Gets the button associated with the event.</param>
+        /// <param name="mouseButton">The button associated with the event.</param>
         public virtual void OnMouseClick(Point position, MouseButton mouseButton)
         {
         }
@@ -62,6 +62,15 @@ namespace DesktopMagicPluginAPI
         /// </summary>
         /// <param name="position">The x- and y-coordinates of the mouse pointer position relative to the plugin window.</param>
         public virtual void OnMouseMove(Point position)
+        {
+        }
+
+        /// <summary>
+        /// Occurs when the user rotates the mouse wheel while the mouse pointer is over this element.
+        /// </summary>
+        /// <param name="position">The x- and y-coordinates of the mouse pointer position relative to the plugin window.</param>
+        /// <param name="Delta">A value that indicates the amount that the mouse wheel has changed.</param>
+        public virtual void OnMouseWheel(Point position, int Delta)
         {
         }
     }

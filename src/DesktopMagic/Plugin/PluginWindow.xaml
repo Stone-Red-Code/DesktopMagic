@@ -18,7 +18,7 @@
     <Grid>
         <Rectangle x:Name="panel" Fill="#4CBAFFEF" Stroke="White" Margin="0,0,0,0" Visibility="Collapsed" />
         <Viewbox StretchDirection="Both" Stretch="Uniform">
-            <Image x:Name="image" HorizontalAlignment="Left"  Margin="0,0,0,0" VerticalAlignment="Top"  RenderTransformOrigin="0.5,0.5" Stretch="Uniform" MouseDown="Window_MouseDown" MouseMove="Window_MouseMove" />
+            <Image x:Name="image" HorizontalAlignment="Left"  Margin="0,0,0,0" VerticalAlignment="Top"  RenderTransformOrigin="0.5,0.5" Stretch="Uniform" MouseDown="Window_MouseDown" MouseMove="Window_MouseMove" MouseWheel="Window_MouseWheel"/>
         </Viewbox>
     </Grid>
     <WindowChrome.WindowChrome>

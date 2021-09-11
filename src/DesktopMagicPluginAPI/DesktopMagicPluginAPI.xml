@@ -317,13 +317,20 @@
             Occurs when the window is clicked by the mouse.
             </summary>
             <param name="position">The x- and y-coordinates of the mouse pointer position relative to the plugin window.</param>
-            <param name="mouseButton">Gets the button associated with the event.</param>
+            <param name="mouseButton">The button associated with the event.</param>
         </member>
         <member name="M:DesktopMagicPluginAPI.Plugin.OnMouseMove(System.Drawing.Point)">
             <summary>
             Occurs when the mouse pointer is moved over the control.
             </summary>
             <param name="position">The x- and y-coordinates of the mouse pointer position relative to the plugin window.</param>
+        </member>
+        <member name="M:DesktopMagicPluginAPI.Plugin.OnMouseWheel(System.Drawing.Point,System.Int32)">
+            <summary>
+            Occurs when the user rotates the mouse wheel while the mouse pointer is over this element.
+            </summary>
+            <param name="position">The x- and y-coordinates of the mouse pointer position relative to the plugin window.</param>
+            <param name="Delta">A value that indicates the amount that the mouse wheel has changed.</param>
         </member>
     </members>
 </doc>

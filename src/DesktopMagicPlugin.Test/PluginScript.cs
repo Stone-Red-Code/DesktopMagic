@@ -12,9 +12,9 @@ namespace DesktopMagicPlugin.Test
 
         public override int UpdateInterval { get; set; } = 100;
 
-        public override void OnMouseClick(Point position, MouseButton mouseButton)
+        public override void OnMouseWheel(Point position, int delta)
         {
-            Debug.WriteLine(position + " | " + mouseButton);
+            Debug.WriteLine(position + " | " + delta);
         }
 
         public override Bitmap Main()
