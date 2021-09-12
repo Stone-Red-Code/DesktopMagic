@@ -117,7 +117,6 @@ namespace DesktopMagic
 
         private void LoadPlugin()
         {
-            string sourceText;
             string PluginPath;
 
             pluginFolderPath = $"{Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)}\\{MainWindow.AppName}\\Plugins\\{pluginName}";
@@ -128,38 +127,26 @@ namespace DesktopMagic
             }
             else
             {
-                MessageBox.Show("File does not exist!", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                _ = MessageBox.Show("File does not exist!", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 Exit();
                 return;
             }
 
             try
             {
-                sourceText = File.ReadAllText(PluginPath);
+                ExecuteSource();
             }
             catch (Exception ex)
             {
                 MainWindow.Logger.Log(ex.ToString(), "Plugin");
-                MessageBox.Show("File could not be read:\n" + ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                Exit();
-                return;
-            }
-
-            try
-            {
-                ExecuteSource(sourceText);
-            }
-            catch (Exception ex)
-            {
-                MainWindow.Logger.Log(ex.ToString(), "Plugin");
-                MessageBox.Show("File execution error:\n" + ex, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                _ = MessageBox.Show("File execution error:\n" + ex, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 Exit();
                 return;
             }
             PluginLoaded?.Invoke();
         }
 
-        private void ExecuteSource(string sourceText)
+        private void ExecuteSource()
         {
             byte[] assemblyBytes = File.ReadAllBytes($"{pluginFolderPath}\\{pluginName}.dll");
             Assembly dll = Assembly.Load(assemblyBytes);
@@ -173,7 +160,7 @@ namespace DesktopMagic
 
             if (instanceType is null)
             {
-                MessageBox.Show($"The \"Plugin\" class could not be found! It has to inherit from \"{typeof(Plugin).FullName}\"", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                _ = MessageBox.Show($"The \"Plugin\" class could not be found! It has to inherit from \"{typeof(Plugin).FullName}\"", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 Exit();
                 return;
             }
@@ -186,7 +173,7 @@ namespace DesktopMagic
             }
             else
             {
-                MessageBox.Show($"The \"Plugin\" class has to inherit from \"{typeof(Plugin).FullName}\"", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                _ = MessageBox.Show($"The \"Plugin\" class has to inherit from \"{typeof(Plugin).FullName}\"", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 Exit();
                 return;
             }
@@ -242,11 +229,6 @@ namespace DesktopMagic
 
         private void ValueTimer_Elapsed(object sender, ElapsedEventArgs e)
         {
-            //Set Arguments
-            SolidBrush newBrush = (SolidBrush)MainWindow.GlobalSystemColor;
-            System.Drawing.Color color = newBrush.Color;
-            string font = MainWindow.GlobalFont;
-
             try
             {
                 Bitmap result = pluginClassInstance.Main();
@@ -269,7 +251,7 @@ namespace DesktopMagic
             catch (Exception ex)
             {
                 MainWindow.Logger.Log(ex.ToString(), "Plugin");
-                MessageBox.Show("File execution error:\n" + ex, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                _ = MessageBox.Show("File execution error:\n" + ex, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 Exit();
                 return;
             }

@@ -21,7 +21,7 @@ namespace DesktopMagicPlugin.Test
         {
             Bitmap bmp = new Bitmap(100, 100);
             using Graphics graphics = Graphics.FromImage(bmp);
-            graphics.Clear(Color.Red);
+            graphics.Clear(Application.Color);
             return bmp;
         }
     }

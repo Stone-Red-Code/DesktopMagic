@@ -636,10 +636,9 @@ namespace DesktopMagic
                 foreach (char c in chars)
                 {
                     textBlock.Text = "";
-                    for (int i = 0; i < 100; i++)
-                    {
-                        textBlock.Text += c.ToString();
-                    }
+
+                    textBlock.Text += c.ToString();
+
                     textBlock.UpdateLayout();
 
                     if (charWidth != textBlock.ActualWidth && charWidth != -1)
