@@ -117,15 +117,9 @@ namespace DesktopMagic
 
         private void LoadPlugin()
         {
-            string PluginPath;
-
             pluginFolderPath = $"{Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)}\\{MainWindow.AppName}\\Plugins\\{pluginName}";
 
-            if (File.Exists($"{pluginFolderPath}\\{pluginName}.dll"))
-            {
-                PluginPath = $"{pluginFolderPath}\\{pluginName}.dll";
-            }
-            else
+            if (!File.Exists($"{pluginFolderPath}\\{pluginName}.dll"))
             {
                 _ = MessageBox.Show("File does not exist!", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 Exit();

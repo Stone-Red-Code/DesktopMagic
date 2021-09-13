@@ -473,7 +473,6 @@ namespace DesktopMagic
                             Dispatcher.Invoke(() =>
                             {
                                 label.Text = eLabel.Value;
-                                Option_ValueChanged();
                             });
                         };
                     }
@@ -498,7 +497,6 @@ namespace DesktopMagic
                             Dispatcher.Invoke(() =>
                             {
                                 button.Content = eButton.Value;
-                                Option_ValueChanged();
                             });
                         };
 
@@ -522,7 +520,6 @@ namespace DesktopMagic
                             Dispatcher.Invoke(() =>
                             {
                                 checkBox.IsChecked = eCheckBox.Value;
-                                Option_ValueChanged();
                             });
                         };
 
@@ -546,7 +543,6 @@ namespace DesktopMagic
                             Dispatcher.Invoke(() =>
                             {
                                 textBox.Text = eTextBox.Value;
-                                Option_ValueChanged();
                             });
                         };
                         _ = stackPanel.Children.Add(textBox);
@@ -570,7 +566,6 @@ namespace DesktopMagic
                             Dispatcher.Invoke(() =>
                             {
                                 integerUpDown.Value = eIntegerUpDown.Value;
-                                Option_ValueChanged();
                             });
                         };
                         _ = stackPanel.Children.Add(integerUpDown);
@@ -596,7 +591,6 @@ namespace DesktopMagic
                             Dispatcher.Invoke(() =>
                             {
                                 slider.Value = eSlider.Value;
-                                Option_ValueChanged();
                             });
                         };
 
@@ -604,20 +598,6 @@ namespace DesktopMagic
                     }
                 }
             }
-        }
-
-        private void Option_ValueChanged()
-        {
-            //Plugin settings save currenty disabled. Not sure if I want to add it back in the future.
-            /*
-            string pluginName = ((Tuple<string, int>)optionsComboBox.SelectedItem).Item1.ToString();
-
-            if (PluginsSettings.ContainsKey(pluginName))
-            {
-                string jsonSettings = JsonSerializer.Serialize(PluginsSettings[pluginName]);
-                File.WriteAllText($"{applicationDataPath}\\Plugins\\{pluginName}\\{pluginName}.save", jsonSettings);
-            }
-            */
         }
 
         #endregion options
