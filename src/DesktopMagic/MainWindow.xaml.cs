@@ -197,6 +197,11 @@ namespace DesktopMagic
         {
             EditMode = (bool)EditCheckBox.IsChecked;
             SaveLayout();
+            foreach (var item in Windows)
+            {
+                WindowPos.SendWpfWindowBack(item);
+                WindowPos.SendWpfWindowBack(item);
+            }
         }
 
         private void CheckBox_Click(object sender, RoutedEventArgs e)
@@ -263,6 +268,7 @@ namespace DesktopMagic
 
                         window.ShowInTaskbar = false;
                         window.Show();
+                        window.ContentRendered += PluginWindow_ContentRendered;
                         window.Closing += DisplayWindow_Closing;
                         Windows.Add(window);
                         WindowNames.Add(window.Title);
@@ -281,6 +287,12 @@ namespace DesktopMagic
             key.SetValue(checkBox.Name, checkBox.IsChecked.ToString());
             blockWindowsClosing = true;
             SaveLayout();
+        }
+
+        private void PluginWindow_ContentRendered(object sender, EventArgs e)
+        {
+            WindowPos.SendWpfWindowBack(sender as Window);
+            WindowPos.SendWpfWindowBack(sender as Window);
         }
 
         private void DisplayWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)

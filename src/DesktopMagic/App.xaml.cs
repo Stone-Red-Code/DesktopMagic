@@ -13,7 +13,7 @@ namespace DesktopMagic
     {
         private Mutex _mutex;
 #if DEBUG
-        private readonly Updater updater = new Updater(TimeSpan.FromHours(1), "https://raw.githubusercontent.com/Stone-Red-Code/DesktopMagic/develop/update/updateInfo.json");
+        private readonly Updater updater = new Updater(TimeSpan.FromDays(1), "https://raw.githubusercontent.com/Stone-Red-Code/DesktopMagic/develop/update/updateInfo.json");
 #else
         private readonly Updater updater = new Updater(TimeSpan.FromHours(1), "https://raw.githubusercontent.com/Stone-Red-Code/DesktopMagic/main/update/updateInfo.json");
 #endif

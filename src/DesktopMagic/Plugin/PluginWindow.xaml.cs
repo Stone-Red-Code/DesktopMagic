@@ -97,14 +97,14 @@ namespace DesktopMagic
                 if (MainWindow.EditMode)
                 {
                     panel.Visibility = Visibility.Visible;
-                    new WindowPos().SetIsLocked(this, false);
+                    WindowPos.SetIsLocked(this, false);
                     tileBar.CaptionHeight = tileBar.CaptionHeight = this.ActualHeight - 10 < 0 ? 0 : this.ActualHeight - 10;
                     this.ResizeMode = ResizeMode.CanResize;
                 }
                 else
                 {
                     panel.Visibility = Visibility.Collapsed;
-                    new WindowPos().SetIsLocked(this, true);
+                    WindowPos.SetIsLocked(this, true);
                     tileBar.CaptionHeight = 0;
                     this.ResizeMode = ResizeMode.NoResize;
                 }

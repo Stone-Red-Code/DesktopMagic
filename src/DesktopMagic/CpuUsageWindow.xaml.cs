@@ -73,12 +73,12 @@ namespace DesktopMagic
                 if (MainWindow.EditMode)
                 {
                     panel.Visibility = Visibility.Visible;
-                    new WindowPos().SetIsLocked(this, false);
+                    WindowPos.SetIsLocked(this, false);
                 }
                 else
                 {
                     panel.Visibility = Visibility.Collapsed;
-                    new WindowPos().SetIsLocked(this, true);
+                    WindowPos.SetIsLocked(this, true);
                 }
 
                 textBlock.FontFamily = new FontFamily(MainWindow.GlobalFont);
