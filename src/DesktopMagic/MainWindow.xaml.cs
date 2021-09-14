@@ -197,11 +197,6 @@ namespace DesktopMagic
         {
             EditMode = (bool)EditCheckBox.IsChecked;
             SaveLayout();
-            foreach (var item in Windows)
-            {
-                WindowPos.SendWpfWindowBack(item);
-                WindowPos.SendWpfWindowBack(item);
-            }
         }
 
         private void CheckBox_Click(object sender, RoutedEventArgs e)
@@ -325,6 +320,11 @@ namespace DesktopMagic
                 EditCheckBox_Click(null, null);
                 this.ShowInTaskbar = false;
                 this.Visibility = Visibility.Collapsed;
+                foreach (var item in Windows)
+                {
+                    WindowPos.SendWpfWindowBack(item);
+                    WindowPos.SendWpfWindowBack(item);
+                }
             }
         }
 
