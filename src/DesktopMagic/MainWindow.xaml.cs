@@ -490,7 +490,14 @@ namespace DesktopMagic
                         };
                         button.Click += (_s, _e) =>
                         {
-                            eButton.Click();
+                            try
+                            {
+                                eButton.Click();
+                            }
+                            catch (Exception ex)
+                            {
+                                DisplayException(ex.Message);
+                            }
                         };
                         eButton.OnValueChanged += () =>
                         {
@@ -513,7 +520,14 @@ namespace DesktopMagic
                         };
                         checkBox.Click += (_s, _e) =>
                         {
-                            eCheckBox.Value = checkBox.IsChecked.GetValueOrDefault();
+                            try
+                            {
+                                eCheckBox.Value = checkBox.IsChecked.GetValueOrDefault();
+                            }
+                            catch (Exception ex)
+                            {
+                                DisplayException(ex.Message);
+                            }
                         };
                         eCheckBox.OnValueChanged += () =>
                         {
@@ -536,7 +550,14 @@ namespace DesktopMagic
                         };
                         textBox.TextChanged += (_s, _e) =>
                         {
-                            eTextBox.Value = textBox.Text;
+                            try
+                            {
+                                eTextBox.Value = textBox.Text;
+                            }
+                            catch (Exception ex)
+                            {
+                                DisplayException(ex.Message);
+                            }
                         };
                         eTextBox.OnValueChanged += () =>
                         {
@@ -559,7 +580,14 @@ namespace DesktopMagic
                         };
                         integerUpDown.ValueChanged += (_s, _e) =>
                         {
-                            eIntegerUpDown.Value = integerUpDown.Value.GetValueOrDefault();
+                            try
+                            {
+                                eIntegerUpDown.Value = integerUpDown.Value.GetValueOrDefault();
+                            }
+                            catch (Exception ex)
+                            {
+                                DisplayException(ex.Message);
+                            }
                         };
                         eIntegerUpDown.OnValueChanged += () =>
                         {
@@ -584,7 +612,14 @@ namespace DesktopMagic
                         };
                         slider.ValueChanged += (_s, _e) =>
                         {
-                            eSlider.Value = slider.Value;
+                            try
+                            {
+                                eSlider.Value = slider.Value;
+                            }
+                            catch (Exception ex)
+                            {
+                                DisplayException(ex.Message);
+                            }
                         };
                         eSlider.OnValueChanged += () =>
                         {
@@ -598,6 +633,16 @@ namespace DesktopMagic
                     }
                 }
             }
+        }
+
+        private void DisplayException(string message)
+        {
+            Logger.Log(message, "PluginInput");
+            _ = MessageBox.Show("File execution error:\n" + message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            int index = WindowNames.IndexOf(((Tuple<string, int>)optionsComboBox.SelectedItem).Item1.ToString());
+
+            PluginWindow window = Windows[index] as PluginWindow;
+            window?.Exit();
         }
 
         #endregion options

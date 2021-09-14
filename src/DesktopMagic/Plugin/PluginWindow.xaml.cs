@@ -225,25 +225,29 @@ namespace DesktopMagic
         {
             try
             {
-                Bitmap result = pluginClassInstance.Main();
+                if (!stop)
+                {
+                    Bitmap result = pluginClassInstance.Main();
 
-                if (pluginClassInstance.UpdateInterval > 0)
-                {
-                    valueTimer.Interval = pluginClassInstance.UpdateInterval;
-                }
-                else
-                {
-                    valueTimer.Stop();
-                }
+                    if (pluginClassInstance.UpdateInterval > 0)
+                    {
+                        valueTimer.Interval = pluginClassInstance.UpdateInterval;
+                    }
+                    else
+                    {
+                        valueTimer.Stop();
+                    }
 
-                //Update Image
-                Dispatcher.Invoke(() =>
-                {
-                    image.Source = BitmapToImageSource(result);
-                });
+                    //Update Image
+                    Dispatcher.Invoke(() =>
+                    {
+                        image.Source = BitmapToImageSource(result);
+                    });
+                }
             }
             catch (Exception ex)
             {
+                stop = true;
                 MainWindow.Logger.Log(ex.ToString(), "Plugin");
                 _ = MessageBox.Show("File execution error:\n" + ex, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 Exit();
@@ -272,8 +276,9 @@ namespace DesktopMagic
             return bitmapSource;
         }
 
-        private void Exit()
+        public void Exit()
         {
+            stop = true;
             Dispatcher.Invoke(() =>
             {
                 OnExit?.Invoke();

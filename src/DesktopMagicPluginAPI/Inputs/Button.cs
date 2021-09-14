@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading.Tasks;
 
 namespace DesktopMagicPluginAPI.Inputs
 {
@@ -45,7 +44,7 @@ namespace DesktopMagicPluginAPI.Inputs
         /// </summary>
         public void Click()
         {
-            _ = Task.Run(() => OnClick?.Invoke());
+            OnClick?.Invoke();
         }
     }
 }
