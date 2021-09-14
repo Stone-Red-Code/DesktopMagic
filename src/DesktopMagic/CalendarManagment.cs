@@ -5,6 +5,7 @@ using Google.Apis.Services;
 using Google.Apis.Util.Store;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Threading;
 
@@ -21,14 +22,11 @@ namespace DesktopMagic
             List<string> upcomingEventNames = new List<string>();
             List<string> upcomingEventTimes = new List<string>();
             UserCredential credential;
-            Console.WriteLine("1");
 
             if (!File.Exists("credentials.json"))
                 return (new(), new());
-            using (var stream =
-                new FileStream("credentials.json", FileMode.Open, FileAccess.Read))
+            using (var stream = new FileStream("credentials.json", FileMode.Open, FileAccess.Read))
             {
-                Console.WriteLine("2");
                 // The file token.json stores the user's access and refresh tokens, and is created
                 // automatically when the authorization flow completes for the first time.
                 string credPath = "token.json";
@@ -38,9 +36,8 @@ namespace DesktopMagic
                     "user",
                     CancellationToken.None,
                     new FileDataStore(credPath, true)).Result;
-                Console.WriteLine("Credential file saved to: " + credPath);
+                Debug.WriteLine("Credential file saved to: " + credPath);
             }
-            Console.WriteLine("3");
 
             // Create Google Calendar API service.
             var service = new CalendarService(new BaseClientService.Initializer()
@@ -48,8 +45,6 @@ namespace DesktopMagic
                 HttpClientInitializer = credential,
                 ApplicationName = ApplicationName,
             });
-
-            Console.WriteLine("4");
 
             // Define parameters of request.
             EventsResource.ListRequest request = service.Events.List("primary");
@@ -59,11 +54,8 @@ namespace DesktopMagic
             request.MaxResults = 10;
             request.OrderBy = EventsResource.ListRequest.OrderByEnum.StartTime;
 
-            Console.WriteLine("5");
             // List events.
             Events events = request.Execute();
-            Console.WriteLine("6");
-            Console.WriteLine("Upcoming events:");
             if (events.Items != null && events.Items.Count > 0)
             {
                 foreach (var eventItem in events.Items)
@@ -80,8 +72,6 @@ namespace DesktopMagic
                     }
                 }
             }
-
-            Console.WriteLine("7");
             return (upcomingEventNames, upcomingEventTimes);
         }
     }

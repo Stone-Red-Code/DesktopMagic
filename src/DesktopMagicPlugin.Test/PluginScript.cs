@@ -38,9 +38,9 @@ namespace DesktopMagicPlugin.Test
             {
                 try
                 {
-                    info.Value = "Loading...";
                     if (File.Exists(input.Value))
                     {
+                        info.Value = "Loading...";
                         Image gif = Image.FromFile(input.Value);
 
                         PropertyItem item = gif.GetPropertyItem(0x5100); // FrameDelay in libgdiplus

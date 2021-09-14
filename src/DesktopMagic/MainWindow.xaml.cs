@@ -10,6 +10,7 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Text.Json;
 using Stone_Red_Utilities.Logging;
+using System.Diagnostics;
 
 namespace DesktopMagic
 {
@@ -984,7 +985,7 @@ namespace DesktopMagic
         private void SetLanguageDictionary()
         {
             ResourceDictionary dict = new ResourceDictionary();
-            string currentCulture = Thread.CurrentThread.CurrentCulture.ToString();
+            string currentCulture = Thread.CurrentThread.CurrentUICulture.ToString();
 
             if (currentCulture.Contains("de"))
             {
@@ -995,6 +996,24 @@ namespace DesktopMagic
                 dict.Source = new Uri("..\\Resources\\StringResources.en.xaml", UriKind.Relative);
             }
             this.Resources.MergedDictionaries.Add(dict);
+        }
+
+        private void GithubButton_Click(object sender, RoutedEventArgs e)
+        {
+            string uri = "https://github.com/Stone-Red-Code/DesktopMagic";
+            ProcessStartInfo psi = new ProcessStartInfo();
+            psi.UseShellExecute = true;
+            psi.FileName = uri;
+            _ = Process.Start(psi);
+        }
+
+        private void DownloadPluginsButton_Click(object sender, RoutedEventArgs e)
+        {
+            string uri = "https://github.com/Stone-Red-Code/DesktopMagic-Plugins";
+            ProcessStartInfo psi = new ProcessStartInfo();
+            psi.UseShellExecute = true;
+            psi.FileName = uri;
+            _ = Process.Start(psi);
         }
     }
 }
