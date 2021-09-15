@@ -960,13 +960,16 @@ namespace DesktopMagic
         private void UpdatePluginsButton_Click(object sender, RoutedEventArgs e)
         {
             LoadPlugins();
-            foreach (Window window in Windows)
+            Task.Run(() =>
             {
-                if (window.GetType() == typeof(PluginWindow))
+                foreach (Window window in Windows.ToArray())
                 {
-                    ((PluginWindow)window).UpdatePluginWindow();
+                    if (window.GetType() == typeof(PluginWindow))
+                    {
+                        ((PluginWindow)window).UpdatePluginWindow();
+                    }
                 }
-            }
+            });
         }
 
         private void OpenPluginsFolderButton_Click(object sender, RoutedEventArgs e)
