@@ -17,6 +17,7 @@ namespace DesktopMagic
 
         private static string ApplicationName = "Google Calendar API .NET " + MainWindow.AppName;
 
+        [Obsolete]
         public (List<string>, List<string>) GetEvents()
         {
             List<string> upcomingEventNames = new List<string>();

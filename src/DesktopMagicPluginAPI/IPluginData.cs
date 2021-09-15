@@ -28,6 +28,16 @@ namespace DesktopMagicPluginAPI
         Point WindowPosition { get; }
 
         /// <summary>
+        /// Gets the name of the plugin.
+        /// </summary>
+        string PluginName { get; }
+
+        /// <summary>
+        /// Gets the path of the parent directory of the plugin.
+        /// </summary>
+        string PluginPath { get; }
+
+        /// <summary>
         /// Updates the plugin window.
         /// </summary>
         void UpdateWindow();

@@ -26,6 +26,8 @@
 - [IPluginData](#T-DesktopMagicPluginAPI-IPluginData 'DesktopMagicPluginAPI.IPluginData')
   - [Color](#P-DesktopMagicPluginAPI-IPluginData-Color 'DesktopMagicPluginAPI.IPluginData.Color')
   - [Font](#P-DesktopMagicPluginAPI-IPluginData-Font 'DesktopMagicPluginAPI.IPluginData.Font')
+  - [PluginName](#P-DesktopMagicPluginAPI-IPluginData-PluginName 'DesktopMagicPluginAPI.IPluginData.PluginName')
+  - [PluginPath](#P-DesktopMagicPluginAPI-IPluginData-PluginPath 'DesktopMagicPluginAPI.IPluginData.PluginPath')
   - [WindowPosition](#P-DesktopMagicPluginAPI-IPluginData-WindowPosition 'DesktopMagicPluginAPI.IPluginData.WindowPosition')
   - [WindowSize](#P-DesktopMagicPluginAPI-IPluginData-WindowSize 'DesktopMagicPluginAPI.IPluginData.WindowSize')
   - [UpdateWindow()](#M-DesktopMagicPluginAPI-IPluginData-UpdateWindow 'DesktopMagicPluginAPI.IPluginData.UpdateWindow')
@@ -324,6 +326,20 @@ Gets the color of the main application.
 ##### Summary
 
 Gets the font of the main application.
+
+<a name='P-DesktopMagicPluginAPI-IPluginData-PluginName'></a>
+### PluginName `property`
+
+##### Summary
+
+Gets the name of the plugin.
+
+<a name='P-DesktopMagicPluginAPI-IPluginData-PluginPath'></a>
+### PluginPath `property`
+
+##### Summary
+
+Gets the path of the parent directory of the plugin.
 
 <a name='P-DesktopMagicPluginAPI-IPluginData-WindowPosition'></a>
 ### WindowPosition `property`

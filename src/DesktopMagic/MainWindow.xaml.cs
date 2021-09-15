@@ -11,6 +11,7 @@ using System.Windows.Media;
 using System.Text.Json;
 using Stone_Red_Utilities.Logging;
 using System.Diagnostics;
+using System.Reflection;
 
 namespace DesktopMagic
 {
@@ -78,7 +79,7 @@ namespace DesktopMagic
                 InitializeComponent();
 
                 SetLanguageDictionary();
-                this.Title = AppName;
+                this.Title = $"{AppName} - {Assembly.GetExecutingAssembly().GetName().Version}";
             }
             catch (Exception ex)
             {
@@ -974,7 +975,7 @@ namespace DesktopMagic
 
         private void OpenPluginsFolderButton_Click(object sender, RoutedEventArgs e)
         {
-            _ = System.Diagnostics.Process.Start("explorer.exe", applicationDataPath + "\\Plugins");
+            _ = Process.Start("explorer.exe", applicationDataPath + "\\Plugins");
         }
 
         private void ScrollViewer_PreviewMouseWheel(object sender, System.Windows.Input.MouseWheelEventArgs e)

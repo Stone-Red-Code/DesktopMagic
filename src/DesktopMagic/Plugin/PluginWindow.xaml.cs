@@ -29,8 +29,8 @@ namespace DesktopMagic
         private System.Timers.Timer valueTimer;
 
         private Plugin pluginClassInstance;
-        private readonly string pluginName = "";
-        private string pluginFolderPath = "";
+        public string PluginName { get; private set; }
+        public string PluginFolderPath { get; private set; }
         private bool stop = false;
 
         public event Action PluginLoaded;
@@ -60,7 +60,7 @@ namespace DesktopMagic
             t.Elapsed += Elapsed;
             t.Start();
 
-            this.pluginName = pluginName;
+            this.PluginName = pluginName;
 
             key = Registry.CurrentUser.CreateSubKey(@"Software\" + MainWindow.AppName);
             this.Top = double.Parse(key.GetValue(pluginName + "WindowTop", 100).ToString());
@@ -117,9 +117,9 @@ namespace DesktopMagic
 
         private void LoadPlugin()
         {
-            pluginFolderPath = $"{Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)}\\{MainWindow.AppName}\\Plugins\\{pluginName}";
+            PluginFolderPath = $"{Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)}\\{MainWindow.AppName}\\Plugins\\{PluginName}";
 
-            if (!File.Exists($"{pluginFolderPath}\\{pluginName}.dll"))
+            if (!File.Exists($"{PluginFolderPath}\\{PluginName}.dll"))
             {
                 _ = MessageBox.Show("File does not exist!", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 Exit();
@@ -142,7 +142,7 @@ namespace DesktopMagic
 
         private void ExecuteSource()
         {
-            byte[] assemblyBytes = File.ReadAllBytes($"{pluginFolderPath}\\{pluginName}.dll");
+            byte[] assemblyBytes = File.ReadAllBytes($"{PluginFolderPath}\\{PluginName}.dll");
             Assembly dll = Assembly.Load(assemblyBytes);
             Type instanceType = dll.GetTypes().FirstOrDefault(type => type.GetTypeInfo().BaseType == typeof(Plugin));
 
@@ -190,34 +190,45 @@ namespace DesktopMagic
 
         private void LoadOptions(object instance)
         {
-            Debug.WriteLine(instance.GetType().FullName);
-            FieldInfo[] props = instance.GetType().GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.GetField);
-
-            List<SettingElement> settingElements = new List<SettingElement>();
-            foreach (FieldInfo prop in props)
+            try
             {
-                if (prop.GetValue(instance) is Element element)
+                Debug.WriteLine(instance.GetType().FullName);
+                FieldInfo[] props = instance.GetType().GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.GetField);
+
+                List<SettingElement> settingElements = new List<SettingElement>();
+                foreach (FieldInfo prop in props)
                 {
-                    object[] attrs = prop.GetCustomAttributes(true);
-                    foreach (object attr in attrs)
+                    if (prop.GetValue(instance) is Element element)
                     {
-                        if (attr is ElementAttribute elementAttribute)
+                        object[] attrs = prop.GetCustomAttributes(true);
+                        foreach (object attr in attrs)
                         {
-                            settingElements.Add(new SettingElement(element, elementAttribute.Name, elementAttribute.OrderIndex));
-                            break;
+                            if (attr is ElementAttribute elementAttribute)
+                            {
+                                settingElements.Add(new SettingElement(element, elementAttribute.Name, elementAttribute.OrderIndex));
+                                break;
+                            }
                         }
                     }
                 }
-            }
 
-            settingElements = settingElements.OrderBy(x => x.OrderIndex).ToList();
-            if (MainWindow.PluginsSettings.ContainsKey(pluginName))
-            {
-                MainWindow.PluginsSettings[pluginName] = settingElements;
+                settingElements = settingElements.OrderBy(x => x.OrderIndex).ToList();
+                if (MainWindow.PluginsSettings.ContainsKey(PluginName))
+                {
+                    MainWindow.PluginsSettings[PluginName] = settingElements;
+                }
+                else
+                {
+                    MainWindow.PluginsSettings.Add(PluginName, settingElements);
+                }
             }
-            else
+            catch (Exception ex)
             {
-                MainWindow.PluginsSettings.Add(pluginName, settingElements);
+                stop = true;
+                MainWindow.Logger.Log(ex.ToString(), "Plugin");
+                _ = MessageBox.Show("File execution error:\n" + ex, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                Exit();
+                return;
             }
         }
 
@@ -289,14 +300,14 @@ namespace DesktopMagic
 
         private void Window_LocationChanged(object sender, EventArgs e)
         {
-            key.SetValue(pluginName + "WindowTop", this.Top);
-            key.SetValue(pluginName + "WindowLeft", this.Left);
+            key.SetValue(PluginName + "WindowTop", this.Top);
+            key.SetValue(PluginName + "WindowLeft", this.Left);
         }
 
         private void Window_SizeChanged(object sender, SizeChangedEventArgs e)
         {
-            key.SetValue(pluginName + "WindowHeight", this.Height);
-            key.SetValue(pluginName + "WindowWidth", this.Width);
+            key.SetValue(PluginName + "WindowHeight", this.Height);
+            key.SetValue(PluginName + "WindowWidth", this.Width);
             tileBar.CaptionHeight = this.ActualHeight - 10;
         }
 

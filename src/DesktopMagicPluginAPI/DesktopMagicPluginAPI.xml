@@ -281,6 +281,16 @@
             Gets the window position of the plugin window.
             </summary>
         </member>
+        <member name="P:DesktopMagicPluginAPI.IPluginData.PluginName">
+            <summary>
+            Gets the name of the plugin.
+            </summary>
+        </member>
+        <member name="P:DesktopMagicPluginAPI.IPluginData.PluginPath">
+            <summary>
+            Gets the path of the parent directory of the plugin.
+            </summary>
+        </member>
         <member name="M:DesktopMagicPluginAPI.IPluginData.UpdateWindow">
             <summary>
             Updates the plugin window.
