@@ -667,41 +667,18 @@ namespace DesktopMagic
             char[] chars = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' };
             foreach (FontFamily ff in Fonts.SystemFontFamilies)
             {
-                double charWidth = -1;
-                bool monospace = true;
-
-                textBlock.FontFamily = ff;
-
-                foreach (char c in chars)
+                ComboBoxItem comboBoxItem = new()
                 {
-                    textBlock.Text = "";
+                    FontFamily = ff,
+                    Content = ff.ToString()
+                };
+                _ = fontComboBox.Items.Add(comboBoxItem);
 
-                    textBlock.Text += c.ToString();
-
-                    textBlock.UpdateLayout();
-
-                    if (charWidth != textBlock.ActualWidth && charWidth != -1)
-                    {
-                        monospace = false;
-                        break;
-                    }
-                    charWidth = textBlock.ActualWidth;
-                }
-                if (monospace)
+                if (ff.ToString() == GlobalFont)
                 {
-                    ComboBoxItem comboBoxItem = new()
-                    {
-                        FontFamily = ff,
-                        Content = ff.ToString()
-                    };
-                    _ = fontComboBox.Items.Add(comboBoxItem);
-
-                    if (ff.ToString() == GlobalFont)
-                    {
-                        fontComboBox.SelectedIndex = index;
-                    }
-                    index++;
+                    fontComboBox.SelectedIndex = index;
                 }
+                index++;
             }
             if (fontComboBox.SelectedIndex == -1)
             {
