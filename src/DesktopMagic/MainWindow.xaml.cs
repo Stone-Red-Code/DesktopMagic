@@ -321,7 +321,7 @@ namespace DesktopMagic
                 EditCheckBox_Click(null, null);
                 this.ShowInTaskbar = false;
                 this.Visibility = Visibility.Collapsed;
-                foreach (var item in Windows)
+                foreach (Window item in Windows)
                 {
                     WindowPos.SendWpfWindowBack(item);
                     WindowPos.SendWpfWindowBack(item);

@@ -146,7 +146,7 @@ namespace DesktopMagic
             Assembly dll = Assembly.Load(assemblyBytes);
             Type instanceType = dll.GetTypes().FirstOrDefault(type => type.GetTypeInfo().BaseType == typeof(Plugin));
 
-            foreach (var item in dll.GetTypes())
+            foreach (Type item in dll.GetTypes())
             {
                 Debug.WriteLine(item.Name);
                 Debug.WriteLine(typeof(Plugin).Name);
@@ -249,11 +249,14 @@ namespace DesktopMagic
                         valueTimer.Stop();
                     }
 
-                    //Update Image
-                    Dispatcher.Invoke(() =>
+                    if (result is not null)
                     {
-                        image.Source = BitmapToImageSource(result);
-                    });
+                        //Update Image
+                        Dispatcher.Invoke(() =>
+                        {
+                            image.Source = BitmapToImageSource(result);
+                        });
+                    }
                 }
             }
             catch (Exception ex)

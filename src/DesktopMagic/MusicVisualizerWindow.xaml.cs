@@ -76,7 +76,7 @@ namespace DesktopMagic
             base.OnSourceInitialized(e);
 
             //Set the window style to noactivate.
-            var helper = new WindowInteropHelper(this);
+            WindowInteropHelper helper = new WindowInteropHelper(this);
             WindowPos.SetWindowLong(helper.Handle, WindowPos.GWL_EXSTYLE,
             WindowPos.GetWindowLong(helper.Handle, WindowPos.GWL_EXSTYLE) | WindowPos.WS_EX_NOACTIVATE);
         }

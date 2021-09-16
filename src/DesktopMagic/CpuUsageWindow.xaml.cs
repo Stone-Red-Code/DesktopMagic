@@ -61,7 +61,7 @@ namespace DesktopMagic
             base.OnSourceInitialized(e);
 
             //Set the window style to noactivate.
-            var helper = new WindowInteropHelper(this);
+            WindowInteropHelper helper = new WindowInteropHelper(this);
             WindowPos.SetWindowLong(helper.Handle, WindowPos.GWL_EXSTYLE,
             WindowPos.GetWindowLong(helper.Handle, WindowPos.GWL_EXSTYLE) | WindowPos.WS_EX_NOACTIVATE);
         }
@@ -88,9 +88,10 @@ namespace DesktopMagic
 
         private void ValueTimer_Elapsed(object sender, ElapsedEventArgs e)
         {
+            string cpuUsage = GetCpuUsage();
             Dispatcher.Invoke(() =>
             {
-                textBlock.Text = GetCpuUsage();
+                textBlock.Text = cpuUsage;
             });
         }
 
