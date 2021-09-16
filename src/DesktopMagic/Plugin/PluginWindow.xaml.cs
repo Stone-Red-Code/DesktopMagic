@@ -1,6 +1,9 @@
 ﻿using DesktopMagicPluginAPI;
+using DesktopMagicPluginAPI.Drawing;
 using DesktopMagicPluginAPI.Inputs;
+
 using Microsoft.Win32;
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -251,9 +254,18 @@ namespace DesktopMagic
 
                     if (result is not null)
                     {
+                        BitmapScalingMode renderOptions = pluginClassInstance.RenderQuality switch
+                        {
+                            RenderQuality.High => BitmapScalingMode.HighQuality,
+                            RenderQuality.Low => BitmapScalingMode.LowQuality,
+                            RenderQuality.Performance => BitmapScalingMode.NearestNeighbor,
+                            _ => BitmapScalingMode.Unspecified
+                        };
+
                         //Update Image
                         Dispatcher.Invoke(() =>
                         {
+                            RenderOptions.SetBitmapScalingMode(image, renderOptions);
                             image.Source = BitmapToImageSource(result);
                         });
                     }

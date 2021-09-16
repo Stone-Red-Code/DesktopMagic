@@ -1,4 +1,6 @@
-﻿using DesktopMagicPluginAPI.Inputs;
+﻿using DesktopMagicPluginAPI.Drawing;
+using DesktopMagicPluginAPI.Inputs;
+
 using System;
 using System.Drawing;
 
@@ -34,6 +36,11 @@ namespace DesktopMagicPluginAPI
         /// Gets or sets the interval, expressed in milliseconds, at which to call the <see cref="Main"/> method.
         /// </summary>
         public virtual int UpdateInterval { get; set; } = 1000;
+
+        /// <summary>
+        /// Gets or sets the render quality of the bitmap image.
+        /// </summary>
+        public virtual RenderQuality RenderQuality { get; set; } = RenderQuality.High;
 
         /// <summary>
         /// Occurs once when the pugin gets activated.

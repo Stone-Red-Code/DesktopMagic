@@ -46,12 +46,17 @@
   - [Right](#F-DesktopMagicPluginAPI-Inputs-MouseButton-Right 'DesktopMagicPluginAPI.Inputs.MouseButton.Right')
 - [Plugin](#T-DesktopMagicPluginAPI-Plugin 'DesktopMagicPluginAPI.Plugin')
   - [Application](#P-DesktopMagicPluginAPI-Plugin-Application 'DesktopMagicPluginAPI.Plugin.Application')
+  - [RenderQuality](#P-DesktopMagicPluginAPI-Plugin-RenderQuality 'DesktopMagicPluginAPI.Plugin.RenderQuality')
   - [UpdateInterval](#P-DesktopMagicPluginAPI-Plugin-UpdateInterval 'DesktopMagicPluginAPI.Plugin.UpdateInterval')
   - [Main()](#M-DesktopMagicPluginAPI-Plugin-Main 'DesktopMagicPluginAPI.Plugin.Main')
   - [OnMouseClick(position,mouseButton)](#M-DesktopMagicPluginAPI-Plugin-OnMouseClick-System-Drawing-Point,DesktopMagicPluginAPI-Inputs-MouseButton- 'DesktopMagicPluginAPI.Plugin.OnMouseClick(System.Drawing.Point,DesktopMagicPluginAPI.Inputs.MouseButton)')
   - [OnMouseMove(position)](#M-DesktopMagicPluginAPI-Plugin-OnMouseMove-System-Drawing-Point- 'DesktopMagicPluginAPI.Plugin.OnMouseMove(System.Drawing.Point)')
   - [OnMouseWheel(position,Delta)](#M-DesktopMagicPluginAPI-Plugin-OnMouseWheel-System-Drawing-Point,System-Int32- 'DesktopMagicPluginAPI.Plugin.OnMouseWheel(System.Drawing.Point,System.Int32)')
   - [Start()](#M-DesktopMagicPluginAPI-Plugin-Start 'DesktopMagicPluginAPI.Plugin.Start')
+- [RenderQuality](#T-DesktopMagicPluginAPI-Drawing-RenderQuality 'DesktopMagicPluginAPI.Drawing.RenderQuality')
+  - [High](#F-DesktopMagicPluginAPI-Drawing-RenderQuality-High 'DesktopMagicPluginAPI.Drawing.RenderQuality.High')
+  - [Low](#F-DesktopMagicPluginAPI-Drawing-RenderQuality-Low 'DesktopMagicPluginAPI.Drawing.RenderQuality.Low')
+  - [Performance](#F-DesktopMagicPluginAPI-Drawing-RenderQuality-Performance 'DesktopMagicPluginAPI.Drawing.RenderQuality.Performance')
 - [Slider](#T-DesktopMagicPluginAPI-Inputs-Slider 'DesktopMagicPluginAPI.Inputs.Slider')
   - [#ctor(min,max,value)](#M-DesktopMagicPluginAPI-Inputs-Slider-#ctor-System-Double,System-Double,System-Double- 'DesktopMagicPluginAPI.Inputs.Slider.#ctor(System.Double,System.Double,System.Double)')
   - [Maximum](#P-DesktopMagicPluginAPI-Inputs-Slider-Maximum 'DesktopMagicPluginAPI.Inputs.Slider.Maximum')
@@ -508,6 +513,13 @@ The plugin class.
 
 Informations about the main application.
 
+<a name='P-DesktopMagicPluginAPI-Plugin-RenderQuality'></a>
+### RenderQuality `property`
+
+##### Summary
+
+Gets or sets the render quality of the bitmap image.
+
 <a name='P-DesktopMagicPluginAPI-Plugin-UpdateInterval'></a>
 ### UpdateInterval `property`
 
@@ -581,6 +593,38 @@ Occurs once when the pugin gets activated.
 ##### Parameters
 
 This method has no parameters.
+
+<a name='T-DesktopMagicPluginAPI-Drawing-RenderQuality'></a>
+## RenderQuality `type`
+
+##### Namespace
+
+DesktopMagicPluginAPI.Drawing
+
+##### Summary
+
+Specifies which render quality is used to display the bitmap images.
+
+<a name='F-DesktopMagicPluginAPI-Drawing-RenderQuality-High'></a>
+### High `constants`
+
+##### Summary
+
+Slower then [Low](#F-DesktopMagicPluginAPI-Drawing-RenderQuality-Low 'DesktopMagicPluginAPI.Drawing.RenderQuality.Low') but produces higher quality output.
+
+<a name='F-DesktopMagicPluginAPI-Drawing-RenderQuality-Low'></a>
+### Low `constants`
+
+##### Summary
+
+Faster then [High](#F-DesktopMagicPluginAPI-Drawing-RenderQuality-High 'DesktopMagicPluginAPI.Drawing.RenderQuality.High') but produces lower quality output.
+
+<a name='F-DesktopMagicPluginAPI-Drawing-RenderQuality-Performance'></a>
+### Performance `constants`
+
+##### Summary
+
+Provides performance benefits over [Low](#F-DesktopMagicPluginAPI-Drawing-RenderQuality-Low 'DesktopMagicPluginAPI.Drawing.RenderQuality.Low')
 
 <a name='T-DesktopMagicPluginAPI-Inputs-Slider'></a>
 ## Slider `type`

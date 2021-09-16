@@ -53,6 +53,26 @@
             <param name="point"><see cref="T:System.Drawing.PointF"/> structure that specifies the upper-left corner of the drawn text.</param>
             <param name="width">The specified width.</param>
         </member>
+        <member name="T:DesktopMagicPluginAPI.Drawing.RenderQuality">
+            <summary>
+            Specifies which render quality is used to display the bitmap images.
+            </summary>
+        </member>
+        <member name="F:DesktopMagicPluginAPI.Drawing.RenderQuality.High">
+            <summary>
+            Slower then <see cref="F:DesktopMagicPluginAPI.Drawing.RenderQuality.Low"/> but produces higher quality output.
+            </summary>
+        </member>
+        <member name="F:DesktopMagicPluginAPI.Drawing.RenderQuality.Low">
+            <summary>
+            Faster then <see cref="F:DesktopMagicPluginAPI.Drawing.RenderQuality.High"/> but produces lower quality output.
+            </summary>
+        </member>
+        <member name="F:DesktopMagicPluginAPI.Drawing.RenderQuality.Performance">
+            <summary>
+            Provides performance benefits over <see cref="F:DesktopMagicPluginAPI.Drawing.RenderQuality.Low"/>
+            </summary>
+        </member>
         <member name="T:DesktopMagicPluginAPI.Inputs.Button">
             <summary>
             Represents a button control.
@@ -309,6 +329,11 @@
         <member name="P:DesktopMagicPluginAPI.Plugin.UpdateInterval">
             <summary>
             Gets or sets the interval, expressed in milliseconds, at which to call the <see cref="M:DesktopMagicPluginAPI.Plugin.Main"/> method.
+            </summary>
+        </member>
+        <member name="P:DesktopMagicPluginAPI.Plugin.RenderQuality">
+            <summary>
+            Gets or sets the render quality of the bitmap image.
             </summary>
         </member>
         <member name="M:DesktopMagicPluginAPI.Plugin.Start">
