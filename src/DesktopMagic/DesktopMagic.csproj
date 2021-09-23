@@ -15,6 +15,10 @@
     <FileVersion>0.0.3.0</FileVersion>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+  </PropertyGroup>
+
   <ItemGroup>
     <None Remove="icon.ico" />
     <None Remove="icons8_volunteering_26_85L_icon.ico" />
@@ -27,7 +31,7 @@
     <PackageReference Include="Google.Apis.Calendar.v3" Version="1.55.0.2410" />
     <PackageReference Include="MaterialDesignThemes" Version="4.0.0" />
     <PackageReference Include="NAudio" Version="2.0.1" />
-    <PackageReference Include="Stone_Red-C-Sharp-Utilities" Version="1.0.3" />
+    <PackageReference Include="Stone_Red-C-Sharp-Utilities" Version="1.0.3.1" />
     <PackageReference Include="System.Management" Version="5.0.0" />
   </ItemGroup>
 

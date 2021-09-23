@@ -104,7 +104,7 @@ namespace DesktopMagic
                 InfoConfig = new OutputConfig()
                 {
                     Color = ConsoleColor.White,
-                    LogTarget = LogTarget.DebugConsole | LogTarget.File,
+                    LogTarget = LogTarget.Console | LogTarget.File,
                     FilePath = logFilePath
                 },
                 DebugConfig = new OutputConfig()
@@ -112,8 +112,11 @@ namespace DesktopMagic
                     Color = ConsoleColor.Gray,
                     LogTarget = LogTarget.DebugConsole,
                 },
+                FormatConfig = new FormatConfig()
+                {
+                    DebugConsoleFormat = $"> {{{LogFormatType.DateTime}:hh:mm:ss}} | {{{LogFormatType.LogSeverity},-5}} | {{{LogFormatType.Message}}}\n> at {{{LogFormatType.LineNumber},3}} | {{{LogFormatType.FilePath}}}"
+                }
             };
-
             Logger.ClearLogFile(LogSeverity.Info);
             Logger.Log("Log setup complete.", "Setup");
         }
