@@ -3,6 +3,7 @@ using Google.Apis.Calendar.v3;
 using Google.Apis.Calendar.v3.Data;
 using Google.Apis.Services;
 using Google.Apis.Util.Store;
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -15,7 +16,7 @@ namespace DesktopMagic
     {
         private static string[] Scopes = { CalendarService.Scope.CalendarReadonly };
 
-        private static string ApplicationName = "Google Calendar API .NET " + MainWindow.AppName;
+        private static string ApplicationName = "Google Calendar API .NET " + App.AppName;
 
         [Obsolete]
         public (List<string>, List<string>) GetEvents()
@@ -25,8 +26,11 @@ namespace DesktopMagic
             UserCredential credential;
 
             if (!File.Exists("credentials.json"))
+            {
                 return (new(), new());
-            using (var stream = new FileStream("credentials.json", FileMode.Open, FileAccess.Read))
+            }
+
+            using (FileStream stream = new FileStream("credentials.json", FileMode.Open, FileAccess.Read))
             {
                 // The file token.json stores the user's access and refresh tokens, and is created
                 // automatically when the authorization flow completes for the first time.
@@ -59,7 +63,7 @@ namespace DesktopMagic
             Events events = request.Execute();
             if (events.Items != null && events.Items.Count > 0)
             {
-                foreach (var eventItem in events.Items)
+                foreach (Event eventItem in events.Items)
                 {
                     if (upcomingEventNames.Count < 10)
                     {

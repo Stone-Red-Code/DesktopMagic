@@ -1,17 +1,16 @@
 ﻿using Microsoft.Win32;
+
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
-using System.Text.Json;
-using Stone_Red_Utilities.Logging;
-using System.Diagnostics;
-using System.Reflection;
 
 namespace DesktopMagic
 {
@@ -46,17 +45,11 @@ namespace DesktopMagic
 
         #endregion Plugins settings
 
-        public const string AppName = "Desktop Magic";
-
-        public static Logger Logger { get; private set; }
-
         public static List<Window> Windows { get; protected set; } = new List<Window>();
         public static List<string> WindowNames { get; protected set; } = new List<string>();
         private readonly RegistryKey key;
         private readonly System.Windows.Forms.NotifyIcon notifyIcon = new();
 
-        private readonly string applicationDataPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\" + AppName;
-        private readonly string logFilePath;
         private bool loaded = false;
 
         private bool blockWindowsClosing = true;
@@ -65,25 +58,23 @@ namespace DesktopMagic
         {
             try
             {
-                logFilePath = applicationDataPath + "\\Log.txt";
-                Logger = new Logger(LogTarget.File, logFilePath, "{<dateTime>:HH:mm:ss} | {<level>,-7} | {<source>,-15} | {<lineNumber>,-4} | {<memberName>,10} | {<message>}");
-                key = Registry.CurrentUser.CreateSubKey(@"Software\" + AppName);
+                key = Registry.CurrentUser.CreateSubKey(@"Software\" + App.AppName);
 
                 Stream iconStream = Application.GetResourceStream(new Uri("pack://application:,,,/DesktopMagic;component/icon.ico")).Stream;
                 notifyIcon.Click += TaskbarIcon_TrayLeftClick;
                 notifyIcon.Visible = true;
-                notifyIcon.Text = AppName;
+                notifyIcon.Text = App.AppName;
                 notifyIcon.Icon = new System.Drawing.Icon(iconStream);
                 notifyIcon.ContextMenuStrip = new System.Windows.Forms.ContextMenuStrip();
 
                 InitializeComponent();
 
                 SetLanguageDictionary();
-                this.Title = $"{AppName} - {Assembly.GetExecutingAssembly().GetName().Version}";
+                Title = $"{App.AppName} - {Assembly.GetExecutingAssembly().GetName().Version}";
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.ToString());
+                _ = MessageBox.Show(ex.ToString());
             }
         }
 
@@ -93,39 +84,37 @@ namespace DesktopMagic
         {
             try
             {
-                Logger.ClearLogFile();
-
-                if (!Directory.Exists(applicationDataPath))
+                if (!Directory.Exists(App.ApplicationDataPath))
                 {
-                    _ = Directory.CreateDirectory(applicationDataPath);
+                    _ = Directory.CreateDirectory(App.ApplicationDataPath);
                 }
-                Logger.Log("Created ApplicationData Folder", "Main");
+                App.Logger.Log("Created ApplicationData Folder", "Main");
 
-                if (!Directory.Exists(applicationDataPath + "\\Plugins"))
+                if (!Directory.Exists(App.ApplicationDataPath + "\\Plugins"))
                 {
-                    _ = Directory.CreateDirectory(applicationDataPath + "\\Plugins");
+                    _ = Directory.CreateDirectory(App.ApplicationDataPath + "\\Plugins");
                 }
-                Logger.Log("Created Plugins Folder", "Main");
+                App.Logger.Log("Created Plugins Folder", "Main");
 
-                if (!File.Exists(applicationDataPath + "\\layouts.save"))
+                if (!File.Exists(App.ApplicationDataPath + "\\layouts.save"))
                 {
-                    File.WriteAllText(applicationDataPath + "\\layouts.save", ";" + (string)FindResource("default"));
+                    File.WriteAllText(App.ApplicationDataPath + "\\layouts.save", ";" + (string)FindResource("default"));
                 }
-                Logger.Log("Created layouts.save file", "Main");
+                App.Logger.Log("Created layouts.save file", "Main");
 
                 _ = optionsComboBox.Items.Add(new Tuple<string, int>((string)FindResource("musicVisualizer"), 0));
 
                 //Write To Log File and Load Elements
 
-                Logger.Log("Loading Plugin names", "Main");
+                App.Logger.Log("Loading Plugin names", "Main");
                 LoadPlugins();
-                Logger.Log("Loading Layout names", "Main");
+                App.Logger.Log("Loading Layout names", "Main");
                 LoadLayoutNames();
-                Logger.Log("Loading Layout", "Main");
+                App.Logger.Log("Loading Layout", "Main");
                 LoadLayout();
 
                 loaded = true;
-                Logger.Log("Window Loaded", "Main");
+                App.Logger.Log("Window Loaded", "Main");
             }
             catch (Exception ex)
             {
@@ -135,7 +124,7 @@ namespace DesktopMagic
 
         private void LoadPlugins()
         {
-            string PluginsPath = applicationDataPath + "\\Plugins";
+            string PluginsPath = App.ApplicationDataPath + "\\Plugins";
 
             foreach (string fileName in Directory.GetFiles(PluginsPath, "*.dll"))
             {
@@ -208,11 +197,26 @@ namespace DesktopMagic
 
             switch (checkBox.Name)
             {
-                case "TimeCb": window = new TimeWindow(); break;
-                case "DateCb": window = new DateWindow(); break;
-                case "CpuUsageCb": window = new CpuUsageWindow(); break;
-                case "CalendarCb": window = new CalendarWindow(); break;
-                case "MusicVisualizerCb": window = new MusicVisualizerWindow(); break;
+                case "TimeCb":
+                    window = new TimeWindow();
+                    break;
+
+                case "DateCb":
+                    window = new DateWindow();
+                    break;
+
+                case "CpuUsageCb":
+                    window = new CpuUsageWindow();
+                    break;
+
+                case "CalendarCb":
+                    window = new CalendarWindow();
+                    break;
+
+                case "MusicVisualizerCb":
+                    window = new MusicVisualizerWindow();
+                    break;
+
                 default:
                     if (checkBox.Name.Contains("_PluginCb_"))
                     {
@@ -298,14 +302,14 @@ namespace DesktopMagic
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            MessageBoxResult msbRes = MessageBox.Show((string)FindResource("wantToCloseProgram"), AppName, MessageBoxButton.YesNo);
+            MessageBoxResult msbRes = MessageBox.Show((string)FindResource("wantToCloseProgram"), App.AppName, MessageBoxButton.YesNo);
             e.Cancel = msbRes != MessageBoxResult.Yes;
         }
 
         private void Window_Closed(object sender, EventArgs e)
         {
-            this.Visibility = Visibility.Collapsed;
-            this.UpdateLayout();
+            Visibility = Visibility.Collapsed;
+            UpdateLayout();
             foreach (Window window in Windows)
             {
                 window.Hide();
@@ -315,12 +319,12 @@ namespace DesktopMagic
 
         private void Window_StateChanged(object sender, EventArgs e)
         {
-            if (this.WindowState == WindowState.Minimized)
+            if (WindowState == WindowState.Minimized)
             {
                 EditCheckBox.IsChecked = false;
                 EditCheckBox_Click(null, null);
-                this.ShowInTaskbar = false;
-                this.Visibility = Visibility.Collapsed;
+                ShowInTaskbar = false;
+                Visibility = Visibility.Collapsed;
                 foreach (Window item in Windows)
                 {
                     WindowPos.SendWpfWindowBack(item);
@@ -651,7 +655,7 @@ namespace DesktopMagic
 
         private void DisplayException(string message)
         {
-            Logger.Log(message, "PluginInput");
+            App.Logger.Log(message, "PluginInput");
             _ = MessageBox.Show("File execution error:\n" + message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             int index = WindowNames.IndexOf(((Tuple<string, int>)optionsComboBox.SelectedItem).Item1.ToString());
 
@@ -664,7 +668,6 @@ namespace DesktopMagic
         private void TextBlock_Loaded(object sender, RoutedEventArgs e)
         {
             int index = 0;
-            char[] chars = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' };
             foreach (FontFamily ff in Fonts.SystemFontFamilies)
             {
                 ComboBoxItem comboBoxItem = new()
@@ -764,7 +767,7 @@ namespace DesktopMagic
 
             key.SetValue("SelectedLayout", layoutsComboBox.SelectedIndex);
 
-            string[] lines = File.ReadAllLines(applicationDataPath + "\\layouts.save");
+            string[] lines = File.ReadAllLines(App.ApplicationDataPath + "\\layouts.save");
             string[] data = lines[layoutsComboBox.SelectedIndex].Split(';');
             foreach (string dat in data)
             {
@@ -801,7 +804,7 @@ namespace DesktopMagic
                 }
                 content += inputDialog.ResponseText + "\n";
 
-                File.AppendAllText(applicationDataPath + "\\layouts.save", content);
+                File.AppendAllText(App.ApplicationDataPath + "\\layouts.save", content);
                 key.SetValue("SelectedLayout", -1);
                 LoadLayoutNames();
                 layoutsComboBox.SelectedIndex = layoutsComboBox.Items.Count - 1;
@@ -815,9 +818,9 @@ namespace DesktopMagic
                 return;
             }
 
-            List<string> lines = File.ReadAllLines(applicationDataPath + "\\layouts.save").ToList();
+            List<string> lines = File.ReadAllLines(App.ApplicationDataPath + "\\layouts.save").ToList();
             lines.RemoveAt(layoutsComboBox.SelectedIndex);
-            File.WriteAllLines(applicationDataPath + "\\layouts.save", lines);
+            File.WriteAllLines(App.ApplicationDataPath + "\\layouts.save", lines);
             LoadLayoutNames();
             layoutsComboBox.SelectedIndex = 0;
         }
@@ -826,9 +829,9 @@ namespace DesktopMagic
         {
             _ = Task.Run(() =>
               {
-                  lock (applicationDataPath)
+                  lock (App.ApplicationDataPath)
                   {
-                      List<string> lines = File.ReadAllLines(applicationDataPath + "\\layouts.save").ToList();
+                      List<string> lines = File.ReadAllLines(App.ApplicationDataPath + "\\layouts.save").ToList();
                       string content = "";
                       foreach (string valueName in key.GetValueNames())
                       {
@@ -842,7 +845,7 @@ namespace DesktopMagic
                           content += layoutsComboBox.SelectedItem.ToString();
                           lines[layoutsComboBox.SelectedIndex] = content;
                       });
-                      File.WriteAllLines(applicationDataPath + "\\layouts.save", lines);
+                      File.WriteAllLines(App.ApplicationDataPath + "\\layouts.save", lines);
                   }
               });
         }
@@ -850,7 +853,7 @@ namespace DesktopMagic
         private void LoadLayoutNames()
         {
             layoutsComboBox.Items.Clear();
-            string[] lines = File.ReadAllLines(applicationDataPath + "\\layouts.save");
+            string[] lines = File.ReadAllLines(App.ApplicationDataPath + "\\layouts.save");
 
             foreach (string line in lines)
             {
@@ -910,14 +913,14 @@ namespace DesktopMagic
                     }
                     catch (Exception ex)
                     {
-                        Logger.Log(ex.ToString(), "Main");
+                        App.Logger.Log(ex.ToString(), "Main");
                         MessageBox.Show(ex.ToString());
                     }
                 }
             }
             catch (Exception ex)
             {
-                Logger.Log(ex.ToString(), "Main");
+                App.Logger.Log(ex.ToString(), "Main");
                 _ = MessageBox.Show(ex.ToString());
             }
 
@@ -952,7 +955,7 @@ namespace DesktopMagic
 
         private void OpenPluginsFolderButton_Click(object sender, RoutedEventArgs e)
         {
-            _ = Process.Start("explorer.exe", applicationDataPath + "\\Plugins");
+            _ = Process.Start("explorer.exe", App.ApplicationDataPath + "\\Plugins");
         }
 
         private void ScrollViewer_PreviewMouseWheel(object sender, System.Windows.Input.MouseWheelEventArgs e)
@@ -966,12 +969,12 @@ namespace DesktopMagic
         {
             for (int i = 0; i < 10; i++)
             {
-                this.ShowInTaskbar = true;
-                this.Visibility = Visibility.Visible;
+                ShowInTaskbar = true;
+                Visibility = Visibility.Visible;
                 SystemCommands.RestoreWindow(this);
-                this.Topmost = true;
-                this.Activate();
-                this.Topmost = false;
+                Topmost = true;
+                Activate();
+                Topmost = false;
             }
         }
 
@@ -988,7 +991,7 @@ namespace DesktopMagic
             {
                 dict.Source = new Uri("..\\Resources\\StringResources.en.xaml", UriKind.Relative);
             }
-            this.Resources.MergedDictionaries.Add(dict);
+            Resources.MergedDictionaries.Add(dict);
         }
 
         private void GithubButton_Click(object sender, RoutedEventArgs e)

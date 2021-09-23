@@ -1,6 +1,8 @@
 ﻿using AlwaysUpToDate;
+
+using Stone_Red_Utilities.Logging;
+
 using System;
-using System.Diagnostics;
 using System.Threading;
 using System.Windows;
 
@@ -11,22 +13,30 @@ namespace DesktopMagic
     /// </summary>
     public partial class App : Application
     {
-        private Mutex _mutex;
+        private readonly string logFilePath;
+        private readonly Mutex _mutex;
 #if DEBUG
         private readonly Updater updater = new Updater(TimeSpan.FromDays(1), "https://raw.githubusercontent.com/Stone-Red-Code/DesktopMagic/develop/update/updateInfo.json");
 #else
         private readonly Updater updater = new Updater(TimeSpan.FromHours(1), "https://raw.githubusercontent.com/Stone-Red-Code/DesktopMagic/main/update/updateInfo.json");
 #endif
 
+        public const string AppName = "Desktop Magic";
+        public static string ApplicationDataPath { get; } = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\" + AppName;
+
+        public static Logger Logger { get; } = new Logger();
+
         public App()
         {
+            logFilePath = ApplicationDataPath + "\\Log.log";
+            Setup();
             // Try to grab mutex
-            bool createdNew;
-            _mutex = new Mutex(true, $"Stone_Red{DesktopMagic.MainWindow.AppName}", out createdNew);
+            _mutex = new Mutex(true, $"Stone_Red{AppName}", out bool createdNew);
 
             //check if creating new was succesfull
             if (!createdNew)
             {
+                Logger.Log("Shutting down because other instance already running.", "Setup");
                 //Shutdown Aplication
                 Current.Shutdown();
             }
@@ -49,22 +59,69 @@ namespace DesktopMagic
 
         private void Updater_NoUpdateAvailible()
         {
-            Debug.WriteLine("No update avalible.");
+            Logger.Log("No update avalible.", "Updater");
         }
 
         private void Updater_OnException(Exception exception)
         {
-            Debug.WriteLine("Update exception: " + exception);
+            Logger.Log(exception.ToString(), "Updater");
         }
 
         private void Updater_ProgressChanged(long? totalFileSize, long totalBytesDownloaded, double? progressPercentage)
         {
-            Debug.WriteLine($"{progressPercentage}% {totalBytesDownloaded}/{totalFileSize}");
+            Logger.Log($"{progressPercentage}% {totalBytesDownloaded}/{totalFileSize}", "Updater");
         }
 
-        protected virtual void CloseMutexHandler(object sender, EventArgs e)
+        protected void CloseMutexHandler(object sender, EventArgs e)
         {
             _mutex?.Close();
+        }
+
+        private void Setup()
+        {
+            AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
+
+            Logger.Config = new LogConfig()
+            {
+                FatalConfig = new OutputConfig()
+                {
+                    Color = ConsoleColor.DarkRed,
+                    LogTarget = LogTarget.DebugConsole | LogTarget.File,
+                    FilePath = logFilePath
+                },
+                ErrorConfig = new OutputConfig()
+                {
+                    Color = ConsoleColor.Red,
+                    LogTarget = LogTarget.DebugConsole | LogTarget.File,
+                    FilePath = logFilePath
+                },
+                WarnConfig = new OutputConfig()
+                {
+                    Color = ConsoleColor.Yellow,
+                    LogTarget = LogTarget.DebugConsole | LogTarget.File,
+                    FilePath = logFilePath
+                },
+                InfoConfig = new OutputConfig()
+                {
+                    Color = ConsoleColor.White,
+                    LogTarget = LogTarget.DebugConsole | LogTarget.File,
+                    FilePath = logFilePath
+                },
+                DebugConfig = new OutputConfig()
+                {
+                    Color = ConsoleColor.Gray,
+                    LogTarget = LogTarget.DebugConsole,
+                },
+            };
+
+            Logger.ClearLogFile(LogSeverity.Info);
+            Logger.Log("Log setup complete.", "Setup");
+        }
+
+        private void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
+        {
+            Exception exception = (Exception)e.ExceptionObject;
+            Logger.Log(exception + (e.IsTerminating ? "\t Process terminating!" : ""), exception.Source, LogSeverity.Fatal);
         }
     }
 }

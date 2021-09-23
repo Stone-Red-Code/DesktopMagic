@@ -6,7 +6,6 @@ using Microsoft.Win32;
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -55,7 +54,7 @@ namespace DesktopMagic
                 ShowInTaskbar = false
             };
             w.Show();
-            this.Owner = w;
+            Owner = w;
             w.Hide();
 
             System.Timers.Timer t = new System.Timers.Timer();
@@ -63,13 +62,13 @@ namespace DesktopMagic
             t.Elapsed += Elapsed;
             t.Start();
 
-            this.PluginName = pluginName;
+            PluginName = pluginName;
 
-            key = Registry.CurrentUser.CreateSubKey(@"Software\" + MainWindow.AppName);
-            this.Top = double.Parse(key.GetValue(pluginName + "WindowTop", 100).ToString());
-            this.Left = double.Parse(key.GetValue(pluginName + "WindowLeft", 100).ToString());
-            this.Height = double.Parse(key.GetValue(pluginName + "WindowHeight", 200).ToString());
-            this.Width = double.Parse(key.GetValue(pluginName + "WindowWidth", 500).ToString());
+            key = Registry.CurrentUser.CreateSubKey(@"Software\" + App.AppName);
+            Top = double.Parse(key.GetValue(pluginName + "WindowTop", 100).ToString());
+            Left = double.Parse(key.GetValue(pluginName + "WindowLeft", 100).ToString());
+            Height = double.Parse(key.GetValue(pluginName + "WindowHeight", 200).ToString());
+            Width = double.Parse(key.GetValue(pluginName + "WindowWidth", 500).ToString());
         }
 
         protected override void OnSourceInitialized(EventArgs e)
@@ -91,7 +90,10 @@ namespace DesktopMagic
             pluginThread.Start();
         }
 
-        public void UpdatePluginWindow() => ValueTimer_Elapsed(valueTimer, null);
+        public void UpdatePluginWindow()
+        {
+            ValueTimer_Elapsed(valueTimer, null);
+        }
 
         private void Elapsed(object sender, ElapsedEventArgs e)
         {
@@ -101,15 +103,15 @@ namespace DesktopMagic
                 {
                     panel.Visibility = Visibility.Visible;
                     WindowPos.SetIsLocked(this, false);
-                    tileBar.CaptionHeight = tileBar.CaptionHeight = this.ActualHeight - 10 < 0 ? 0 : this.ActualHeight - 10;
-                    this.ResizeMode = ResizeMode.CanResize;
+                    tileBar.CaptionHeight = tileBar.CaptionHeight = ActualHeight - 10 < 0 ? 0 : ActualHeight - 10;
+                    ResizeMode = ResizeMode.CanResize;
                 }
                 else
                 {
                     panel.Visibility = Visibility.Collapsed;
                     WindowPos.SetIsLocked(this, true);
                     tileBar.CaptionHeight = 0;
-                    this.ResizeMode = ResizeMode.NoResize;
+                    ResizeMode = ResizeMode.NoResize;
                 }
                 if (stop)
                 {
@@ -120,7 +122,7 @@ namespace DesktopMagic
 
         private void LoadPlugin()
         {
-            PluginFolderPath = $"{Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)}\\{MainWindow.AppName}\\Plugins\\{PluginName}";
+            PluginFolderPath = $"{Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)}\\{App.AppName}\\Plugins\\{PluginName}";
 
             if (!File.Exists($"{PluginFolderPath}\\{PluginName}.dll"))
             {
@@ -135,7 +137,7 @@ namespace DesktopMagic
             }
             catch (Exception ex)
             {
-                MainWindow.Logger.Log(ex.ToString(), "Plugin");
+                App.Logger.Log(ex.ToString(), "Plugin");
                 _ = MessageBox.Show("File execution error:\n" + ex, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 Exit();
                 return;
@@ -148,12 +150,6 @@ namespace DesktopMagic
             byte[] assemblyBytes = File.ReadAllBytes($"{PluginFolderPath}\\{PluginName}.dll");
             Assembly dll = Assembly.Load(assemblyBytes);
             Type instanceType = dll.GetTypes().FirstOrDefault(type => type.GetTypeInfo().BaseType == typeof(Plugin));
-
-            foreach (Type item in dll.GetTypes())
-            {
-                Debug.WriteLine(item.Name);
-                Debug.WriteLine(typeof(Plugin).Name);
-            }
 
             if (instanceType is null)
             {
@@ -195,7 +191,6 @@ namespace DesktopMagic
         {
             try
             {
-                Debug.WriteLine(instance.GetType().FullName);
                 FieldInfo[] props = instance.GetType().GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.GetField);
 
                 List<SettingElement> settingElements = new List<SettingElement>();
@@ -228,7 +223,7 @@ namespace DesktopMagic
             catch (Exception ex)
             {
                 stop = true;
-                MainWindow.Logger.Log(ex.ToString(), "Plugin");
+                App.Logger.Log(ex.ToString(), "Plugin");
                 _ = MessageBox.Show("File execution error:\n" + ex, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 Exit();
                 return;
@@ -274,7 +269,7 @@ namespace DesktopMagic
             catch (Exception ex)
             {
                 stop = true;
-                MainWindow.Logger.Log(ex.ToString(), "Plugin");
+                App.Logger.Log(ex.ToString(), "Plugin");
                 _ = MessageBox.Show("File execution error:\n" + ex, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 Exit();
                 return;
@@ -315,15 +310,15 @@ namespace DesktopMagic
 
         private void Window_LocationChanged(object sender, EventArgs e)
         {
-            key.SetValue(PluginName + "WindowTop", this.Top);
-            key.SetValue(PluginName + "WindowLeft", this.Left);
+            key.SetValue(PluginName + "WindowTop", Top);
+            key.SetValue(PluginName + "WindowLeft", Left);
         }
 
         private void Window_SizeChanged(object sender, SizeChangedEventArgs e)
         {
-            key.SetValue(PluginName + "WindowHeight", this.Height);
-            key.SetValue(PluginName + "WindowWidth", this.Width);
-            tileBar.CaptionHeight = this.ActualHeight - 10;
+            key.SetValue(PluginName + "WindowHeight", Height);
+            key.SetValue(PluginName + "WindowWidth", Width);
+            tileBar.CaptionHeight = ActualHeight - 10;
         }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
@@ -354,7 +349,8 @@ namespace DesktopMagic
                     mouseButton = MouseButton.Right;
                     break;
 
-                default: return;
+                default:
+                    return;
             };
 
             System.Drawing.Point point = new System.Drawing.Point((int)pixelMousePositionX, (int)pixelMousePositionY);
