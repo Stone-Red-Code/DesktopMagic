@@ -26,6 +26,8 @@
 - [IPluginData](#T-DesktopMagicPluginAPI-IPluginData 'DesktopMagicPluginAPI.IPluginData')
   - [Color](#P-DesktopMagicPluginAPI-IPluginData-Color 'DesktopMagicPluginAPI.IPluginData.Color')
   - [Font](#P-DesktopMagicPluginAPI-IPluginData-Font 'DesktopMagicPluginAPI.IPluginData.Font')
+  - [PluginName](#P-DesktopMagicPluginAPI-IPluginData-PluginName 'DesktopMagicPluginAPI.IPluginData.PluginName')
+  - [PluginPath](#P-DesktopMagicPluginAPI-IPluginData-PluginPath 'DesktopMagicPluginAPI.IPluginData.PluginPath')
   - [WindowPosition](#P-DesktopMagicPluginAPI-IPluginData-WindowPosition 'DesktopMagicPluginAPI.IPluginData.WindowPosition')
   - [WindowSize](#P-DesktopMagicPluginAPI-IPluginData-WindowSize 'DesktopMagicPluginAPI.IPluginData.WindowSize')
   - [UpdateWindow()](#M-DesktopMagicPluginAPI-IPluginData-UpdateWindow 'DesktopMagicPluginAPI.IPluginData.UpdateWindow')
@@ -38,13 +40,23 @@
   - [#ctor(value,bold)](#M-DesktopMagicPluginAPI-Inputs-Label-#ctor-System-String,System-Boolean- 'DesktopMagicPluginAPI.Inputs.Label.#ctor(System.String,System.Boolean)')
   - [Bold](#P-DesktopMagicPluginAPI-Inputs-Label-Bold 'DesktopMagicPluginAPI.Inputs.Label.Bold')
   - [Value](#P-DesktopMagicPluginAPI-Inputs-Label-Value 'DesktopMagicPluginAPI.Inputs.Label.Value')
+- [MouseButton](#T-DesktopMagicPluginAPI-Inputs-MouseButton 'DesktopMagicPluginAPI.Inputs.MouseButton')
+  - [Left](#F-DesktopMagicPluginAPI-Inputs-MouseButton-Left 'DesktopMagicPluginAPI.Inputs.MouseButton.Left')
+  - [Middle](#F-DesktopMagicPluginAPI-Inputs-MouseButton-Middle 'DesktopMagicPluginAPI.Inputs.MouseButton.Middle')
+  - [Right](#F-DesktopMagicPluginAPI-Inputs-MouseButton-Right 'DesktopMagicPluginAPI.Inputs.MouseButton.Right')
 - [Plugin](#T-DesktopMagicPluginAPI-Plugin 'DesktopMagicPluginAPI.Plugin')
   - [Application](#P-DesktopMagicPluginAPI-Plugin-Application 'DesktopMagicPluginAPI.Plugin.Application')
+  - [RenderQuality](#P-DesktopMagicPluginAPI-Plugin-RenderQuality 'DesktopMagicPluginAPI.Plugin.RenderQuality')
   - [UpdateInterval](#P-DesktopMagicPluginAPI-Plugin-UpdateInterval 'DesktopMagicPluginAPI.Plugin.UpdateInterval')
   - [Main()](#M-DesktopMagicPluginAPI-Plugin-Main 'DesktopMagicPluginAPI.Plugin.Main')
-  - [OnMouseClick(position)](#M-DesktopMagicPluginAPI-Plugin-OnMouseClick-System-Drawing-Point- 'DesktopMagicPluginAPI.Plugin.OnMouseClick(System.Drawing.Point)')
+  - [OnMouseClick(position,mouseButton)](#M-DesktopMagicPluginAPI-Plugin-OnMouseClick-System-Drawing-Point,DesktopMagicPluginAPI-Inputs-MouseButton- 'DesktopMagicPluginAPI.Plugin.OnMouseClick(System.Drawing.Point,DesktopMagicPluginAPI.Inputs.MouseButton)')
   - [OnMouseMove(position)](#M-DesktopMagicPluginAPI-Plugin-OnMouseMove-System-Drawing-Point- 'DesktopMagicPluginAPI.Plugin.OnMouseMove(System.Drawing.Point)')
+  - [OnMouseWheel(position,Delta)](#M-DesktopMagicPluginAPI-Plugin-OnMouseWheel-System-Drawing-Point,System-Int32- 'DesktopMagicPluginAPI.Plugin.OnMouseWheel(System.Drawing.Point,System.Int32)')
   - [Start()](#M-DesktopMagicPluginAPI-Plugin-Start 'DesktopMagicPluginAPI.Plugin.Start')
+- [RenderQuality](#T-DesktopMagicPluginAPI-Drawing-RenderQuality 'DesktopMagicPluginAPI.Drawing.RenderQuality')
+  - [High](#F-DesktopMagicPluginAPI-Drawing-RenderQuality-High 'DesktopMagicPluginAPI.Drawing.RenderQuality.High')
+  - [Low](#F-DesktopMagicPluginAPI-Drawing-RenderQuality-Low 'DesktopMagicPluginAPI.Drawing.RenderQuality.Low')
+  - [Performance](#F-DesktopMagicPluginAPI-Drawing-RenderQuality-Performance 'DesktopMagicPluginAPI.Drawing.RenderQuality.Performance')
 - [Slider](#T-DesktopMagicPluginAPI-Inputs-Slider 'DesktopMagicPluginAPI.Inputs.Slider')
   - [#ctor(min,max,value)](#M-DesktopMagicPluginAPI-Inputs-Slider-#ctor-System-Double,System-Double,System-Double- 'DesktopMagicPluginAPI.Inputs.Slider.#ctor(System.Double,System.Double,System.Double)')
   - [Maximum](#P-DesktopMagicPluginAPI-Inputs-Slider-Maximum 'DesktopMagicPluginAPI.Inputs.Slider.Maximum')
@@ -320,19 +332,33 @@ Gets the color of the main application.
 
 Gets the font of the main application.
 
+<a name='P-DesktopMagicPluginAPI-IPluginData-PluginName'></a>
+### PluginName `property`
+
+##### Summary
+
+Gets the name of the plugin.
+
+<a name='P-DesktopMagicPluginAPI-IPluginData-PluginPath'></a>
+### PluginPath `property`
+
+##### Summary
+
+Gets the path of the parent directory of the plugin.
+
 <a name='P-DesktopMagicPluginAPI-IPluginData-WindowPosition'></a>
 ### WindowPosition `property`
 
 ##### Summary
 
-Gets the window position of the main application.
+Gets the window position of the plugin window.
 
 <a name='P-DesktopMagicPluginAPI-IPluginData-WindowSize'></a>
 ### WindowSize `property`
 
 ##### Summary
 
-Gets the window size of the main application.
+Gets the window size of the plugin window.
 
 <a name='M-DesktopMagicPluginAPI-IPluginData-UpdateWindow'></a>
 ### UpdateWindow() `method`
@@ -437,6 +463,38 @@ Gets or set a value indicating whether the content of the [Label](#T-DesktopMagi
 
 Gets or sets the text associated with this [Label](#T-DesktopMagicPluginAPI-Inputs-Label 'DesktopMagicPluginAPI.Inputs.Label').
 
+<a name='T-DesktopMagicPluginAPI-Inputs-MouseButton'></a>
+## MouseButton `type`
+
+##### Namespace
+
+DesktopMagicPluginAPI.Inputs
+
+##### Summary
+
+Mouse Buttons
+
+<a name='F-DesktopMagicPluginAPI-Inputs-MouseButton-Left'></a>
+### Left `constants`
+
+##### Summary
+
+The left mouse button.
+
+<a name='F-DesktopMagicPluginAPI-Inputs-MouseButton-Middle'></a>
+### Middle `constants`
+
+##### Summary
+
+The middle mouse button.
+
+<a name='F-DesktopMagicPluginAPI-Inputs-MouseButton-Right'></a>
+### Right `constants`
+
+##### Summary
+
+The right mouse button.
+
 <a name='T-DesktopMagicPluginAPI-Plugin'></a>
 ## Plugin `type`
 
@@ -454,6 +512,13 @@ The plugin class.
 ##### Summary
 
 Informations about the main application.
+
+<a name='P-DesktopMagicPluginAPI-Plugin-RenderQuality'></a>
+### RenderQuality `property`
+
+##### Summary
+
+Gets or sets the render quality of the bitmap image.
 
 <a name='P-DesktopMagicPluginAPI-Plugin-UpdateInterval'></a>
 ### UpdateInterval `property`
@@ -477,8 +542,8 @@ Occurs when the [UpdateInterval](#P-DesktopMagicPluginAPI-Plugin-UpdateInterval 
 
 This method has no parameters.
 
-<a name='M-DesktopMagicPluginAPI-Plugin-OnMouseClick-System-Drawing-Point-'></a>
-### OnMouseClick(position) `method`
+<a name='M-DesktopMagicPluginAPI-Plugin-OnMouseClick-System-Drawing-Point,DesktopMagicPluginAPI-Inputs-MouseButton-'></a>
+### OnMouseClick(position,mouseButton) `method`
 
 ##### Summary
 
@@ -488,7 +553,8 @@ Occurs when the window is clicked by the mouse.
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| position | [System.Drawing.Point](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.Drawing.Point 'System.Drawing.Point') |  |
+| position | [System.Drawing.Point](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.Drawing.Point 'System.Drawing.Point') | The x- and y-coordinates of the mouse pointer position relative to the plugin window. |
+| mouseButton | [DesktopMagicPluginAPI.Inputs.MouseButton](#T-DesktopMagicPluginAPI-Inputs-MouseButton 'DesktopMagicPluginAPI.Inputs.MouseButton') | The button associated with the event. |
 
 <a name='M-DesktopMagicPluginAPI-Plugin-OnMouseMove-System-Drawing-Point-'></a>
 ### OnMouseMove(position) `method`
@@ -501,7 +567,21 @@ Occurs when the mouse pointer is moved over the control.
 
 | Name | Type | Description |
 | ---- | ---- | ----------- |
-| position | [System.Drawing.Point](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.Drawing.Point 'System.Drawing.Point') |  |
+| position | [System.Drawing.Point](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.Drawing.Point 'System.Drawing.Point') | The x- and y-coordinates of the mouse pointer position relative to the plugin window. |
+
+<a name='M-DesktopMagicPluginAPI-Plugin-OnMouseWheel-System-Drawing-Point,System-Int32-'></a>
+### OnMouseWheel(position,Delta) `method`
+
+##### Summary
+
+Occurs when the user rotates the mouse wheel while the mouse pointer is over this element.
+
+##### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| position | [System.Drawing.Point](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.Drawing.Point 'System.Drawing.Point') | The x- and y-coordinates of the mouse pointer position relative to the plugin window. |
+| Delta | [System.Int32](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.Int32 'System.Int32') | A value that indicates the amount that the mouse wheel has changed. |
 
 <a name='M-DesktopMagicPluginAPI-Plugin-Start'></a>
 ### Start() `method`
@@ -513,6 +593,38 @@ Occurs once when the pugin gets activated.
 ##### Parameters
 
 This method has no parameters.
+
+<a name='T-DesktopMagicPluginAPI-Drawing-RenderQuality'></a>
+## RenderQuality `type`
+
+##### Namespace
+
+DesktopMagicPluginAPI.Drawing
+
+##### Summary
+
+Specifies which render quality is used to display the bitmap images.
+
+<a name='F-DesktopMagicPluginAPI-Drawing-RenderQuality-High'></a>
+### High `constants`
+
+##### Summary
+
+Slower then [Low](#F-DesktopMagicPluginAPI-Drawing-RenderQuality-Low 'DesktopMagicPluginAPI.Drawing.RenderQuality.Low') but produces higher quality output.
+
+<a name='F-DesktopMagicPluginAPI-Drawing-RenderQuality-Low'></a>
+### Low `constants`
+
+##### Summary
+
+Faster then [High](#F-DesktopMagicPluginAPI-Drawing-RenderQuality-High 'DesktopMagicPluginAPI.Drawing.RenderQuality.High') but produces lower quality output.
+
+<a name='F-DesktopMagicPluginAPI-Drawing-RenderQuality-Performance'></a>
+### Performance `constants`
+
+##### Summary
+
+Provides performance benefits over [Low](#F-DesktopMagicPluginAPI-Drawing-RenderQuality-Low 'DesktopMagicPluginAPI.Drawing.RenderQuality.Low')
 
 <a name='T-DesktopMagicPluginAPI-Inputs-Slider'></a>
 ## Slider `type`

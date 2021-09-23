@@ -53,6 +53,26 @@
             <param name="point"><see cref="T:System.Drawing.PointF"/> structure that specifies the upper-left corner of the drawn text.</param>
             <param name="width">The specified width.</param>
         </member>
+        <member name="T:DesktopMagicPluginAPI.Drawing.RenderQuality">
+            <summary>
+            Specifies which render quality is used to display the bitmap images.
+            </summary>
+        </member>
+        <member name="F:DesktopMagicPluginAPI.Drawing.RenderQuality.High">
+            <summary>
+            Slower then <see cref="F:DesktopMagicPluginAPI.Drawing.RenderQuality.Low"/> but produces higher quality output.
+            </summary>
+        </member>
+        <member name="F:DesktopMagicPluginAPI.Drawing.RenderQuality.Low">
+            <summary>
+            Faster then <see cref="F:DesktopMagicPluginAPI.Drawing.RenderQuality.High"/> but produces lower quality output.
+            </summary>
+        </member>
+        <member name="F:DesktopMagicPluginAPI.Drawing.RenderQuality.Performance">
+            <summary>
+            Provides performance benefits over <see cref="F:DesktopMagicPluginAPI.Drawing.RenderQuality.Low"/>
+            </summary>
+        </member>
         <member name="T:DesktopMagicPluginAPI.Inputs.Button">
             <summary>
             Represents a button control.
@@ -192,6 +212,26 @@
             <param name="value">The text associated with this <see cref="T:DesktopMagicPluginAPI.Inputs.Label"/></param>
             <param name="bold">A value indicating whether the content of the <see cref="T:DesktopMagicPluginAPI.Inputs.Label"/> is bold or not.</param>
         </member>
+        <member name="T:DesktopMagicPluginAPI.Inputs.MouseButton">
+            <summary>
+            Mouse Buttons
+            </summary>
+        </member>
+        <member name="F:DesktopMagicPluginAPI.Inputs.MouseButton.Left">
+            <summary>
+            The left mouse button.
+            </summary>
+        </member>
+        <member name="F:DesktopMagicPluginAPI.Inputs.MouseButton.Middle">
+            <summary>
+            The middle mouse button.
+            </summary>
+        </member>
+        <member name="F:DesktopMagicPluginAPI.Inputs.MouseButton.Right">
+            <summary>
+             The right mouse button.
+            </summary>
+        </member>
         <member name="T:DesktopMagicPluginAPI.Inputs.Slider">
             <summary>
             Represents a slider control.
@@ -253,12 +293,22 @@
         </member>
         <member name="P:DesktopMagicPluginAPI.IPluginData.WindowSize">
             <summary>
-            Gets the window size of the main application.
+            Gets the window size of the plugin window.
             </summary>
         </member>
         <member name="P:DesktopMagicPluginAPI.IPluginData.WindowPosition">
             <summary>
-            Gets the window position of the main application.
+            Gets the window position of the plugin window.
+            </summary>
+        </member>
+        <member name="P:DesktopMagicPluginAPI.IPluginData.PluginName">
+            <summary>
+            Gets the name of the plugin.
+            </summary>
+        </member>
+        <member name="P:DesktopMagicPluginAPI.IPluginData.PluginPath">
+            <summary>
+            Gets the path of the parent directory of the plugin.
             </summary>
         </member>
         <member name="M:DesktopMagicPluginAPI.IPluginData.UpdateWindow">
@@ -281,6 +331,11 @@
             Gets or sets the interval, expressed in milliseconds, at which to call the <see cref="M:DesktopMagicPluginAPI.Plugin.Main"/> method.
             </summary>
         </member>
+        <member name="P:DesktopMagicPluginAPI.Plugin.RenderQuality">
+            <summary>
+            Gets or sets the render quality of the bitmap image.
+            </summary>
+        </member>
         <member name="M:DesktopMagicPluginAPI.Plugin.Start">
             <summary>
             Occurs once when the pugin gets activated.
@@ -292,17 +347,25 @@
             </summary>
             <returns></returns>
         </member>
-        <member name="M:DesktopMagicPluginAPI.Plugin.OnMouseClick(System.Drawing.Point)">
+        <member name="M:DesktopMagicPluginAPI.Plugin.OnMouseClick(System.Drawing.Point,DesktopMagicPluginAPI.Inputs.MouseButton)">
             <summary>
             Occurs when the window is clicked by the mouse.
             </summary>
-            <param name="position"></param>
+            <param name="position">The x- and y-coordinates of the mouse pointer position relative to the plugin window.</param>
+            <param name="mouseButton">The button associated with the event.</param>
         </member>
         <member name="M:DesktopMagicPluginAPI.Plugin.OnMouseMove(System.Drawing.Point)">
             <summary>
             Occurs when the mouse pointer is moved over the control.
             </summary>
-            <param name="position"></param>
+            <param name="position">The x- and y-coordinates of the mouse pointer position relative to the plugin window.</param>
+        </member>
+        <member name="M:DesktopMagicPluginAPI.Plugin.OnMouseWheel(System.Drawing.Point,System.Int32)">
+            <summary>
+            Occurs when the user rotates the mouse wheel while the mouse pointer is over this element.
+            </summary>
+            <param name="position">The x- and y-coordinates of the mouse pointer position relative to the plugin window.</param>
+            <param name="Delta">A value that indicates the amount that the mouse wheel has changed.</param>
         </member>
     </members>
 </doc>

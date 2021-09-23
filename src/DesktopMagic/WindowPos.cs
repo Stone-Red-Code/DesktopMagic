@@ -40,7 +40,7 @@ namespace DesktopMagic
         [DllImport("user32.dll")]
         private static extern int GetWindowRect(IntPtr hwnd, out Rectangle rect);
 
-        public void SendWpfWindowBack(Window window)
+        public static void SendWpfWindowBack(Window window)
         {
             var hWnd = new WindowInteropHelper(window).Handle;
             SetWindowPos(hWnd, HWND_BOTTOM, 0, 0, 0, 0, SWP_NOSIZE1 | SWP_NOMOVE1);
@@ -51,7 +51,7 @@ namespace DesktopMagic
             return (bool)obj.GetValue(IsLockedProperty);
         }
 
-        public void SetIsLocked(DependencyObject obj, bool value)
+        public static void SetIsLocked(DependencyObject obj, bool value)
         {
             obj.SetValue(IsLockedProperty, value);
         }

@@ -9,9 +9,9 @@
         Background="{DynamicResource MaterialDesignPaper}"
         FontFamily="{DynamicResource MaterialDesignFont}"
         Height="520"
-        Width="550"
+        Width="570"
         MinHeight="520"
-        MinWidth="500"
+        MinWidth="570"
         WindowState="Minimized"
         StateChanged="Window_StateChanged"
         Loaded="Window_Loaded">
@@ -38,14 +38,14 @@
                             <CheckBox x:Name="TimeCb" Content="{DynamicResource time}" Click="CheckBox_Click"  Style="{StaticResource MaterialDesignDarkCheckBox}" />
                             <CheckBox x:Name="DateCb" Content="{DynamicResource date}" Click="CheckBox_Click" Style="{StaticResource MaterialDesignDarkCheckBox}" />
                             <CheckBox x:Name="CpuUsageCb" Content="{DynamicResource cpuUsage}" Click="CheckBox_Click" Style="{StaticResource MaterialDesignDarkCheckBox}" />
-                            <CheckBox x:Name="CalendarCb" Content="{DynamicResource googleCalendar}"  Click="CheckBox_Click" Style="{StaticResource MaterialDesignDarkCheckBox}" />
+                            <CheckBox x:Name="CalendarCb" Content="{DynamicResource googleCalendar}"  Click="CheckBox_Click" Style="{StaticResource MaterialDesignDarkCheckBox}" Visibility="Collapsed"/> <!--Currently disabled because it's not working-->
                             <CheckBox x:Name="MusicVisualizerCb" Content="{DynamicResource musicVisualizer}" HorizontalAlignment="Left"  VerticalAlignment="Top" Click="CheckBox_Click" Style="{StaticResource MaterialDesignDarkCheckBox}" />
                         </StackPanel>
                     </ScrollViewer>
                 </DockPanel>
 
                 <DockPanel Grid.Column="1"  Margin="2.5,0,0,0">
-                    <ComboBox x:Name="optionsComboBox" DockPanel.Dock="Top" Height="24"  SelectedIndex="0" DisplayMemberPath="Item1" SelectionChanged="OptionsComboBox_SelectionChanged" Background="#FFECECEC" />
+                    <ComboBox x:Name="optionsComboBox" DockPanel.Dock="Top" Height="24"  SelectedIndex="0" DisplayMemberPath="Item1" SelectionChanged="OptionsComboBox_SelectionChanged" Background="#FFECECEC" Padding="4" VerticalAlignment="Center"/>
                     <ScrollViewer Background="#FFBBBBBB">
                         <Grid>
                             <StackPanel x:Name="optionsPanel" Margin="3,3,3,0" HorizontalAlignment="Stretch" Visibility="Collapsed" >
@@ -104,15 +104,20 @@
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition />
                         <ColumnDefinition />
+                        <ColumnDefinition />
                     </Grid.ColumnDefinitions>
 
-                    <Rectangle Fill="#FFC5C5C5" Stroke="#FFC5C5C5" Grid.ColumnSpan="2" />
+                    <Rectangle Fill="#FFC5C5C5" Stroke="#FFC5C5C5" Grid.ColumnSpan="3" />
                     <StackPanel Margin="{StaticResource DefaultMargin}" VerticalAlignment="Bottom">
                         <ComboBox x:Name="layoutsComboBox" HorizontalAlignment="Left" Margin="0,0,0,5" Width="170" Height="20" SelectionChanged="LayoutsComboBox_SelectionChanged" />
                         <Button x:Name="newLayoutButton" Content="{DynamicResource newLayout}" Margin="0,0,0,5" HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="170" Click="NewLayoutButton_Click" FontWeight="Regular" />
                         <Button x:Name="removeLayoutButton" Content="{DynamicResource deleteLayout}" HorizontalAlignment="Left"  VerticalAlignment="Bottom" Width="170" Click="RemoveLayoutButton_Click" FontWeight="Regular" />
                     </StackPanel>
                     <StackPanel Grid.Column="1" Margin="{StaticResource DefaultMargin}" VerticalAlignment="Bottom">
+                        <Button x:Name="downloadPluginsButton"  Content="{DynamicResource downloadPlugins}" Margin="0,0,0,5" HorizontalAlignment="Center" Width="170" Click="DownloadPluginsButton_Click"  FontWeight="Regular" Cursor="Hand" />
+                        <Button x:Name="githubButton" Content="GitHub" HorizontalAlignment="Center" Width="170" Click="GithubButton_Click"  FontWeight="Regular" Cursor="Hand" />
+                    </StackPanel>
+                    <StackPanel Grid.Column="2" Margin="{StaticResource DefaultMargin}" VerticalAlignment="Bottom">
                         <Button x:Name="updatePluginsButton" Content="{DynamicResource updatePlugins}" Margin="0,0,0,5" HorizontalAlignment="Right" Width="170" Click="UpdatePluginsButton_Click" FontWeight="Regular" />
                         <Button x:Name="openPluginsFolderButton" Content="{DynamicResource openPluginsFolder}" HorizontalAlignment="Right" Width="170" Click="OpenPluginsFolderButton_Click" FontWeight="Regular" />
                     </StackPanel>

@@ -7,6 +7,7 @@
     <system:String x:Key="mirrorPlugine">Mirror</system:String>
     <system:String x:Key="updatePlugins">Reload Plugins</system:String>
     <system:String x:Key="openPluginsFolder">Open Plugins Folder</system:String>
+    <system:String x:Key="downloadPlugins">Download Plugins</system:String>
     <system:String x:Key="color">Color:</system:String>
     <system:String x:Key="default">Default</system:String>
     <system:String x:Key="wantToCloseProgram">Do you really want to close the program?</system:String>

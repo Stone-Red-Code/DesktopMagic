@@ -1,4 +1,7 @@
-﻿using System;
+﻿using DesktopMagicPluginAPI.Drawing;
+using DesktopMagicPluginAPI.Inputs;
+
+using System;
 using System.Drawing;
 
 namespace DesktopMagicPluginAPI
@@ -35,6 +38,11 @@ namespace DesktopMagicPluginAPI
         public virtual int UpdateInterval { get; set; } = 1000;
 
         /// <summary>
+        /// Gets or sets the render quality of the bitmap image.
+        /// </summary>
+        public virtual RenderQuality RenderQuality { get; set; } = RenderQuality.High;
+
+        /// <summary>
         /// Occurs once when the pugin gets activated.
         /// </summary>
         public virtual void Start()
@@ -50,16 +58,26 @@ namespace DesktopMagicPluginAPI
         /// <summary>
         /// Occurs when the window is clicked by the mouse.
         /// </summary>
-        /// <param name="position"></param>
-        public virtual void OnMouseClick(Point position)
+        /// <param name="position">The x- and y-coordinates of the mouse pointer position relative to the plugin window.</param>
+        /// <param name="mouseButton">The button associated with the event.</param>
+        public virtual void OnMouseClick(Point position, MouseButton mouseButton)
         {
         }
 
         /// <summary>
         /// Occurs when the mouse pointer is moved over the control.
         /// </summary>
-        /// <param name="position"></param>
+        /// <param name="position">The x- and y-coordinates of the mouse pointer position relative to the plugin window.</param>
         public virtual void OnMouseMove(Point position)
+        {
+        }
+
+        /// <summary>
+        /// Occurs when the user rotates the mouse wheel while the mouse pointer is over this element.
+        /// </summary>
+        /// <param name="position">The x- and y-coordinates of the mouse pointer position relative to the plugin window.</param>
+        /// <param name="Delta">A value that indicates the amount that the mouse wheel has changed.</param>
+        public virtual void OnMouseWheel(Point position, int Delta)
         {
         }
     }

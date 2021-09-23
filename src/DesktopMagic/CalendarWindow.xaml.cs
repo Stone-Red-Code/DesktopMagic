@@ -1,4 +1,5 @@
 ﻿using Microsoft.Win32;
+
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -33,7 +34,7 @@ namespace DesktopMagic
             w.WindowStyle = WindowStyle.ToolWindow;
             w.ShowInTaskbar = false;
             w.Show();
-            this.Owner = w;
+            Owner = w;
             w.Hide();
 
             Timer t = new Timer();
@@ -43,14 +44,15 @@ namespace DesktopMagic
 
             Timer valueTimer = new Timer();
             valueTimer.Interval = 600000;
-            valueTimer.Elapsed += ValueTimer_Elapsed; ;
+            valueTimer.Elapsed += ValueTimer_Elapsed;
+            ;
             valueTimer.Start();
 
-            key = Registry.CurrentUser.CreateSubKey(@"Software\" + MainWindow.AppName);
-            this.Top = double.Parse(key.GetValue("CalendarWindowTop", 100).ToString());
-            this.Left = double.Parse(key.GetValue("CalendarWindowLeft", 100).ToString());
-            this.Height = double.Parse(key.GetValue("CalendarWindowHeight", 200).ToString());
-            this.Width = double.Parse(key.GetValue("CalendarWindowWidth", 500).ToString());
+            key = Registry.CurrentUser.CreateSubKey(@"Software\" + App.AppName);
+            Top = double.Parse(key.GetValue("CalendarWindowTop", 100).ToString());
+            Left = double.Parse(key.GetValue("CalendarWindowLeft", 100).ToString());
+            Height = double.Parse(key.GetValue("CalendarWindowHeight", 200).ToString());
+            Width = double.Parse(key.GetValue("CalendarWindowWidth", 500).ToString());
             //this.IsEnabled = false;
 
             Task.Run(() =>
@@ -68,7 +70,7 @@ namespace DesktopMagic
             base.OnSourceInitialized(e);
 
             //Set the window style to noactivate.
-            var helper = new WindowInteropHelper(this);
+            WindowInteropHelper helper = new WindowInteropHelper(this);
             WindowPos.SetWindowLong(helper.Handle, WindowPos.GWL_EXSTYLE,
             WindowPos.GetWindowLong(helper.Handle, WindowPos.GWL_EXSTYLE) | WindowPos.WS_EX_NOACTIVATE);
         }
@@ -92,12 +94,12 @@ namespace DesktopMagic
                 if (MainWindow.EditMode)
                 {
                     panel.Visibility = Visibility.Visible;
-                    new WindowPos().SetIsLocked(this, false);
+                    WindowPos.SetIsLocked(this, false);
                 }
                 else
                 {
                     panel.Visibility = Visibility.Collapsed;
-                    new WindowPos().SetIsLocked(this, true);
+                    WindowPos.SetIsLocked(this, true);
                 }
                 if (MainWindow.GlobalFont != oldFont || MainWindow.GlobalColor != oldColor)
                 {
@@ -143,15 +145,15 @@ namespace DesktopMagic
 
         private void Window_LocationChanged(object sender, EventArgs e)
         {
-            key.SetValue("CalendarWindowTop", this.Top);
-            key.SetValue("CalendarWindowLeft", this.Left);
+            key.SetValue("CalendarWindowTop", Top);
+            key.SetValue("CalendarWindowLeft", Left);
         }
 
         private void Window_SizeChanged(object sender, SizeChangedEventArgs e)
         {
-            key.SetValue("CalendarWindowHeight", this.Height);
-            key.SetValue("CalendarWindowWidth", this.Width);
-            tileBar.CaptionHeight = this.ActualHeight - 10;
+            key.SetValue("CalendarWindowHeight", Height);
+            key.SetValue("CalendarWindowWidth", Width);
+            tileBar.CaptionHeight = ActualHeight - 10;
         }
     }
 }

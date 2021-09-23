@@ -6,3 +6,4 @@
 using System.Diagnostics.CodeAnalysis;
 
 [assembly: SuppressMessage("Performance", "CA1822:Member als statisch markieren", Justification = "<Ausstehend>", Scope = "member", Target = "~M:DesktopMagic.PluginWindow.LoadOptions(System.Object)")]
+[assembly: SuppressMessage("Style", "IDE0090:Use 'new(...)'", Justification = "<Pending>", Scope = "member", Target = "~M:DesktopMagic.MainWindow.GithubButton_Click(System.Object,System.Windows.RoutedEventArgs)")]

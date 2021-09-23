@@ -4,16 +4,20 @@
     <TargetFramework>net5.0</TargetFramework>
     <Company>Stone_Red</Company>
     <Product>Stone_Red</Product>
-    <Version>0.0.0.2</Version>
+    <Version>0.0.0.4</Version>
     <RepositoryUrl>https://github.com/Stone-Red-Code/DesktopMagic</RepositoryUrl>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <AssemblyVersion>0.0.0.2</AssemblyVersion>
+    <AssemblyVersion>0.0.0.4</AssemblyVersion>
     <PackageProjectUrl></PackageProjectUrl>
-    <FileVersion>0.0.0.2</FileVersion>
+    <FileVersion>0.0.0.4</FileVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DocumentationFile>C:\Users\David\Programmieren\DesktopMagic\src\DesktopMagicPluginAPI\DesktopMagicPluginAPI.xml</DocumentationFile>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <DocumentationFile>C:\Users\David\Programmieren\DesktopMagic\src\DesktopMagicPluginAPI\DesktopMagicPluginAPI.xml</DocumentationFile>
   </PropertyGroup>
 

@@ -1,5 +1,7 @@
 ﻿using Microsoft.Win32;
+
 using NAudio.Wave;
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -42,7 +44,7 @@ namespace DesktopMagic
             };
 
             w.Show();
-            this.Owner = w;
+            Owner = w;
             w.Hide();
 
             sampleAggregator.FftCalculated += new EventHandler<FftEventArgs>(FftCalculated);
@@ -58,17 +60,17 @@ namespace DesktopMagic
             t.Elapsed += T_Elapsed;
             t.Start();
 
-            key = Registry.CurrentUser.CreateSubKey(@"Software\" + MainWindow.AppName);
+            key = Registry.CurrentUser.CreateSubKey(@"Software\" + App.AppName);
 
-            this.Top = double.Parse(key.GetValue("MusicVisualizerWindowTop", 100).ToString());
+            Top = double.Parse(key.GetValue("MusicVisualizerWindowTop", 100).ToString());
 
-            this.Left = double.Parse(key.GetValue("MusicVisualizerWindowLeft", 100).ToString());
+            Left = double.Parse(key.GetValue("MusicVisualizerWindowLeft", 100).ToString());
 
-            this.Height = double.Parse(key.GetValue("MusicVisualizerWindowHeight", 200).ToString());
+            Height = double.Parse(key.GetValue("MusicVisualizerWindowHeight", 200).ToString());
 
-            this.Width = double.Parse(key.GetValue("MusicVisualizerWindowWidth", 500).ToString());
+            Width = double.Parse(key.GetValue("MusicVisualizerWindowWidth", 500).ToString());
 
-            this.IsEnabled = false;
+            IsEnabled = false;
         }
 
         protected override void OnSourceInitialized(EventArgs e)
@@ -76,7 +78,7 @@ namespace DesktopMagic
             base.OnSourceInitialized(e);
 
             //Set the window style to noactivate.
-            var helper = new WindowInteropHelper(this);
+            WindowInteropHelper helper = new WindowInteropHelper(this);
             WindowPos.SetWindowLong(helper.Handle, WindowPos.GWL_EXSTYLE,
             WindowPos.GetWindowLong(helper.Handle, WindowPos.GWL_EXSTYLE) | WindowPos.WS_EX_NOACTIVATE);
         }
@@ -88,14 +90,14 @@ namespace DesktopMagic
                 if (MainWindow.EditMode)
                 {
                     panel.Visibility = Visibility.Visible;
-                    new WindowPos().SetIsLocked(this, false);
+                    WindowPos.SetIsLocked(this, false);
                 }
                 else
                 {
                     panel.Visibility = Visibility.Collapsed;
-                    new WindowPos().SetIsLocked(this, true);
+                    WindowPos.SetIsLocked(this, true);
                 }
-                if (!this.IsLoaded)
+                if (!IsLoaded)
                 {
                     calculate = false;
                 }
@@ -126,7 +128,10 @@ namespace DesktopMagic
 
         private void FftCalculated(object sender, FftEventArgs e)
         {
-            if (!calculate) return;
+            if (!calculate)
+            {
+                return;
+            }
 
             List<double> fft = new List<double>();
             for (int i = 0; i < e.Result.Length / 2 - 70; i++)
@@ -193,7 +198,9 @@ namespace DesktopMagic
                     for (int j = 0; j < flattenValue; j++)
                     {
                         if (i + j < scaledFft.Count)
+                        {
                             temp += scaledFft[i + j];
+                        }
                     }
                     scaledFft[i] = temp / flattenValue;
                 }
@@ -207,7 +214,9 @@ namespace DesktopMagic
                     for (int j = 0; j < flattenValue; j++)
                     {
                         if (i - j >= 0)
+                        {
                             temp += scaledFft[i - j];
+                        }
                     }
                     scaledFft[i] = temp / flattenValue;
                 }
@@ -224,10 +233,14 @@ namespace DesktopMagic
                 int offset = 0;
 
                 if (!MainWindow.MirrorMode && MainWindow.SpectrumMode != 1)
+                {
                     scaledFft.Insert(0, 0);
+                }
 
                 if (!MainWindow.LineMode)
+                {
                     offset = 1;
+                }
 
                 using (Graphics gr = Graphics.FromImage(bm))
                 {
@@ -256,8 +269,13 @@ namespace DesktopMagic
                                 }
                                 break;
 
-                            case 2: points[pointIndex + 1] = new PointF(2 * pointIndex, value); break;
-                            default: points[pointIndex + 1] = new PointF(2 * pointIndex, bm.Height - value - 1 + offset); break;
+                            case 2:
+                                points[pointIndex + 1] = new PointF(2 * pointIndex, value);
+                                break;
+
+                            default:
+                                points[pointIndex + 1] = new PointF(2 * pointIndex, bm.Height - value - 1 + offset);
+                                break;
                         }
 
                         if (MainWindow.MirrorMode || MainWindow.SpectrumMode == 1)
@@ -364,9 +382,9 @@ namespace DesktopMagic
 
         private void Window_SizeChanged(object sender, SizeChangedEventArgs e)
         {
-            key.SetValue("MusicVisualizerWindowHeight", this.Height);
-            key.SetValue("MusicVisualizerWindowWidth", this.Width);
-            tileBar.CaptionHeight = this.ActualHeight - 10;
+            key.SetValue("MusicVisualizerWindowHeight", Height);
+            key.SetValue("MusicVisualizerWindowWidth", Width);
+            tileBar.CaptionHeight = ActualHeight - 10;
         }
     }
 }
