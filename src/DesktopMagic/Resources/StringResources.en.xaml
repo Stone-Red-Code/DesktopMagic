@@ -3,8 +3,8 @@
                     xmlns:col="clr-namespace:System.Collections;assembly=mscorlib"
                     xmlns:system="clr-namespace:System;assembly=mscorlib">
 
-    <system:String x:Key="linePlugine">Line</system:String>
-    <system:String x:Key="mirrorPlugine">Mirror</system:String>
+    <system:String x:Key="lineMode">Line</system:String>
+    <system:String x:Key="mirrorMode">Mirror</system:String>
     <system:String x:Key="updatePlugins">Reload Plugins</system:String>
     <system:String x:Key="openPluginsFolder">Open Plugins Folder</system:String>
     <system:String x:Key="downloadPlugins">Download Plugins</system:String>

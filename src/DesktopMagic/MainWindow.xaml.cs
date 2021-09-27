@@ -268,7 +268,7 @@ namespace DesktopMagic
 
                         window.ShowInTaskbar = false;
                         window.Show();
-                        window.ContentRendered += PluginWindow_ContentRendered;
+                        window.ContentRendered += DisplayWindow_ContentRendered;
                         window.Closing += DisplayWindow_Closing;
                         Windows.Add(window);
                         WindowNames.Add(window.Title);
@@ -289,7 +289,7 @@ namespace DesktopMagic
             SaveLayout();
         }
 
-        private void PluginWindow_ContentRendered(object sender, EventArgs e)
+        private void DisplayWindow_ContentRendered(object sender, EventArgs e)
         {
             WindowPos.SendWpfWindowBack(sender as Window);
             WindowPos.SendWpfWindowBack(sender as Window);
@@ -345,17 +345,17 @@ namespace DesktopMagic
             SaveLayout();
         }
 
-        private void MirrorPlugineCheckBox_Click(object sender, RoutedEventArgs e)
+        private void MirrorModeCheckBox_Click(object sender, RoutedEventArgs e)
         {
-            MirrorMode = (bool)mirrorPlugineCheckBox.IsChecked;
-            key.SetValue("MirrorPlugine", mirrorPlugineCheckBox.IsChecked.ToString());
+            MirrorMode = (bool)mirrorModeCheckBox.IsChecked;
+            key.SetValue("MirrorMode", mirrorModeCheckBox.IsChecked.ToString());
             SaveLayout();
         }
 
-        private void LinePlugineCheckBox_Click(object sender, RoutedEventArgs e)
+        private void LineModeCheckBox_Click(object sender, RoutedEventArgs e)
         {
-            LineMode = (bool)linePlugineCheckBox.IsChecked;
-            key.SetValue("LinePlugine", linePlugineCheckBox.IsChecked.ToString());
+            LineMode = (bool)lineModeCheckBox.IsChecked;
+            key.SetValue("LineMode", lineModeCheckBox.IsChecked.ToString());
             SaveLayout();
         }
 
@@ -422,12 +422,12 @@ namespace DesktopMagic
             SaveLayout();
         }
 
-        private void SpectrumPlugineComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void SpectrumModeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            SpectrumMode = spectrumPlugineComboBox.SelectedIndex;
-            key.SetValue("SpectrumPlugine", spectrumPlugineComboBox.SelectedIndex);
+            SpectrumMode = spectrumModeComboBox.SelectedIndex;
+            key.SetValue("SpectrumMode", spectrumModeComboBox.SelectedIndex);
 
-            mirrorPlugineCheckBox.IsEnabled = spectrumPlugineComboBox.SelectedIndex != 1;
+            mirrorModeCheckBox.IsEnabled = spectrumModeComboBox.SelectedIndex != 1;
             SaveLayout();
         }
 
@@ -866,18 +866,18 @@ namespace DesktopMagic
         private void LoadLayout(bool minimize = true)
         {
             GlobalFont = key.GetValue("Font", "Segoe UI").ToString();
-            spectrumPlugineComboBox.SelectedIndex = int.Parse(key.GetValue("SpectrumPlugine", "0").ToString());
+            spectrumModeComboBox.SelectedIndex = int.Parse(key.GetValue("SpectrumMode", "0").ToString());
             amplifierLevelSlider.Value = int.Parse(key.GetValue("AmplifierLevel", "0").ToString());
-            mirrorPlugineCheckBox.IsChecked = bool.Parse(key.GetValue("MirrorPlugine", "false").ToString());
-            linePlugineCheckBox.IsChecked = bool.Parse(key.GetValue("LinePlugine", "false").ToString());
+            mirrorModeCheckBox.IsChecked = bool.Parse(key.GetValue("MirrorMode", "false").ToString());
+            lineModeCheckBox.IsChecked = bool.Parse(key.GetValue("LineMode", "false").ToString());
             musicVisualizerColorTextBox.Text = key.GetValue("MusicVisualizerColor", "").ToString();
             colorHexTextBox.Text = key.GetValue("Color", "#FFFFFF").ToString();
             blockWindowsClosing = false;
 
             MusicVisualizerColorTextBox_TextChanged(null, null);
-            MirrorPlugineCheckBox_Click(null, null);
-            LinePlugineCheckBox_Click(null, null);
-            SpectrumPlugineComboBox_SelectionChanged(null, null);
+            MirrorModeCheckBox_Click(null, null);
+            LineModeCheckBox_Click(null, null);
+            SpectrumModeComboBox_SelectionChanged(null, null);
             AmplifierLevelSlider_ValueChanged(null, null);
 
             foreach (Window window in Windows)

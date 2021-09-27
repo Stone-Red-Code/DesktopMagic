@@ -51,7 +51,7 @@
   - [Main()](#M-DesktopMagicPluginAPI-Plugin-Main 'DesktopMagicPluginAPI.Plugin.Main')
   - [OnMouseClick(position,mouseButton)](#M-DesktopMagicPluginAPI-Plugin-OnMouseClick-System-Drawing-Point,DesktopMagicPluginAPI-Inputs-MouseButton- 'DesktopMagicPluginAPI.Plugin.OnMouseClick(System.Drawing.Point,DesktopMagicPluginAPI.Inputs.MouseButton)')
   - [OnMouseMove(position)](#M-DesktopMagicPluginAPI-Plugin-OnMouseMove-System-Drawing-Point- 'DesktopMagicPluginAPI.Plugin.OnMouseMove(System.Drawing.Point)')
-  - [OnMouseWheel(position,Delta)](#M-DesktopMagicPluginAPI-Plugin-OnMouseWheel-System-Drawing-Point,System-Int32- 'DesktopMagicPluginAPI.Plugin.OnMouseWheel(System.Drawing.Point,System.Int32)')
+  - [OnMouseWheel(position,delta)](#M-DesktopMagicPluginAPI-Plugin-OnMouseWheel-System-Drawing-Point,System-Int32- 'DesktopMagicPluginAPI.Plugin.OnMouseWheel(System.Drawing.Point,System.Int32)')
   - [Start()](#M-DesktopMagicPluginAPI-Plugin-Start 'DesktopMagicPluginAPI.Plugin.Start')
 - [RenderQuality](#T-DesktopMagicPluginAPI-Drawing-RenderQuality 'DesktopMagicPluginAPI.Drawing.RenderQuality')
   - [High](#F-DesktopMagicPluginAPI-Drawing-RenderQuality-High 'DesktopMagicPluginAPI.Drawing.RenderQuality.High')
@@ -570,7 +570,7 @@ Occurs when the mouse pointer is moved over the control.
 | position | [System.Drawing.Point](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.Drawing.Point 'System.Drawing.Point') | The x- and y-coordinates of the mouse pointer position relative to the plugin window. |
 
 <a name='M-DesktopMagicPluginAPI-Plugin-OnMouseWheel-System-Drawing-Point,System-Int32-'></a>
-### OnMouseWheel(position,Delta) `method`
+### OnMouseWheel(position,delta) `method`
 
 ##### Summary
 
@@ -581,7 +581,7 @@ Occurs when the user rotates the mouse wheel while the mouse pointer is over thi
 | Name | Type | Description |
 | ---- | ---- | ----------- |
 | position | [System.Drawing.Point](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.Drawing.Point 'System.Drawing.Point') | The x- and y-coordinates of the mouse pointer position relative to the plugin window. |
-| Delta | [System.Int32](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.Int32 'System.Int32') | A value that indicates the amount that the mouse wheel has changed. |
+| delta | [System.Int32](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.Int32 'System.Int32') | A value that indicates the amount that the mouse wheel has changed. |
 
 <a name='M-DesktopMagicPluginAPI-Plugin-Start'></a>
 ### Start() `method`

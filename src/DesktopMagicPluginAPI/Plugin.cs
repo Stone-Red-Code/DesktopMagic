@@ -76,8 +76,8 @@ namespace DesktopMagicPluginAPI
         /// Occurs when the user rotates the mouse wheel while the mouse pointer is over this element.
         /// </summary>
         /// <param name="position">The x- and y-coordinates of the mouse pointer position relative to the plugin window.</param>
-        /// <param name="Delta">A value that indicates the amount that the mouse wheel has changed.</param>
-        public virtual void OnMouseWheel(Point position, int Delta)
+        /// <param name="delta">A value that indicates the amount that the mouse wheel has changed.</param>
+        public virtual void OnMouseWheel(Point position, int delta)
         {
         }
     }
