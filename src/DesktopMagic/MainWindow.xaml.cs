@@ -209,9 +209,11 @@ namespace DesktopMagic
                     window = new CpuUsageWindow();
                     break;
 
+                /*
                 case "CalendarCb":
                     window = new CalendarWindow();
                     break;
+                */
 
                 case "MusicVisualizerCb":
                     window = new MusicVisualizerWindow();

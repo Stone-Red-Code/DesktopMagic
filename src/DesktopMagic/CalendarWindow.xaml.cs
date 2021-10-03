@@ -13,6 +13,7 @@ namespace DesktopMagic
     /// <summary>
     /// Interaktionslogik für TimeWindow.xaml
     /// </summary>
+    [Obsolete("Disabled due to lack of support (too much work)")]
     public partial class CalendarWindow : Window
     {
         private RegistryKey key;
