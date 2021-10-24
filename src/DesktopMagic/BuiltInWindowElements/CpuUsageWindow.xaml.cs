@@ -6,12 +6,10 @@ using System.Timers;
 using System.Windows;
 using System.Windows.Interop;
 using System.Windows.Media;
+using System.Windows.Threading;
 
 namespace DesktopMagic
 {
-    /// <summary>
-    /// Interaktionslogik für TimeWindow.xaml
-    /// </summary>
     public partial class CpuUsageWindow : Window
     {
         private RegistryKey key;
@@ -41,7 +39,7 @@ namespace DesktopMagic
 
             Timer t = new Timer();
             t.Interval = 100;
-            t.Elapsed += T_Elapsed;
+            t.Elapsed += UpdateTimer_Elapsed;
             t.Start();
 
             Timer valueTimer = new Timer();
@@ -68,7 +66,7 @@ namespace DesktopMagic
             WindowPos.GetWindowLong(helper.Handle, WindowPos.GWL_EXSTYLE) | WindowPos.WS_EX_NOACTIVATE);
         }
 
-        private void T_Elapsed(object sender, ElapsedEventArgs e)
+        private void UpdateTimer_Elapsed(object sender, ElapsedEventArgs e)
         {
             Dispatcher.Invoke(() =>
             {
@@ -83,8 +81,8 @@ namespace DesktopMagic
                     WindowPos.SetIsLocked(this, true);
                 }
 
-                textBlock.FontFamily = new FontFamily(MainWindow.GlobalFont);
-                textBlock.Foreground = MainWindow.GlobalColor;
+                textBlock.FontFamily = new FontFamily(MainWindow.Theme.Font);
+                textBlock.Foreground = MainWindow.Theme.PrimaryBrush;
             });
         }
 

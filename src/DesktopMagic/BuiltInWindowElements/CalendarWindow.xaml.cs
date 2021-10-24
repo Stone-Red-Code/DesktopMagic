@@ -10,9 +10,6 @@ using System.Windows.Media;
 
 namespace DesktopMagic
 {
-    /// <summary>
-    /// Interaktionslogik für TimeWindow.xaml
-    /// </summary>
     [Obsolete("Disabled due to lack of support (too much work)")]
     public partial class CalendarWindow : Window
     {
@@ -40,7 +37,7 @@ namespace DesktopMagic
 
             Timer t = new Timer();
             t.Interval = 100;
-            t.Elapsed += T_Elapsed;
+            t.Elapsed += UpdateTimer_Elapsed;
             t.Start();
 
             Timer valueTimer = new Timer();
@@ -88,7 +85,7 @@ namespace DesktopMagic
             });
         }
 
-        private void T_Elapsed(object sender, ElapsedEventArgs e)
+        private void UpdateTimer_Elapsed(object sender, ElapsedEventArgs e)
         {
             Dispatcher.Invoke(() =>
             {
@@ -102,10 +99,10 @@ namespace DesktopMagic
                     panel.Visibility = Visibility.Collapsed;
                     WindowPos.SetIsLocked(this, true);
                 }
-                if (MainWindow.GlobalFont != oldFont || MainWindow.GlobalColor != oldColor)
+                if (MainWindow.Theme.Font != oldFont || MainWindow.Theme.PrimaryBrush != oldColor)
                 {
-                    oldColor = MainWindow.GlobalColor;
-                    oldFont = MainWindow.GlobalFont;
+                    oldColor = MainWindow.Theme.PrimaryBrush;
+                    oldFont = MainWindow.Theme.Font;
                     LoadEvents();
                 }
                 listBox.SelectedIndex = -1;
@@ -117,22 +114,19 @@ namespace DesktopMagic
             listBox.Items.Clear();
             CalendarItems calendarItem = new CalendarItems();
             calendarItem.eventname = "Termine:             ";
-            calendarItem.font = MainWindow.GlobalFont;
-            calendarItem.color = MainWindow.GlobalColor.ToString();
+            calendarItem.font = MainWindow.Theme.Font;
+            calendarItem.color = MainWindow.Theme.PrimaryColor.ToString();
             listBox.Items.Add(calendarItem);
 
             for (int i = 0; i < upcomingEventNames.Count; i++)
             {
-                DateTime dateTime = DateTime.Now;
-                DateTime.TryParse(upcomingEventTimes[i], out dateTime);
-
                 calendarItem = new CalendarItems();
                 calendarItem.eventname = upcomingEventNames[i];
-                calendarItem.dateTime = dateTime.ToString("dd-MM-yyyy");
-                calendarItem.font = MainWindow.GlobalFont;
-                calendarItem.color = MainWindow.GlobalColor.ToString();
+                calendarItem.dateTime = DateTime.Now.ToString("dd-MM-yyyy");
+                calendarItem.font = MainWindow.Theme.Font;
+                calendarItem.color = MainWindow.Theme.PrimaryBrush.ToString();
 
-                if (dateTime < DateTime.Today.AddMonths(12) || upcomingEventTimes[i] == "-")
+                if (DateTime.Now < DateTime.Today.AddMonths(12) || upcomingEventTimes[i] == "-")
                 {
                     listBox.Items.Add(calendarItem);
                 }

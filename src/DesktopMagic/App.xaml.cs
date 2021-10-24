@@ -33,11 +33,11 @@ namespace DesktopMagic
             // Try to grab mutex
             _mutex = new Mutex(true, $"Stone_Red{AppName}", out bool createdNew);
 
-            //check if creating new was succesfull
+            //check if creating new was successful
             if (!createdNew)
             {
                 Logger.Log("Shutting down because other instance already running.", "Setup");
-                //Shutdown Aplication
+                //Shutdown Application
                 Current.Shutdown();
             }
             else
@@ -59,7 +59,7 @@ namespace DesktopMagic
 
         private void Updater_NoUpdateAvailible()
         {
-            Logger.Log("No update avalible.", "Updater");
+            Logger.Log("No update available.", "Updater");
         }
 
         private void Updater_OnException(Exception exception)
@@ -114,7 +114,7 @@ namespace DesktopMagic
                 },
                 FormatConfig = new FormatConfig()
                 {
-                    DebugConsoleFormat = $"> {{{LogFormatType.DateTime}:hh:mm:ss}} | {{{LogFormatType.LogSeverity},-5}} | {{{LogFormatType.Message}}}\n> at {{{LogFormatType.LineNumber},3}} | {{{LogFormatType.FilePath}}}"
+                    DebugConsoleFormat = $"> {{{LogFormatType.DateTime}:hh:mm:ss}} | {{{LogFormatType.LogSeverity},-5}} | {{{LogFormatType.Message}}}\nat {{{LogFormatType.LineNumber}}} | {{{LogFormatType.FilePath}}}"
                 }
             };
             Logger.ClearLogFile(LogSeverity.Info);

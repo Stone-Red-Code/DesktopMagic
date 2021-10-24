@@ -1,11 +1,6 @@
 ﻿using DesktopMagicPluginAPI.Inputs;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace DesktopMagic
+namespace DesktopMagic.Plugins
 {
     internal class SettingElement
     {

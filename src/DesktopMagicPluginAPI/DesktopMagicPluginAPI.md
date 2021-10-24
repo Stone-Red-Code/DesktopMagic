@@ -28,9 +28,14 @@
   - [Font](#P-DesktopMagicPluginAPI-IPluginData-Font 'DesktopMagicPluginAPI.IPluginData.Font')
   - [PluginName](#P-DesktopMagicPluginAPI-IPluginData-PluginName 'DesktopMagicPluginAPI.IPluginData.PluginName')
   - [PluginPath](#P-DesktopMagicPluginAPI-IPluginData-PluginPath 'DesktopMagicPluginAPI.IPluginData.PluginPath')
+  - [Theme](#P-DesktopMagicPluginAPI-IPluginData-Theme 'DesktopMagicPluginAPI.IPluginData.Theme')
   - [WindowPosition](#P-DesktopMagicPluginAPI-IPluginData-WindowPosition 'DesktopMagicPluginAPI.IPluginData.WindowPosition')
   - [WindowSize](#P-DesktopMagicPluginAPI-IPluginData-WindowSize 'DesktopMagicPluginAPI.IPluginData.WindowSize')
   - [UpdateWindow()](#M-DesktopMagicPluginAPI-IPluginData-UpdateWindow 'DesktopMagicPluginAPI.IPluginData.UpdateWindow')
+- [ITheme](#T-DesktopMagicPluginAPI-ITheme 'DesktopMagicPluginAPI.ITheme')
+  - [Font](#P-DesktopMagicPluginAPI-ITheme-Font 'DesktopMagicPluginAPI.ITheme.Font')
+  - [PrimaryColor](#P-DesktopMagicPluginAPI-ITheme-PrimaryColor 'DesktopMagicPluginAPI.ITheme.PrimaryColor')
+  - [SecondaryColor](#P-DesktopMagicPluginAPI-ITheme-SecondaryColor 'DesktopMagicPluginAPI.ITheme.SecondaryColor')
 - [IntegerUpDown](#T-DesktopMagicPluginAPI-Inputs-IntegerUpDown 'DesktopMagicPluginAPI.Inputs.IntegerUpDown')
   - [#ctor(min,max,value)](#M-DesktopMagicPluginAPI-Inputs-IntegerUpDown-#ctor-System-Int32,System-Int32,System-Int32- 'DesktopMagicPluginAPI.Inputs.IntegerUpDown.#ctor(System.Int32,System.Int32,System.Int32)')
   - [Maximum](#P-DesktopMagicPluginAPI-Inputs-IntegerUpDown-Maximum 'DesktopMagicPluginAPI.Inputs.IntegerUpDown.Maximum')
@@ -323,14 +328,14 @@ Defines properties and methods that provide information about the main applicati
 
 ##### Summary
 
-Gets the color of the main application.
+Gets the current color of the main application.
 
 <a name='P-DesktopMagicPluginAPI-IPluginData-Font'></a>
 ### Font `property`
 
 ##### Summary
 
-Gets the font of the main application.
+Gets the current font of the main application.
 
 <a name='P-DesktopMagicPluginAPI-IPluginData-PluginName'></a>
 ### PluginName `property`
@@ -345,6 +350,13 @@ Gets the name of the plugin.
 ##### Summary
 
 Gets the path of the parent directory of the plugin.
+
+<a name='P-DesktopMagicPluginAPI-IPluginData-Theme'></a>
+### Theme `property`
+
+##### Summary
+
+Gets the current theme setting of the main application.
 
 <a name='P-DesktopMagicPluginAPI-IPluginData-WindowPosition'></a>
 ### WindowPosition `property`
@@ -370,6 +382,38 @@ Updates the plugin window.
 ##### Parameters
 
 This method has no parameters.
+
+<a name='T-DesktopMagicPluginAPI-ITheme'></a>
+## ITheme `type`
+
+##### Namespace
+
+DesktopMagicPluginAPI
+
+##### Summary
+
+The theme settings of the main application.
+
+<a name='P-DesktopMagicPluginAPI-ITheme-Font'></a>
+### Font `property`
+
+##### Summary
+
+Gets the font of the main application.
+
+<a name='P-DesktopMagicPluginAPI-ITheme-PrimaryColor'></a>
+### PrimaryColor `property`
+
+##### Summary
+
+Gets the primary color of the main application.
+
+<a name='P-DesktopMagicPluginAPI-ITheme-SecondaryColor'></a>
+### SecondaryColor `property`
+
+##### Summary
+
+Gets the secondary color of the main application.
 
 <a name='T-DesktopMagicPluginAPI-Inputs-IntegerUpDown'></a>
 ## IntegerUpDown `type`
@@ -588,7 +632,7 @@ Occurs when the user rotates the mouse wheel while the mouse pointer is over thi
 
 ##### Summary
 
-Occurs once when the pugin gets activated.
+Occurs once when the plugin gets activated.
 
 ##### Parameters
 

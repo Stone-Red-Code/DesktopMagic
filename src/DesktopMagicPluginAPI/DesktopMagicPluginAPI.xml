@@ -283,12 +283,17 @@
         </member>
         <member name="P:DesktopMagicPluginAPI.IPluginData.Font">
             <summary>
-            Gets the font of the main application.
+            Gets the current font of the main application.
             </summary>
         </member>
         <member name="P:DesktopMagicPluginAPI.IPluginData.Color">
             <summary>
-            Gets the color of the main application.
+            Gets the current color of the main application.
+            </summary>
+        </member>
+        <member name="P:DesktopMagicPluginAPI.IPluginData.Theme">
+            <summary>
+            Gets the current theme setting of the main application.
             </summary>
         </member>
         <member name="P:DesktopMagicPluginAPI.IPluginData.WindowSize">
@@ -316,6 +321,26 @@
             Updates the plugin window.
             </summary>
         </member>
+        <member name="T:DesktopMagicPluginAPI.ITheme">
+            <summary>
+            The theme settings of the main application.
+            </summary>
+        </member>
+        <member name="P:DesktopMagicPluginAPI.ITheme.PrimaryColor">
+            <summary>
+            Gets the primary color of the main application.
+            </summary>
+        </member>
+        <member name="P:DesktopMagicPluginAPI.ITheme.SecondaryColor">
+            <summary>
+            Gets the secondary color of the main application.
+            </summary>
+        </member>
+        <member name="P:DesktopMagicPluginAPI.ITheme.Font">
+            <summary>
+            Gets the font of the main application.
+            </summary>
+        </member>
         <member name="T:DesktopMagicPluginAPI.Plugin">
             <summary>
             The plugin class.
@@ -338,7 +363,7 @@
         </member>
         <member name="M:DesktopMagicPluginAPI.Plugin.Start">
             <summary>
-            Occurs once when the pugin gets activated.
+            Occurs once when the plugin gets activated.
             </summary>
         </member>
         <member name="M:DesktopMagicPluginAPI.Plugin.Main">

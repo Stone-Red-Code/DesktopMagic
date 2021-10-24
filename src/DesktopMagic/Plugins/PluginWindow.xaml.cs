@@ -1,4 +1,6 @@
-﻿using DesktopMagicPluginAPI;
+﻿using DesktopMagic.Plugins;
+
+using DesktopMagicPluginAPI;
 using DesktopMagicPluginAPI.Drawing;
 using DesktopMagicPluginAPI.Inputs;
 
@@ -20,20 +22,16 @@ using System.Windows.Media.Imaging;
 
 namespace DesktopMagic
 {
-    /// <summary>
-    /// Interaktionslogik für PluginWindow.xaml
-    /// </summary>
-    ///
     public partial class PluginWindow : Window
     {
         private readonly RegistryKey key;
         private Thread pluginThread;
         private System.Timers.Timer valueTimer;
+        private bool stop = false;
 
         private Plugin pluginClassInstance;
         public string PluginName { get; private set; }
         public string PluginFolderPath { get; private set; }
-        private bool stop = false;
 
         public event Action PluginLoaded;
 
@@ -59,7 +57,7 @@ namespace DesktopMagic
 
             System.Timers.Timer t = new System.Timers.Timer();
             t.Interval = 100;
-            t.Elapsed += Elapsed;
+            t.Elapsed += UpdateTimer_Elapsed;
             t.Start();
 
             PluginName = pluginName;
@@ -95,7 +93,7 @@ namespace DesktopMagic
             ValueTimer_Elapsed(valueTimer, null);
         }
 
-        private void Elapsed(object sender, ElapsedEventArgs e)
+        private void UpdateTimer_Elapsed(object sender, ElapsedEventArgs e)
         {
             Dispatcher.Invoke(() =>
             {

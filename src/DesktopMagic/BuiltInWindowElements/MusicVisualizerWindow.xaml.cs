@@ -57,7 +57,7 @@ namespace DesktopMagic
 
             Timer t = new Timer();
             t.Interval = 100;
-            t.Elapsed += T_Elapsed;
+            t.Elapsed += UpdateTimer_Elapsed;
             t.Start();
 
             key = Registry.CurrentUser.CreateSubKey(@"Software\" + App.AppName);
@@ -83,7 +83,7 @@ namespace DesktopMagic
             WindowPos.GetWindowLong(helper.Handle, WindowPos.GWL_EXSTYLE) | WindowPos.WS_EX_NOACTIVATE);
         }
 
-        private void T_Elapsed(object sender, ElapsedEventArgs e)
+        private void UpdateTimer_Elapsed(object sender, ElapsedEventArgs e)
         {
             Dispatcher.Invoke(() =>
             {
@@ -299,13 +299,13 @@ namespace DesktopMagic
                     SetPoints(points, bm.Width, bm.Height, offset);
 
                     Brush brush;
-                    if (MainWindow.MusicVisualzerColor == null)
+                    if (MainWindow.MusicVisualzerColor.HasValue)
                     {
-                        brush = MainWindow.GlobalSystemColor;
+                        brush = new SolidBrush(MainWindow.MusicVisualzerColor.Value);
                     }
                     else
                     {
-                        brush = MainWindow.MusicVisualzerColor;
+                        brush = new SolidBrush(MainWindow.Theme.PrimaryColor);
                     }
 
                     if (MainWindow.LineMode)
@@ -340,7 +340,7 @@ namespace DesktopMagic
             {
                 case 1:
                     points[0] = new PointF(width, height / 2);
-                    points[points.Length - 1] = new PointF(0, height / 2);
+                    points[^1] = new PointF(0, height / 2);
 
                     points[points.Length / 2] = new PointF(width, height / 2);
                     points[points.Length / 2 - 1] = new PointF(0, height / 2);
@@ -348,12 +348,12 @@ namespace DesktopMagic
 
                 case 2:
                     points[0] = new PointF(0, 0 - offset);
-                    points[points.Length - 1] = new PointF(points[points.Length - 2].X, 0 - offset);
+                    points[^1] = new PointF(points[^2].X, 0 - offset);
                     break;
 
                 default:
                     points[0] = new PointF(0, height);
-                    points[points.Length - 1] = new PointF(points[points.Length - 2].X, height);
+                    points[^1] = new PointF(points[^2].X, height);
                     break;
             }
         }
@@ -376,8 +376,8 @@ namespace DesktopMagic
 
         private void Window_LocationChanged(object sender, EventArgs e)
         {
-            key.SetValue("MusicVisualizerWindowTop", this.Top);
-            key.SetValue("MusicVisualizerWindowLeft", this.Left);
+            key.SetValue("MusicVisualizerWindowTop", Top);
+            key.SetValue("MusicVisualizerWindowLeft", Left);
         }
 
         private void Window_SizeChanged(object sender, SizeChangedEventArgs e)

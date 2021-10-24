@@ -1,4 +1,6 @@
-﻿using Microsoft.Win32;
+﻿using DesktopMagic.Plugins;
+
+using Microsoft.Win32;
 
 using System;
 using System.Collections.Generic;
@@ -14,17 +16,11 @@ using System.Windows.Media;
 
 namespace DesktopMagic
 {
-    /// <summary>
-    /// Interaktionslogik für MainWindow.xaml
-    /// </summary>
-
     public partial class MainWindow : Window
     {
         #region Global settings
 
-        public static string GlobalFont { get; protected set; } = "Segoe UI";
-        public static Brush GlobalColor { get; protected set; } = Brushes.White;
-        public static System.Drawing.Brush GlobalSystemColor { get; protected set; } = System.Drawing.Brushes.White;
+        internal static Theme Theme = new Theme();
         public static bool EditMode { get; protected set; } = false;
 
         #endregion Global settings
@@ -35,7 +31,7 @@ namespace DesktopMagic
         public static int AmplifierLevel { get; protected set; } = 0;
         public static bool MirrorMode { get; protected set; } = false;
         public static bool LineMode { get; protected set; } = false;
-        public static System.Drawing.Brush MusicVisualzerColor { get; protected set; }
+        public static System.Drawing.Color? MusicVisualzerColor { get; protected set; }
 
         #endregion Music Visualizer Settings
 
@@ -160,17 +156,17 @@ namespace DesktopMagic
                         checkBox.Style = (Style)FindResource("MaterialDesignDarkCheckBox");
                         checkBox.Click += CheckBox_Click;
 
-                        bool exsists = false;
+                        bool exists = false;
                         foreach (UIElement item in stackPanel.Children)
                         {
                             if (((CheckBox)item).Name == "_PluginCb_" + clearPluginName)
                             {
-                                exsists = true;
+                                exists = true;
                                 break;
                             }
                         }
 
-                        if (!exsists)
+                        if (!exists)
                         {
                             _ = stackPanel.Children.Add(checkBox);
                         }
@@ -396,9 +392,8 @@ namespace DesktopMagic
                     hex = hex.Replace("#", "");
 
                     System.Drawing.Color systemColor = System.Drawing.Color.FromArgb((byte)int.Parse(hex.Substring(0, 2), System.Globalization.NumberStyles.HexNumber), (byte)int.Parse(hex.Substring(2, 2), System.Globalization.NumberStyles.HexNumber), (byte)int.Parse(hex.Substring(4, 2), System.Globalization.NumberStyles.HexNumber));
-                    System.Drawing.Brush systemBrush = new System.Drawing.SolidBrush(systemColor);
 
-                    MusicVisualzerColor = systemBrush;
+                    MusicVisualzerColor = systemColor;
                     musicVisualizerColorTextBox.Foreground = Brushes.Black;
 
                     key.SetValue("MusicVisualizerColor", musicVisualizerColorTextBox.Text);
@@ -419,8 +414,8 @@ namespace DesktopMagic
 
         private void FontComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            GlobalFont = fontComboBox.SelectedValue.ToString().Replace("System.Windows.Controls.ComboBoxItem: ", "");
-            key.SetValue("Font", GlobalFont);
+            Theme.Font = fontComboBox.SelectedValue.ToString().Replace("System.Windows.Controls.ComboBoxItem: ", "");
+            key.SetValue("Font", Theme.Font);
             SaveLayout();
         }
 
@@ -679,7 +674,7 @@ namespace DesktopMagic
                 };
                 _ = fontComboBox.Items.Add(comboBoxItem);
 
-                if (ff.ToString() == GlobalFont)
+                if (ff.ToString() == Theme.Font)
                 {
                     fontComboBox.SelectedIndex = index;
                 }
@@ -738,10 +733,9 @@ namespace DesktopMagic
                 blueSlider.Value = color.B;
 
                 Brush brush = new SolidColorBrush(color);
-                System.Drawing.Brush systemBrush = new System.Drawing.SolidBrush(systemColor);
 
-                GlobalColor = brush;
-                GlobalSystemColor = systemBrush;
+                Theme.PrimaryBrush = brush;
+                Theme.PrimaryColor = systemColor;
                 colorRechtangle.Fill = brush;
                 colorHexTextBox.Foreground = Brushes.Black;
 
@@ -784,7 +778,7 @@ namespace DesktopMagic
             for (int i = 0; i < fontComboBox.Items.Count; i++)
             {
                 ComboBoxItem comboBoxItem = (ComboBoxItem)fontComboBox.Items[i];
-                if (comboBoxItem.FontFamily.ToString() == GlobalFont)
+                if (comboBoxItem.FontFamily.ToString() == Theme.Font)
                 {
                     fontComboBox.SelectedIndex = i;
                 }
@@ -867,7 +861,7 @@ namespace DesktopMagic
 
         private void LoadLayout(bool minimize = true)
         {
-            GlobalFont = key.GetValue("Font", "Segoe UI").ToString();
+            Theme.Font = key.GetValue("Font", "Segoe UI").ToString();
             spectrumModeComboBox.SelectedIndex = int.Parse(key.GetValue("SpectrumMode", "0").ToString());
             amplifierLevelSlider.Value = int.Parse(key.GetValue("AmplifierLevel", "0").ToString());
             mirrorModeCheckBox.IsChecked = bool.Parse(key.GetValue("MirrorMode", "false").ToString());

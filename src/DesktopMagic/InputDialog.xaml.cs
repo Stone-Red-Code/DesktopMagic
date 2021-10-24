@@ -4,23 +4,20 @@ using System.Windows;
 
 namespace DesktopMagic
 {
-    /// <summary>
-    /// Interaktionslogik für InputDialog.xaml
-    /// </summary>
     public partial class InputDialog : Window
     {
         public InputDialog(string content, string title = "InputDialog")
         {
             InitializeComponent();
             label.Content = content;
-            this.Title = title;
+            Title = title;
             SetLanguageDictionary();
         }
 
         public string ResponseText
         {
-            get { return textBox.Text; }
-            set { textBox.Text = value; }
+            get => textBox.Text;
+            set => textBox.Text = value;
         }
 
         private void OkButton_Click(object sender, RoutedEventArgs e)
@@ -46,7 +43,7 @@ namespace DesktopMagic
             {
                 dict.Source = new Uri("..\\Resources\\StringResources.en.xaml", UriKind.Relative);
             }
-            this.Resources.MergedDictionaries.Add(dict);
+            Resources.MergedDictionaries.Add(dict);
         }
     }
 }

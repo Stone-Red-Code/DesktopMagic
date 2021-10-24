@@ -1,20 +1,24 @@
 ﻿using DesktopMagicPluginAPI;
+
 using System.Drawing;
 
-namespace DesktopMagic
+namespace DesktopMagic.Plugins
 {
     internal class PluginData : IPluginData
     {
         private readonly PluginWindow window;
 
-        public PluginData(PluginWindow win)
+        public PluginData(PluginWindow window)
         {
-            window = win;
+            this.window = window;
+            Theme = MainWindow.Theme;
         }
 
-        public string Font => MainWindow.GlobalFont;
+        public string Font => Theme.Font;
 
-        public Color Color => (MainWindow.GlobalSystemColor as SolidBrush).Color;
+        public Color Color => Theme.PrimaryColor;
+
+        public ITheme Theme { get; }
 
         public Point WindowSize => new Point((int)window.ActualWidth, (int)window.ActualHeight);
 
@@ -24,6 +28,9 @@ namespace DesktopMagic
 
         public string PluginPath => window.PluginFolderPath;
 
-        public void UpdateWindow() => window.UpdatePluginWindow();
+        public void UpdateWindow()
+        {
+            window.UpdatePluginWindow();
+        }
     }
 }

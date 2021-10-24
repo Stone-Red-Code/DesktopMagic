@@ -43,7 +43,7 @@ namespace DesktopMagicPluginAPI
         public virtual RenderQuality RenderQuality { get; set; } = RenderQuality.High;
 
         /// <summary>
-        /// Occurs once when the pugin gets activated.
+        /// Occurs once when the plugin gets activated.
         /// </summary>
         public virtual void Start()
         {
