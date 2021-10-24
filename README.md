@@ -8,7 +8,7 @@
 - [Plugin Documentation](https://github.com/Stone-Red-Code/DesktopMagic/wiki)
 - [Licence](https://github.com/Stone-Red-Code/DesktopMagic/blob/main/LICENSE)
 
-## Usage
+## Setup
 
 1. Download one of the [releases](https://github.com/Stone-Red-Code/DesktopMagic/releases).
 1. Follow one of the steps below.
