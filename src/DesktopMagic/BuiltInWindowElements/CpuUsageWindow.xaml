@@ -15,7 +15,10 @@
     <Grid>
         <Rectangle x:Name="panel" Fill="#4CBAFFEF" Stroke="White" Margin="0,0,0,0" Visibility="Collapsed" />
         <Viewbox StretchDirection="DownOnly" Stretch="Uniform">
-            <TextBlock x:Name="textBlock" FontSize="999" Foreground="White" Text="CPU: 000%" IsHitTestVisible="False" />
+            <DockPanel x:Name="dockPanel">
+                <TextBlock x:Name="textBlock" FontSize="999" Foreground="White" Text="CPU: " IsHitTestVisible="False" />
+                <TextBlock x:Name="valuetextBlock" FontSize="999" TextAlignment="Right" Foreground="White" Text="000%" IsHitTestVisible="False" />
+            </DockPanel>
         </Viewbox>
     </Grid>
     <WindowChrome.WindowChrome>

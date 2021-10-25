@@ -115,6 +115,10 @@ namespace DesktopMagic
                 {
                     ((System.Timers.Timer)sender).Stop();
                 }
+                else
+                {
+                    backgroundGrid.Background = MainWindow.Theme.BackgroundBrush;
+                }
             });
         }
 

@@ -4,13 +4,13 @@
     <TargetFramework>net5.0</TargetFramework>
     <Company>Stone_Red</Company>
     <Product>Stone_Red</Product>
-    <Version>0.0.0.4</Version>
+    <Version>0.0.0.5</Version>
     <RepositoryUrl>https://github.com/Stone-Red-Code/DesktopMagic</RepositoryUrl>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <AssemblyVersion>0.0.0.4</AssemblyVersion>
+    <AssemblyVersion>0.0.0.5</AssemblyVersion>
     <PackageProjectUrl></PackageProjectUrl>
-    <FileVersion>0.0.0.4</FileVersion>
+    <FileVersion>0.0.0.5</FileVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

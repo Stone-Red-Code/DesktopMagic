@@ -6,7 +6,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
-using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -105,6 +104,7 @@ namespace DesktopMagic
                 {
                     calculate = true;
                 }
+                backgroundGrid.Background = MainWindow.Theme.BackgroundBrush;
             });
         }
 
@@ -244,7 +244,6 @@ namespace DesktopMagic
 
                 using (Graphics gr = Graphics.FromImage(bm))
                 {
-                    gr.SmoothingMode = SmoothingMode.None;
                     PointF[] points = new PointF[scaledFft.Count + 2];
 
                     int fftIndex = 0;

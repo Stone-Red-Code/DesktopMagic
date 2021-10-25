@@ -18,7 +18,9 @@
     <Grid x:Name="grid">
         <Rectangle x:Name="panel" Fill="#4CBAFFEF" Stroke="White" Margin="0,0,0,0" Visibility="Collapsed" />
         <Viewbox StretchDirection="Both" Stretch="Uniform">
-            <Image x:Name="image" HorizontalAlignment="Left" Height="759" Margin="0,0,0,0" VerticalAlignment="Top" Width="1747" RenderTransformOrigin="0.5,0.5" Stretch="Fill" />
+            <Grid x:Name="backgroundGrid">
+                <Image x:Name="image" HorizontalAlignment="Left" Height="759" Margin="0,0,0,0" VerticalAlignment="Top" Width="1747" RenderTransformOrigin="0.5,0.5" Stretch="Fill" />
+            </Grid>
         </Viewbox>
     </Grid>
 </Window>

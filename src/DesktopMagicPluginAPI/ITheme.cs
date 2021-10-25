@@ -18,6 +18,11 @@ namespace DesktopMagicPluginAPI
         Color SecondaryColor { get; }
 
         /// <summary>
+        /// Gets the background color of the main application.
+        /// </summary>
+        Color BackgroundColor { get; }
+
+        /// <summary>
         /// Gets the font of the main application.
         /// </summary>
         string Font { get; }

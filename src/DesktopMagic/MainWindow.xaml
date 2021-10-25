@@ -38,7 +38,8 @@
                             <CheckBox x:Name="TimeCb" Content="{DynamicResource time}" Click="CheckBox_Click"  Style="{StaticResource MaterialDesignDarkCheckBox}" />
                             <CheckBox x:Name="DateCb" Content="{DynamicResource date}" Click="CheckBox_Click" Style="{StaticResource MaterialDesignDarkCheckBox}" />
                             <CheckBox x:Name="CpuUsageCb" Content="{DynamicResource cpuUsage}" Click="CheckBox_Click" Style="{StaticResource MaterialDesignDarkCheckBox}" />
-                            <CheckBox x:Name="CalendarCb" Content="{DynamicResource googleCalendar}"  Click="CheckBox_Click" Style="{StaticResource MaterialDesignDarkCheckBox}" Visibility="Collapsed"/> <!--Currently disabled because it's not working-->
+                            <CheckBox x:Name="CalendarCb" Content="{DynamicResource googleCalendar}"  Click="CheckBox_Click" Style="{StaticResource MaterialDesignDarkCheckBox}" Visibility="Collapsed"/>
+                            <!--Currently disabled because it's not working-->
                             <CheckBox x:Name="MusicVisualizerCb" Content="{DynamicResource musicVisualizer}" HorizontalAlignment="Left"  VerticalAlignment="Top" Click="CheckBox_Click" Style="{StaticResource MaterialDesignDarkCheckBox}" />
                         </StackPanel>
                     </ScrollViewer>
@@ -73,9 +74,9 @@
                     <RowDefinition Height="*" />
                     <RowDefinition Height="110" />
                 </Grid.RowDefinitions>
-                <StackPanel DockPanel.Dock="Top" Margin="{StaticResource DefaultMargin}">
-                    <ComboBox x:Name="fontComboBox" HorizontalAlignment="Left" VerticalAlignment="Top" Width="181" SelectionChanged="FontComboBox_SelectionChanged" Margin="0,0,0,5" />
-
+                <StackPanel DockPanel.Dock="Top" Margin="{StaticResource DefaultMargin}" HorizontalAlignment="Left">
+                    <ComboBox x:Name="fontComboBox" HorizontalAlignment="Stretch" VerticalAlignment="Top" SelectionChanged="FontComboBox_SelectionChanged" Margin="0,0,0,5" />
+                    <!--
                     <DockPanel>
                         <Label Content="R:" Width="20" />
                         <Slider x:Name="redSlider" Maximum="255" ValueChanged="ColorSliders_ValueChanged" TickFrequency="1" IsSnapToTickEnabled="True" Background="#00030000" />
@@ -88,17 +89,25 @@
                         <Label Content="B:" Width="20" />
                         <Slider x:Name="blueSlider" Maximum="255" ValueChanged="ColorSliders_ValueChanged" TickFrequency="1" IsSnapToTickEnabled="True" Background="#000000FF" />
                     </DockPanel>
-
-                    <StackPanel Orientation="Horizontal">
+                    -->
+                    <DockPanel Margin="0,0,0,5" Width="200">
                         <Border CornerRadius="1" BorderThickness="1.5" BorderBrush="Gray" Height="23" Width="23"  Margin="0,0,5,0">
-                            <Rectangle x:Name="colorRechtangle" Fill="White" />
+                            <Rectangle x:Name="primaryColorRechtangle" Fill="White" />
                         </Border>
-                        <TextBox x:Name="colorHexTextBox" MaxLength="7" CharacterCasing="Upper" Height="23" TextWrapping="Wrap" Text="colorHexTextBox" Width="120" TextChanged="ColorHexTextBox_TextChanged" RenderTransformOrigin="0.5,0.5" VerticalContentAlignment="Center">
-                            <materialDesign:TextFieldAssist.CharacterCounterStyle>
-                                <Style TargetType="TextBlock" />
-                            </materialDesign:TextFieldAssist.CharacterCounterStyle>
-                        </TextBox>
-                    </StackPanel>
+                        <Button Content="Change Primary Color" Height="23" FontSize="10" Click="ChangePrimaryColorButton_Click"   />
+                    </DockPanel>
+                    <DockPanel Margin="0,0,0,5">
+                        <Border CornerRadius="1" BorderThickness="1.5" BorderBrush="Gray" Height="23" Width="23"  Margin="0,0,5,0">
+                            <Rectangle x:Name="secondaryColorRechtangle" Fill="White" />
+                        </Border>
+                        <Button Content="Change Secondary Color" Height="23" FontSize="10" Click="ChangeSecondaryColorButton_Click" />
+                    </DockPanel>
+                    <DockPanel >
+                        <Border CornerRadius="1" BorderThickness="1.5" BorderBrush="Gray" Height="23" Width="23"  Margin="0,0,5,0">
+                            <Rectangle x:Name="backgroundColorRechtangle" Fill="White" />
+                        </Border>
+                        <Button Content="Change Background Color" Height="23" FontSize="10" Click="ChangeBackgroundColorButton_Click" />
+                    </DockPanel>
                 </StackPanel>
                 <Grid Grid.Row="1" VerticalAlignment="Bottom">
                     <Grid.ColumnDefinitions>

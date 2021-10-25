@@ -67,7 +67,8 @@ namespace DesktopMagic
                 }
                 textBlock.FontFamily = new FontFamily(MainWindow.Theme.Font);
                 textBlock.Foreground = MainWindow.Theme.PrimaryBrush;
-                textBlock.Text = DateTime.Now.ToString("D");
+                textBlock.Text = DateTime.Now.ToLongDateString();
+                textBlock.Background = MainWindow.Theme.BackgroundBrush;
             });
         }
 

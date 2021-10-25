@@ -1,4 +1,6 @@
-﻿using Microsoft.Win32;
+﻿using DesktopMagic.Helpers;
+
+using Microsoft.Win32;
 
 using System;
 using System.Timers;
@@ -29,7 +31,7 @@ namespace DesktopMagic
             w.Hide();
 
             Timer t = new Timer();
-            t.Interval = 100;
+            t.Interval = 500;
             t.Elapsed += UpdateTimer_Elapsed;
             t.Start();
 
@@ -66,11 +68,25 @@ namespace DesktopMagic
                     WindowPos.SetIsLocked(this, true);
                 }
 
+                textBlock.Background = MainWindow.Theme.BackgroundBrush;
                 textBlock.FontFamily = new FontFamily(MainWindow.Theme.Font);
                 textBlock.Foreground = MainWindow.Theme.PrimaryBrush;
                 //textBlock.Text = DateTime.Now.ToString("hh:mm:ss tt");
                 textBlock.Text = DateTime.Now.ToString("HH:mm:ss");
+
+                ClculateWidth();
             });
+        }
+
+        private void ClculateWidth()
+        {
+            string template = "##:##:##";
+            double lenght = 0;
+            for (int i = 0; i < 9; i++)
+            {
+                lenght = Math.Max(StringUtilities.MeasureString(template.Replace('#', i.ToString()[0]), textBlock).Width, lenght);
+            }
+            textBlock.Width = lenght;
         }
 
         private void Window_LocationChanged(object sender, EventArgs e)

@@ -1,4 +1,6 @@
-﻿using Microsoft.Win32;
+﻿using DesktopMagic.Helpers;
+
+using Microsoft.Win32;
 
 using System;
 using System.Diagnostics;
@@ -38,7 +40,7 @@ namespace DesktopMagic
             cpuCounter.InstanceName = "_Total";
 
             Timer t = new Timer();
-            t.Interval = 100;
+            t.Interval = 500;
             t.Elapsed += UpdateTimer_Elapsed;
             t.Start();
 
@@ -81,8 +83,14 @@ namespace DesktopMagic
                     WindowPos.SetIsLocked(this, true);
                 }
 
+                textBlock.Background = MainWindow.Theme.BackgroundBrush;
                 textBlock.FontFamily = new FontFamily(MainWindow.Theme.Font);
                 textBlock.Foreground = MainWindow.Theme.PrimaryBrush;
+                valuetextBlock.Background = MainWindow.Theme.BackgroundBrush;
+                valuetextBlock.FontFamily = new FontFamily(MainWindow.Theme.Font);
+                valuetextBlock.Foreground = MainWindow.Theme.PrimaryBrush;
+
+                ClculateWidth();
             });
         }
 
@@ -91,13 +99,24 @@ namespace DesktopMagic
             string cpuUsage = GetCpuUsage();
             Dispatcher.Invoke(() =>
             {
-                textBlock.Text = cpuUsage;
+                valuetextBlock.Text = cpuUsage;
             });
+        }
+
+        private void ClculateWidth()
+        {
+            string template = "CPU: ###%";
+            double lenght = 0;
+            for (int i = 0; i < 9; i++)
+            {
+                lenght = Math.Max(StringUtilities.MeasureString(template.Replace('#', i.ToString()[0]), textBlock).Width, lenght);
+            }
+            dockPanel.Width = lenght;
         }
 
         private string GetCpuUsage()
         {
-            return "CPU: " + ((int)cpuCounter.NextValue()).ToString().PadLeft(3, '0') + "%";
+            return $"{(int)cpuCounter.NextValue()}%";
         }
 
         private void Window_LocationChanged(object sender, EventArgs e)

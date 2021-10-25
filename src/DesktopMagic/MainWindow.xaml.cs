@@ -1,4 +1,6 @@
-﻿using DesktopMagic.Plugins;
+﻿using DesktopMagic.Dialogs;
+using DesktopMagic.Helpers;
+using DesktopMagic.Plugins;
 
 using Microsoft.Win32;
 
@@ -66,7 +68,12 @@ namespace DesktopMagic
                 InitializeComponent();
 
                 SetLanguageDictionary();
+
+#if DEBUG
+                Title = $"{App.AppName} - Dev {Assembly.GetExecutingAssembly().GetName().Version}";
+#else
                 Title = $"{App.AppName} - {Assembly.GetExecutingAssembly().GetName().Version}";
+#endif
             }
             catch (Exception ex)
             {
@@ -204,12 +211,6 @@ namespace DesktopMagic
                 case "CpuUsageCb":
                     window = new CpuUsageWindow();
                     break;
-
-                /*
-                case "CalendarCb":
-                    window = new CalendarWindow();
-                    break;
-                */
 
                 case "MusicVisualizerCb":
                     window = new MusicVisualizerWindow();
@@ -391,13 +392,20 @@ namespace DesktopMagic
                     string hex = musicVisualizerColorTextBox.Text;
                     hex = hex.Replace("#", "");
 
-                    System.Drawing.Color systemColor = System.Drawing.Color.FromArgb((byte)int.Parse(hex.Substring(0, 2), System.Globalization.NumberStyles.HexNumber), (byte)int.Parse(hex.Substring(2, 2), System.Globalization.NumberStyles.HexNumber), (byte)int.Parse(hex.Substring(4, 2), System.Globalization.NumberStyles.HexNumber));
+                    if (hex.Length == 6)
+                    {
+                        System.Drawing.Color systemColor = System.Drawing.Color.FromArgb((byte)int.Parse(hex.Substring(0, 2), System.Globalization.NumberStyles.HexNumber), (byte)int.Parse(hex.Substring(2, 2), System.Globalization.NumberStyles.HexNumber), (byte)int.Parse(hex.Substring(4, 2), System.Globalization.NumberStyles.HexNumber));
 
-                    MusicVisualzerColor = systemColor;
-                    musicVisualizerColorTextBox.Foreground = Brushes.Black;
+                        MusicVisualzerColor = systemColor;
+                        musicVisualizerColorTextBox.Foreground = Brushes.Black;
 
-                    key.SetValue("MusicVisualizerColor", musicVisualizerColorTextBox.Text);
-                    SaveLayout();
+                        key.SetValue("MusicVisualizerColor", musicVisualizerColorTextBox.Text);
+                        SaveLayout();
+                    }
+                    else
+                    {
+                        musicVisualizerColorTextBox.Foreground = Brushes.Red;
+                    }
                 }
                 catch
                 {
@@ -445,8 +453,8 @@ namespace DesktopMagic
                 optionsPanel.Children.Clear();
                 optionsPanel.UpdateLayout();
 
-                bool succ = PluginsSettings.TryGetValue(((Tuple<string, int>)optionsComboBox.SelectedItem).Item1.ToString(), out List<SettingElement> settingElements);
-                if (!succ || settingElements?.Count == 0)
+                bool success = PluginsSettings.TryGetValue(((Tuple<string, int>)optionsComboBox.SelectedItem).Item1.ToString(), out List<SettingElement> settingElements);
+                if (!success || settingElements?.Count == 0)
                 {
                     _ = optionsPanel.Children.Add(new TextBlock() { Text = (string)FindResource("noOptions") });
                     return;
@@ -686,69 +694,52 @@ namespace DesktopMagic
             }
         }
 
-        #region color
-
-        private void ColorSliders_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
-        {
-            colorHexTextBox.Text = "#" + ((int)redSlider.Value).ToString("X2") + ((int)greenSlider.Value).ToString("X2") + ((int)blueSlider.Value).ToString("X2");
-            colorHexTextBox.Select(colorHexTextBox.Text.Length, 0);
-        }
-
         private void ColorHexTextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
-            try
+        }
+
+        private void ChangePrimaryColorButton_Click(object sender, RoutedEventArgs e)
+        {
+            ColorDialog colorDialog = new ColorDialog("Set Primary Color", Theme.PrimaryColor);
+            if (colorDialog.ShowDialog() == true)
             {
-                if (colorHexTextBox.Text.Length > 0)
-                {
-                    if (colorHexTextBox.Text.ToCharArray()[0] != '#')
-                    {
-                        colorHexTextBox.Text = "#" + colorHexTextBox.Text.Replace("#", "");
-                    }
-                }
-                else
-                {
-                    colorHexTextBox.Text = "#";
-                    colorHexTextBox.Select(colorHexTextBox.Text.Length, 0);
-                }
+                Theme.PrimaryBrush = colorDialog.ResultBrush;
+                Theme.PrimaryColor = colorDialog.ResultColor;
+                primaryColorRechtangle.Fill = colorDialog.ResultBrush;
 
-                if (colorHexTextBox.SelectionStart == 0)
-                {
-                    if (colorHexTextBox.Text.Length <= 2)
-                    {
-                        colorHexTextBox.Select(colorHexTextBox.Text.Length, 0);
-                    }
-                    else
-                    {
-                        colorHexTextBox.Select(1, 0);
-                    }
-                }
-
-                string hex = colorHexTextBox.Text;
-                hex = hex.Replace("#", "");
-                Color color = Color.FromRgb((byte)int.Parse(hex.Substring(0, 2), System.Globalization.NumberStyles.HexNumber), (byte)int.Parse(hex.Substring(2, 2), System.Globalization.NumberStyles.HexNumber), (byte)int.Parse(hex.Substring(4, 2), System.Globalization.NumberStyles.HexNumber));
-                System.Drawing.Color systemColor = System.Drawing.Color.FromArgb((byte)int.Parse(hex.Substring(0, 2), System.Globalization.NumberStyles.HexNumber), (byte)int.Parse(hex.Substring(2, 2), System.Globalization.NumberStyles.HexNumber), (byte)int.Parse(hex.Substring(4, 2), System.Globalization.NumberStyles.HexNumber));
-
-                redSlider.Value = color.R;
-                greenSlider.Value = color.G;
-                blueSlider.Value = color.B;
-
-                Brush brush = new SolidColorBrush(color);
-
-                Theme.PrimaryBrush = brush;
-                Theme.PrimaryColor = systemColor;
-                colorRechtangle.Fill = brush;
-                colorHexTextBox.Foreground = Brushes.Black;
-
-                key.SetValue("Color", colorHexTextBox.Text);
+                key.SetValue("PrimaryColor", MultiColorConverter.ConvertToHex(Theme.PrimaryColor));
                 SaveLayout();
-            }
-            catch
-            {
-                colorHexTextBox.Foreground = Brushes.Red;
             }
         }
 
-        #endregion color
+        private void ChangeSecondaryColorButton_Click(object sender, RoutedEventArgs e)
+        {
+            ColorDialog colorDialog = new ColorDialog("Set Secondary Color", Theme.SecondaryColor);
+
+            if (colorDialog.ShowDialog() == true)
+            {
+                Theme.SecondaryBrush = colorDialog.ResultBrush;
+                Theme.SecondaryColor = colorDialog.ResultColor;
+                secondaryColorRechtangle.Fill = colorDialog.ResultBrush;
+
+                key.SetValue("SecondaryColor", MultiColorConverter.ConvertToHex(Theme.SecondaryColor));
+                SaveLayout();
+            }
+        }
+
+        private void ChangeBackgroundColorButton_Click(object sender, RoutedEventArgs e)
+        {
+            ColorDialog colorDialog = new ColorDialog("Set Background Color", Theme.BackgroundColor);
+            if (colorDialog.ShowDialog() == true)
+            {
+                Theme.BackgroundBrush = colorDialog.ResultBrush;
+                Theme.BackgroundColor = colorDialog.ResultColor;
+                backgroundColorRechtangle.Fill = colorDialog.ResultBrush;
+
+                key.SetValue("BackgroundColor", MultiColorConverter.ConvertToHex(Theme.BackgroundColor));
+                SaveLayout();
+            }
+        }
 
         #region Layout
 
@@ -867,8 +858,31 @@ namespace DesktopMagic
             mirrorModeCheckBox.IsChecked = bool.Parse(key.GetValue("MirrorMode", "false").ToString());
             lineModeCheckBox.IsChecked = bool.Parse(key.GetValue("LineMode", "false").ToString());
             musicVisualizerColorTextBox.Text = key.GetValue("MusicVisualizerColor", "").ToString();
-            colorHexTextBox.Text = key.GetValue("Color", "#FFFFFF").ToString();
             blockWindowsClosing = false;
+
+            string primaryColorHex = key.GetValue("PrimaryColor", "#FFFFFFFF").ToString();
+            string secondaryColorHex = key.GetValue("SecondaryColor", "#FFFFFFFF").ToString();
+            string backgroundColorHex = key.GetValue("BackgroundColor", "#00FFFFFF").ToString();
+
+            _ = MultiColorConverter.TryConvertToSystemColor(primaryColorHex, out System.Drawing.Color primarySystemColor);
+            _ = MultiColorConverter.TryConvertToMediaColor(primaryColorHex, out Color primaryMediaColor);
+            _ = MultiColorConverter.TryConvertToSystemColor(secondaryColorHex, out System.Drawing.Color secondarySystemColor);
+            _ = MultiColorConverter.TryConvertToMediaColor(secondaryColorHex, out Color secondaryMediaColor);
+            _ = MultiColorConverter.TryConvertToSystemColor(backgroundColorHex, out System.Drawing.Color backgroundSystemColor);
+            _ = MultiColorConverter.TryConvertToMediaColor(backgroundColorHex, out Color backgroundMediaColor);
+
+            Theme.PrimaryColor = primarySystemColor;
+            Theme.PrimaryBrush = new SolidColorBrush(primaryMediaColor);
+
+            Theme.SecondaryColor = secondarySystemColor;
+            Theme.SecondaryBrush = new SolidColorBrush(secondaryMediaColor);
+
+            Theme.BackgroundColor = backgroundSystemColor;
+            Theme.BackgroundBrush = new SolidColorBrush(backgroundMediaColor);
+
+            primaryColorRechtangle.Fill = Theme.PrimaryBrush;
+            secondaryColorRechtangle.Fill = Theme.SecondaryBrush;
+            backgroundColorRechtangle.Fill = Theme.BackgroundBrush;
 
             MusicVisualizerColorTextBox_TextChanged(null, null);
             MirrorModeCheckBox_Click(null, null);

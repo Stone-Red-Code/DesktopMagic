@@ -2,7 +2,7 @@
 using System.Threading;
 using System.Windows;
 
-namespace DesktopMagic
+namespace DesktopMagic.Dialogs
 {
     public partial class InputDialog : Window
     {

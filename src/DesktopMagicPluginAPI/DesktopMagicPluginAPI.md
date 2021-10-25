@@ -33,6 +33,7 @@
   - [WindowSize](#P-DesktopMagicPluginAPI-IPluginData-WindowSize 'DesktopMagicPluginAPI.IPluginData.WindowSize')
   - [UpdateWindow()](#M-DesktopMagicPluginAPI-IPluginData-UpdateWindow 'DesktopMagicPluginAPI.IPluginData.UpdateWindow')
 - [ITheme](#T-DesktopMagicPluginAPI-ITheme 'DesktopMagicPluginAPI.ITheme')
+  - [BackgroundColor](#P-DesktopMagicPluginAPI-ITheme-BackgroundColor 'DesktopMagicPluginAPI.ITheme.BackgroundColor')
   - [Font](#P-DesktopMagicPluginAPI-ITheme-Font 'DesktopMagicPluginAPI.ITheme.Font')
   - [PrimaryColor](#P-DesktopMagicPluginAPI-ITheme-PrimaryColor 'DesktopMagicPluginAPI.ITheme.PrimaryColor')
   - [SecondaryColor](#P-DesktopMagicPluginAPI-ITheme-SecondaryColor 'DesktopMagicPluginAPI.ITheme.SecondaryColor')
@@ -393,6 +394,13 @@ DesktopMagicPluginAPI
 ##### Summary
 
 The theme settings of the main application.
+
+<a name='P-DesktopMagicPluginAPI-ITheme-BackgroundColor'></a>
+### BackgroundColor `property`
+
+##### Summary
+
+Gets the background color of the main application.
 
 <a name='P-DesktopMagicPluginAPI-ITheme-Font'></a>
 ### Font `property`

@@ -336,6 +336,11 @@
             Gets the secondary color of the main application.
             </summary>
         </member>
+        <member name="P:DesktopMagicPluginAPI.ITheme.BackgroundColor">
+            <summary>
+            Gets the background color of the main application.
+            </summary>
+        </member>
         <member name="P:DesktopMagicPluginAPI.ITheme.Font">
             <summary>
             Gets the font of the main application.
