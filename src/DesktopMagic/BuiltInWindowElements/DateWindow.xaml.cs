@@ -58,12 +58,16 @@ namespace DesktopMagic
                 if (MainWindow.EditMode)
                 {
                     panel.Visibility = Visibility.Visible;
+                    tileBar.CaptionHeight = tileBar.CaptionHeight = ActualHeight - 10 < 0 ? 0 : ActualHeight - 10;
                     WindowPos.SetIsLocked(this, false);
+                    ResizeMode = ResizeMode.CanResize;
                 }
                 else
                 {
                     panel.Visibility = Visibility.Collapsed;
+                    tileBar.CaptionHeight = 0;
                     WindowPos.SetIsLocked(this, true);
+                    ResizeMode = ResizeMode.NoResize;
                 }
                 textBlock.FontFamily = new FontFamily(MainWindow.Theme.Font);
                 textBlock.Foreground = MainWindow.Theme.PrimaryBrush;

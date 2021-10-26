@@ -541,7 +541,7 @@ namespace DesktopMagic
         public static extern int GetSystemMetrics(int abc);
 
         [DllImport("user32.dll", EntryPoint = "GetWindowDC")]
-        public static extern IntPtr GetWindowDC(Int32 ptr);
+        public static extern IntPtr GetWindowDC(int ptr);
 
         [DllImport("user32.dll")]
         public static extern bool IsWindowVisible(IntPtr hWnd);
@@ -559,7 +559,7 @@ namespace DesktopMagic
         public static extern IntPtr SelectObject(IntPtr hdc, IntPtr bmp);
 
         [DllImport("user32.dll", CharSet = CharSet.Auto)]
-        public static extern IntPtr SendMessage(IntPtr hWnd, UInt32 Msg, int wParam, IntPtr lParam);
+        public static extern IntPtr SendMessage(IntPtr hWnd, uint Msg, int wParam, IntPtr lParam);
 
         [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Auto)]
         public static extern IntPtr SendMessageTimeout(IntPtr windowHandle, uint Msg, IntPtr wParam, IntPtr lParam, SendMessageTimeoutFlags flags, uint timeout, out IntPtr result);
@@ -590,7 +590,7 @@ namespace DesktopMagic
         public static extern bool SetWindowPos(IntPtr hWnd, IntPtr hWndInsertAfter, int X, int Y, int cx, int cy, SetWindowPosFlags uFlags);
 
         [DllImport("user32.dll", CharSet = CharSet.Auto)]
-        public static extern Int32 SystemParametersInfo(UInt32 action, UInt32 uParam, string vParam, UInt32 winIni);
+        public static extern int SystemParametersInfo(uint action, uint uParam, string vParam, uint winIni);
 
         [StructLayout(LayoutKind.Sequential)]
         public struct BbStruct //Blur Behind Structure
@@ -642,37 +642,37 @@ namespace DesktopMagic
 
             public int X
             {
-                get { return Left; }
+                get => Left;
                 set { Right -= (Left - value); Left = value; }
             }
 
             public int Y
             {
-                get { return Top; }
+                get => Top;
                 set { Bottom -= (Top - value); Top = value; }
             }
 
             public int Height
             {
-                get { return Bottom - Top; }
-                set { Bottom = value + Top; }
+                get => Bottom - Top;
+                set => Bottom = value + Top;
             }
 
             public int Width
             {
-                get { return Right - Left; }
-                set { Right = value + Left; }
+                get => Right - Left;
+                set => Right = value + Left;
             }
 
             public System.Drawing.Point Location
             {
-                get { return new System.Drawing.Point(Left, Top); }
+                get => new System.Drawing.Point(Left, Top);
                 set { X = value.X; Y = value.Y; }
             }
 
             public System.Drawing.Size Size
             {
-                get { return new System.Drawing.Size(Width, Height); }
+                get => new System.Drawing.Size(Width, Height);
                 set { Width = value.Width; Height = value.Height; }
             }
 
@@ -703,10 +703,15 @@ namespace DesktopMagic
 
             public override bool Equals(object obj)
             {
-                if (obj is RECT)
-                    return Equals((RECT)obj);
-                else if (obj is System.Drawing.Rectangle)
-                    return Equals(new RECT((System.Drawing.Rectangle)obj));
+                if (obj is RECT rECT)
+                {
+                    return Equals(rECT);
+                }
+                else if (obj is System.Drawing.Rectangle rectangle)
+                {
+                    return Equals(new RECT(rectangle));
+                }
+
                 return false;
             }
 

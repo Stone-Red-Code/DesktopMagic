@@ -6,3 +6,4 @@
 using System.Diagnostics.CodeAnalysis;
 
 [assembly: SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "Windows only application")]
+[assembly: SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "No need to")]

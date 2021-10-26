@@ -4,9 +4,12 @@ using DesktopMagic.Plugins;
 
 using Microsoft.Win32;
 
+using Stone_Red_Utilities.Logging;
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -81,7 +84,7 @@ namespace DesktopMagic
             }
         }
 
-        #region load
+        #region Load
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
@@ -105,8 +108,6 @@ namespace DesktopMagic
                 }
                 App.Logger.Log("Created layouts.save file", "Main");
 
-                _ = optionsComboBox.Items.Add(new Tuple<string, int>((string)FindResource("musicVisualizer"), 0));
-
                 //Write To Log File and Load Elements
 
                 App.Logger.Log("Loading Plugin names", "Main");
@@ -121,7 +122,8 @@ namespace DesktopMagic
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.ToString());
+                App.Logger.Log(ex.Message, "Main", LogSeverity.Error);
+                _ = MessageBox.Show(ex.ToString());
             }
         }
 
@@ -137,7 +139,10 @@ namespace DesktopMagic
                     _ = Directory.CreateDirectory(PluginsPath + "\\" + PluginName);
                     File.Move(fileName, $"{PluginsPath}\\{PluginName}\\{PluginName}.dll");
                 }
-                catch { }
+                catch (Exception ex)
+                {
+                    App.Logger.Log(ex.Message, "Main", LogSeverity.Error);
+                }
             }
 
             foreach (string directory in Directory.GetDirectories(PluginsPath))
@@ -182,7 +187,7 @@ namespace DesktopMagic
             }
         }
 
-        #endregion load
+        #endregion Load
 
         #region Windows
 
@@ -334,7 +339,7 @@ namespace DesktopMagic
 
         #endregion Windows
 
-        #region options
+        #region Options
 
         private void AmplifierLevelSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
@@ -658,7 +663,7 @@ namespace DesktopMagic
             window?.Exit();
         }
 
-        #endregion options
+        #endregion Options
 
         private void TextBlock_Loaded(object sender, RoutedEventArgs e)
         {
@@ -684,10 +689,6 @@ namespace DesktopMagic
             }
         }
 
-        private void ColorHexTextBox_TextChanged(object sender, TextChangedEventArgs e)
-        {
-        }
-
         private void ChangePrimaryColorButton_Click(object sender, RoutedEventArgs e)
         {
             ColorDialog colorDialog = new ColorDialog("Set Primary Color", Theme.PrimaryColor);
@@ -705,7 +706,6 @@ namespace DesktopMagic
         private void ChangeSecondaryColorButton_Click(object sender, RoutedEventArgs e)
         {
             ColorDialog colorDialog = new ColorDialog("Set Secondary Color", Theme.SecondaryColor);
-
             if (colorDialog.ShowDialog() == true)
             {
                 Theme.SecondaryBrush = colorDialog.ResultBrush;
@@ -837,14 +837,14 @@ namespace DesktopMagic
                 string name = line[(line.LastIndexOf(";", StringComparison.InvariantCulture) + 1)..];
                 _ = layoutsComboBox.Items.Add(name);
             }
-            layoutsComboBox.SelectedIndex = int.Parse(key.GetValue("SelectedLayout", "0").ToString());
+            layoutsComboBox.SelectedIndex = int.Parse(key.GetValue("SelectedLayout", "0").ToString(), CultureInfo.InvariantCulture);
         }
 
         private void LoadLayout(bool minimize = true)
         {
             Theme.Font = key.GetValue("Font", "Segoe UI").ToString();
-            spectrumModeComboBox.SelectedIndex = int.Parse(key.GetValue("SpectrumMode", "0").ToString());
-            amplifierLevelSlider.Value = int.Parse(key.GetValue("AmplifierLevel", "0").ToString());
+            spectrumModeComboBox.SelectedIndex = int.Parse(key.GetValue("SpectrumMode", "0").ToString(), CultureInfo.InvariantCulture);
+            amplifierLevelSlider.Value = int.Parse(key.GetValue("AmplifierLevel", "0").ToString(), CultureInfo.InvariantCulture);
             mirrorModeCheckBox.IsChecked = bool.Parse(key.GetValue("MirrorMode", "false").ToString());
             lineModeCheckBox.IsChecked = bool.Parse(key.GetValue("LineMode", "false").ToString());
             musicVisualizerColorTextBox.Text = key.GetValue("MusicVisualizerColor", "").ToString();
@@ -890,6 +890,9 @@ namespace DesktopMagic
             blockWindowsClosing = true;
             Windows.Clear();
             WindowNames.Clear();
+            optionsComboBox.Items.Clear();
+
+            _ = optionsComboBox.Items.Add(new Tuple<string, int>((string)FindResource("musicVisualizer"), 0));
 
             IEnumerable<CheckBox> list = stackPanel.Children.OfType<CheckBox>();
             bool showWindow = true;
@@ -914,7 +917,7 @@ namespace DesktopMagic
                     catch (Exception ex)
                     {
                         App.Logger.Log(ex.ToString(), "Main");
-                        MessageBox.Show(ex.ToString());
+                        _ = MessageBox.Show(ex.ToString());
                     }
                 }
             }
@@ -941,16 +944,16 @@ namespace DesktopMagic
         private void UpdatePluginsButton_Click(object sender, RoutedEventArgs e)
         {
             LoadPlugins();
-            Task.Run(() =>
-            {
-                foreach (Window window in Windows.ToArray())
-                {
-                    if (window.GetType() == typeof(PluginWindow))
-                    {
-                        ((PluginWindow)window).UpdatePluginWindow();
-                    }
-                }
-            });
+            _ = Task.Run(() =>
+              {
+                  foreach (Window window in Windows.ToArray())
+                  {
+                      if (window.GetType() == typeof(PluginWindow))
+                      {
+                          ((PluginWindow)window).UpdatePluginWindow();
+                      }
+                  }
+              });
         }
 
         private void OpenPluginsFolderButton_Click(object sender, RoutedEventArgs e)
@@ -973,25 +976,9 @@ namespace DesktopMagic
                 Visibility = Visibility.Visible;
                 SystemCommands.RestoreWindow(this);
                 Topmost = true;
-                Activate();
+                _ = Activate();
                 Topmost = false;
             }
-        }
-
-        private void SetLanguageDictionary()
-        {
-            ResourceDictionary dict = new ResourceDictionary();
-            string currentCulture = Thread.CurrentThread.CurrentUICulture.ToString();
-
-            if (currentCulture.Contains("de"))
-            {
-                dict.Source = new Uri("..\\Resources\\StringResources.de.xaml", UriKind.Relative);
-            }
-            else
-            {
-                dict.Source = new Uri("..\\Resources\\StringResources.en.xaml", UriKind.Relative);
-            }
-            Resources.MergedDictionaries.Add(dict);
         }
 
         private void GithubButton_Click(object sender, RoutedEventArgs e)
@@ -1010,6 +997,22 @@ namespace DesktopMagic
             psi.UseShellExecute = true;
             psi.FileName = uri;
             _ = Process.Start(psi);
+        }
+
+        private void SetLanguageDictionary()
+        {
+            ResourceDictionary dict = new ResourceDictionary();
+            string currentCulture = Thread.CurrentThread.CurrentUICulture.ToString();
+
+            if (currentCulture.Contains("de"))
+            {
+                dict.Source = new Uri("..\\Resources\\StringResources.de.xaml", UriKind.Relative);
+            }
+            else
+            {
+                dict.Source = new Uri("..\\Resources\\StringResources.en.xaml", UriKind.Relative);
+            }
+            Resources.MergedDictionaries.Add(dict);
         }
     }
 }

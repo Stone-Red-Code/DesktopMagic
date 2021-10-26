@@ -113,18 +113,18 @@ namespace DesktopMagic
         {
             listBox.Items.Clear();
             CalendarItems calendarItem = new CalendarItems();
-            calendarItem.eventname = "Termine:             ";
-            calendarItem.font = MainWindow.Theme.Font;
-            calendarItem.color = MainWindow.Theme.PrimaryColor.ToString();
+            calendarItem.Eventname = "Termine:             ";
+            calendarItem.Font = MainWindow.Theme.Font;
+            calendarItem.Color = MainWindow.Theme.PrimaryColor.ToString();
             listBox.Items.Add(calendarItem);
 
             for (int i = 0; i < upcomingEventNames.Count; i++)
             {
                 calendarItem = new CalendarItems();
-                calendarItem.eventname = upcomingEventNames[i];
-                calendarItem.dateTime = DateTime.Now.ToString("dd-MM-yyyy");
-                calendarItem.font = MainWindow.Theme.Font;
-                calendarItem.color = MainWindow.Theme.PrimaryBrush.ToString();
+                calendarItem.Eventname = upcomingEventNames[i];
+                calendarItem.DateTime = DateTime.Now.ToString("dd-MM-yyyy");
+                calendarItem.Font = MainWindow.Theme.Font;
+                calendarItem.Color = MainWindow.Theme.PrimaryBrush.ToString();
 
                 if (DateTime.Now < DateTime.Today.AddMonths(12) || upcomingEventTimes[i] == "-")
                 {

@@ -283,7 +283,7 @@ namespace DesktopMagic
             }
         }
 
-        private BitmapSource BitmapToImageSource(Bitmap bitmap)
+        private static BitmapSource BitmapToImageSource(Bitmap bitmap)
         {
             BitmapData bitmapData = bitmap.LockBits(
                 new Rectangle(0, 0, bitmap.Width, bitmap.Height),

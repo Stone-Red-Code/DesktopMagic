@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Globalization;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Timers;
@@ -61,13 +62,13 @@ namespace DesktopMagic
 
             key = Registry.CurrentUser.CreateSubKey(@"Software\" + App.AppName);
 
-            Top = double.Parse(key.GetValue("MusicVisualizerWindowTop", 100).ToString());
+            Top = double.Parse(key.GetValue("MusicVisualizerWindowTop", 100).ToString(), CultureInfo.InvariantCulture);
 
-            Left = double.Parse(key.GetValue("MusicVisualizerWindowLeft", 100).ToString());
+            Left = double.Parse(key.GetValue("MusicVisualizerWindowLeft", 100).ToString(), CultureInfo.InvariantCulture);
 
-            Height = double.Parse(key.GetValue("MusicVisualizerWindowHeight", 200).ToString());
+            Height = double.Parse(key.GetValue("MusicVisualizerWindowHeight", 200).ToString(), CultureInfo.InvariantCulture);
 
-            Width = double.Parse(key.GetValue("MusicVisualizerWindowWidth", 500).ToString());
+            Width = double.Parse(key.GetValue("MusicVisualizerWindowWidth", 500).ToString(), CultureInfo.InvariantCulture);
 
             IsEnabled = false;
         }
@@ -78,7 +79,7 @@ namespace DesktopMagic
 
             //Set the window style to noactivate.
             WindowInteropHelper helper = new WindowInteropHelper(this);
-            WindowPos.SetWindowLong(helper.Handle, WindowPos.GWL_EXSTYLE,
+            _ = WindowPos.SetWindowLong(helper.Handle, WindowPos.GWL_EXSTYLE,
             WindowPos.GetWindowLong(helper.Handle, WindowPos.GWL_EXSTYLE) | WindowPos.WS_EX_NOACTIVATE);
         }
 
@@ -89,21 +90,18 @@ namespace DesktopMagic
                 if (MainWindow.EditMode)
                 {
                     panel.Visibility = Visibility.Visible;
+                    tileBar.CaptionHeight = tileBar.CaptionHeight = ActualHeight - 10 < 0 ? 0 : ActualHeight - 10;
                     WindowPos.SetIsLocked(this, false);
+                    ResizeMode = ResizeMode.CanResize;
                 }
                 else
                 {
                     panel.Visibility = Visibility.Collapsed;
+                    tileBar.CaptionHeight = 0;
                     WindowPos.SetIsLocked(this, true);
+                    ResizeMode = ResizeMode.NoResize;
                 }
-                if (!IsLoaded)
-                {
-                    calculate = false;
-                }
-                else
-                {
-                    calculate = true;
-                }
+                calculate = IsLoaded;
                 backgroundGrid.Background = MainWindow.Theme.BackgroundBrush;
             });
         }
@@ -134,7 +132,7 @@ namespace DesktopMagic
             }
 
             List<double> fft = new List<double>();
-            for (int i = 0; i < e.Result.Length / 2 - 70; i++)
+            for (int i = 0; i < (e.Result.Length / 2) - 70; i++)
             {
                 int v = i;
                 if (v < 20)
@@ -142,7 +140,7 @@ namespace DesktopMagic
                     v = 20;
                 }
 
-                int multiplier = 100 - MainWindow.AmplifierLevel * 2;
+                int multiplier = 100 - (MainWindow.AmplifierLevel * 2);
                 multiplier = multiplier == 0 ? 1 : multiplier;
                 fft.Add(Math.Abs(e.Result[i].Y * v / multiplier));
             }
@@ -173,7 +171,7 @@ namespace DesktopMagic
                 {
                     double temp = 0;
                     int j;
-                    for (j = i * count; j < count + i * count; j++)
+                    for (j = i * count; j < count + (i * count); j++)
                     {
                         temp += fft[j];
                     }
@@ -229,7 +227,7 @@ namespace DesktopMagic
             {
                 Stopwatch sw = new Stopwatch();
                 sw.Start();
-                Bitmap bm = new Bitmap(885, 300);
+                Bitmap bm = new Bitmap(880, 300);
                 int offset = 0;
 
                 if (!MainWindow.MirrorMode && MainWindow.SpectrumMode != 1)
@@ -263,8 +261,8 @@ namespace DesktopMagic
 
                                 if (!fftIndexReverse)
                                 {
-                                    points[pointIndex + 1] = new PointF(bm.Width - 4 * pointIndex, bm.Height / 2 + value);
-                                    points[points.Length / 2 + pointIndex + 1] = new PointF(bm.Width - 4 * pointIndex, bm.Height / 2 - value);
+                                    points[pointIndex + 1] = new PointF(bm.Width - (4 * pointIndex), (bm.Height / 2) + value);
+                                    points[(points.Length / 2) + pointIndex + 1] = new PointF(bm.Width - (4 * pointIndex), (bm.Height / 2) - value);
                                 }
                                 break;
 
@@ -297,15 +295,9 @@ namespace DesktopMagic
 
                     SetPoints(points, bm.Width, bm.Height, offset);
 
-                    Brush brush;
-                    if (MainWindow.MusicVisualzerColor.HasValue)
-                    {
-                        brush = new SolidBrush(MainWindow.MusicVisualzerColor.Value);
-                    }
-                    else
-                    {
-                        brush = new SolidBrush(MainWindow.Theme.PrimaryColor);
-                    }
+                    Brush brush = MainWindow.MusicVisualzerColor.HasValue
+                        ? new SolidBrush(MainWindow.MusicVisualzerColor.Value)
+                        : new SolidBrush(MainWindow.Theme.PrimaryColor);
 
                     if (MainWindow.LineMode)
                     {
@@ -325,10 +317,10 @@ namespace DesktopMagic
                     }
                 }
 
-                Dispatcher.BeginInvoke((Action)delegate
-                {
-                    image.Source = BitmapToImageSource(bm);
-                });
+                _ = Dispatcher.BeginInvoke((Action)delegate
+                  {
+                      image.Source = BitmapToImageSource(bm);
+                  });
             }
             catch { }
         }
@@ -342,7 +334,7 @@ namespace DesktopMagic
                     points[^1] = new PointF(0, height / 2);
 
                     points[points.Length / 2] = new PointF(width, height / 2);
-                    points[points.Length / 2 - 1] = new PointF(0, height / 2);
+                    points[(points.Length / 2) - 1] = new PointF(0, height / 2);
                     break;
 
                 case 2:

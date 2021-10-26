@@ -29,8 +29,8 @@ namespace DesktopMagic
         int cy,
         uint uFlags);
 
-        private const UInt32 SWP_NOSIZE1 = 0x0001;
-        private const UInt32 SWP_NOMOVE1 = 0x0002;
+        private const uint SWP_NOSIZE1 = 0x0001;
+        private const uint SWP_NOMOVE1 = 0x0002;
 
         private static readonly IntPtr HWND_BOTTOM = new IntPtr(1);
 
@@ -42,7 +42,7 @@ namespace DesktopMagic
 
         public static void SendWpfWindowBack(Window window)
         {
-            var hWnd = new WindowInteropHelper(window).Handle;
+            IntPtr hWnd = new WindowInteropHelper(window).Handle;
             SetWindowPos(hWnd, HWND_BOTTOM, 0, 0, 0, 0, SWP_NOSIZE1 | SWP_NOMOVE1);
         }
 
@@ -62,12 +62,12 @@ namespace DesktopMagic
 
         private static void IsLocked_Changed(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            var window = (Window)d;
-            var isHooked = d.GetValue(IsHookedProperty) != null;
+            Window window = (Window)d;
+            bool isHooked = d.GetValue(IsHookedProperty) != null;
 
             if (!isHooked)
             {
-                var hook = new WindowLockHook(window);
+                WindowLockHook hook = new WindowLockHook(window);
                 d.SetValue(IsHookedProperty, hook);
             }
         }
@@ -82,10 +82,9 @@ namespace DesktopMagic
 
             public WindowLockHook(Window window)
             {
-                this.Window = window;
+                Window = window;
 
-                var source = PresentationSource.FromVisual(window) as HwndSource;
-                if (source == null)
+                if (PresentationSource.FromVisual(window) is not HwndSource source)
                 {
                     // If there is no hWnd, we need to wait until there is
                     window.SourceInitialized += Window_SourceInitialized;
@@ -98,7 +97,7 @@ namespace DesktopMagic
 
             private void Window_SourceInitialized(object sender, EventArgs e)
             {
-                var source = (HwndSource)PresentationSource.FromVisual(Window);
+                HwndSource source = (HwndSource)PresentationSource.FromVisual(Window);
                 source.AddHook(WndProc);
             }
 
@@ -106,7 +105,7 @@ namespace DesktopMagic
             {
                 if (msg == WM_WINDOWPOSCHANGING && GetIsLocked(Window))
                 {
-                    var wp = Marshal.PtrToStructure<WINDOWPOS>(lParam);
+                    WINDOWPOS wp = Marshal.PtrToStructure<WINDOWPOS>(lParam);
                     wp.flags |= SWP_NOMOVE | SWP_NOSIZE;
                     Marshal.StructureToPtr(wp, lParam, false);
                 }

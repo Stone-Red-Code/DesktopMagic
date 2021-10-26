@@ -83,9 +83,9 @@ namespace DesktopMagic
 
     internal class CalendarItems
     {
-        public string eventname { get; set; }
-        public string dateTime { get; set; }
-        public string font { get; set; }
-        public string color { get; set; }
+        public string Eventname { get; set; }
+        public string DateTime { get; set; }
+        public string Font { get; set; }
+        public string Color { get; set; }
     }
 }
