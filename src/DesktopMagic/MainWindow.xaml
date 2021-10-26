@@ -94,19 +94,19 @@
                         <Border CornerRadius="1" BorderThickness="1.5" BorderBrush="Gray" Height="23" Width="23"  Margin="0,0,5,0">
                             <Rectangle x:Name="primaryColorRechtangle" Fill="White" />
                         </Border>
-                        <Button Content="Change Primary Color" Height="23" FontSize="10" Click="ChangePrimaryColorButton_Click"   />
+                        <Button Content="Change Primary Color" Height="23" FontSize="12" FontWeight="Regular" Click="ChangePrimaryColorButton_Click"/>
                     </DockPanel>
                     <DockPanel Margin="0,0,0,5">
                         <Border CornerRadius="1" BorderThickness="1.5" BorderBrush="Gray" Height="23" Width="23"  Margin="0,0,5,0">
                             <Rectangle x:Name="secondaryColorRechtangle" Fill="White" />
                         </Border>
-                        <Button Content="Change Secondary Color" Height="23" FontSize="10" Click="ChangeSecondaryColorButton_Click" />
+                        <Button Content="Change Secondary Color" Height="23" FontSize="12" FontWeight="Regular" Click="ChangeSecondaryColorButton_Click" />
                     </DockPanel>
                     <DockPanel >
                         <Border CornerRadius="1" BorderThickness="1.5" BorderBrush="Gray" Height="23" Width="23"  Margin="0,0,5,0">
                             <Rectangle x:Name="backgroundColorRechtangle" Fill="White" />
                         </Border>
-                        <Button Content="Change Background Color" Height="23" FontSize="10" Click="ChangeBackgroundColorButton_Click" />
+                        <Button Content="Change Background Color" Height="23" FontSize="12" FontWeight="Regular" Click="ChangeBackgroundColorButton_Click" />
                     </DockPanel>
                 </StackPanel>
                 <Grid Grid.Row="1" VerticalAlignment="Bottom">

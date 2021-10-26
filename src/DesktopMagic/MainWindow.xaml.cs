@@ -362,52 +362,42 @@ namespace DesktopMagic
         {
             if (!string.IsNullOrWhiteSpace(musicVisualizerColorTextBox.Text) && musicVisualizerColorTextBox.Text != "Default")
             {
-                try
+                if (musicVisualizerColorTextBox.Text.Length > 0)
                 {
-                    if (musicVisualizerColorTextBox.Text.Length > 0)
+                    if (musicVisualizerColorTextBox.Text.ToCharArray()[0] != '#')
                     {
-                        if (musicVisualizerColorTextBox.Text.ToCharArray()[0] != '#')
-                        {
-                            musicVisualizerColorTextBox.Text = "#" + musicVisualizerColorTextBox.Text.Replace("#", "");
-                        }
-                    }
-                    else
-                    {
-                        musicVisualizerColorTextBox.Text = "#";
-                        musicVisualizerColorTextBox.Select(musicVisualizerColorTextBox.Text.Length, 0);
-                    }
-
-                    if (musicVisualizerColorTextBox.SelectionStart == 0)
-                    {
-                        if (musicVisualizerColorTextBox.Text.Length <= 2)
-                        {
-                            musicVisualizerColorTextBox.Select(musicVisualizerColorTextBox.Text.Length, 0);
-                        }
-                        else
-                        {
-                            musicVisualizerColorTextBox.Select(1, 0);
-                        }
-                    }
-
-                    string hex = musicVisualizerColorTextBox.Text;
-                    hex = hex.Replace("#", "");
-
-                    if (hex.Length == 6)
-                    {
-                        System.Drawing.Color systemColor = System.Drawing.Color.FromArgb((byte)int.Parse(hex.Substring(0, 2), System.Globalization.NumberStyles.HexNumber), (byte)int.Parse(hex.Substring(2, 2), System.Globalization.NumberStyles.HexNumber), (byte)int.Parse(hex.Substring(4, 2), System.Globalization.NumberStyles.HexNumber));
-
-                        MusicVisualzerColor = systemColor;
-                        musicVisualizerColorTextBox.Foreground = Brushes.Black;
-
-                        key.SetValue("MusicVisualizerColor", musicVisualizerColorTextBox.Text);
-                        SaveLayout();
-                    }
-                    else
-                    {
-                        musicVisualizerColorTextBox.Foreground = Brushes.Red;
+                        musicVisualizerColorTextBox.Text = "#" + musicVisualizerColorTextBox.Text.Replace("#", "");
                     }
                 }
-                catch
+                else
+                {
+                    musicVisualizerColorTextBox.Text = "#";
+                    musicVisualizerColorTextBox.Select(musicVisualizerColorTextBox.Text.Length, 0);
+                }
+
+                if (musicVisualizerColorTextBox.SelectionStart == 0)
+                {
+                    if (musicVisualizerColorTextBox.Text.Length <= 2)
+                    {
+                        musicVisualizerColorTextBox.Select(musicVisualizerColorTextBox.Text.Length, 0);
+                    }
+                    else
+                    {
+                        musicVisualizerColorTextBox.Select(1, 0);
+                    }
+                }
+
+                string hex = musicVisualizerColorTextBox.Text;
+
+                if (MultiColorConverter.TryConvertToSystemColor(hex, out System.Drawing.Color systemColor))
+                {
+                    MusicVisualzerColor = systemColor;
+                    musicVisualizerColorTextBox.Foreground = Brushes.Black;
+
+                    key.SetValue("MusicVisualizerColor", musicVisualizerColorTextBox.Text);
+                    SaveLayout();
+                }
+                else
                 {
                     musicVisualizerColorTextBox.Foreground = Brushes.Red;
                 }
