@@ -87,12 +87,13 @@ namespace DesktopMagic
                     ResizeMode = ResizeMode.NoResize;
                 }
 
-                textBlock.Background = MainWindow.Theme.BackgroundBrush;
+                rectangleGeometry.Rect = new Rect(0, 0, border.ActualWidth, border.ActualHeight);
+                border.Background = MainWindow.Theme.BackgroundBrush;
+                border.CornerRadius = new CornerRadius(MainWindow.Theme.CornerRadius);
                 textBlock.FontFamily = new FontFamily(MainWindow.Theme.Font);
                 textBlock.Foreground = MainWindow.Theme.PrimaryBrush;
-                valuetextBlock.Background = MainWindow.Theme.BackgroundBrush;
-                valuetextBlock.FontFamily = new FontFamily(MainWindow.Theme.Font);
-                valuetextBlock.Foreground = MainWindow.Theme.PrimaryBrush;
+                valueTextBlock.FontFamily = new FontFamily(MainWindow.Theme.Font);
+                valueTextBlock.Foreground = MainWindow.Theme.PrimaryBrush;
 
                 ClculateWidth();
             });
@@ -103,7 +104,7 @@ namespace DesktopMagic
             string cpuUsage = GetCpuUsage();
             Dispatcher.Invoke(() =>
             {
-                valuetextBlock.Text = cpuUsage;
+                valueTextBlock.Text = cpuUsage;
             });
         }
 

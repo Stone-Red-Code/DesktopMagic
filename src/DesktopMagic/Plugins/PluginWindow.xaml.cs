@@ -117,7 +117,9 @@ namespace DesktopMagic
                 }
                 else
                 {
-                    backgroundGrid.Background = MainWindow.Theme.BackgroundBrush;
+                    rectangleGeometry.Rect = new Rect(0, 0, border.ActualWidth, border.ActualHeight);
+                    border.Background = MainWindow.Theme.BackgroundBrush;
+                    border.CornerRadius = new CornerRadius(MainWindow.Theme.CornerRadius);
                 }
             });
         }

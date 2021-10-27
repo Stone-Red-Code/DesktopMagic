@@ -34,6 +34,7 @@
   - [UpdateWindow()](#M-DesktopMagicPluginAPI-IPluginData-UpdateWindow 'DesktopMagicPluginAPI.IPluginData.UpdateWindow')
 - [ITheme](#T-DesktopMagicPluginAPI-ITheme 'DesktopMagicPluginAPI.ITheme')
   - [BackgroundColor](#P-DesktopMagicPluginAPI-ITheme-BackgroundColor 'DesktopMagicPluginAPI.ITheme.BackgroundColor')
+  - [CornerRadius](#P-DesktopMagicPluginAPI-ITheme-CornerRadius 'DesktopMagicPluginAPI.ITheme.CornerRadius')
   - [Font](#P-DesktopMagicPluginAPI-ITheme-Font 'DesktopMagicPluginAPI.ITheme.Font')
   - [PrimaryColor](#P-DesktopMagicPluginAPI-ITheme-PrimaryColor 'DesktopMagicPluginAPI.ITheme.PrimaryColor')
   - [SecondaryColor](#P-DesktopMagicPluginAPI-ITheme-SecondaryColor 'DesktopMagicPluginAPI.ITheme.SecondaryColor')
@@ -329,14 +330,14 @@ Defines properties and methods that provide information about the main applicati
 
 ##### Summary
 
-Gets the current color of the main application.
+Gets the current color of the current theme.
 
 <a name='P-DesktopMagicPluginAPI-IPluginData-Font'></a>
 ### Font `property`
 
 ##### Summary
 
-Gets the current font of the main application.
+Gets the current font of the current theme.
 
 <a name='P-DesktopMagicPluginAPI-IPluginData-PluginName'></a>
 ### PluginName `property`
@@ -400,28 +401,35 @@ The theme settings of the main application.
 
 ##### Summary
 
-Gets the background color of the main application.
+Gets the background color of the current theme.
+
+<a name='P-DesktopMagicPluginAPI-ITheme-CornerRadius'></a>
+### CornerRadius `property`
+
+##### Summary
+
+Gets the corner radius of the current theme.
 
 <a name='P-DesktopMagicPluginAPI-ITheme-Font'></a>
 ### Font `property`
 
 ##### Summary
 
-Gets the font of the main application.
+Gets the font of the current theme.
 
 <a name='P-DesktopMagicPluginAPI-ITheme-PrimaryColor'></a>
 ### PrimaryColor `property`
 
 ##### Summary
 
-Gets the primary color of the main application.
+Gets the primary color of the current theme.
 
 <a name='P-DesktopMagicPluginAPI-ITheme-SecondaryColor'></a>
 ### SecondaryColor `property`
 
 ##### Summary
 
-Gets the secondary color of the main application.
+Gets the secondary color of the current theme.
 
 <a name='T-DesktopMagicPluginAPI-Inputs-IntegerUpDown'></a>
 ## IntegerUpDown `type`

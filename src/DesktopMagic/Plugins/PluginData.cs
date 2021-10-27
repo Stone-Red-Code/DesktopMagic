@@ -20,7 +20,7 @@ namespace DesktopMagic.Plugins
 
         public ITheme Theme { get; }
 
-        public Point WindowSize => new Point((int)window.ActualWidth, (int)window.ActualHeight);
+        public Size WindowSize => new Size((int)window.ActualWidth, (int)window.ActualHeight);
 
         public Point WindowPosition => new Point((int)window.Left, (int)window.Top);
 

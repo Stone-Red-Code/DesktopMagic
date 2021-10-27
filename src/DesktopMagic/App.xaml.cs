@@ -18,7 +18,7 @@ namespace DesktopMagic
 #if DEBUG
         private readonly Updater updater = new Updater(TimeSpan.FromDays(1), "https://raw.githubusercontent.com/Stone-Red-Code/DesktopMagic/develop/update/updateInfo.json");
 #else
-        private readonly Updater updater = new Updater(TimeSpan.FromHours(1), "https://raw.githubusercontent.com/Stone-Red-Code/DesktopMagic/main/update/updateInfo.json");
+        private readonly Updater updater = new Updater(TimeSpan.FromDays(1), "https://raw.githubusercontent.com/Stone-Red-Code/DesktopMagic/main/update/updateInfo.json");
 #endif
 
         public const string AppName = "Desktop Magic";
@@ -104,7 +104,7 @@ namespace DesktopMagic
                 InfoConfig = new OutputConfig()
                 {
                     Color = ConsoleColor.White,
-                    LogTarget = LogTarget.Console | LogTarget.File,
+                    LogTarget = LogTarget.DebugConsole | LogTarget.File,
                     FilePath = logFilePath
                 },
                 DebugConfig = new OutputConfig()

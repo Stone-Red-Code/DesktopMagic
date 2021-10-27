@@ -69,10 +69,13 @@ namespace DesktopMagic
                     WindowPos.SetIsLocked(this, true);
                     ResizeMode = ResizeMode.NoResize;
                 }
+
+                rectangleGeometry.Rect = new Rect(0, 0, border.ActualWidth, border.ActualHeight);
+                border.Background = MainWindow.Theme.BackgroundBrush;
+                border.CornerRadius = new CornerRadius(MainWindow.Theme.CornerRadius);
                 textBlock.FontFamily = new FontFamily(MainWindow.Theme.Font);
                 textBlock.Foreground = MainWindow.Theme.PrimaryBrush;
                 textBlock.Text = DateTime.Now.ToLongDateString();
-                textBlock.Background = MainWindow.Theme.BackgroundBrush;
             });
         }
 

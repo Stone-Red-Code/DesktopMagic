@@ -102,7 +102,9 @@ namespace DesktopMagic
                     ResizeMode = ResizeMode.NoResize;
                 }
                 calculate = IsLoaded;
-                backgroundGrid.Background = MainWindow.Theme.BackgroundBrush;
+                rectangleGeometry.Rect = new Rect(0, 0, border.ActualWidth, border.ActualHeight);
+                border.CornerRadius = new CornerRadius(MainWindow.Theme.CornerRadius);
+                border.Background = MainWindow.Theme.BackgroundBrush;
             });
         }
 

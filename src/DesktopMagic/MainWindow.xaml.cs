@@ -26,28 +26,28 @@ namespace DesktopMagic
         #region Global settings
 
         internal static Theme Theme = new Theme();
-        public static bool EditMode { get; protected set; } = false;
+        public static bool EditMode { get; private set; } = false;
 
         #endregion Global settings
 
         #region Music Visualizer Settings
 
-        public static int SpectrumMode { get; protected set; } = 0;
-        public static int AmplifierLevel { get; protected set; } = 0;
-        public static bool MirrorMode { get; protected set; } = false;
-        public static bool LineMode { get; protected set; } = false;
-        public static System.Drawing.Color? MusicVisualzerColor { get; protected set; }
+        public static int SpectrumMode { get; private set; } = 0;
+        public static int AmplifierLevel { get; private set; } = 0;
+        public static bool MirrorMode { get; private set; } = false;
+        public static bool LineMode { get; private set; } = false;
+        public static System.Drawing.Color? MusicVisualzerColor { get; private set; }
 
         #endregion Music Visualizer Settings
 
         #region Plugins settings
 
-        internal static Dictionary<string, List<SettingElement>> PluginsSettings { get; set; } = new Dictionary<string, List<SettingElement>>();
+        internal static Dictionary<string, List<SettingElement>> PluginsSettings { get; } = new Dictionary<string, List<SettingElement>>();
 
         #endregion Plugins settings
 
-        public static List<Window> Windows { get; protected set; } = new List<Window>();
-        public static List<string> WindowNames { get; protected set; } = new List<string>();
+        public static List<Window> Windows { get; } = new List<Window>();
+        public static List<string> WindowNames { get; } = new List<string>();
         private readonly RegistryKey key;
         private readonly System.Windows.Forms.NotifyIcon notifyIcon = new();
 
@@ -66,7 +66,6 @@ namespace DesktopMagic
                 notifyIcon.Visible = true;
                 notifyIcon.Text = App.AppName;
                 notifyIcon.Icon = new System.Drawing.Icon(iconStream);
-                notifyIcon.ContextMenuStrip = new System.Windows.Forms.ContextMenuStrip();
 
                 InitializeComponent();
 
@@ -455,212 +454,28 @@ namespace DesktopMagic
                     return;
                 }
 
+                SettingElementGenerator settingElementGenerator = new SettingElementGenerator(optionsComboBox);
+
                 foreach (SettingElement settingElement in settingElements)
                 {
-                    DockPanel stackPanel = new()
+                    DockPanel dockPanel = new()
                     {
                         LastChildFill = true,
                         HorizontalAlignment = HorizontalAlignment.Stretch
                     };
-                    _ = optionsPanel.Children.Add(stackPanel);
+                    _ = optionsPanel.Children.Add(dockPanel);
 
-                    TextBlock label = new()
+                    TextBlock textBlock = new()
                     {
                         Text = settingElement.Name,
                         Padding = new Thickness(0, 0, 3, 0),
                         VerticalAlignment = VerticalAlignment.Center
                     };
 
-                    _ = stackPanel.Children.Add(label);
-                    stackPanel.UpdateLayout();
-                    label.UpdateLayout();
-
-                    if (settingElement.Element is DesktopMagicPluginAPI.Inputs.Label eLabel)
-                    {
-                        label.Text = eLabel.Value;
-                        label.Margin = new Thickness(0, 5, 3, 0);
-                        label.HorizontalAlignment = HorizontalAlignment.Stretch;
-                        label.TextWrapping = TextWrapping.WrapWithOverflow;
-
-                        if (eLabel.Bold)
-                        {
-                            label.FontWeight = FontWeights.Bold;
-                        }
-                        eLabel.OnValueChanged += () =>
-                        {
-                            Dispatcher.Invoke(() =>
-                            {
-                                label.Text = eLabel.Value;
-                            });
-                        };
-                    }
-                    else if (settingElement.Element is DesktopMagicPluginAPI.Inputs.Button eButton)
-                    {
-                        Button button = new()
-                        {
-                            Content = eButton.Value,
-                            FontSize = 10,
-                            Height = 20,
-                            Margin = new Thickness(0, 10, 0, 10),
-                            Padding = new Thickness(0),
-                            VerticalAlignment = VerticalAlignment.Center,
-                            HorizontalAlignment = HorizontalAlignment.Stretch
-                        };
-                        button.Click += (_s, _e) =>
-                        {
-                            try
-                            {
-                                eButton.Click();
-                            }
-                            catch (Exception ex)
-                            {
-                                DisplayException(ex.Message);
-                            }
-                        };
-                        eButton.OnValueChanged += () =>
-                        {
-                            Dispatcher.Invoke(() =>
-                            {
-                                button.Content = eButton.Value;
-                            });
-                        };
-
-                        _ = stackPanel.Children.Add(button);
-                    }
-                    else if (settingElement.Element is DesktopMagicPluginAPI.Inputs.CheckBox eCheckBox)
-                    {
-                        CheckBox checkBox = new()
-                        {
-                            IsChecked = eCheckBox.Value,
-                            Style = (Style)FindResource("MaterialDesignDarkCheckBox"),
-                            VerticalAlignment = VerticalAlignment.Center,
-                            HorizontalAlignment = HorizontalAlignment.Stretch
-                        };
-                        checkBox.Click += (_s, _e) =>
-                        {
-                            try
-                            {
-                                eCheckBox.Value = checkBox.IsChecked.GetValueOrDefault();
-                            }
-                            catch (Exception ex)
-                            {
-                                DisplayException(ex.Message);
-                            }
-                        };
-                        eCheckBox.OnValueChanged += () =>
-                        {
-                            Dispatcher.Invoke(() =>
-                            {
-                                checkBox.IsChecked = eCheckBox.Value;
-                            });
-                        };
-
-                        _ = stackPanel.Children.Add(checkBox);
-                    }
-                    else if (settingElement.Element is DesktopMagicPluginAPI.Inputs.TextBox eTextBox)
-                    {
-                        TextBox textBox = new()
-                        {
-                            Text = eTextBox.Value,
-                            TextWrapping = TextWrapping.Wrap,
-                            VerticalAlignment = VerticalAlignment.Center,
-                            HorizontalAlignment = HorizontalAlignment.Stretch
-                        };
-                        textBox.TextChanged += (_s, _e) =>
-                        {
-                            try
-                            {
-                                eTextBox.Value = textBox.Text;
-                            }
-                            catch (Exception ex)
-                            {
-                                DisplayException(ex.Message);
-                            }
-                        };
-                        eTextBox.OnValueChanged += () =>
-                        {
-                            Dispatcher.Invoke(() =>
-                            {
-                                textBox.Text = eTextBox.Value;
-                            });
-                        };
-                        _ = stackPanel.Children.Add(textBox);
-                    }
-                    else if (settingElement.Element is DesktopMagicPluginAPI.Inputs.IntegerUpDown eIntegerUpDown)
-                    {
-                        Xceed.Wpf.Toolkit.IntegerUpDown integerUpDown = new()
-                        {
-                            Value = eIntegerUpDown.Value,
-                            Minimum = eIntegerUpDown.Minimum,
-                            Maximum = eIntegerUpDown.Maximum,
-                            VerticalAlignment = VerticalAlignment.Center,
-                            HorizontalAlignment = HorizontalAlignment.Stretch
-                        };
-                        integerUpDown.ValueChanged += (_s, _e) =>
-                        {
-                            try
-                            {
-                                eIntegerUpDown.Value = integerUpDown.Value.GetValueOrDefault();
-                            }
-                            catch (Exception ex)
-                            {
-                                DisplayException(ex.Message);
-                            }
-                        };
-                        eIntegerUpDown.OnValueChanged += () =>
-                        {
-                            Dispatcher.Invoke(() =>
-                            {
-                                integerUpDown.Value = eIntegerUpDown.Value;
-                            });
-                        };
-                        _ = stackPanel.Children.Add(integerUpDown);
-                    }
-                    else if (settingElement.Element is DesktopMagicPluginAPI.Inputs.Slider eSlider)
-                    {
-                        Slider slider = new()
-                        {
-                            Value = eSlider.Value,
-                            Minimum = eSlider.Minimum,
-                            Maximum = eSlider.Maximum,
-                            TickFrequency = 1,
-                            IsSnapToTickEnabled = true,
-                            VerticalAlignment = VerticalAlignment.Center,
-                            HorizontalAlignment = HorizontalAlignment.Stretch
-                        };
-                        slider.ValueChanged += (_s, _e) =>
-                        {
-                            try
-                            {
-                                eSlider.Value = slider.Value;
-                            }
-                            catch (Exception ex)
-                            {
-                                DisplayException(ex.Message);
-                            }
-                        };
-                        eSlider.OnValueChanged += () =>
-                        {
-                            Dispatcher.Invoke(() =>
-                            {
-                                slider.Value = eSlider.Value;
-                            });
-                        };
-
-                        _ = stackPanel.Children.Add(slider);
-                    }
+                    _ = dockPanel.Children.Add(textBlock);
+                    settingElementGenerator.Generate(settingElement, dockPanel, textBlock);
                 }
             }
-        }
-
-        private void DisplayException(string message)
-        {
-            App.Logger.Log(message, "PluginInput");
-            _ = MessageBox.Show("File execution error:\n" + message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            int index = WindowNames.IndexOf(((Tuple<string, int>)optionsComboBox.SelectedItem).Item1.ToString());
-
-            PluginWindow window = Windows[index] as PluginWindow;
-            window?.Exit();
         }
 
         #endregion Options
@@ -728,6 +543,22 @@ namespace DesktopMagic
 
                 key.SetValue("BackgroundColor", MultiColorConverter.ConvertToHex(Theme.BackgroundColor));
                 SaveLayout();
+            }
+        }
+
+        private void CornerRadiusTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            bool sucess = int.TryParse(cornerRadiusTextBox.Text, out int cornerRadius);
+            if (sucess)
+            {
+                cornerRadiusTextBox.Foreground = Brushes.Black;
+                Theme.CornerRadius = cornerRadius;
+                key.SetValue("CornerRadius", cornerRadius);
+                SaveLayout();
+            }
+            else
+            {
+                cornerRadiusTextBox.Foreground = Brushes.Red;
             }
         }
 
@@ -804,27 +635,32 @@ namespace DesktopMagic
 
         private void SaveLayout()
         {
+            if (!loaded)
+            {
+                return;
+            }
+
             _ = Task.Run(() =>
-              {
-                  lock (App.ApplicationDataPath)
-                  {
-                      List<string> lines = File.ReadAllLines(App.ApplicationDataPath + "\\layouts.save").ToList();
-                      string content = "";
-                      foreach (string valueName in key.GetValueNames())
-                      {
-                          if (valueName != "SelectedLayout")
-                          {
-                              content += valueName + ":" + key.GetValue(valueName).ToString() + ";";
-                          }
-                      }
-                      Dispatcher.Invoke(() =>
-                      {
-                          content += layoutsComboBox.SelectedItem.ToString();
-                          lines[layoutsComboBox.SelectedIndex] = content;
-                      });
-                      File.WriteAllLines(App.ApplicationDataPath + "\\layouts.save", lines);
-                  }
-              });
+            {
+                lock (App.ApplicationDataPath)
+                {
+                    List<string> lines = File.ReadAllLines(App.ApplicationDataPath + "\\layouts.save").ToList();
+                    string content = "";
+                    foreach (string valueName in key.GetValueNames())
+                    {
+                        if (valueName != "SelectedLayout")
+                        {
+                            content += valueName + ":" + key.GetValue(valueName).ToString() + ";";
+                        }
+                    }
+                    Dispatcher.Invoke(() =>
+                    {
+                        content += layoutsComboBox.SelectedItem.ToString();
+                        lines[layoutsComboBox.SelectedIndex] = content;
+                    });
+                    File.WriteAllLines(App.ApplicationDataPath + "\\layouts.save", lines);
+                }
+            });
         }
 
         private void LoadLayoutNames()
@@ -848,6 +684,7 @@ namespace DesktopMagic
             mirrorModeCheckBox.IsChecked = bool.Parse(key.GetValue("MirrorMode", "false").ToString());
             lineModeCheckBox.IsChecked = bool.Parse(key.GetValue("LineMode", "false").ToString());
             musicVisualizerColorTextBox.Text = key.GetValue("MusicVisualizerColor", "").ToString();
+            cornerRadiusTextBox.Text = key.GetValue("CornerRadius", "0").ToString();
             blockWindowsClosing = false;
 
             string primaryColorHex = key.GetValue("PrimaryColor", "#FFFFFFFF").ToString();
@@ -879,6 +716,7 @@ namespace DesktopMagic
             LineModeCheckBox_Click(null, null);
             SpectrumModeComboBox_SelectionChanged(null, null);
             AmplifierLevelSlider_ValueChanged(null, null);
+            CornerRadiusTextBox_TextChanged(null, null);
 
             foreach (Window window in Windows)
             {

@@ -16,10 +16,13 @@
         x:Name="window">
     <Grid>
         <Rectangle x:Name="panel" Fill="#4CBAFFEF" Stroke="White" Margin="0,0,0,0" Visibility="Collapsed" />
-        <Viewbox StretchDirection="Both" Stretch="Uniform">
-            <Grid x:Name="backgroundGrid">
-                <Image x:Name="image" HorizontalAlignment="Left"  RenderOptions.EdgeMode="Aliased" Margin="0,0,0,0" VerticalAlignment="Top"  RenderTransformOrigin="0.5,0.5" Stretch="Uniform" MouseDown="Window_MouseDown" MouseMove="Window_MouseMove" MouseWheel="Window_MouseWheel"/>
-            </Grid>
+
+        <Border x:Name="border" Width="{Binding ElementName=viewBox, Path=ActualWidth}" Height="{Binding ElementName=viewBox, Path=ActualHeight}"/>
+        <Viewbox x:Name="viewBox" StretchDirection="Both" Stretch="Uniform">
+            <Viewbox.Clip>
+                <RectangleGeometry x:Name="rectangleGeometry" RadiusX="{Binding ElementName=border, Path=CornerRadius.TopLeft}" RadiusY="{Binding ElementName=border, Path=CornerRadius.TopLeft}" Rect="{Binding ElementName=border}"/>
+            </Viewbox.Clip>
+            <Image x:Name="image" HorizontalAlignment="Left"  RenderOptions.EdgeMode="Aliased" Margin="0,0,0,0" VerticalAlignment="Top"  RenderTransformOrigin="0.5,0.5" Stretch="Uniform" MouseDown="Window_MouseDown" MouseMove="Window_MouseMove" MouseWheel="Window_MouseWheel"/>
         </Viewbox>
     </Grid>
     <WindowChrome.WindowChrome>

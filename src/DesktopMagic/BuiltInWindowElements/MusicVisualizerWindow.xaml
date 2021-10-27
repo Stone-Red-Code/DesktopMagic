@@ -11,16 +11,18 @@
         AllowsTransparency="True"
         LocationChanged="Window_LocationChanged"
         SizeChanged="Window_SizeChanged"
-    x:Name="window">
+        x:Name="window">
     <WindowChrome.WindowChrome>
         <WindowChrome x:Name="tileBar" CaptionHeight="30" ResizeBorderThickness="{x:Static SystemParameters.WindowResizeBorderThickness}" />
     </WindowChrome.WindowChrome>
     <Grid x:Name="grid">
         <Rectangle x:Name="panel" Fill="#4CBAFFEF" Stroke="White" Margin="0,0,0,0" Visibility="Collapsed" />
-        <Viewbox StretchDirection="Both" Stretch="Uniform">
-            <Grid x:Name="backgroundGrid">
-                <Image x:Name="image" HorizontalAlignment="Left" Height="759" Margin="0,0,0,0" VerticalAlignment="Top" Width="1747" RenderTransformOrigin="0.5,0.5" Stretch="Fill" />
-            </Grid>
+        <Border x:Name="border" Width="{Binding ElementName=viewBox, Path=ActualWidth}" Height="{Binding ElementName=viewBox, Path=ActualHeight}"/>
+        <Viewbox x:Name="viewBox" StretchDirection="Both" Stretch="Uniform">
+            <Viewbox.Clip>
+                <RectangleGeometry x:Name="rectangleGeometry" RadiusX="{Binding ElementName=border, Path=CornerRadius.TopLeft}" RadiusY="{Binding ElementName=border, Path=CornerRadius.TopLeft}" Rect="{Binding ElementName=border}"/>
+            </Viewbox.Clip>
+            <Image x:Name="image" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top"  Stretch="Fill" />
         </Viewbox>
     </Grid>
 </Window>

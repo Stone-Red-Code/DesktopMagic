@@ -9,13 +9,13 @@ namespace DesktopMagicPluginAPI
     public interface IPluginData
     {
         /// <summary>
-        /// Gets the current font of the main application.
+        /// Gets the current font of the current theme.
         /// </summary>
         [Obsolete("Use the \"Theme\" property instead")]
         string Font { get; }
 
         /// <summary>
-        /// Gets the current color of the main application.
+        /// Gets the current color of the current theme.
         /// </summary>
         [Obsolete("Use the \"Theme\" property instead")]
         Color Color { get; }
@@ -28,7 +28,7 @@ namespace DesktopMagicPluginAPI
         /// <summary>
         /// Gets the window size of the plugin window.
         /// </summary>
-        Point WindowSize { get; }
+        Size WindowSize { get; }
 
         /// <summary>
         /// Gets the window position of the plugin window.

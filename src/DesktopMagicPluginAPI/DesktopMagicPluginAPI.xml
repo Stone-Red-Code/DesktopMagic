@@ -283,12 +283,12 @@
         </member>
         <member name="P:DesktopMagicPluginAPI.IPluginData.Font">
             <summary>
-            Gets the current font of the main application.
+            Gets the current font of the current theme.
             </summary>
         </member>
         <member name="P:DesktopMagicPluginAPI.IPluginData.Color">
             <summary>
-            Gets the current color of the main application.
+            Gets the current color of the current theme.
             </summary>
         </member>
         <member name="P:DesktopMagicPluginAPI.IPluginData.Theme">
@@ -328,22 +328,27 @@
         </member>
         <member name="P:DesktopMagicPluginAPI.ITheme.PrimaryColor">
             <summary>
-            Gets the primary color of the main application.
+            Gets the primary color of the current theme.
             </summary>
         </member>
         <member name="P:DesktopMagicPluginAPI.ITheme.SecondaryColor">
             <summary>
-            Gets the secondary color of the main application.
+            Gets the secondary color of the current theme.
             </summary>
         </member>
         <member name="P:DesktopMagicPluginAPI.ITheme.BackgroundColor">
             <summary>
-            Gets the background color of the main application.
+            Gets the background color of the current theme.
             </summary>
         </member>
         <member name="P:DesktopMagicPluginAPI.ITheme.Font">
             <summary>
-            Gets the font of the main application.
+            Gets the font of the current theme.
+            </summary>
+        </member>
+        <member name="P:DesktopMagicPluginAPI.ITheme.CornerRadius">
+            <summary>
+            Gets the corner radius of the current theme.
             </summary>
         </member>
         <member name="T:DesktopMagicPluginAPI.Plugin">
