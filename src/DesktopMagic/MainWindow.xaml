@@ -78,31 +78,27 @@
                     <ColumnDefinition/>
                     <ColumnDefinition/>
                 </Grid.ColumnDefinitions>
-                <StackPanel Grid.Column="0" Margin="{StaticResource DefaultMargin}" HorizontalAlignment="Stretch">
+                <Grid Grid.Column="0" Margin="{StaticResource DefaultMargin}" HorizontalAlignment="Stretch">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    
+                    <TextBlock Text="Display Font: " Grid.Column="0" Grid.Row="0" VerticalAlignment="Center"></TextBlock>
+                    <ComboBox x:Name="fontComboBox" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Top" SelectionChanged="FontComboBox_SelectionChanged" Margin="0,0,0,5" />
 
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="1*"/>
-                            <ColumnDefinition Width="2*"/>
-                        </Grid.ColumnDefinitions>
-                        <TextBlock Text="Display Font: " Grid.Column="0" VerticalAlignment="Center"></TextBlock>
-                        <ComboBox x:Name="fontComboBox" Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Top" SelectionChanged="FontComboBox_SelectionChanged" Margin="0,0,0,5" />
-                    </Grid>
-
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="1*"/>
-                            <ColumnDefinition Width="2*"/>
-                        </Grid.ColumnDefinitions>
-                        <TextBlock Text="Corner Radius: " Grid.Column="0" VerticalAlignment="Center"></TextBlock>
-                        <TextBox x:Name="cornerRadiusTextBox" Grid.Column="1" Text="10" TextChanged="CornerRadiusTextBox_TextChanged" materialDesign:HintAssist.HelperText="In px" materialDesign:HintAssist.Hint="Enter a number">
-                            <materialDesign:TextFieldAssist.CharacterCounterStyle>
-                                <Style TargetType="TextBlock" />
-                            </materialDesign:TextFieldAssist.CharacterCounterStyle>
-                        </TextBox>
-                    </Grid>
-                </StackPanel>
-                <StackPanel Grid.Column="1" Margin="{StaticResource DefaultMargin}" HorizontalAlignment="Left">
+                    <TextBlock Text="Corner Radius: " Grid.Column="0" Grid.Row="1" VerticalAlignment="Center"></TextBlock>
+                    <TextBox x:Name="cornerRadiusTextBox" Grid.Column="1" Grid.Row="1" Text="10" TextChanged="CornerRadiusTextBox_TextChanged" materialDesign:HintAssist.HelperText="In px" materialDesign:HintAssist.Hint="Enter a number">
+                        <materialDesign:TextFieldAssist.CharacterCounterStyle>
+                            <Style TargetType="TextBlock" />
+                        </materialDesign:TextFieldAssist.CharacterCounterStyle>
+                    </TextBox>
+                </Grid>
+                <StackPanel Grid.Column="1" Margin="{StaticResource DefaultMargin}" HorizontalAlignment="Stretch">
                     <DockPanel Margin="0,0,0,5">
                         <Border CornerRadius="1" BorderThickness="1.5" BorderBrush="Gray" Height="23" Width="23"  Margin="0,0,5,0">
                             <Rectangle x:Name="primaryColorRechtangle" Fill="White" />

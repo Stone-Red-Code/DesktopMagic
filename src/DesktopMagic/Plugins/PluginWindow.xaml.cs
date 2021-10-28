@@ -75,7 +75,7 @@ namespace DesktopMagic
 
             //Set the window style to noactivate.
             WindowInteropHelper helper = new(this);
-            WindowPos.SetWindowLong(helper.Handle, WindowPos.GWL_EXSTYLE,
+            _ = WindowPos.SetWindowLong(helper.Handle, WindowPos.GWL_EXSTYLE,
             WindowPos.GetWindowLong(helper.Handle, WindowPos.GWL_EXSTYLE) | WindowPos.WS_EX_NOACTIVATE);
         }
 
@@ -202,10 +202,10 @@ namespace DesktopMagic
                 {
                     if (prop.GetValue(instance) is Element element)
                     {
-                        object[] attrs = prop.GetCustomAttributes(true);
-                        foreach (object attr in attrs)
+                        object[] attributes = prop.GetCustomAttributes(true);
+                        foreach (object attribute in attributes)
                         {
-                            if (attr is ElementAttribute elementAttribute)
+                            if (attribute is ElementAttribute elementAttribute)
                             {
                                 settingElements.Add(new SettingElement(element, elementAttribute.Name, elementAttribute.OrderIndex));
                                 break;
@@ -294,7 +294,7 @@ namespace DesktopMagic
             BitmapSource bitmapSource = BitmapSource.Create(
                 bitmapData.Width, bitmapData.Height,
                 bitmap.HorizontalResolution, bitmap.VerticalResolution,
-                System.Windows.Media.PixelFormats.Bgra32, null,
+                PixelFormats.Bgra32, null,
                 bitmapData.Scan0, bitmapData.Stride * bitmapData.Height, bitmapData.Stride);
 
             bitmap.UnlockBits(bitmapData);

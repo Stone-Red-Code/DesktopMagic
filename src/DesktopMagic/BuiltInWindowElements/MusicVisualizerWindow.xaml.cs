@@ -4,7 +4,6 @@ using NAudio.Wave;
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Globalization;
@@ -227,8 +226,6 @@ namespace DesktopMagic
             lastFft = fft;
             try
             {
-                Stopwatch sw = new Stopwatch();
-                sw.Start();
                 Bitmap bm = new Bitmap(880, 300);
                 int offset = 0;
 

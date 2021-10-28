@@ -11,14 +11,13 @@ namespace DesktopMagic.Plugins
         public PluginData(PluginWindow window)
         {
             this.window = window;
-            Theme = MainWindow.Theme;
         }
 
         public string Font => Theme.Font;
 
         public Color Color => Theme.PrimaryColor;
 
-        public ITheme Theme { get; }
+        public ITheme Theme { get; } = MainWindow.Theme;
 
         public Size WindowSize => new Size((int)window.ActualWidth, (int)window.ActualHeight);
 
