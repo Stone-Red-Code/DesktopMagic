@@ -27,9 +27,10 @@ namespace DesktopMagic
         private readonly RegistryKey key;
         private Thread pluginThread;
         private System.Timers.Timer valueTimer;
-        private bool stop = false;
 
         private Plugin pluginClassInstance;
+
+        public bool IsRunning { get; private set; } = true;
         public string PluginName { get; private set; }
         public string PluginFolderPath { get; private set; }
 
@@ -67,6 +68,11 @@ namespace DesktopMagic
             Left = double.Parse(key.GetValue(pluginName + "WindowLeft", 100).ToString());
             Height = double.Parse(key.GetValue(pluginName + "WindowHeight", 200).ToString());
             Width = double.Parse(key.GetValue(pluginName + "WindowWidth", 500).ToString());
+        }
+
+        public PluginWindow(Plugin pluginClassInstance) : this(pluginClassInstance.GetType().Name)
+        {
+            this.pluginClassInstance = pluginClassInstance;
         }
 
         protected override void OnSourceInitialized(EventArgs e)
@@ -111,13 +117,17 @@ namespace DesktopMagic
                     tileBar.CaptionHeight = 0;
                     ResizeMode = ResizeMode.NoResize;
                 }
-                if (stop)
+
+                if (!IsRunning)
                 {
                     ((System.Timers.Timer)sender).Stop();
                 }
                 else
                 {
-                    rectangleGeometry.Rect = new Rect(0, 0, border.ActualWidth, border.ActualHeight);
+                    viewBox.Margin = new Thickness(MainWindow.Theme.Margin);
+                    border.Width = viewBox.ActualWidth + MainWindow.Theme.Margin * 2;
+                    border.Height = viewBox.ActualHeight + MainWindow.Theme.Margin * 2;
+                    rectangleGeometry.Rect = new Rect(-MainWindow.Theme.Margin, -MainWindow.Theme.Margin, border.ActualWidth, border.ActualHeight);
                     border.Background = MainWindow.Theme.BackgroundBrush;
                     border.CornerRadius = new CornerRadius(MainWindow.Theme.CornerRadius);
                 }
@@ -126,13 +136,16 @@ namespace DesktopMagic
 
         private void LoadPlugin()
         {
-            PluginFolderPath = $"{Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)}\\{App.AppName}\\Plugins\\{PluginName}";
-
-            if (!File.Exists($"{PluginFolderPath}\\{PluginName}.dll"))
+            if (pluginClassInstance is null)
             {
-                _ = MessageBox.Show("File does not exist!", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                Exit();
-                return;
+                PluginFolderPath = $"{Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)}\\{App.AppName}\\Plugins\\{PluginName}";
+
+                if (!File.Exists($"{PluginFolderPath}\\{PluginName}.dll"))
+                {
+                    _ = MessageBox.Show("File does not exist!", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    Exit();
+                    return;
+                }
             }
 
             try
@@ -151,18 +164,22 @@ namespace DesktopMagic
 
         private void ExecuteSource()
         {
-            byte[] assemblyBytes = File.ReadAllBytes($"{PluginFolderPath}\\{PluginName}.dll");
-            Assembly dll = Assembly.Load(assemblyBytes);
-            Type instanceType = dll.GetTypes().FirstOrDefault(type => type.GetTypeInfo().BaseType == typeof(Plugin));
-
-            if (instanceType is null)
+            object instance = pluginClassInstance;
+            if (instance is null)
             {
-                _ = MessageBox.Show($"The \"Plugin\" class could not be found! It has to inherit from \"{typeof(Plugin).FullName}\"", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                Exit();
-                return;
-            }
+                byte[] assemblyBytes = File.ReadAllBytes($"{PluginFolderPath}\\{PluginName}.dll");
+                Assembly dll = Assembly.Load(assemblyBytes);
+                Type instanceType = dll.GetTypes().FirstOrDefault(type => type.GetTypeInfo().BaseType == typeof(Plugin));
 
-            object instance = Activator.CreateInstance(instanceType);
+                if (instanceType is null)
+                {
+                    _ = MessageBox.Show($"The \"Plugin\" class could not be found! It has to inherit from \"{typeof(Plugin).FullName}\"", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    Exit();
+                    return;
+                }
+
+                instance = Activator.CreateInstance(instanceType);
+            }
             if (instance is Plugin)
             {
                 pluginClassInstance = instance as Plugin;
@@ -226,7 +243,7 @@ namespace DesktopMagic
             }
             catch (Exception ex)
             {
-                stop = true;
+                IsRunning = false;
                 App.Logger.Log(ex.ToString(), "Plugin");
                 _ = MessageBox.Show("File execution error:\n" + ex, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 Exit();
@@ -238,7 +255,7 @@ namespace DesktopMagic
         {
             try
             {
-                if (!stop)
+                if (IsRunning)
                 {
                     Bitmap result = pluginClassInstance.Main();
 
@@ -272,14 +289,14 @@ namespace DesktopMagic
             }
             catch (Exception ex)
             {
-                stop = true;
+                IsRunning = false;
                 App.Logger.Log(ex.ToString(), "Plugin");
                 _ = MessageBox.Show("File execution error:\n" + ex, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 Exit();
                 return;
             }
 
-            if (stop)
+            if (!IsRunning)
             {
                 valueTimer.Stop();
             }
@@ -303,11 +320,18 @@ namespace DesktopMagic
 
         public void Exit()
         {
-            stop = true;
+            IsRunning = false;
+
             Dispatcher.Invoke(() =>
             {
                 OnExit?.Invoke();
             });
+        }
+
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            pluginClassInstance?.Stop();
+            IsRunning = false;
         }
 
         #region Window Events
@@ -323,11 +347,6 @@ namespace DesktopMagic
             key.SetValue(PluginName + "WindowHeight", Height);
             key.SetValue(PluginName + "WindowWidth", Width);
             tileBar.CaptionHeight = ActualHeight - 10;
-        }
-
-        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
-        {
-            stop = true;
         }
 
         private void Window_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)

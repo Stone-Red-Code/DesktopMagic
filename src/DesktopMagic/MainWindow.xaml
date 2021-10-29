@@ -46,7 +46,7 @@
                 </DockPanel>
 
                 <DockPanel Grid.Column="1"  Margin="2.5,0,0,0">
-                    <ComboBox x:Name="optionsComboBox" DockPanel.Dock="Top" Height="24" SelectedIndex="0" DisplayMemberPath="Item1" SelectionChanged="OptionsComboBox_SelectionChanged" Background="#FFECECEC" Padding="4" VerticalAlignment="Center"/>
+                    <ComboBox x:Name="optionsComboBox" DockPanel.Dock="Top" Height="24" SelectedIndex="0" SelectionChanged="OptionsComboBox_SelectionChanged" Background="#FFECECEC" Padding="4" VerticalAlignment="Center"/>
                     <ScrollViewer Background="#FFBBBBBB">
                         <Grid>
                             <StackPanel x:Name="optionsPanel" Margin="3,3,3,0" HorizontalAlignment="Stretch" Visibility="Collapsed" >
@@ -86,13 +86,21 @@
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
                     
                     <TextBlock Text="Display Font: " Grid.Column="0" Grid.Row="0" VerticalAlignment="Center"></TextBlock>
                     <ComboBox x:Name="fontComboBox" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Top" SelectionChanged="FontComboBox_SelectionChanged" Margin="0,0,0,5" />
 
                     <TextBlock Text="Corner Radius: " Grid.Column="0" Grid.Row="1" VerticalAlignment="Center"></TextBlock>
-                    <TextBox x:Name="cornerRadiusTextBox" Grid.Column="1" Grid.Row="1" Text="10" TextChanged="CornerRadiusTextBox_TextChanged" materialDesign:HintAssist.HelperText="In px" materialDesign:HintAssist.Hint="Enter a number">
+                    <TextBox x:Name="cornerRadiusTextBox" Grid.Column="1" Grid.Row="1" TextChanged="CornerRadiusTextBox_TextChanged" materialDesign:HintAssist.Hint="Enter a number">
+                        <materialDesign:TextFieldAssist.CharacterCounterStyle>
+                            <Style TargetType="TextBlock" />
+                        </materialDesign:TextFieldAssist.CharacterCounterStyle>
+                    </TextBox>
+
+                    <TextBlock Text="Margin: " Grid.Column="0" Grid.Row="3" VerticalAlignment="Center"></TextBlock>
+                    <TextBox x:Name="marginTextBox" Grid.Column="1" Grid.Row="3" TextChanged="MarginTextBox_TextChanged" materialDesign:HintAssist.Hint="Enter a number">
                         <materialDesign:TextFieldAssist.CharacterCounterStyle>
                             <Style TargetType="TextBlock" />
                         </materialDesign:TextFieldAssist.CharacterCounterStyle>

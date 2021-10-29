@@ -50,6 +50,13 @@ namespace DesktopMagicPluginAPI
         }
 
         /// <summary>
+        /// Occurs once when the plugin gets deactivated.
+        /// </summary>
+        public virtual void Stop()
+        {
+        }
+
+        /// <summary>
         /// Occurs when the <see cref="UpdateInterval"/> elapses.
         /// </summary>
         /// <returns></returns>

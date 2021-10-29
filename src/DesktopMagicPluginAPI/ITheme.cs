@@ -31,5 +31,10 @@ namespace DesktopMagicPluginAPI
         /// Gets the corner radius of the current theme.
         /// </summary>
         int CornerRadius { get; }
+
+        /// <summary>
+        /// Gets the corner radius of the current theme.
+        /// </summary>
+        int Margin { get; }
     }
 }

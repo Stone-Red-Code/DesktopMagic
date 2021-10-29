@@ -90,6 +90,9 @@ namespace DesktopMagic
                 rectangleGeometry.Rect = new Rect(0, 0, border.ActualWidth, border.ActualHeight);
                 border.Background = MainWindow.Theme.BackgroundBrush;
                 border.CornerRadius = new CornerRadius(MainWindow.Theme.CornerRadius);
+                viewBox.Margin = new Thickness(MainWindow.Theme.Margin);
+                border.Width = viewBox.ActualWidth + MainWindow.Theme.Margin * 2;
+                border.Height = viewBox.ActualHeight + MainWindow.Theme.Margin * 2;
                 textBlock.FontFamily = new FontFamily(MainWindow.Theme.Font);
                 textBlock.Foreground = MainWindow.Theme.PrimaryBrush;
                 valueTextBlock.FontFamily = new FontFamily(MainWindow.Theme.Font);

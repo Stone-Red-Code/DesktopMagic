@@ -1,51 +1,24 @@
-﻿using Microsoft.Win32;
+﻿using DesktopMagicPluginAPI;
 
 using NAudio.Wave;
 
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Drawing.Imaging;
-using System.Globalization;
 using System.Linq;
-using System.Runtime.InteropServices;
-using System.Timers;
-using System.Windows;
-using System.Windows.Interop;
-using System.Windows.Media.Imaging;
-using System.Windows.Threading;
 
-namespace DesktopMagic
+namespace DesktopMagic.BuiltInWindowElements
 {
-    public partial class MusicVisualizerWindow : Window
+    internal class MusicVisualizerPlugin : Plugin
     {
-        [DllImport("user32.dll")]
-        private static extern void SetParent(IntPtr hWndChild, IntPtr hWndNewParent);
-
-        private readonly RegistryKey key;
-        private readonly IWaveIn waveIn;
+        private IWaveIn waveIn;
         private const int fftLength = 1024; // NAudio fft wants powers of two!
         private readonly SampleAggregator sampleAggregator = new SampleAggregator(fftLength);
         private volatile bool calculate = true;
+        private Bitmap output = new Bitmap(880, 300);
 
-        public MusicVisualizerWindow()
+        public override void Start()
         {
-            InitializeComponent();
-
-            Window w = new()
-            {
-                Top = -100,
-                Left = -100,
-                Width = 0,
-                Height = 0,
-                WindowStyle = WindowStyle.ToolWindow,
-                ShowInTaskbar = false
-            };
-
-            w.Show();
-            Owner = w;
-            w.Hide();
-
             sampleAggregator.FftCalculated += new EventHandler<FftEventArgs>(FftCalculated);
             sampleAggregator.PerformFFT = true;
 
@@ -53,58 +26,6 @@ namespace DesktopMagic
 
             waveIn.DataAvailable += OnDataAvailable;
             waveIn.StartRecording();
-
-            Timer t = new Timer();
-            t.Interval = 100;
-            t.Elapsed += UpdateTimer_Elapsed;
-            t.Start();
-
-            key = Registry.CurrentUser.CreateSubKey(@"Software\" + App.AppName);
-
-            Top = double.Parse(key.GetValue("MusicVisualizerWindowTop", 100).ToString(), CultureInfo.InvariantCulture);
-
-            Left = double.Parse(key.GetValue("MusicVisualizerWindowLeft", 100).ToString(), CultureInfo.InvariantCulture);
-
-            Height = double.Parse(key.GetValue("MusicVisualizerWindowHeight", 200).ToString(), CultureInfo.InvariantCulture);
-
-            Width = double.Parse(key.GetValue("MusicVisualizerWindowWidth", 500).ToString(), CultureInfo.InvariantCulture);
-
-            IsEnabled = false;
-        }
-
-        protected override void OnSourceInitialized(EventArgs e)
-        {
-            base.OnSourceInitialized(e);
-
-            //Set the window style to noactivate.
-            WindowInteropHelper helper = new WindowInteropHelper(this);
-            _ = WindowPos.SetWindowLong(helper.Handle, WindowPos.GWL_EXSTYLE,
-            WindowPos.GetWindowLong(helper.Handle, WindowPos.GWL_EXSTYLE) | WindowPos.WS_EX_NOACTIVATE);
-        }
-
-        private void UpdateTimer_Elapsed(object sender, ElapsedEventArgs e)
-        {
-            Dispatcher.Invoke(() =>
-            {
-                if (MainWindow.EditMode)
-                {
-                    panel.Visibility = Visibility.Visible;
-                    tileBar.CaptionHeight = tileBar.CaptionHeight = ActualHeight - 10 < 0 ? 0 : ActualHeight - 10;
-                    WindowPos.SetIsLocked(this, false);
-                    ResizeMode = ResizeMode.CanResize;
-                }
-                else
-                {
-                    panel.Visibility = Visibility.Collapsed;
-                    tileBar.CaptionHeight = 0;
-                    WindowPos.SetIsLocked(this, true);
-                    ResizeMode = ResizeMode.NoResize;
-                }
-                calculate = IsLoaded;
-                rectangleGeometry.Rect = new Rect(0, 0, border.ActualWidth, border.ActualHeight);
-                border.CornerRadius = new CornerRadius(MainWindow.Theme.CornerRadius);
-                border.Background = MainWindow.Theme.BackgroundBrush;
-            });
         }
 
         private void OnDataAvailable(object sender, WaveInEventArgs e)
@@ -226,7 +147,6 @@ namespace DesktopMagic
             lastFft = fft;
             try
             {
-                Bitmap bm = new Bitmap(880, 300);
                 int offset = 0;
 
                 if (!MainWindow.MirrorMode && MainWindow.SpectrumMode != 1)
@@ -239,8 +159,9 @@ namespace DesktopMagic
                     offset = 1;
                 }
 
-                using (Graphics gr = Graphics.FromImage(bm))
+                using (Graphics gr = Graphics.FromImage(output))
                 {
+                    gr.Clear(Color.Transparent);
                     PointF[] points = new PointF[scaledFft.Count + 2];
 
                     int fftIndex = 0;
@@ -260,8 +181,8 @@ namespace DesktopMagic
 
                                 if (!fftIndexReverse)
                                 {
-                                    points[pointIndex + 1] = new PointF(bm.Width - (4 * pointIndex), (bm.Height / 2) + value);
-                                    points[(points.Length / 2) + pointIndex + 1] = new PointF(bm.Width - (4 * pointIndex), (bm.Height / 2) - value);
+                                    points[pointIndex + 1] = new PointF(output.Width - (4 * pointIndex), (output.Height / 2) + value);
+                                    points[(points.Length / 2) + pointIndex + 1] = new PointF(output.Width - (4 * pointIndex), (output.Height / 2) - value);
                                 }
                                 break;
 
@@ -270,7 +191,7 @@ namespace DesktopMagic
                                 break;
 
                             default:
-                                points[pointIndex + 1] = new PointF(2 * pointIndex, bm.Height - value - 1 + offset);
+                                points[pointIndex + 1] = new PointF(2 * pointIndex, output.Height - value - 1 + offset);
                                 break;
                         }
 
@@ -292,7 +213,7 @@ namespace DesktopMagic
                         }
                     }
 
-                    SetPoints(points, bm.Width, bm.Height, offset);
+                    SetPoints(points, output.Width, output.Height, offset);
 
                     Brush brush = MainWindow.MusicVisualzerColor.HasValue
                         ? new SolidBrush(MainWindow.MusicVisualzerColor.Value)
@@ -316,10 +237,7 @@ namespace DesktopMagic
                     }
                 }
 
-                _ = Dispatcher.BeginInvoke((Action)delegate
-                  {
-                      image.Source = BitmapToImageSource(bm);
-                  });
+                Application.UpdateWindow();
             }
             catch { }
         }
@@ -348,33 +266,15 @@ namespace DesktopMagic
             }
         }
 
-        private BitmapSource BitmapToImageSource(Bitmap bitmap)
+        public override Bitmap Main()
         {
-            BitmapData bitmapData = bitmap.LockBits(
-                new Rectangle(0, 0, bitmap.Width, bitmap.Height),
-                ImageLockMode.ReadOnly, bitmap.PixelFormat);
-
-            BitmapSource bitmapSource = BitmapSource.Create(
-                bitmapData.Width, bitmapData.Height,
-                bitmap.HorizontalResolution, bitmap.VerticalResolution,
-                System.Windows.Media.PixelFormats.Bgra32, null,
-                bitmapData.Scan0, bitmapData.Stride * bitmapData.Height, bitmapData.Stride);
-
-            bitmap.UnlockBits(bitmapData);
-            return bitmapSource;
+            return output;
         }
 
-        private void Window_LocationChanged(object sender, EventArgs e)
+        public override void Stop()
         {
-            key.SetValue("MusicVisualizerWindowTop", Top);
-            key.SetValue("MusicVisualizerWindowLeft", Left);
-        }
-
-        private void Window_SizeChanged(object sender, SizeChangedEventArgs e)
-        {
-            key.SetValue("MusicVisualizerWindowHeight", Height);
-            key.SetValue("MusicVisualizerWindowWidth", Width);
-            tileBar.CaptionHeight = ActualHeight - 10;
+            calculate = false;
+            waveIn?.StopRecording();
         }
     }
 }

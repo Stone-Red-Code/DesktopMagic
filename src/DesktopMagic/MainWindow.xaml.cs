@@ -1,4 +1,5 @@
-﻿using DesktopMagic.Dialogs;
+﻿using DesktopMagic.BuiltInWindowElements;
+using DesktopMagic.Dialogs;
 using DesktopMagic.Helpers;
 using DesktopMagic.Plugins;
 
@@ -46,7 +47,7 @@ namespace DesktopMagic
 
         #endregion Plugins settings
 
-        public static List<Window> Windows { get; } = new List<Window>();
+        public static List<PluginWindow> Windows { get; } = new List<PluginWindow>();
         public static List<string> WindowNames { get; } = new List<string>();
         private readonly RegistryKey key;
         private readonly System.Windows.Forms.NotifyIcon notifyIcon = new();
@@ -199,75 +200,68 @@ namespace DesktopMagic
         private void CheckBox_Click(object sender, RoutedEventArgs e)
         {
             CheckBox checkBox = (CheckBox)sender;
-            Window window;
+            PluginWindow window = null;
             blockWindowsClosing = false;
 
             switch (checkBox.Name)
             {
                 case "TimeCb":
-                    window = new TimeWindow();
+                    window = new PluginWindow(new TimePlugin());
                     break;
 
                 case "DateCb":
-                    window = new DateWindow();
+                    window = new PluginWindow(new DatePlugin());
                     break;
 
                 case "CpuUsageCb":
-                    window = new CpuUsageWindow();
+                    //window = new PluginWindow();
                     break;
 
                 case "MusicVisualizerCb":
-                    window = new MusicVisualizerWindow();
+                    window = new PluginWindow(new MusicVisualizerPlugin());
                     break;
 
                 default:
-                    if (checkBox.Name.Contains("_PluginCb_"))
-                    {
-                        window = new PluginWindow(checkBox.Content.ToString())
-                        {
-                            Title = checkBox.Content.ToString()
-                        };
-                        break;
-                    }
-                    else
+                    if (!checkBox.Name.Contains("_PluginCb_"))
                     {
                         return;
                     }
+
+                    window = new PluginWindow(checkBox.Content.ToString());
+                    break;
             }
 
-            if (!WindowNames.Contains(window.Title))
+            if (window is null)
+            {
+                return;
+            }
+            window.Title = checkBox.Content.ToString();
+            if (!WindowNames.Contains(window.Title) && checkBox.IsChecked == true)
             {
                 _ = Task.Run(() =>
                 {
                     Dispatcher.Invoke(() =>
                     {
-                        if (window is PluginWindow pluginWindow)
+                        Action onPluginLoaded = null;
+                        onPluginLoaded = () =>
                         {
-                            Action onPluginLoaded = null;
-                            onPluginLoaded = () =>
+                            Dispatcher.Invoke(() =>
                             {
-                                Dispatcher.Invoke(() =>
+                                if (!optionsComboBox.Items.Contains(checkBox.Content.ToString()))
                                 {
-                                    if (!optionsComboBox.Items.Contains(new Tuple<string, int>(checkBox.Content.ToString(), 0)))
-                                    {
-                                        _ = optionsComboBox.Items.Add(new Tuple<string, int>(checkBox.Content.ToString(), 0));
-                                    }
-                                    optionsComboBox.SelectedIndex = -1;
-                                    optionsComboBox.SelectedIndex = optionsComboBox.Items.IndexOf(new Tuple<string, int>(checkBox.Content.ToString(), 0));
-                                    pluginWindow.PluginLoaded -= onPluginLoaded;
-                                });
-                            };
-                            pluginWindow.OnExit += () =>
+                                    _ = optionsComboBox.Items.Add(checkBox.Content.ToString());
+                                }
+                                optionsComboBox.SelectedIndex = -1;
+                                optionsComboBox.SelectedIndex = optionsComboBox.Items.IndexOf(checkBox.Content.ToString());
+                                window.PluginLoaded -= onPluginLoaded;
+                            });
+                        };
+                        window.OnExit += () =>
                             {
                                 checkBox.IsChecked = false;
                                 CheckBox_Click(checkBox, null);
                             };
-                            pluginWindow.PluginLoaded += onPluginLoaded;
-                        }
-                        else if (window is MusicVisualizerWindow musicVisualizerWindow)
-                        {
-                            optionsComboBox.SelectedIndex = optionsComboBox.Items.IndexOf(new Tuple<string, int>(checkBox.Content.ToString(), 0));
-                        }
+                        window.PluginLoaded += onPluginLoaded;
 
                         window.ShowInTaskbar = false;
                         window.Show();
@@ -282,10 +276,19 @@ namespace DesktopMagic
             {
                 int index = WindowNames.IndexOf(window.Title);
 
-                Windows[index].Close();
-                Windows.RemoveAt(index);
-                WindowNames.RemoveAt(index);
-                window.Close();
+                if (index >= 0)
+                {
+                    //Not sure how to handle this
+                    try
+                    {
+                        Windows[index].Close();
+
+                        Windows.RemoveAt(index);
+                        WindowNames.RemoveAt(index);
+                        //window.Close();
+                    }
+                    catch { }
+                }
             }
             key.SetValue(checkBox.Name, checkBox.IsChecked.ToString());
             blockWindowsClosing = true;
@@ -447,7 +450,7 @@ namespace DesktopMagic
                 optionsPanel.Children.Clear();
                 optionsPanel.UpdateLayout();
 
-                bool success = PluginsSettings.TryGetValue(((Tuple<string, int>)optionsComboBox.SelectedItem).Item1.ToString(), out List<SettingElement> settingElements);
+                bool success = PluginsSettings.TryGetValue(optionsComboBox.SelectedItem.ToString(), out List<SettingElement> settingElements);
                 if (!success || settingElements?.Count == 0)
                 {
                     _ = optionsPanel.Children.Add(new TextBlock() { Text = (string)FindResource("noOptions") });
@@ -559,6 +562,22 @@ namespace DesktopMagic
             else
             {
                 cornerRadiusTextBox.Foreground = Brushes.Red;
+            }
+        }
+
+        private void MarginTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            bool sucess = int.TryParse(marginTextBox.Text, out int margin);
+            if (sucess)
+            {
+                marginTextBox.Foreground = Brushes.Black;
+                Theme.Margin = margin;
+                key.SetValue("Margin", margin);
+                SaveLayout();
+            }
+            else
+            {
+                marginTextBox.Foreground = Brushes.Red;
             }
         }
 
@@ -685,6 +704,7 @@ namespace DesktopMagic
             lineModeCheckBox.IsChecked = bool.Parse(key.GetValue("LineMode", "false").ToString());
             musicVisualizerColorTextBox.Text = key.GetValue("MusicVisualizerColor", "").ToString();
             cornerRadiusTextBox.Text = key.GetValue("CornerRadius", "0").ToString();
+            marginTextBox.Text = key.GetValue("Margin", "0").ToString();
             blockWindowsClosing = false;
 
             string primaryColorHex = key.GetValue("PrimaryColor", "#FFFFFFFF").ToString();
@@ -717,6 +737,7 @@ namespace DesktopMagic
             SpectrumModeComboBox_SelectionChanged(null, null);
             AmplifierLevelSlider_ValueChanged(null, null);
             CornerRadiusTextBox_TextChanged(null, null);
+            MarginTextBox_TextChanged(null, null);
 
             foreach (Window window in Windows)
             {
@@ -730,7 +751,7 @@ namespace DesktopMagic
             WindowNames.Clear();
             optionsComboBox.Items.Clear();
 
-            _ = optionsComboBox.Items.Add(new Tuple<string, int>((string)FindResource("musicVisualizer"), 0));
+            _ = optionsComboBox.Items.Add((string)FindResource("musicVisualizer"));
 
             IEnumerable<CheckBox> list = stackPanel.Children.OfType<CheckBox>();
             bool showWindow = true;

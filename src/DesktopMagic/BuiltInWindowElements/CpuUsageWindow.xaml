@@ -14,14 +14,14 @@
         x:Name="window">
     <Grid>
         <Rectangle x:Name="panel" Fill="#4CBAFFEF" Stroke="White" Margin="0,0,0,0" Visibility="Collapsed" />
-        <Border x:Name="border" Width="{Binding ElementName=viewBox, Path=ActualWidth}" Height="{Binding ElementName=viewBox, Path=ActualHeight}"/>
+        <Border x:Name="border"/>
         <Viewbox x:Name="viewBox" StretchDirection="Both" Stretch="Uniform">
             <Viewbox.Clip>
                 <RectangleGeometry x:Name="rectangleGeometry" RadiusX="{Binding ElementName=border, Path=CornerRadius.TopLeft}" RadiusY="{Binding ElementName=border, Path=CornerRadius.TopLeft}" Rect="{Binding ElementName=border}"/>
             </Viewbox.Clip>
             <DockPanel x:Name="dockPanel">
-                <TextBlock x:Name="textBlock" FontSize="999" Foreground="White" Text="CPU: " IsHitTestVisible="False" />
-                <TextBlock x:Name="valueTextBlock" FontSize="999" TextAlignment="Right" Foreground="White" Text="000%" IsHitTestVisible="False" />
+                <TextBlock x:Name="textBlock" Foreground="White" FontSize="100" Text="CPU: " IsHitTestVisible="False" />
+                <TextBlock x:Name="valueTextBlock" TextAlignment="Right" FontSize="100" Foreground="White" Text="000%" IsHitTestVisible="False" />
             </DockPanel>
         </Viewbox>
     </Grid>

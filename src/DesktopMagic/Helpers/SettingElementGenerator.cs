@@ -199,7 +199,7 @@ namespace DesktopMagic.Helpers
         {
             App.Logger.Log(message, "PluginInput");
             _ = MessageBox.Show("File execution error:\n" + message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            int index = MainWindow.WindowNames.IndexOf(((Tuple<string, int>)optionsComboBox.SelectedItem).Item1.ToString());
+            int index = MainWindow.WindowNames.IndexOf(optionsComboBox.SelectedItem.ToString());
 
             PluginWindow window = MainWindow.Windows[index] as PluginWindow;
             window?.Exit();
