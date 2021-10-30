@@ -145,6 +145,28 @@
             </summary>
             <param name="value">A value indicating whether the <see cref="T:DesktopMagicPluginAPI.Inputs.CheckBox"/> is in the checked state.</param>
         </member>
+        <member name="T:DesktopMagicPluginAPI.Inputs.ComboBox">
+            <summary>
+            Represents a selection control with a drop-down list.
+            </summary>
+        </member>
+        <member name="P:DesktopMagicPluginAPI.Inputs.ComboBox.Items">
+            <summary>
+            Gets the collection used to generate the content of the <see cref="T:DesktopMagicPluginAPI.Inputs.ComboBox"/>.
+            </summary>
+        </member>
+        <member name="P:DesktopMagicPluginAPI.Inputs.ComboBox.Value">
+            <summary>
+            Gets the currently selected item associated with this <see cref="T:DesktopMagicPluginAPI.Inputs.ComboBox"/>.
+            </summary>
+            <remarks>If you assign a value to this property, the displayed text in the user interface will not be changed.</remarks>
+        </member>
+        <member name="M:DesktopMagicPluginAPI.Inputs.ComboBox.#ctor(System.String[])">
+            <summary>
+            Initializes a new instance of the <see cref="T:DesktopMagicPluginAPI.Inputs.Label"/> class with the provided <paramref name="items"/>.
+            </summary>
+            <param name="items"></param>
+        </member>
         <member name="T:DesktopMagicPluginAPI.Inputs.Element">
             <summary>
             The element base class.

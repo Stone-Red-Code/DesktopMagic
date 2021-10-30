@@ -19,17 +19,7 @@ namespace DesktopMagicPluginAPI
         public IPluginData Application
         {
             get => application;
-            set
-            {
-                if (application is null)
-                {
-                    application = value;
-                }
-                else
-                {
-                    throw new InvalidOperationException($"You cannot set the value of the {nameof(Application)} property");
-                }
-            }
+            set => application = application is null ? value : throw new InvalidOperationException($"You cannot set the value of the {nameof(Application)} property");
         }
 
         /// <summary>

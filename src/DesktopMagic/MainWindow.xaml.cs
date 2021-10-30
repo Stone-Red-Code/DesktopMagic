@@ -206,11 +206,11 @@ namespace DesktopMagic
             switch (checkBox.Name)
             {
                 case "TimeCb":
-                    window = new PluginWindow(new TimePlugin());
+                    window = new PluginWindow(new TimePlugin(), checkBox.Content.ToString());
                     break;
 
                 case "DateCb":
-                    window = new PluginWindow(new DatePlugin());
+                    window = new PluginWindow(new DatePlugin(), checkBox.Content.ToString());
                     break;
 
                 case "CpuUsageCb":
@@ -218,7 +218,7 @@ namespace DesktopMagic
                     break;
 
                 case "MusicVisualizerCb":
-                    window = new PluginWindow(new MusicVisualizerPlugin());
+                    window = new PluginWindow(new MusicVisualizerPlugin(), checkBox.Content.ToString());
                     break;
 
                 default:
@@ -285,7 +285,6 @@ namespace DesktopMagic
 
                         Windows.RemoveAt(index);
                         WindowNames.RemoveAt(index);
-                        //window.Close();
                     }
                     catch { }
                 }

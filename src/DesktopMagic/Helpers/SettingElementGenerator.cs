@@ -193,6 +193,36 @@ namespace DesktopMagic.Helpers
 
                 _ = dockPanel.Children.Add(slider);
             }
+            else if (settingElement.Element is DesktopMagicPluginAPI.Inputs.ComboBox eComboBox)
+            {
+                ComboBox comboBox = new()
+                {
+                    ItemsSource = eComboBox.Items,
+                    IsEditable = false,
+                    VerticalAlignment = VerticalAlignment.Center,
+                    HorizontalAlignment = HorizontalAlignment.Stretch,
+                    SelectedIndex = 0
+                };
+
+                comboBox.SelectionChanged += (_s, _e) =>
+                {
+                    try
+                    {
+                        eComboBox.Value = comboBox.Text;
+                    }
+                    catch (Exception ex)
+                    {
+                        DisplayException(ex.Message);
+                    }
+                };
+
+                eComboBox.OnValueChanged += () =>
+                {
+                    comboBox.SelectedItem = eComboBox.Value;
+                };
+
+                _ = dockPanel.Children.Add(comboBox);
+            }
         }
 
         private void DisplayException(string message)
@@ -201,7 +231,7 @@ namespace DesktopMagic.Helpers
             _ = MessageBox.Show("File execution error:\n" + message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             int index = MainWindow.WindowNames.IndexOf(optionsComboBox.SelectedItem.ToString());
 
-            PluginWindow window = MainWindow.Windows[index] as PluginWindow;
+            PluginWindow window = MainWindow.Windows[index];
             window?.Exit();
         }
     }

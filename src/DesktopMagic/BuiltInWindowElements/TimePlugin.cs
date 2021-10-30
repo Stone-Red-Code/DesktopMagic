@@ -1,5 +1,6 @@
 ﻿using DesktopMagicPluginAPI;
 using DesktopMagicPluginAPI.Drawing;
+using DesktopMagicPluginAPI.Inputs;
 
 using System;
 using System.Drawing;
@@ -9,11 +10,14 @@ namespace DesktopMagic.BuiltInWindowElements
 {
     internal class TimePlugin : Plugin
     {
+        [Element("Display Seconds:")]
+        private CheckBox checkBox = new CheckBox(true);
+
         public override int UpdateInterval => 1000;
 
         public override Bitmap Main()
         {
-            string time = DateTime.Now.ToLongTimeString();
+            string time = checkBox.Value ? DateTime.Now.ToLongTimeString() : DateTime.Now.ToShortTimeString();
 
             Font font = new Font(Application.Theme.Font, 200);
 
@@ -36,7 +40,7 @@ namespace DesktopMagic.BuiltInWindowElements
 
         private SizeF CalculateSize(Graphics graphics, Font font)
         {
-            string template = "##:##:##";
+            string template = checkBox.Value ? "##:##:##" : "##:##";
             SizeF size = new SizeF();
             for (int i = 0; i < 9; i++)
             {

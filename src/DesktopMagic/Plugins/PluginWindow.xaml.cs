@@ -70,7 +70,7 @@ namespace DesktopMagic
             Width = double.Parse(key.GetValue(pluginName + "WindowWidth", 500).ToString());
         }
 
-        public PluginWindow(Plugin pluginClassInstance) : this(pluginClassInstance.GetType().Name)
+        public PluginWindow(Plugin pluginClassInstance, string pluginName) : this(pluginName)
         {
             this.pluginClassInstance = pluginClassInstance;
         }
@@ -125,8 +125,8 @@ namespace DesktopMagic
                 else
                 {
                     viewBox.Margin = new Thickness(MainWindow.Theme.Margin);
-                    border.Width = viewBox.ActualWidth + MainWindow.Theme.Margin * 2;
-                    border.Height = viewBox.ActualHeight + MainWindow.Theme.Margin * 2;
+                    border.Width = viewBox.ActualWidth + (MainWindow.Theme.Margin * 2);
+                    border.Height = viewBox.ActualHeight + (MainWindow.Theme.Margin * 2);
                     rectangleGeometry.Rect = new Rect(-MainWindow.Theme.Margin, -MainWindow.Theme.Margin, border.ActualWidth, border.ActualHeight);
                     border.Background = MainWindow.Theme.BackgroundBrush;
                     border.CornerRadius = new CornerRadius(MainWindow.Theme.CornerRadius);

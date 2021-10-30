@@ -10,6 +10,10 @@
 - [CheckBox](#T-DesktopMagicPluginAPI-Inputs-CheckBox 'DesktopMagicPluginAPI.Inputs.CheckBox')
   - [#ctor(value)](#M-DesktopMagicPluginAPI-Inputs-CheckBox-#ctor-System-Boolean- 'DesktopMagicPluginAPI.Inputs.CheckBox.#ctor(System.Boolean)')
   - [Value](#P-DesktopMagicPluginAPI-Inputs-CheckBox-Value 'DesktopMagicPluginAPI.Inputs.CheckBox.Value')
+- [ComboBox](#T-DesktopMagicPluginAPI-Inputs-ComboBox 'DesktopMagicPluginAPI.Inputs.ComboBox')
+  - [#ctor(items)](#M-DesktopMagicPluginAPI-Inputs-ComboBox-#ctor-System-String[]- 'DesktopMagicPluginAPI.Inputs.ComboBox.#ctor(System.String[])')
+  - [Items](#P-DesktopMagicPluginAPI-Inputs-ComboBox-Items 'DesktopMagicPluginAPI.Inputs.ComboBox.Items')
+  - [Value](#P-DesktopMagicPluginAPI-Inputs-ComboBox-Value 'DesktopMagicPluginAPI.Inputs.ComboBox.Value')
 - [Element](#T-DesktopMagicPluginAPI-Inputs-Element 'DesktopMagicPluginAPI.Inputs.Element')
   - [ValueChanged()](#M-DesktopMagicPluginAPI-Inputs-Element-ValueChanged 'DesktopMagicPluginAPI.Inputs.Element.ValueChanged')
 - [ElementAttribute](#T-DesktopMagicPluginAPI-Inputs-ElementAttribute 'DesktopMagicPluginAPI.Inputs.ElementAttribute')
@@ -150,6 +154,48 @@ Initializes a new instance of the [CheckBox](#T-DesktopMagicPluginAPI-Inputs-Che
 ##### Summary
 
 Gets or set a value indicating whether the [CheckBox](#T-DesktopMagicPluginAPI-Inputs-CheckBox 'DesktopMagicPluginAPI.Inputs.CheckBox') is in the checked state.
+
+<a name='T-DesktopMagicPluginAPI-Inputs-ComboBox'></a>
+## ComboBox `type`
+
+##### Namespace
+
+DesktopMagicPluginAPI.Inputs
+
+##### Summary
+
+Represents a selection control with a drop-down list.
+
+<a name='M-DesktopMagicPluginAPI-Inputs-ComboBox-#ctor-System-String[]-'></a>
+### #ctor(items) `constructor`
+
+##### Summary
+
+Initializes a new instance of the [Label](#T-DesktopMagicPluginAPI-Inputs-Label 'DesktopMagicPluginAPI.Inputs.Label') class with the provided `items`.
+
+##### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| items | [System.String[]](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.String[] 'System.String[]') |  |
+
+<a name='P-DesktopMagicPluginAPI-Inputs-ComboBox-Items'></a>
+### Items `property`
+
+##### Summary
+
+Gets the collection used to generate the content of the [ComboBox](#T-DesktopMagicPluginAPI-Inputs-ComboBox 'DesktopMagicPluginAPI.Inputs.ComboBox').
+
+<a name='P-DesktopMagicPluginAPI-Inputs-ComboBox-Value'></a>
+### Value `property`
+
+##### Summary
+
+Gets the currently selected item associated with this [ComboBox](#T-DesktopMagicPluginAPI-Inputs-ComboBox 'DesktopMagicPluginAPI.Inputs.ComboBox').
+
+##### Remarks
+
+If you assign a value to this property, the displayed text in the user interface will not be changed.
 
 <a name='T-DesktopMagicPluginAPI-Inputs-Element'></a>
 ## Element `type`

@@ -17,9 +17,11 @@ namespace DesktopMagic.BuiltInWindowElements
         private volatile bool calculate = true;
         private Bitmap output = new Bitmap(880, 300);
 
+        public override int UpdateInterval => 0;
+
         public override void Start()
         {
-            sampleAggregator.FftCalculated += new EventHandler<FftEventArgs>(FftCalculated);
+            sampleAggregator.FftCalculated += FftCalculated;
             sampleAggregator.PerformFFT = true;
 
             waveIn = new WasapiLoopbackCapture();
