@@ -6,12 +6,12 @@
     <members>
         <member name="T:DesktopMagicPluginAPI.Drawing.GraphicsExtentions">
             <summary>
-            Extentions for the <see cref="T:System.Drawing.Graphics"/> class.
+            Extensions for the <see cref="T:System.Drawing.Graphics"/> class.
             </summary>
         </member>
         <member name="M:DesktopMagicPluginAPI.Drawing.GraphicsExtentions.DrawStringMonospace(System.Drawing.Graphics,System.String,System.Drawing.Font,System.Drawing.Brush,System.Single,System.Single)">
             <summary>
-            Draws the specified text string at the specified location with the specified <see cref="T:System.Drawing.Brush"/> and <see cref="T:System.Drawing.Font"/> objects.
+            <inheritdoc cref="M:System.Drawing.Graphics.DrawString(System.String,System.Drawing.Font,System.Drawing.Brush,System.Single,System.Single)"/>
             </summary>
             <param name="graphics">Graphics object.</param>
             <param name="s">String to draw.</param>
@@ -22,7 +22,7 @@
         </member>
         <member name="M:DesktopMagicPluginAPI.Drawing.GraphicsExtentions.DrawStringMonospace(System.Drawing.Graphics,System.String,System.Drawing.Font,System.Drawing.Brush,System.Drawing.PointF)">
             <summary>
-            Draws the specified text string at the specified location with the specified <see cref="T:System.Drawing.Brush"/> and <see cref="T:System.Drawing.Font"/> objects.
+            <inheritdoc cref="M:System.Drawing.Graphics.DrawString(System.String,System.Drawing.Font,System.Drawing.Brush,System.Drawing.PointF)"/>
             </summary>
             <param name="graphics">Graphics object.</param>
             <param name="s">String to draw.</param>
@@ -32,7 +32,7 @@
         </member>
         <member name="M:DesktopMagicPluginAPI.Drawing.GraphicsExtentions.DrawStringFixedWidth(System.Drawing.Graphics,System.String,System.Drawing.Font,System.Drawing.Brush,System.Single,System.Single,System.Single)">
             <summary>
-            Draws the specified text string at the specified location with the specified <see cref="T:System.Drawing.Brush"/> and <see cref="T:System.Drawing.Font"/> objects.
+            <inheritdoc cref="M:System.Drawing.Graphics.DrawString(System.String,System.Drawing.Font,System.Drawing.Brush,System.Single,System.Single)"/>
             </summary>
             <param name="graphics">Graphics object.</param>
             <param name="s">String to draw.</param>
@@ -44,7 +44,7 @@
         </member>
         <member name="M:DesktopMagicPluginAPI.Drawing.GraphicsExtentions.DrawStringFixedWidth(System.Drawing.Graphics,System.String,System.Drawing.Font,System.Drawing.Brush,System.Drawing.PointF,System.Single)">
             <summary>
-            Draws the specified text string at the specified location with the specified <see cref="T:System.Drawing.Brush"/> and <see cref="T:System.Drawing.Font"/> objects.
+            <inheritdoc cref="M:System.Drawing.Graphics.DrawString(System.String,System.Drawing.Font,System.Drawing.Brush,System.Drawing.PointF)"/>
             </summary>
             <param name="graphics">Graphics object.</param>
             <param name="s">String to draw.</param>
@@ -52,6 +52,36 @@
             <param name="brush"><see cref="T:System.Drawing.Brush"/> that determines the color and texture of the drawn text.</param>
             <param name="point"><see cref="T:System.Drawing.PointF"/> structure that specifies the upper-left corner of the drawn text.</param>
             <param name="width">The specified width.</param>
+        </member>
+        <member name="M:DesktopMagicPluginAPI.Drawing.GraphicsExtentions.DrawStringNoLeftPadding(System.Drawing.Graphics,System.String,System.Drawing.Font,System.Drawing.Brush,System.Single,System.Single)">
+             <summary>
+            <inheritdoc cref="M:System.Drawing.Graphics.DrawString(System.String,System.Drawing.Font,System.Drawing.Brush,System.Single,System.Single)"/>
+             </summary>
+             <param name="graphics">Graphics object.</param>
+             <param name="s">String to draw.</param>
+             <param name="font"><see cref="T:System.Drawing.Font"/> that defines the text format of the string.</param>
+             <param name="brush"><see cref="T:System.Drawing.Brush"/> that determines the color and texture of the drawn text.</param>
+             <param name="x">The x-coordinate of the upper-left corner of the drawn text.</param>
+             <param name="y">The y-coordinate of the upper-left corner of the drawn text.</param>
+        </member>
+        <member name="M:DesktopMagicPluginAPI.Drawing.GraphicsExtentions.DrawStringNoLeftPadding(System.Drawing.Graphics,System.String,System.Drawing.Font,System.Drawing.Brush,System.Drawing.PointF)">
+            <summary>
+            <inheritdoc cref="M:System.Drawing.Graphics.DrawString(System.String,System.Drawing.Font,System.Drawing.Brush,System.Drawing.PointF)"/>
+            </summary>
+            <param name="graphics">Graphics object.</param>
+            <param name="s">String to draw.</param>
+            <param name="font"><see cref="T:System.Drawing.Font"/> that defines the text format of the string.</param>
+            <param name="brush"><see cref="T:System.Drawing.Brush"/> that determines the color and texture of the drawn text.</param>
+            <param name="point"><see cref="T:System.Drawing.PointF"/> structure that specifies the upper-left corner of the drawn text.</param>
+        </member>
+        <member name="M:DesktopMagicPluginAPI.Drawing.GraphicsExtentions.MeasureStringNoLeftPadding(System.Drawing.Graphics,System.String,System.Drawing.Font)">
+            <summary>
+            <inheritdoc cref="M:System.Drawing.Graphics.MeasureString(System.String,System.Drawing.Font)"/>
+            </summary>
+            <param name="graphics">Graphics object.</param>
+            <param name="text">String to measure.</param>
+            <param name="font"><see cref="T:System.Drawing.Font"/> that defines the text format of the string.</param>
+            <returns></returns>
         </member>
         <member name="T:DesktopMagicPluginAPI.Drawing.RenderQuality">
             <summary>
@@ -114,6 +144,28 @@
             Initializes a new instance of the <see cref="T:DesktopMagicPluginAPI.Inputs.CheckBox"/> class with the provided <paramref name="value"/>.
             </summary>
             <param name="value">A value indicating whether the <see cref="T:DesktopMagicPluginAPI.Inputs.CheckBox"/> is in the checked state.</param>
+        </member>
+        <member name="T:DesktopMagicPluginAPI.Inputs.ComboBox">
+            <summary>
+            Represents a selection control with a drop-down list.
+            </summary>
+        </member>
+        <member name="P:DesktopMagicPluginAPI.Inputs.ComboBox.Items">
+            <summary>
+            Gets the collection used to generate the content of the <see cref="T:DesktopMagicPluginAPI.Inputs.ComboBox"/>.
+            </summary>
+        </member>
+        <member name="P:DesktopMagicPluginAPI.Inputs.ComboBox.Value">
+            <summary>
+            Gets the currently selected item associated with this <see cref="T:DesktopMagicPluginAPI.Inputs.ComboBox"/>.
+            </summary>
+            <remarks>If you assign a value to this property, the displayed text in the user interface will not be changed.</remarks>
+        </member>
+        <member name="M:DesktopMagicPluginAPI.Inputs.ComboBox.#ctor(System.String[])">
+            <summary>
+            Initializes a new instance of the <see cref="T:DesktopMagicPluginAPI.Inputs.Label"/> class with the provided <paramref name="items"/>.
+            </summary>
+            <param name="items"></param>
         </member>
         <member name="T:DesktopMagicPluginAPI.Inputs.Element">
             <summary>
@@ -283,12 +335,17 @@
         </member>
         <member name="P:DesktopMagicPluginAPI.IPluginData.Font">
             <summary>
-            Gets the font of the main application.
+            Gets the current font of the current theme.
             </summary>
         </member>
         <member name="P:DesktopMagicPluginAPI.IPluginData.Color">
             <summary>
-            Gets the color of the main application.
+            Gets the current color of the current theme.
+            </summary>
+        </member>
+        <member name="P:DesktopMagicPluginAPI.IPluginData.Theme">
+            <summary>
+            Gets the current theme setting of the main application.
             </summary>
         </member>
         <member name="P:DesktopMagicPluginAPI.IPluginData.WindowSize">
@@ -316,6 +373,41 @@
             Updates the plugin window.
             </summary>
         </member>
+        <member name="T:DesktopMagicPluginAPI.ITheme">
+            <summary>
+            The theme settings of the main application.
+            </summary>
+        </member>
+        <member name="P:DesktopMagicPluginAPI.ITheme.PrimaryColor">
+            <summary>
+            Gets the primary color of the current theme.
+            </summary>
+        </member>
+        <member name="P:DesktopMagicPluginAPI.ITheme.SecondaryColor">
+            <summary>
+            Gets the secondary color of the current theme.
+            </summary>
+        </member>
+        <member name="P:DesktopMagicPluginAPI.ITheme.BackgroundColor">
+            <summary>
+            Gets the background color of the current theme.
+            </summary>
+        </member>
+        <member name="P:DesktopMagicPluginAPI.ITheme.Font">
+            <summary>
+            Gets the font of the current theme.
+            </summary>
+        </member>
+        <member name="P:DesktopMagicPluginAPI.ITheme.CornerRadius">
+            <summary>
+            Gets the corner radius of the current theme.
+            </summary>
+        </member>
+        <member name="P:DesktopMagicPluginAPI.ITheme.Margin">
+            <summary>
+            Gets the corner radius of the current theme.
+            </summary>
+        </member>
         <member name="T:DesktopMagicPluginAPI.Plugin">
             <summary>
             The plugin class.
@@ -338,7 +430,12 @@
         </member>
         <member name="M:DesktopMagicPluginAPI.Plugin.Start">
             <summary>
-            Occurs once when the pugin gets activated.
+            Occurs once when the plugin gets activated.
+            </summary>
+        </member>
+        <member name="M:DesktopMagicPluginAPI.Plugin.Stop">
+            <summary>
+            Occurs once when the plugin gets deactivated.
             </summary>
         </member>
         <member name="M:DesktopMagicPluginAPI.Plugin.Main">
@@ -365,7 +462,7 @@
             Occurs when the user rotates the mouse wheel while the mouse pointer is over this element.
             </summary>
             <param name="position">The x- and y-coordinates of the mouse pointer position relative to the plugin window.</param>
-            <param name="Delta">A value that indicates the amount that the mouse wheel has changed.</param>
+            <param name="delta">A value that indicates the amount that the mouse wheel has changed.</param>
         </member>
     </members>
 </doc>

@@ -3,6 +3,7 @@
 using Stone_Red_Utilities.Logging;
 
 using System;
+using System.IO;
 using System.Threading;
 using System.Windows;
 
@@ -18,7 +19,7 @@ namespace DesktopMagic
 #if DEBUG
         private readonly Updater updater = new Updater(TimeSpan.FromDays(1), "https://raw.githubusercontent.com/Stone-Red-Code/DesktopMagic/develop/update/updateInfo.json");
 #else
-        private readonly Updater updater = new Updater(TimeSpan.FromHours(1), "https://raw.githubusercontent.com/Stone-Red-Code/DesktopMagic/main/update/updateInfo.json");
+        private readonly Updater updater = new Updater(TimeSpan.FromDays(1), "https://raw.githubusercontent.com/Stone-Red-Code/DesktopMagic/main/update/updateInfo.json");
 #endif
 
         public const string AppName = "Desktop Magic";
@@ -33,11 +34,11 @@ namespace DesktopMagic
             // Try to grab mutex
             _mutex = new Mutex(true, $"Stone_Red{AppName}", out bool createdNew);
 
-            //check if creating new was succesfull
+            //check if creating new was successful
             if (!createdNew)
             {
                 Logger.Log("Shutting down because other instance already running.", "Setup");
-                //Shutdown Aplication
+                //Shutdown Application
                 Current.Shutdown();
             }
             else
@@ -59,7 +60,7 @@ namespace DesktopMagic
 
         private void Updater_NoUpdateAvailible()
         {
-            Logger.Log("No update avalible.", "Updater");
+            Logger.Log("No update available.", "Updater");
         }
 
         private void Updater_OnException(Exception exception)
@@ -104,7 +105,7 @@ namespace DesktopMagic
                 InfoConfig = new OutputConfig()
                 {
                     Color = ConsoleColor.White,
-                    LogTarget = LogTarget.Console | LogTarget.File,
+                    LogTarget = LogTarget.DebugConsole | LogTarget.File,
                     FilePath = logFilePath
                 },
                 DebugConfig = new OutputConfig()
@@ -114,9 +115,24 @@ namespace DesktopMagic
                 },
                 FormatConfig = new FormatConfig()
                 {
-                    DebugConsoleFormat = $"> {{{LogFormatType.DateTime}:hh:mm:ss}} | {{{LogFormatType.LogSeverity},-5}} | {{{LogFormatType.Message}}}\n> at {{{LogFormatType.LineNumber},3}} | {{{LogFormatType.FilePath}}}"
+                    DebugConsoleFormat = $"> {{{LogFormatType.DateTime}:hh:mm:ss}} | {{{LogFormatType.LogSeverity},-5}} | {{{LogFormatType.Message}}}\nat {{{LogFormatType.LineNumber}}} | {{{LogFormatType.FilePath}}}"
                 }
             };
+
+            try
+            {
+                if (!Directory.Exists(ApplicationDataPath))
+                {
+                    _ = Directory.CreateDirectory(ApplicationDataPath);
+                }
+                Logger.Log("Created ApplicationData Folder", "Main");
+            }
+            catch (Exception ex)
+            {
+                Logger.Log(ex.Message, "Setup", LogSeverity.Error);
+                _ = MessageBox.Show(ex.ToString());
+            }
+
             Logger.ClearLogFile(LogSeverity.Info);
             Logger.Log("Log setup complete.", "Setup");
         }

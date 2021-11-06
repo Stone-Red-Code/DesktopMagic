@@ -10,6 +10,10 @@
 - [CheckBox](#T-DesktopMagicPluginAPI-Inputs-CheckBox 'DesktopMagicPluginAPI.Inputs.CheckBox')
   - [#ctor(value)](#M-DesktopMagicPluginAPI-Inputs-CheckBox-#ctor-System-Boolean- 'DesktopMagicPluginAPI.Inputs.CheckBox.#ctor(System.Boolean)')
   - [Value](#P-DesktopMagicPluginAPI-Inputs-CheckBox-Value 'DesktopMagicPluginAPI.Inputs.CheckBox.Value')
+- [ComboBox](#T-DesktopMagicPluginAPI-Inputs-ComboBox 'DesktopMagicPluginAPI.Inputs.ComboBox')
+  - [#ctor(items)](#M-DesktopMagicPluginAPI-Inputs-ComboBox-#ctor-System-String[]- 'DesktopMagicPluginAPI.Inputs.ComboBox.#ctor(System.String[])')
+  - [Items](#P-DesktopMagicPluginAPI-Inputs-ComboBox-Items 'DesktopMagicPluginAPI.Inputs.ComboBox.Items')
+  - [Value](#P-DesktopMagicPluginAPI-Inputs-ComboBox-Value 'DesktopMagicPluginAPI.Inputs.ComboBox.Value')
 - [Element](#T-DesktopMagicPluginAPI-Inputs-Element 'DesktopMagicPluginAPI.Inputs.Element')
   - [ValueChanged()](#M-DesktopMagicPluginAPI-Inputs-Element-ValueChanged 'DesktopMagicPluginAPI.Inputs.Element.ValueChanged')
 - [ElementAttribute](#T-DesktopMagicPluginAPI-Inputs-ElementAttribute 'DesktopMagicPluginAPI.Inputs.ElementAttribute')
@@ -23,14 +27,25 @@
   - [DrawStringFixedWidth(graphics,s,font,brush,point,width)](#M-DesktopMagicPluginAPI-Drawing-GraphicsExtentions-DrawStringFixedWidth-System-Drawing-Graphics,System-String,System-Drawing-Font,System-Drawing-Brush,System-Drawing-PointF,System-Single- 'DesktopMagicPluginAPI.Drawing.GraphicsExtentions.DrawStringFixedWidth(System.Drawing.Graphics,System.String,System.Drawing.Font,System.Drawing.Brush,System.Drawing.PointF,System.Single)')
   - [DrawStringMonospace(graphics,s,font,brush,x,y)](#M-DesktopMagicPluginAPI-Drawing-GraphicsExtentions-DrawStringMonospace-System-Drawing-Graphics,System-String,System-Drawing-Font,System-Drawing-Brush,System-Single,System-Single- 'DesktopMagicPluginAPI.Drawing.GraphicsExtentions.DrawStringMonospace(System.Drawing.Graphics,System.String,System.Drawing.Font,System.Drawing.Brush,System.Single,System.Single)')
   - [DrawStringMonospace(graphics,s,font,brush,point)](#M-DesktopMagicPluginAPI-Drawing-GraphicsExtentions-DrawStringMonospace-System-Drawing-Graphics,System-String,System-Drawing-Font,System-Drawing-Brush,System-Drawing-PointF- 'DesktopMagicPluginAPI.Drawing.GraphicsExtentions.DrawStringMonospace(System.Drawing.Graphics,System.String,System.Drawing.Font,System.Drawing.Brush,System.Drawing.PointF)')
+  - [DrawStringNoLeftPadding(graphics,s,font,brush,x,y)](#M-DesktopMagicPluginAPI-Drawing-GraphicsExtentions-DrawStringNoLeftPadding-System-Drawing-Graphics,System-String,System-Drawing-Font,System-Drawing-Brush,System-Single,System-Single- 'DesktopMagicPluginAPI.Drawing.GraphicsExtentions.DrawStringNoLeftPadding(System.Drawing.Graphics,System.String,System.Drawing.Font,System.Drawing.Brush,System.Single,System.Single)')
+  - [DrawStringNoLeftPadding(graphics,s,font,brush,point)](#M-DesktopMagicPluginAPI-Drawing-GraphicsExtentions-DrawStringNoLeftPadding-System-Drawing-Graphics,System-String,System-Drawing-Font,System-Drawing-Brush,System-Drawing-PointF- 'DesktopMagicPluginAPI.Drawing.GraphicsExtentions.DrawStringNoLeftPadding(System.Drawing.Graphics,System.String,System.Drawing.Font,System.Drawing.Brush,System.Drawing.PointF)')
+  - [MeasureStringNoLeftPadding(graphics,text,font)](#M-DesktopMagicPluginAPI-Drawing-GraphicsExtentions-MeasureStringNoLeftPadding-System-Drawing-Graphics,System-String,System-Drawing-Font- 'DesktopMagicPluginAPI.Drawing.GraphicsExtentions.MeasureStringNoLeftPadding(System.Drawing.Graphics,System.String,System.Drawing.Font)')
 - [IPluginData](#T-DesktopMagicPluginAPI-IPluginData 'DesktopMagicPluginAPI.IPluginData')
   - [Color](#P-DesktopMagicPluginAPI-IPluginData-Color 'DesktopMagicPluginAPI.IPluginData.Color')
   - [Font](#P-DesktopMagicPluginAPI-IPluginData-Font 'DesktopMagicPluginAPI.IPluginData.Font')
   - [PluginName](#P-DesktopMagicPluginAPI-IPluginData-PluginName 'DesktopMagicPluginAPI.IPluginData.PluginName')
   - [PluginPath](#P-DesktopMagicPluginAPI-IPluginData-PluginPath 'DesktopMagicPluginAPI.IPluginData.PluginPath')
+  - [Theme](#P-DesktopMagicPluginAPI-IPluginData-Theme 'DesktopMagicPluginAPI.IPluginData.Theme')
   - [WindowPosition](#P-DesktopMagicPluginAPI-IPluginData-WindowPosition 'DesktopMagicPluginAPI.IPluginData.WindowPosition')
   - [WindowSize](#P-DesktopMagicPluginAPI-IPluginData-WindowSize 'DesktopMagicPluginAPI.IPluginData.WindowSize')
   - [UpdateWindow()](#M-DesktopMagicPluginAPI-IPluginData-UpdateWindow 'DesktopMagicPluginAPI.IPluginData.UpdateWindow')
+- [ITheme](#T-DesktopMagicPluginAPI-ITheme 'DesktopMagicPluginAPI.ITheme')
+  - [BackgroundColor](#P-DesktopMagicPluginAPI-ITheme-BackgroundColor 'DesktopMagicPluginAPI.ITheme.BackgroundColor')
+  - [CornerRadius](#P-DesktopMagicPluginAPI-ITheme-CornerRadius 'DesktopMagicPluginAPI.ITheme.CornerRadius')
+  - [Font](#P-DesktopMagicPluginAPI-ITheme-Font 'DesktopMagicPluginAPI.ITheme.Font')
+  - [Margin](#P-DesktopMagicPluginAPI-ITheme-Margin 'DesktopMagicPluginAPI.ITheme.Margin')
+  - [PrimaryColor](#P-DesktopMagicPluginAPI-ITheme-PrimaryColor 'DesktopMagicPluginAPI.ITheme.PrimaryColor')
+  - [SecondaryColor](#P-DesktopMagicPluginAPI-ITheme-SecondaryColor 'DesktopMagicPluginAPI.ITheme.SecondaryColor')
 - [IntegerUpDown](#T-DesktopMagicPluginAPI-Inputs-IntegerUpDown 'DesktopMagicPluginAPI.Inputs.IntegerUpDown')
   - [#ctor(min,max,value)](#M-DesktopMagicPluginAPI-Inputs-IntegerUpDown-#ctor-System-Int32,System-Int32,System-Int32- 'DesktopMagicPluginAPI.Inputs.IntegerUpDown.#ctor(System.Int32,System.Int32,System.Int32)')
   - [Maximum](#P-DesktopMagicPluginAPI-Inputs-IntegerUpDown-Maximum 'DesktopMagicPluginAPI.Inputs.IntegerUpDown.Maximum')
@@ -51,8 +66,9 @@
   - [Main()](#M-DesktopMagicPluginAPI-Plugin-Main 'DesktopMagicPluginAPI.Plugin.Main')
   - [OnMouseClick(position,mouseButton)](#M-DesktopMagicPluginAPI-Plugin-OnMouseClick-System-Drawing-Point,DesktopMagicPluginAPI-Inputs-MouseButton- 'DesktopMagicPluginAPI.Plugin.OnMouseClick(System.Drawing.Point,DesktopMagicPluginAPI.Inputs.MouseButton)')
   - [OnMouseMove(position)](#M-DesktopMagicPluginAPI-Plugin-OnMouseMove-System-Drawing-Point- 'DesktopMagicPluginAPI.Plugin.OnMouseMove(System.Drawing.Point)')
-  - [OnMouseWheel(position,Delta)](#M-DesktopMagicPluginAPI-Plugin-OnMouseWheel-System-Drawing-Point,System-Int32- 'DesktopMagicPluginAPI.Plugin.OnMouseWheel(System.Drawing.Point,System.Int32)')
+  - [OnMouseWheel(position,delta)](#M-DesktopMagicPluginAPI-Plugin-OnMouseWheel-System-Drawing-Point,System-Int32- 'DesktopMagicPluginAPI.Plugin.OnMouseWheel(System.Drawing.Point,System.Int32)')
   - [Start()](#M-DesktopMagicPluginAPI-Plugin-Start 'DesktopMagicPluginAPI.Plugin.Start')
+  - [Stop()](#M-DesktopMagicPluginAPI-Plugin-Stop 'DesktopMagicPluginAPI.Plugin.Stop')
 - [RenderQuality](#T-DesktopMagicPluginAPI-Drawing-RenderQuality 'DesktopMagicPluginAPI.Drawing.RenderQuality')
   - [High](#F-DesktopMagicPluginAPI-Drawing-RenderQuality-High 'DesktopMagicPluginAPI.Drawing.RenderQuality.High')
   - [Low](#F-DesktopMagicPluginAPI-Drawing-RenderQuality-Low 'DesktopMagicPluginAPI.Drawing.RenderQuality.Low')
@@ -138,6 +154,48 @@ Initializes a new instance of the [CheckBox](#T-DesktopMagicPluginAPI-Inputs-Che
 ##### Summary
 
 Gets or set a value indicating whether the [CheckBox](#T-DesktopMagicPluginAPI-Inputs-CheckBox 'DesktopMagicPluginAPI.Inputs.CheckBox') is in the checked state.
+
+<a name='T-DesktopMagicPluginAPI-Inputs-ComboBox'></a>
+## ComboBox `type`
+
+##### Namespace
+
+DesktopMagicPluginAPI.Inputs
+
+##### Summary
+
+Represents a selection control with a drop-down list.
+
+<a name='M-DesktopMagicPluginAPI-Inputs-ComboBox-#ctor-System-String[]-'></a>
+### #ctor(items) `constructor`
+
+##### Summary
+
+Initializes a new instance of the [Label](#T-DesktopMagicPluginAPI-Inputs-Label 'DesktopMagicPluginAPI.Inputs.Label') class with the provided `items`.
+
+##### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| items | [System.String[]](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.String[] 'System.String[]') |  |
+
+<a name='P-DesktopMagicPluginAPI-Inputs-ComboBox-Items'></a>
+### Items `property`
+
+##### Summary
+
+Gets the collection used to generate the content of the [ComboBox](#T-DesktopMagicPluginAPI-Inputs-ComboBox 'DesktopMagicPluginAPI.Inputs.ComboBox').
+
+<a name='P-DesktopMagicPluginAPI-Inputs-ComboBox-Value'></a>
+### Value `property`
+
+##### Summary
+
+Gets the currently selected item associated with this [ComboBox](#T-DesktopMagicPluginAPI-Inputs-ComboBox 'DesktopMagicPluginAPI.Inputs.ComboBox').
+
+##### Remarks
+
+If you assign a value to this property, the displayed text in the user interface will not be changed.
 
 <a name='T-DesktopMagicPluginAPI-Inputs-Element'></a>
 ## Element `type`
@@ -233,14 +291,14 @@ DesktopMagicPluginAPI.Drawing
 
 ##### Summary
 
-Extentions for the [Graphics](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.Drawing.Graphics 'System.Drawing.Graphics') class.
+Extensions for the [Graphics](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.Drawing.Graphics 'System.Drawing.Graphics') class.
 
 <a name='M-DesktopMagicPluginAPI-Drawing-GraphicsExtentions-DrawStringFixedWidth-System-Drawing-Graphics,System-String,System-Drawing-Font,System-Drawing-Brush,System-Single,System-Single,System-Single-'></a>
 ### DrawStringFixedWidth(graphics,s,font,brush,x,y,width) `method`
 
 ##### Summary
 
-Draws the specified text string at the specified location with the specified [Brush](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.Drawing.Brush 'System.Drawing.Brush') and [Font](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.Drawing.Font 'System.Drawing.Font') objects.
+
 
 ##### Parameters
 
@@ -259,7 +317,7 @@ Draws the specified text string at the specified location with the specified [Br
 
 ##### Summary
 
-Draws the specified text string at the specified location with the specified [Brush](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.Drawing.Brush 'System.Drawing.Brush') and [Font](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.Drawing.Font 'System.Drawing.Font') objects.
+
 
 ##### Parameters
 
@@ -277,7 +335,7 @@ Draws the specified text string at the specified location with the specified [Br
 
 ##### Summary
 
-Draws the specified text string at the specified location with the specified [Brush](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.Drawing.Brush 'System.Drawing.Brush') and [Font](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.Drawing.Font 'System.Drawing.Font') objects.
+
 
 ##### Parameters
 
@@ -295,7 +353,7 @@ Draws the specified text string at the specified location with the specified [Br
 
 ##### Summary
 
-Draws the specified text string at the specified location with the specified [Brush](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.Drawing.Brush 'System.Drawing.Brush') and [Font](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.Drawing.Font 'System.Drawing.Font') objects.
+
 
 ##### Parameters
 
@@ -306,6 +364,60 @@ Draws the specified text string at the specified location with the specified [Br
 | font | [System.Drawing.Font](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.Drawing.Font 'System.Drawing.Font') | [Font](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.Drawing.Font 'System.Drawing.Font') that defines the text format of the string. |
 | brush | [System.Drawing.Brush](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.Drawing.Brush 'System.Drawing.Brush') | [Brush](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.Drawing.Brush 'System.Drawing.Brush') that determines the color and texture of the drawn text. |
 | point | [System.Drawing.PointF](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.Drawing.PointF 'System.Drawing.PointF') | [PointF](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.Drawing.PointF 'System.Drawing.PointF') structure that specifies the upper-left corner of the drawn text. |
+
+<a name='M-DesktopMagicPluginAPI-Drawing-GraphicsExtentions-DrawStringNoLeftPadding-System-Drawing-Graphics,System-String,System-Drawing-Font,System-Drawing-Brush,System-Single,System-Single-'></a>
+### DrawStringNoLeftPadding(graphics,s,font,brush,x,y) `method`
+
+##### Summary
+
+
+
+##### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| graphics | [System.Drawing.Graphics](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.Drawing.Graphics 'System.Drawing.Graphics') | Graphics object. |
+| s | [System.String](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.String 'System.String') | String to draw. |
+| font | [System.Drawing.Font](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.Drawing.Font 'System.Drawing.Font') | [Font](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.Drawing.Font 'System.Drawing.Font') that defines the text format of the string. |
+| brush | [System.Drawing.Brush](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.Drawing.Brush 'System.Drawing.Brush') | [Brush](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.Drawing.Brush 'System.Drawing.Brush') that determines the color and texture of the drawn text. |
+| x | [System.Single](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.Single 'System.Single') | The x-coordinate of the upper-left corner of the drawn text. |
+| y | [System.Single](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.Single 'System.Single') | The y-coordinate of the upper-left corner of the drawn text. |
+
+<a name='M-DesktopMagicPluginAPI-Drawing-GraphicsExtentions-DrawStringNoLeftPadding-System-Drawing-Graphics,System-String,System-Drawing-Font,System-Drawing-Brush,System-Drawing-PointF-'></a>
+### DrawStringNoLeftPadding(graphics,s,font,brush,point) `method`
+
+##### Summary
+
+
+
+##### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| graphics | [System.Drawing.Graphics](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.Drawing.Graphics 'System.Drawing.Graphics') | Graphics object. |
+| s | [System.String](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.String 'System.String') | String to draw. |
+| font | [System.Drawing.Font](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.Drawing.Font 'System.Drawing.Font') | [Font](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.Drawing.Font 'System.Drawing.Font') that defines the text format of the string. |
+| brush | [System.Drawing.Brush](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.Drawing.Brush 'System.Drawing.Brush') | [Brush](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.Drawing.Brush 'System.Drawing.Brush') that determines the color and texture of the drawn text. |
+| point | [System.Drawing.PointF](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.Drawing.PointF 'System.Drawing.PointF') | [PointF](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.Drawing.PointF 'System.Drawing.PointF') structure that specifies the upper-left corner of the drawn text. |
+
+<a name='M-DesktopMagicPluginAPI-Drawing-GraphicsExtentions-MeasureStringNoLeftPadding-System-Drawing-Graphics,System-String,System-Drawing-Font-'></a>
+### MeasureStringNoLeftPadding(graphics,text,font) `method`
+
+##### Summary
+
+
+
+##### Returns
+
+
+
+##### Parameters
+
+| Name | Type | Description |
+| ---- | ---- | ----------- |
+| graphics | [System.Drawing.Graphics](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.Drawing.Graphics 'System.Drawing.Graphics') | Graphics object. |
+| text | [System.String](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.String 'System.String') | String to measure. |
+| font | [System.Drawing.Font](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.Drawing.Font 'System.Drawing.Font') | [Font](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.Drawing.Font 'System.Drawing.Font') that defines the text format of the string. |
 
 <a name='T-DesktopMagicPluginAPI-IPluginData'></a>
 ## IPluginData `type`
@@ -323,14 +435,14 @@ Defines properties and methods that provide information about the main applicati
 
 ##### Summary
 
-Gets the color of the main application.
+Gets the current color of the current theme.
 
 <a name='P-DesktopMagicPluginAPI-IPluginData-Font'></a>
 ### Font `property`
 
 ##### Summary
 
-Gets the font of the main application.
+Gets the current font of the current theme.
 
 <a name='P-DesktopMagicPluginAPI-IPluginData-PluginName'></a>
 ### PluginName `property`
@@ -345,6 +457,13 @@ Gets the name of the plugin.
 ##### Summary
 
 Gets the path of the parent directory of the plugin.
+
+<a name='P-DesktopMagicPluginAPI-IPluginData-Theme'></a>
+### Theme `property`
+
+##### Summary
+
+Gets the current theme setting of the main application.
 
 <a name='P-DesktopMagicPluginAPI-IPluginData-WindowPosition'></a>
 ### WindowPosition `property`
@@ -370,6 +489,59 @@ Updates the plugin window.
 ##### Parameters
 
 This method has no parameters.
+
+<a name='T-DesktopMagicPluginAPI-ITheme'></a>
+## ITheme `type`
+
+##### Namespace
+
+DesktopMagicPluginAPI
+
+##### Summary
+
+The theme settings of the main application.
+
+<a name='P-DesktopMagicPluginAPI-ITheme-BackgroundColor'></a>
+### BackgroundColor `property`
+
+##### Summary
+
+Gets the background color of the current theme.
+
+<a name='P-DesktopMagicPluginAPI-ITheme-CornerRadius'></a>
+### CornerRadius `property`
+
+##### Summary
+
+Gets the corner radius of the current theme.
+
+<a name='P-DesktopMagicPluginAPI-ITheme-Font'></a>
+### Font `property`
+
+##### Summary
+
+Gets the font of the current theme.
+
+<a name='P-DesktopMagicPluginAPI-ITheme-Margin'></a>
+### Margin `property`
+
+##### Summary
+
+Gets the corner radius of the current theme.
+
+<a name='P-DesktopMagicPluginAPI-ITheme-PrimaryColor'></a>
+### PrimaryColor `property`
+
+##### Summary
+
+Gets the primary color of the current theme.
+
+<a name='P-DesktopMagicPluginAPI-ITheme-SecondaryColor'></a>
+### SecondaryColor `property`
+
+##### Summary
+
+Gets the secondary color of the current theme.
 
 <a name='T-DesktopMagicPluginAPI-Inputs-IntegerUpDown'></a>
 ## IntegerUpDown `type`
@@ -570,7 +742,7 @@ Occurs when the mouse pointer is moved over the control.
 | position | [System.Drawing.Point](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.Drawing.Point 'System.Drawing.Point') | The x- and y-coordinates of the mouse pointer position relative to the plugin window. |
 
 <a name='M-DesktopMagicPluginAPI-Plugin-OnMouseWheel-System-Drawing-Point,System-Int32-'></a>
-### OnMouseWheel(position,Delta) `method`
+### OnMouseWheel(position,delta) `method`
 
 ##### Summary
 
@@ -581,14 +753,25 @@ Occurs when the user rotates the mouse wheel while the mouse pointer is over thi
 | Name | Type | Description |
 | ---- | ---- | ----------- |
 | position | [System.Drawing.Point](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.Drawing.Point 'System.Drawing.Point') | The x- and y-coordinates of the mouse pointer position relative to the plugin window. |
-| Delta | [System.Int32](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.Int32 'System.Int32') | A value that indicates the amount that the mouse wheel has changed. |
+| delta | [System.Int32](http://msdn.microsoft.com/query/dev14.query?appId=Dev14IDEF1&l=EN-US&k=k:System.Int32 'System.Int32') | A value that indicates the amount that the mouse wheel has changed. |
 
 <a name='M-DesktopMagicPluginAPI-Plugin-Start'></a>
 ### Start() `method`
 
 ##### Summary
 
-Occurs once when the pugin gets activated.
+Occurs once when the plugin gets activated.
+
+##### Parameters
+
+This method has no parameters.
+
+<a name='M-DesktopMagicPluginAPI-Plugin-Stop'></a>
+### Stop() `method`
+
+##### Summary
+
+Occurs once when the plugin gets deactivated.
 
 ##### Parameters
 

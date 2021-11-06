@@ -5,14 +5,14 @@ using System.Drawing;
 namespace DesktopMagicPluginAPI.Drawing
 {
     /// <summary>
-    /// Extentions for the <see cref="Graphics"/> class.
+    /// Extensions for the <see cref="Graphics"/> class.
     /// </summary>
     public static class GraphicsExtentions
     {
         private static readonly Dictionary<Font, int> fonts = new Dictionary<Font, int>(new FontComparer());
 
         /// <summary>
-        /// Draws the specified text string at the specified location with the specified <see cref="Brush"/> and <see cref="Font"/> objects.
+        /// <inheritdoc cref="Graphics.DrawString(string?, Font, Brush, float, float)"/>
         /// </summary>
         /// <param name="graphics">Graphics object.</param>
         /// <param name="s">String to draw.</param>
@@ -22,7 +22,7 @@ namespace DesktopMagicPluginAPI.Drawing
         /// <param name="y">The y-coordinate of the upper-left corner of the drawn text.</param>
         public static void DrawStringMonospace(this Graphics graphics, string s, Font font, Brush brush, float x, float y)
         {
-            int widest = GetWidestChar(font);
+            int widest = graphics.GetWidestChar(font);
 
             for (int i = 0; i < s.Length; i++)
             {
@@ -33,7 +33,7 @@ namespace DesktopMagicPluginAPI.Drawing
         }
 
         /// <summary>
-        /// Draws the specified text string at the specified location with the specified <see cref="Brush"/> and <see cref="Font"/> objects.
+        /// <inheritdoc cref="Graphics.DrawString(string?, Font, Brush, PointF)"/>
         /// </summary>
         /// <param name="graphics">Graphics object.</param>
         /// <param name="s">String to draw.</param>
@@ -42,7 +42,7 @@ namespace DesktopMagicPluginAPI.Drawing
         /// <param name="point"><see cref="PointF"/> structure that specifies the upper-left corner of the drawn text.</param>
         public static void DrawStringMonospace(this Graphics graphics, string s, Font font, Brush brush, PointF point)
         {
-            int widest = GetWidestChar(font);
+            int widest = graphics.GetWidestChar(font);
 
             for (int i = 0; i < s.Length; i++)
             {
@@ -53,7 +53,7 @@ namespace DesktopMagicPluginAPI.Drawing
         }
 
         /// <summary>
-        /// Draws the specified text string at the specified location with the specified <see cref="Brush"/> and <see cref="Font"/> objects.
+        /// <inheritdoc cref="Graphics.DrawString(string?, Font, Brush, float, float)"/>
         /// </summary>
         /// <param name="graphics">Graphics object.</param>
         /// <param name="s">String to draw.</param>
@@ -73,7 +73,7 @@ namespace DesktopMagicPluginAPI.Drawing
         }
 
         /// <summary>
-        /// Draws the specified text string at the specified location with the specified <see cref="Brush"/> and <see cref="Font"/> objects.
+        /// <inheritdoc cref="Graphics.DrawString(string?, Font, Brush, PointF)"/>
         /// </summary>
         /// <param name="graphics">Graphics object.</param>
         /// <param name="s">String to draw.</param>
@@ -91,12 +91,76 @@ namespace DesktopMagicPluginAPI.Drawing
             }
         }
 
-        private static int GetWidestChar(Font font)
+        /// <summary>
+        ///<inheritdoc cref="Graphics.DrawString(string?, Font, Brush, float, float)"/>
+        /// </summary>
+        /// <param name="graphics">Graphics object.</param>
+        /// <param name="s">String to draw.</param>
+        /// <param name="font"><see cref="Font"/> that defines the text format of the string.</param>
+        /// <param name="brush"><see cref="Brush"/> that determines the color and texture of the drawn text.</param>
+        /// <param name="x">The x-coordinate of the upper-left corner of the drawn text.</param>
+        /// <param name="y">The y-coordinate of the upper-left corner of the drawn text.</param>
+        public static void DrawStringNoLeftPadding(this Graphics graphics, string s, Font font, Brush brush, float x, float y)
+        {
+            // measure left padding
+            StringFormat sf = new StringFormat(StringFormatFlags.NoClip);
+            sf.SetMeasurableCharacterRanges(new CharacterRange[] { new CharacterRange(0, 1) });
+            Region[] r = graphics.MeasureCharacterRanges(s, font, new RectangleF(0, 0, 1000, 100), sf);
+            float leftPadding = r[0].GetBounds(graphics).Left;
+
+            // draw string
+            sf = new StringFormat(StringFormatFlags.NoClip);
+            graphics.DrawString(s, font, brush, x - leftPadding, y, sf);
+        }
+
+        /// <summary>
+        /// <inheritdoc cref="Graphics.DrawString(string?, Font, Brush, PointF)"/>
+        /// </summary>
+        /// <param name="graphics">Graphics object.</param>
+        /// <param name="s">String to draw.</param>
+        /// <param name="font"><see cref="Font"/> that defines the text format of the string.</param>
+        /// <param name="brush"><see cref="Brush"/> that determines the color and texture of the drawn text.</param>
+        /// <param name="point"><see cref="PointF"/> structure that specifies the upper-left corner of the drawn text.</param>
+        public static void DrawStringNoLeftPadding(this Graphics graphics, string s, Font font, Brush brush, PointF point)
+        {
+            // measure left padding
+            StringFormat sf = new StringFormat(StringFormatFlags.NoClip);
+            sf.SetMeasurableCharacterRanges(new CharacterRange[] { new CharacterRange(0, 1) });
+            Region[] r = graphics.MeasureCharacterRanges(s, font, new RectangleF(0, 0, 1000, 100), sf);
+            float leftPadding = r[0].GetBounds(graphics).Left;
+
+            // draw string
+            sf = new StringFormat(StringFormatFlags.NoClip);
+            graphics.DrawString(s, font, brush, point.X - leftPadding, point.Y, sf);
+        }
+
+        /// <summary>
+        /// <inheritdoc cref="Graphics.MeasureString(string, Font)"/>
+        /// </summary>
+        /// <param name="graphics">Graphics object.</param>
+        /// <param name="text">String to measure.</param>
+        /// <param name="font"><see cref="Font"/> that defines the text format of the string.</param>
+        /// <returns></returns>
+        public static SizeF MeasureStringNoLeftPadding(this Graphics graphics, string text, Font font)
+        {
+            SizeF size = graphics.MeasureString(text, font, int.MaxValue);
+
+            StringFormat sf = new StringFormat(StringFormatFlags.NoClip);
+            sf.SetMeasurableCharacterRanges(new CharacterRange[] { new CharacterRange(0, 1) });
+            Region[] r = graphics.MeasureCharacterRanges(text, font, new RectangleF(0, 0, 1000, 100), sf);
+            float leftPadding = r[0].GetBounds(graphics).Left;
+
+            size.Width -= leftPadding / 1.5f;
+            return size;
+        }
+
+        private static int GetWidestChar(this Graphics graphics, Font font)
         {
             if (fonts.ContainsKey(font))
+            {
                 return fonts[font];
+            }
 
-            Graphics graphics = Graphics.FromImage(new Bitmap(1, 1));
             float max = 0;
             char maxx = ' ';
             for (int i = 0; i <= 255; i++)

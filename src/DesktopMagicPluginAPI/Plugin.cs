@@ -19,17 +19,7 @@ namespace DesktopMagicPluginAPI
         public IPluginData Application
         {
             get => application;
-            set
-            {
-                if (application is null)
-                {
-                    application = value;
-                }
-                else
-                {
-                    throw new InvalidOperationException($"You cannot set the value of the {nameof(Application)} property");
-                }
-            }
+            set => application = application is null ? value : throw new InvalidOperationException($"You cannot set the value of the {nameof(Application)} property");
         }
 
         /// <summary>
@@ -43,9 +33,16 @@ namespace DesktopMagicPluginAPI
         public virtual RenderQuality RenderQuality { get; set; } = RenderQuality.High;
 
         /// <summary>
-        /// Occurs once when the pugin gets activated.
+        /// Occurs once when the plugin gets activated.
         /// </summary>
         public virtual void Start()
+        {
+        }
+
+        /// <summary>
+        /// Occurs once when the plugin gets deactivated.
+        /// </summary>
+        public virtual void Stop()
         {
         }
 
@@ -76,8 +73,8 @@ namespace DesktopMagicPluginAPI
         /// Occurs when the user rotates the mouse wheel while the mouse pointer is over this element.
         /// </summary>
         /// <param name="position">The x- and y-coordinates of the mouse pointer position relative to the plugin window.</param>
-        /// <param name="Delta">A value that indicates the amount that the mouse wheel has changed.</param>
-        public virtual void OnMouseWheel(Point position, int Delta)
+        /// <param name="delta">A value that indicates the amount that the mouse wheel has changed.</param>
+        public virtual void OnMouseWheel(Point position, int delta)
         {
         }
     }

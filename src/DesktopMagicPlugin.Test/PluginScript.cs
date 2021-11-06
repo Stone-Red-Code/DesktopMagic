@@ -1,11 +1,12 @@
 ﻿using DesktopMagicPluginAPI;
 using DesktopMagicPluginAPI.Inputs;
+
+using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
-using System.Collections.Generic;
 using System.Threading.Tasks;
-using System;
 
 namespace DesktopMagicPlugin.Test
 {
@@ -71,12 +72,16 @@ namespace DesktopMagicPlugin.Test
         public override Bitmap Main()
         {
             if (bitmaps.Count == 0)
+            {
                 return new Bitmap(1, 1);
+            }
 
             frameCount++;
 
             if (frameCount >= bitmaps.Count)
+            {
                 frameCount = 0;
+            }
 
             return bitmaps[frameCount];
         }

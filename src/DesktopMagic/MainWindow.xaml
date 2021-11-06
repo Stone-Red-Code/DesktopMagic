@@ -38,14 +38,15 @@
                             <CheckBox x:Name="TimeCb" Content="{DynamicResource time}" Click="CheckBox_Click"  Style="{StaticResource MaterialDesignDarkCheckBox}" />
                             <CheckBox x:Name="DateCb" Content="{DynamicResource date}" Click="CheckBox_Click" Style="{StaticResource MaterialDesignDarkCheckBox}" />
                             <CheckBox x:Name="CpuUsageCb" Content="{DynamicResource cpuUsage}" Click="CheckBox_Click" Style="{StaticResource MaterialDesignDarkCheckBox}" />
-                            <CheckBox x:Name="CalendarCb" Content="{DynamicResource googleCalendar}"  Click="CheckBox_Click" Style="{StaticResource MaterialDesignDarkCheckBox}" Visibility="Collapsed"/> <!--Currently disabled because it's not working-->
+                            <CheckBox x:Name="CalendarCb" Content="{DynamicResource googleCalendar}"  Click="CheckBox_Click" Style="{StaticResource MaterialDesignDarkCheckBox}" Visibility="Collapsed"/>
+                            <!--Currently disabled because it's not working-->
                             <CheckBox x:Name="MusicVisualizerCb" Content="{DynamicResource musicVisualizer}" HorizontalAlignment="Left"  VerticalAlignment="Top" Click="CheckBox_Click" Style="{StaticResource MaterialDesignDarkCheckBox}" />
                         </StackPanel>
                     </ScrollViewer>
                 </DockPanel>
 
                 <DockPanel Grid.Column="1"  Margin="2.5,0,0,0">
-                    <ComboBox x:Name="optionsComboBox" DockPanel.Dock="Top" Height="24"  SelectedIndex="0" DisplayMemberPath="Item1" SelectionChanged="OptionsComboBox_SelectionChanged" Background="#FFECECEC" Padding="4" VerticalAlignment="Center"/>
+                    <ComboBox x:Name="optionsComboBox" DockPanel.Dock="Top" Height="24" SelectedIndex="0" SelectionChanged="OptionsComboBox_SelectionChanged" Background="#FFECECEC" Padding="4" VerticalAlignment="Center"/>
                     <ScrollViewer Background="#FFBBBBBB">
                         <Grid>
                             <StackPanel x:Name="optionsPanel" Margin="3,3,3,0" HorizontalAlignment="Stretch" Visibility="Collapsed" >
@@ -57,11 +58,11 @@
                                         <Style TargetType="TextBlock" />
                                     </materialDesign:TextFieldAssist.CharacterCounterStyle>
                                 </TextBox>
-                                <ComboBox x:Name="spectrumPlugineComboBox" ItemsSource="{DynamicResource musicVisualizerOptionsComboboxItems}" HorizontalAlignment="Left" VerticalAlignment="Top" Width="120" SelectionChanged="SpectrumPlugineComboBox_SelectionChanged" />
-                                <CheckBox x:Name="mirrorPlugineCheckBox" Content="{DynamicResource mirrorPlugine}" Click="MirrorPlugineCheckBox_Click" Style="{StaticResource MaterialDesignDarkCheckBox}" />
-                                <CheckBox x:Name="linePlugineCheckBox" Content="{DynamicResource linePlugine}" Click="LinePlugineCheckBox_Click" Style="{StaticResource MaterialDesignDarkCheckBox}" />
+                                <ComboBox x:Name="spectrumModeComboBox" ItemsSource="{DynamicResource musicVisualizerOptionsComboboxItems}" HorizontalAlignment="Left" VerticalAlignment="Top" Width="120" SelectionChanged="SpectrumModeComboBox_SelectionChanged" />
+                                <CheckBox x:Name="mirrorModeCheckBox" Content="{DynamicResource mirrorMode}" Click="MirrorModeCheckBox_Click" Style="{StaticResource MaterialDesignDarkCheckBox}" />
+                                <CheckBox x:Name="lineModeCheckBox" Content="{DynamicResource lineMode}" Click="LineModeCheckBox_Click" Style="{StaticResource MaterialDesignDarkCheckBox}" />
                                 <Label Content="{DynamicResource amplifier}" HorizontalAlignment="Left" VerticalAlignment="Top" Padding="0,1" />
-                                <Slider x:Name="amplifierLevelSlider" Margin="-2,0,10,0" HorizontalAlignment="Stretch" VerticalAlignment="Top" ValueChanged="AmplifierLevelSlider_ValueChanged" Maximum="50" Minimum="-50" SmallChange="1" LargeChange="5" Foreground="Gray" />
+                                <Slider x:Name="amplifierLevelSlider"  HorizontalAlignment="Stretch" VerticalAlignment="Top" ValueChanged="AmplifierLevelSlider_ValueChanged" Maximum="50" Minimum="-50" SmallChange="1" LargeChange="5" Foreground="Gray" />
                                 <Label x:Name="amplifierLevelLabel" Content="Label" HorizontalAlignment="Left" VerticalAlignment="Top" Padding="0,1" />
                             </StackPanel>
                         </Grid>
@@ -73,34 +74,59 @@
                     <RowDefinition Height="*" />
                     <RowDefinition Height="110" />
                 </Grid.RowDefinitions>
-                <StackPanel DockPanel.Dock="Top" Margin="{StaticResource DefaultMargin}">
-                    <ComboBox x:Name="fontComboBox" HorizontalAlignment="Left" VerticalAlignment="Top" Width="181" SelectionChanged="FontComboBox_SelectionChanged" Margin="0,0,0,5" />
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <Grid Grid.Column="0" Margin="{StaticResource DefaultMargin}" HorizontalAlignment="Stretch">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    
+                    <TextBlock Text="Display Font: " Grid.Column="0" Grid.Row="0" VerticalAlignment="Center"></TextBlock>
+                    <ComboBox x:Name="fontComboBox" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Top" SelectionChanged="FontComboBox_SelectionChanged" Margin="0,0,0,5" />
 
-                    <DockPanel>
-                        <Label Content="R:" Width="20" />
-                        <Slider x:Name="redSlider" Maximum="255" ValueChanged="ColorSliders_ValueChanged" TickFrequency="1" IsSnapToTickEnabled="True" Background="#00030000" />
-                    </DockPanel>
-                    <DockPanel>
-                        <Label Content="G:" Width="20" />
-                        <Slider x:Name="greenSlider" Maximum="255" ValueChanged="ColorSliders_ValueChanged" TickFrequency="1" IsSnapToTickEnabled="True" Background="#0000FF00" />
-                    </DockPanel>
-                    <DockPanel>
-                        <Label Content="B:" Width="20" />
-                        <Slider x:Name="blueSlider" Maximum="255" ValueChanged="ColorSliders_ValueChanged" TickFrequency="1" IsSnapToTickEnabled="True" Background="#000000FF" />
-                    </DockPanel>
+                    <TextBlock Text="Corner Radius: " Grid.Column="0" Grid.Row="1" VerticalAlignment="Center"></TextBlock>
+                    <TextBox x:Name="cornerRadiusTextBox" Grid.Column="1" Grid.Row="1" TextChanged="CornerRadiusTextBox_TextChanged" materialDesign:HintAssist.Hint="Enter a number">
+                        <materialDesign:TextFieldAssist.CharacterCounterStyle>
+                            <Style TargetType="TextBlock" />
+                        </materialDesign:TextFieldAssist.CharacterCounterStyle>
+                    </TextBox>
 
-                    <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Margin: " Grid.Column="0" Grid.Row="3" VerticalAlignment="Center"></TextBlock>
+                    <TextBox x:Name="marginTextBox" Grid.Column="1" Grid.Row="3" TextChanged="MarginTextBox_TextChanged" materialDesign:HintAssist.Hint="Enter a number">
+                        <materialDesign:TextFieldAssist.CharacterCounterStyle>
+                            <Style TargetType="TextBlock" />
+                        </materialDesign:TextFieldAssist.CharacterCounterStyle>
+                    </TextBox>
+                </Grid>
+                <StackPanel Grid.Column="1" Margin="{StaticResource DefaultMargin}" HorizontalAlignment="Stretch">
+                    <DockPanel Margin="0,0,0,5">
                         <Border CornerRadius="1" BorderThickness="1.5" BorderBrush="Gray" Height="23" Width="23"  Margin="0,0,5,0">
-                            <Rectangle x:Name="colorRechtangle" Fill="White" />
+                            <Rectangle x:Name="primaryColorRechtangle" Fill="White" />
                         </Border>
-                        <TextBox x:Name="colorHexTextBox" MaxLength="7" CharacterCasing="Upper" Height="23" TextWrapping="Wrap" Text="colorHexTextBox" Width="120" TextChanged="ColorHexTextBox_TextChanged" RenderTransformOrigin="0.5,0.5" VerticalContentAlignment="Center">
-                            <materialDesign:TextFieldAssist.CharacterCounterStyle>
-                                <Style TargetType="TextBlock" />
-                            </materialDesign:TextFieldAssist.CharacterCounterStyle>
-                        </TextBox>
-                    </StackPanel>
+                        <Button Content="Change Primary Color" Height="23" FontSize="12" FontWeight="Regular" Click="ChangePrimaryColorButton_Click"/>
+                    </DockPanel>
+                    <DockPanel Margin="0,0,0,5">
+                        <Border CornerRadius="1" BorderThickness="1.5" BorderBrush="Gray" Height="23" Width="23"  Margin="0,0,5,0">
+                            <Rectangle x:Name="secondaryColorRechtangle" Fill="White" />
+                        </Border>
+                        <Button Content="Change Secondary Color" Height="23" FontSize="12" FontWeight="Regular" Click="ChangeSecondaryColorButton_Click" />
+                    </DockPanel>
+                    <DockPanel>
+                        <Border CornerRadius="1" BorderThickness="1.5" BorderBrush="Gray" Height="23" Width="23"  Margin="0,0,5,0">
+                            <Rectangle x:Name="backgroundColorRechtangle" Fill="White" />
+                        </Border>
+                        <Button Content="Change Background Color" Height="23" FontSize="12" FontWeight="Regular" Click="ChangeBackgroundColorButton_Click" />
+                    </DockPanel>
                 </StackPanel>
-                <Grid Grid.Row="1" VerticalAlignment="Bottom">
+                <Grid Grid.Row="1" Grid.ColumnSpan="2" VerticalAlignment="Bottom">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition />
                         <ColumnDefinition />
