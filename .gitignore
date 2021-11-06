@@ -12,6 +12,7 @@ obj/
 *.user
 *.userosscache
 *.sln.docstates
+*GPUCache/
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs

@@ -3,6 +3,7 @@
 using Stone_Red_Utilities.Logging;
 
 using System;
+using System.IO;
 using System.Threading;
 using System.Windows;
 
@@ -117,6 +118,21 @@ namespace DesktopMagic
                     DebugConsoleFormat = $"> {{{LogFormatType.DateTime}:hh:mm:ss}} | {{{LogFormatType.LogSeverity},-5}} | {{{LogFormatType.Message}}}\nat {{{LogFormatType.LineNumber}}} | {{{LogFormatType.FilePath}}}"
                 }
             };
+
+            try
+            {
+                if (!Directory.Exists(ApplicationDataPath))
+                {
+                    _ = Directory.CreateDirectory(ApplicationDataPath);
+                }
+                Logger.Log("Created ApplicationData Folder", "Main");
+            }
+            catch (Exception ex)
+            {
+                Logger.Log(ex.Message, "Setup", LogSeverity.Error);
+                _ = MessageBox.Show(ex.ToString());
+            }
+
             Logger.ClearLogFile(LogSeverity.Info);
             Logger.Log("Log setup complete.", "Setup");
         }

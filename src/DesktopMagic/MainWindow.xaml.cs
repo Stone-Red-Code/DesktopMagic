@@ -90,12 +90,6 @@ namespace DesktopMagic
         {
             try
             {
-                if (!Directory.Exists(App.ApplicationDataPath))
-                {
-                    _ = Directory.CreateDirectory(App.ApplicationDataPath);
-                }
-                App.Logger.Log("Created ApplicationData Folder", "Main");
-
                 if (!Directory.Exists(App.ApplicationDataPath + "\\Plugins"))
                 {
                     _ = Directory.CreateDirectory(App.ApplicationDataPath + "\\Plugins");
