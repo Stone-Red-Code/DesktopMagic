@@ -5,8 +5,6 @@ using DesktopMagic.Plugins;
 
 using Microsoft.Win32;
 
-using Stone_Red_Utilities.Logging;
-
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -836,18 +834,22 @@ namespace DesktopMagic
         private void GithubButton_Click(object sender, RoutedEventArgs e)
         {
             string uri = "https://github.com/Stone-Red-Code/DesktopMagic";
-            ProcessStartInfo psi = new ProcessStartInfo();
-            psi.UseShellExecute = true;
-            psi.FileName = uri;
+            ProcessStartInfo psi = new ProcessStartInfo
+            {
+                UseShellExecute = true,
+                FileName = uri
+            };
             _ = Process.Start(psi);
         }
 
         private void DownloadPluginsButton_Click(object sender, RoutedEventArgs e)
         {
             string uri = "https://github.com/Stone-Red-Code/DesktopMagic-Plugins";
-            ProcessStartInfo psi = new ProcessStartInfo();
-            psi.UseShellExecute = true;
-            psi.FileName = uri;
+            ProcessStartInfo psi = new ProcessStartInfo
+            {
+                UseShellExecute = true,
+                FileName = uri
+            };
             _ = Process.Start(psi);
         }
 
