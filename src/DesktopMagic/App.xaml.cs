@@ -19,7 +19,7 @@ public partial class App : Application
 #if DEBUG
     private readonly Updater updater = new Updater(TimeSpan.FromDays(1), "https://raw.githubusercontent.com/Stone-Red-Code/DesktopMagic/develop/update/updateInfo.json");
 #else
-        private readonly Updater updater = new Updater(TimeSpan.FromDays(1), "https://raw.githubusercontent.com/Stone-Red-Code/DesktopMagic/main/update/updateInfo.json");
+    private readonly Updater updater = new Updater(TimeSpan.FromDays(1), "https://raw.githubusercontent.com/Stone-Red-Code/DesktopMagic/main/update/updateInfo.json");
 #endif
 
     public const string AppName = "Desktop Magic";
@@ -30,19 +30,21 @@ public partial class App : Application
     public App()
     {
         logFilePath = ApplicationDataPath + "\\Log.log";
-        Setup();
+
         // Try to grab mutex
         _mutex = new Mutex(true, $"Stone_Red{AppName}", out bool createdNew);
 
         //check if creating new was successful
         if (!createdNew)
         {
+            Setup(false);
             Logger.Log("Shutting down because other instance already running.", "Setup");
             //Shutdown Application
             Current.Shutdown();
         }
         else
         {
+            Setup(true);
             Exit += CloseMutexHandler;
 
             updater.ProgressChanged += Updater_ProgressChanged;
@@ -60,7 +62,7 @@ public partial class App : Application
 
     private void Updater_NoUpdateAvailible()
     {
-        Logger.Log("No update available.", "Updater");
+        Logger.Log("No update available", "Updater");
     }
 
     private void Updater_OnException(Exception exception)
@@ -70,7 +72,7 @@ public partial class App : Application
 
     private void Updater_ProgressChanged(long? totalFileSize, long totalBytesDownloaded, double? progressPercentage)
     {
-        Logger.Log($"{progressPercentage}% {totalBytesDownloaded}/{totalFileSize}", "Updater");
+        Logger.Log($"Downloading: {progressPercentage}% {totalBytesDownloaded}/{totalFileSize}", "Updater");
     }
 
     protected void CloseMutexHandler(object sender, EventArgs e)
@@ -78,7 +80,7 @@ public partial class App : Application
         _mutex?.Close();
     }
 
-    private void Setup()
+    private void Setup(bool clearLogFile)
     {
         AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
 
@@ -129,12 +131,16 @@ public partial class App : Application
         }
         catch (Exception ex)
         {
-            Logger.Log(ex.Message, "Setup", LogSeverity.Error);
             _ = MessageBox.Show(ex.ToString());
+            Logger.Log(ex.Message, "Setup", LogSeverity.Error);
         }
 
-        Logger.ClearLogFile(LogSeverity.Info);
-        Logger.Log("Log setup complete.", "Setup");
+        if (clearLogFile)
+        {
+            Logger.ClearLogFile(LogSeverity.Info);
+        }
+
+        Logger.Log("Log setup complete", "Setup");
     }
 
     private void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
