@@ -1,0 +1,433 @@
+### YamlMime:ManagedReference
+items:
+- uid: DesktopMagicPluginAPI.IPluginData
+  commentId: T:DesktopMagicPluginAPI.IPluginData
+  id: IPluginData
+  parent: DesktopMagicPluginAPI
+  children:
+  - DesktopMagicPluginAPI.IPluginData.Color
+  - DesktopMagicPluginAPI.IPluginData.Font
+  - DesktopMagicPluginAPI.IPluginData.PluginName
+  - DesktopMagicPluginAPI.IPluginData.PluginPath
+  - DesktopMagicPluginAPI.IPluginData.Theme
+  - DesktopMagicPluginAPI.IPluginData.UpdateWindow
+  - DesktopMagicPluginAPI.IPluginData.WindowPosition
+  - DesktopMagicPluginAPI.IPluginData.WindowSize
+  langs:
+  - csharp
+  - vb
+  name: IPluginData
+  nameWithType: IPluginData
+  fullName: DesktopMagicPluginAPI.IPluginData
+  type: Interface
+  source:
+    remote:
+      path: src/DesktopMagicPluginAPI/IPluginData.cs
+      branch: develop
+      repo: https://github.com/Stone-Red-Code/DesktopMagic.git
+    id: IPluginData
+    path: IPluginData.cs
+    startLine: 8
+  assemblies:
+  - DesktopMagicPluginAPI
+  namespace: DesktopMagicPluginAPI
+  summary: "\nDefines properties and methods that provide information about the main application.\n"
+  example: []
+  syntax:
+    content: public interface IPluginData
+    content.vb: Public Interface IPluginData
+  modifiers.csharp:
+  - public
+  - interface
+  modifiers.vb:
+  - Public
+  - Interface
+- uid: DesktopMagicPluginAPI.IPluginData.Font
+  commentId: P:DesktopMagicPluginAPI.IPluginData.Font
+  id: Font
+  parent: DesktopMagicPluginAPI.IPluginData
+  langs:
+  - csharp
+  - vb
+  name: Font
+  nameWithType: IPluginData.Font
+  fullName: DesktopMagicPluginAPI.IPluginData.Font
+  type: Property
+  source:
+    remote:
+      path: src/DesktopMagicPluginAPI/IPluginData.cs
+      branch: develop
+      repo: https://github.com/Stone-Red-Code/DesktopMagic.git
+    id: Font
+    path: IPluginData.cs
+    startLine: 13
+  assemblies:
+  - DesktopMagicPluginAPI
+  namespace: DesktopMagicPluginAPI
+  summary: "\nGets the current font of the current theme.\n"
+  example: []
+  syntax:
+    content: >-
+      [Obsolete("Use the \"Theme\" property instead")]
+
+      string Font { get; }
+    parameters: []
+    return:
+      type: System.String
+    content.vb: >-
+      <Obsolete("Use the ""Theme"" property instead")>
+
+      ReadOnly Property Font As String
+  overload: DesktopMagicPluginAPI.IPluginData.Font*
+  attributes:
+  - type: System.ObsoleteAttribute
+    ctor: System.ObsoleteAttribute.#ctor(System.String)
+    arguments:
+    - type: System.String
+      value: Use the "Theme" property instead
+  modifiers.csharp:
+  - get
+  modifiers.vb:
+  - ReadOnly
+- uid: DesktopMagicPluginAPI.IPluginData.Color
+  commentId: P:DesktopMagicPluginAPI.IPluginData.Color
+  id: Color
+  parent: DesktopMagicPluginAPI.IPluginData
+  langs:
+  - csharp
+  - vb
+  name: Color
+  nameWithType: IPluginData.Color
+  fullName: DesktopMagicPluginAPI.IPluginData.Color
+  type: Property
+  source:
+    remote:
+      path: src/DesktopMagicPluginAPI/IPluginData.cs
+      branch: develop
+      repo: https://github.com/Stone-Red-Code/DesktopMagic.git
+    id: Color
+    path: IPluginData.cs
+    startLine: 19
+  assemblies:
+  - DesktopMagicPluginAPI
+  namespace: DesktopMagicPluginAPI
+  summary: "\nGets the current color of the current theme.\n"
+  example: []
+  syntax:
+    content: >-
+      [Obsolete("Use the \"Theme\" property instead")]
+
+      Color Color { get; }
+    parameters: []
+    return:
+      type: System.Drawing.Color
+    content.vb: >-
+      <Obsolete("Use the ""Theme"" property instead")>
+
+      ReadOnly Property Color As Color
+  overload: DesktopMagicPluginAPI.IPluginData.Color*
+  attributes:
+  - type: System.ObsoleteAttribute
+    ctor: System.ObsoleteAttribute.#ctor(System.String)
+    arguments:
+    - type: System.String
+      value: Use the "Theme" property instead
+  modifiers.csharp:
+  - get
+  modifiers.vb:
+  - ReadOnly
+- uid: DesktopMagicPluginAPI.IPluginData.Theme
+  commentId: P:DesktopMagicPluginAPI.IPluginData.Theme
+  id: Theme
+  parent: DesktopMagicPluginAPI.IPluginData
+  langs:
+  - csharp
+  - vb
+  name: Theme
+  nameWithType: IPluginData.Theme
+  fullName: DesktopMagicPluginAPI.IPluginData.Theme
+  type: Property
+  source:
+    remote:
+      path: src/DesktopMagicPluginAPI/IPluginData.cs
+      branch: develop
+      repo: https://github.com/Stone-Red-Code/DesktopMagic.git
+    id: Theme
+    path: IPluginData.cs
+    startLine: 25
+  assemblies:
+  - DesktopMagicPluginAPI
+  namespace: DesktopMagicPluginAPI
+  summary: "\nGets the current theme setting of the main application.\n"
+  example: []
+  syntax:
+    content: ITheme Theme { get; }
+    parameters: []
+    return:
+      type: DesktopMagicPluginAPI.ITheme
+    content.vb: ReadOnly Property Theme As ITheme
+  overload: DesktopMagicPluginAPI.IPluginData.Theme*
+  modifiers.csharp:
+  - get
+  modifiers.vb:
+  - ReadOnly
+- uid: DesktopMagicPluginAPI.IPluginData.WindowSize
+  commentId: P:DesktopMagicPluginAPI.IPluginData.WindowSize
+  id: WindowSize
+  parent: DesktopMagicPluginAPI.IPluginData
+  langs:
+  - csharp
+  - vb
+  name: WindowSize
+  nameWithType: IPluginData.WindowSize
+  fullName: DesktopMagicPluginAPI.IPluginData.WindowSize
+  type: Property
+  source:
+    remote:
+      path: src/DesktopMagicPluginAPI/IPluginData.cs
+      branch: develop
+      repo: https://github.com/Stone-Red-Code/DesktopMagic.git
+    id: WindowSize
+    path: IPluginData.cs
+    startLine: 30
+  assemblies:
+  - DesktopMagicPluginAPI
+  namespace: DesktopMagicPluginAPI
+  summary: "\nGets the window size of the plugin window.\n"
+  example: []
+  syntax:
+    content: Size WindowSize { get; }
+    parameters: []
+    return:
+      type: System.Drawing.Size
+    content.vb: ReadOnly Property WindowSize As Size
+  overload: DesktopMagicPluginAPI.IPluginData.WindowSize*
+  modifiers.csharp:
+  - get
+  modifiers.vb:
+  - ReadOnly
+- uid: DesktopMagicPluginAPI.IPluginData.WindowPosition
+  commentId: P:DesktopMagicPluginAPI.IPluginData.WindowPosition
+  id: WindowPosition
+  parent: DesktopMagicPluginAPI.IPluginData
+  langs:
+  - csharp
+  - vb
+  name: WindowPosition
+  nameWithType: IPluginData.WindowPosition
+  fullName: DesktopMagicPluginAPI.IPluginData.WindowPosition
+  type: Property
+  source:
+    remote:
+      path: src/DesktopMagicPluginAPI/IPluginData.cs
+      branch: develop
+      repo: https://github.com/Stone-Red-Code/DesktopMagic.git
+    id: WindowPosition
+    path: IPluginData.cs
+    startLine: 35
+  assemblies:
+  - DesktopMagicPluginAPI
+  namespace: DesktopMagicPluginAPI
+  summary: "\nGets the window position of the plugin window.\n"
+  example: []
+  syntax:
+    content: Point WindowPosition { get; }
+    parameters: []
+    return:
+      type: System.Drawing.Point
+    content.vb: ReadOnly Property WindowPosition As Point
+  overload: DesktopMagicPluginAPI.IPluginData.WindowPosition*
+  modifiers.csharp:
+  - get
+  modifiers.vb:
+  - ReadOnly
+- uid: DesktopMagicPluginAPI.IPluginData.PluginName
+  commentId: P:DesktopMagicPluginAPI.IPluginData.PluginName
+  id: PluginName
+  parent: DesktopMagicPluginAPI.IPluginData
+  langs:
+  - csharp
+  - vb
+  name: PluginName
+  nameWithType: IPluginData.PluginName
+  fullName: DesktopMagicPluginAPI.IPluginData.PluginName
+  type: Property
+  source:
+    remote:
+      path: src/DesktopMagicPluginAPI/IPluginData.cs
+      branch: develop
+      repo: https://github.com/Stone-Red-Code/DesktopMagic.git
+    id: PluginName
+    path: IPluginData.cs
+    startLine: 40
+  assemblies:
+  - DesktopMagicPluginAPI
+  namespace: DesktopMagicPluginAPI
+  summary: "\nGets the name of the plugin.\n"
+  example: []
+  syntax:
+    content: string PluginName { get; }
+    parameters: []
+    return:
+      type: System.String
+    content.vb: ReadOnly Property PluginName As String
+  overload: DesktopMagicPluginAPI.IPluginData.PluginName*
+  modifiers.csharp:
+  - get
+  modifiers.vb:
+  - ReadOnly
+- uid: DesktopMagicPluginAPI.IPluginData.PluginPath
+  commentId: P:DesktopMagicPluginAPI.IPluginData.PluginPath
+  id: PluginPath
+  parent: DesktopMagicPluginAPI.IPluginData
+  langs:
+  - csharp
+  - vb
+  name: PluginPath
+  nameWithType: IPluginData.PluginPath
+  fullName: DesktopMagicPluginAPI.IPluginData.PluginPath
+  type: Property
+  source:
+    remote:
+      path: src/DesktopMagicPluginAPI/IPluginData.cs
+      branch: develop
+      repo: https://github.com/Stone-Red-Code/DesktopMagic.git
+    id: PluginPath
+    path: IPluginData.cs
+    startLine: 45
+  assemblies:
+  - DesktopMagicPluginAPI
+  namespace: DesktopMagicPluginAPI
+  summary: "\nGets the path of the parent directory of the plugin.\n"
+  example: []
+  syntax:
+    content: string PluginPath { get; }
+    parameters: []
+    return:
+      type: System.String
+    content.vb: ReadOnly Property PluginPath As String
+  overload: DesktopMagicPluginAPI.IPluginData.PluginPath*
+  modifiers.csharp:
+  - get
+  modifiers.vb:
+  - ReadOnly
+- uid: DesktopMagicPluginAPI.IPluginData.UpdateWindow
+  commentId: M:DesktopMagicPluginAPI.IPluginData.UpdateWindow
+  id: UpdateWindow
+  parent: DesktopMagicPluginAPI.IPluginData
+  langs:
+  - csharp
+  - vb
+  name: UpdateWindow()
+  nameWithType: IPluginData.UpdateWindow()
+  fullName: DesktopMagicPluginAPI.IPluginData.UpdateWindow()
+  type: Method
+  source:
+    remote:
+      path: src/DesktopMagicPluginAPI/IPluginData.cs
+      branch: develop
+      repo: https://github.com/Stone-Red-Code/DesktopMagic.git
+    id: UpdateWindow
+    path: IPluginData.cs
+    startLine: 50
+  assemblies:
+  - DesktopMagicPluginAPI
+  namespace: DesktopMagicPluginAPI
+  summary: "\nUpdates the plugin window.\n"
+  example: []
+  syntax:
+    content: void UpdateWindow()
+    content.vb: Sub UpdateWindow
+  overload: DesktopMagicPluginAPI.IPluginData.UpdateWindow*
+references:
+- uid: DesktopMagicPluginAPI
+  commentId: N:DesktopMagicPluginAPI
+  name: DesktopMagicPluginAPI
+  nameWithType: DesktopMagicPluginAPI
+  fullName: DesktopMagicPluginAPI
+- uid: DesktopMagicPluginAPI.IPluginData.Font*
+  commentId: Overload:DesktopMagicPluginAPI.IPluginData.Font
+  name: Font
+  nameWithType: IPluginData.Font
+  fullName: DesktopMagicPluginAPI.IPluginData.Font
+- uid: System.String
+  commentId: T:System.String
+  parent: System
+  isExternal: true
+  name: String
+  nameWithType: String
+  fullName: System.String
+- uid: System
+  commentId: N:System
+  isExternal: true
+  name: System
+  nameWithType: System
+  fullName: System
+- uid: DesktopMagicPluginAPI.IPluginData.Color*
+  commentId: Overload:DesktopMagicPluginAPI.IPluginData.Color
+  name: Color
+  nameWithType: IPluginData.Color
+  fullName: DesktopMagicPluginAPI.IPluginData.Color
+- uid: System.Drawing.Color
+  commentId: T:System.Drawing.Color
+  parent: System.Drawing
+  isExternal: true
+  name: Color
+  nameWithType: Color
+  fullName: System.Drawing.Color
+- uid: System.Drawing
+  commentId: N:System.Drawing
+  isExternal: true
+  name: System.Drawing
+  nameWithType: System.Drawing
+  fullName: System.Drawing
+- uid: DesktopMagicPluginAPI.IPluginData.Theme*
+  commentId: Overload:DesktopMagicPluginAPI.IPluginData.Theme
+  name: Theme
+  nameWithType: IPluginData.Theme
+  fullName: DesktopMagicPluginAPI.IPluginData.Theme
+- uid: DesktopMagicPluginAPI.ITheme
+  commentId: T:DesktopMagicPluginAPI.ITheme
+  parent: DesktopMagicPluginAPI
+  name: ITheme
+  nameWithType: ITheme
+  fullName: DesktopMagicPluginAPI.ITheme
+- uid: DesktopMagicPluginAPI.IPluginData.WindowSize*
+  commentId: Overload:DesktopMagicPluginAPI.IPluginData.WindowSize
+  name: WindowSize
+  nameWithType: IPluginData.WindowSize
+  fullName: DesktopMagicPluginAPI.IPluginData.WindowSize
+- uid: System.Drawing.Size
+  commentId: T:System.Drawing.Size
+  parent: System.Drawing
+  isExternal: true
+  name: Size
+  nameWithType: Size
+  fullName: System.Drawing.Size
+- uid: DesktopMagicPluginAPI.IPluginData.WindowPosition*
+  commentId: Overload:DesktopMagicPluginAPI.IPluginData.WindowPosition
+  name: WindowPosition
+  nameWithType: IPluginData.WindowPosition
+  fullName: DesktopMagicPluginAPI.IPluginData.WindowPosition
+- uid: System.Drawing.Point
+  commentId: T:System.Drawing.Point
+  parent: System.Drawing
+  isExternal: true
+  name: Point
+  nameWithType: Point
+  fullName: System.Drawing.Point
+- uid: DesktopMagicPluginAPI.IPluginData.PluginName*
+  commentId: Overload:DesktopMagicPluginAPI.IPluginData.PluginName
+  name: PluginName
+  nameWithType: IPluginData.PluginName
+  fullName: DesktopMagicPluginAPI.IPluginData.PluginName
+- uid: DesktopMagicPluginAPI.IPluginData.PluginPath*
+  commentId: Overload:DesktopMagicPluginAPI.IPluginData.PluginPath
+  name: PluginPath
+  nameWithType: IPluginData.PluginPath
+  fullName: DesktopMagicPluginAPI.IPluginData.PluginPath
+- uid: DesktopMagicPluginAPI.IPluginData.UpdateWindow*
+  commentId: Overload:DesktopMagicPluginAPI.IPluginData.UpdateWindow
+  name: UpdateWindow
+  nameWithType: IPluginData.UpdateWindow
+  fullName: DesktopMagicPluginAPI.IPluginData.UpdateWindow

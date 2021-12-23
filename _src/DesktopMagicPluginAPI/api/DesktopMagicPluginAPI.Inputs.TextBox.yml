@@ -1,0 +1,487 @@
+### YamlMime:ManagedReference
+items:
+- uid: DesktopMagicPluginAPI.Inputs.TextBox
+  commentId: T:DesktopMagicPluginAPI.Inputs.TextBox
+  id: TextBox
+  parent: DesktopMagicPluginAPI.Inputs
+  children:
+  - DesktopMagicPluginAPI.Inputs.TextBox.#ctor(System.String)
+  - DesktopMagicPluginAPI.Inputs.TextBox.Value
+  langs:
+  - csharp
+  - vb
+  name: TextBox
+  nameWithType: TextBox
+  fullName: DesktopMagicPluginAPI.Inputs.TextBox
+  type: Class
+  source:
+    remote:
+      path: src/DesktopMagicPluginAPI/Inputs/TextBox.cs
+      branch: develop
+      repo: https://github.com/Stone-Red-Code/DesktopMagic.git
+    id: TextBox
+    path: Inputs/TextBox.cs
+    startLine: 5
+  assemblies:
+  - DesktopMagicPluginAPI
+  namespace: DesktopMagicPluginAPI.Inputs
+  summary: "\nRepresents a text box control.\n"
+  example: []
+  syntax:
+    content: 'public class TextBox : Element'
+    content.vb: >-
+      Public Class TextBox
+
+          Inherits Element
+  inheritance:
+  - System.Object
+  - DesktopMagicPluginAPI.Inputs.Element
+  inheritedMembers:
+  - DesktopMagicPluginAPI.Inputs.Element.OnValueChanged
+  - DesktopMagicPluginAPI.Inputs.Element.ValueChanged
+  - System.Object.Equals(System.Object)
+  - System.Object.Equals(System.Object,System.Object)
+  - System.Object.GetHashCode
+  - System.Object.GetType
+  - System.Object.MemberwiseClone
+  - System.Object.ReferenceEquals(System.Object,System.Object)
+  - System.Object.ToString
+  modifiers.csharp:
+  - public
+  - class
+  modifiers.vb:
+  - Public
+  - Class
+- uid: DesktopMagicPluginAPI.Inputs.TextBox.Value
+  commentId: P:DesktopMagicPluginAPI.Inputs.TextBox.Value
+  id: Value
+  parent: DesktopMagicPluginAPI.Inputs.TextBox
+  langs:
+  - csharp
+  - vb
+  name: Value
+  nameWithType: TextBox.Value
+  fullName: DesktopMagicPluginAPI.Inputs.TextBox.Value
+  type: Property
+  source:
+    remote:
+      path: src/DesktopMagicPluginAPI/Inputs/TextBox.cs
+      branch: develop
+      repo: https://github.com/Stone-Red-Code/DesktopMagic.git
+    id: Value
+    path: Inputs/TextBox.cs
+    startLine: 12
+  assemblies:
+  - DesktopMagicPluginAPI
+  namespace: DesktopMagicPluginAPI.Inputs
+  summary: "\nGets or sets the text associated with this <xref href=\"DesktopMagicPluginAPI.Inputs.TextBox\" data-throw-if-not-resolved=\"false\"></xref>.\n"
+  example: []
+  syntax:
+    content: public string Value { get; set; }
+    parameters: []
+    return:
+      type: System.String
+    content.vb: Public Property Value As String
+  overload: DesktopMagicPluginAPI.Inputs.TextBox.Value*
+  modifiers.csharp:
+  - public
+  - get
+  - set
+  modifiers.vb:
+  - Public
+- uid: DesktopMagicPluginAPI.Inputs.TextBox.#ctor(System.String)
+  commentId: M:DesktopMagicPluginAPI.Inputs.TextBox.#ctor(System.String)
+  id: '#ctor(System.String)'
+  parent: DesktopMagicPluginAPI.Inputs.TextBox
+  langs:
+  - csharp
+  - vb
+  name: TextBox(String)
+  nameWithType: TextBox.TextBox(String)
+  fullName: DesktopMagicPluginAPI.Inputs.TextBox.TextBox(System.String)
+  type: Constructor
+  source:
+    remote:
+      path: src/DesktopMagicPluginAPI/Inputs/TextBox.cs
+      branch: develop
+      repo: https://github.com/Stone-Red-Code/DesktopMagic.git
+    id: .ctor
+    path: Inputs/TextBox.cs
+    startLine: 29
+  assemblies:
+  - DesktopMagicPluginAPI
+  namespace: DesktopMagicPluginAPI.Inputs
+  summary: "\nInitializes a new instance of the <xref href=\"DesktopMagicPluginAPI.Inputs.TextBox\" data-throw-if-not-resolved=\"false\"></xref> class with the provided <code data-dev-comment-type=\"paramref\" class=\"paramref\">value</code>.\n"
+  example: []
+  syntax:
+    content: public TextBox(string value)
+    parameters:
+    - id: value
+      type: System.String
+      description: The text associated with this control.
+    content.vb: Public Sub New(value As String)
+  overload: DesktopMagicPluginAPI.Inputs.TextBox.#ctor*
+  modifiers.csharp:
+  - public
+  modifiers.vb:
+  - Public
+references:
+- uid: DesktopMagicPluginAPI.Inputs
+  commentId: N:DesktopMagicPluginAPI.Inputs
+  name: DesktopMagicPluginAPI.Inputs
+  nameWithType: DesktopMagicPluginAPI.Inputs
+  fullName: DesktopMagicPluginAPI.Inputs
+- uid: System.Object
+  commentId: T:System.Object
+  parent: System
+  isExternal: true
+  name: Object
+  nameWithType: Object
+  fullName: System.Object
+- uid: DesktopMagicPluginAPI.Inputs.Element
+  commentId: T:DesktopMagicPluginAPI.Inputs.Element
+  parent: DesktopMagicPluginAPI.Inputs
+  name: Element
+  nameWithType: Element
+  fullName: DesktopMagicPluginAPI.Inputs.Element
+- uid: DesktopMagicPluginAPI.Inputs.Element.OnValueChanged
+  commentId: E:DesktopMagicPluginAPI.Inputs.Element.OnValueChanged
+  parent: DesktopMagicPluginAPI.Inputs.Element
+  name: OnValueChanged
+  nameWithType: Element.OnValueChanged
+  fullName: DesktopMagicPluginAPI.Inputs.Element.OnValueChanged
+- uid: DesktopMagicPluginAPI.Inputs.Element.ValueChanged
+  commentId: M:DesktopMagicPluginAPI.Inputs.Element.ValueChanged
+  parent: DesktopMagicPluginAPI.Inputs.Element
+  name: ValueChanged()
+  nameWithType: Element.ValueChanged()
+  fullName: DesktopMagicPluginAPI.Inputs.Element.ValueChanged()
+  spec.csharp:
+  - uid: DesktopMagicPluginAPI.Inputs.Element.ValueChanged
+    name: ValueChanged
+    nameWithType: Element.ValueChanged
+    fullName: DesktopMagicPluginAPI.Inputs.Element.ValueChanged
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: DesktopMagicPluginAPI.Inputs.Element.ValueChanged
+    name: ValueChanged
+    nameWithType: Element.ValueChanged
+    fullName: DesktopMagicPluginAPI.Inputs.Element.ValueChanged
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.Equals(System.Object)
+  commentId: M:System.Object.Equals(System.Object)
+  parent: System.Object
+  isExternal: true
+  name: Equals(Object)
+  nameWithType: Object.Equals(Object)
+  fullName: System.Object.Equals(System.Object)
+  spec.csharp:
+  - uid: System.Object.Equals(System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.Equals(System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.Equals(System.Object,System.Object)
+  commentId: M:System.Object.Equals(System.Object,System.Object)
+  parent: System.Object
+  isExternal: true
+  name: Equals(Object, Object)
+  nameWithType: Object.Equals(Object, Object)
+  fullName: System.Object.Equals(System.Object, System.Object)
+  spec.csharp:
+  - uid: System.Object.Equals(System.Object,System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.Equals(System.Object,System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.GetHashCode
+  commentId: M:System.Object.GetHashCode
+  parent: System.Object
+  isExternal: true
+  name: GetHashCode()
+  nameWithType: Object.GetHashCode()
+  fullName: System.Object.GetHashCode()
+  spec.csharp:
+  - uid: System.Object.GetHashCode
+    name: GetHashCode
+    nameWithType: Object.GetHashCode
+    fullName: System.Object.GetHashCode
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.GetHashCode
+    name: GetHashCode
+    nameWithType: Object.GetHashCode
+    fullName: System.Object.GetHashCode
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.GetType
+  commentId: M:System.Object.GetType
+  parent: System.Object
+  isExternal: true
+  name: GetType()
+  nameWithType: Object.GetType()
+  fullName: System.Object.GetType()
+  spec.csharp:
+  - uid: System.Object.GetType
+    name: GetType
+    nameWithType: Object.GetType
+    fullName: System.Object.GetType
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.GetType
+    name: GetType
+    nameWithType: Object.GetType
+    fullName: System.Object.GetType
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.MemberwiseClone
+  commentId: M:System.Object.MemberwiseClone
+  parent: System.Object
+  isExternal: true
+  name: MemberwiseClone()
+  nameWithType: Object.MemberwiseClone()
+  fullName: System.Object.MemberwiseClone()
+  spec.csharp:
+  - uid: System.Object.MemberwiseClone
+    name: MemberwiseClone
+    nameWithType: Object.MemberwiseClone
+    fullName: System.Object.MemberwiseClone
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.MemberwiseClone
+    name: MemberwiseClone
+    nameWithType: Object.MemberwiseClone
+    fullName: System.Object.MemberwiseClone
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.ReferenceEquals(System.Object,System.Object)
+  commentId: M:System.Object.ReferenceEquals(System.Object,System.Object)
+  parent: System.Object
+  isExternal: true
+  name: ReferenceEquals(Object, Object)
+  nameWithType: Object.ReferenceEquals(Object, Object)
+  fullName: System.Object.ReferenceEquals(System.Object, System.Object)
+  spec.csharp:
+  - uid: System.Object.ReferenceEquals(System.Object,System.Object)
+    name: ReferenceEquals
+    nameWithType: Object.ReferenceEquals
+    fullName: System.Object.ReferenceEquals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.ReferenceEquals(System.Object,System.Object)
+    name: ReferenceEquals
+    nameWithType: Object.ReferenceEquals
+    fullName: System.Object.ReferenceEquals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.ToString
+  commentId: M:System.Object.ToString
+  parent: System.Object
+  isExternal: true
+  name: ToString()
+  nameWithType: Object.ToString()
+  fullName: System.Object.ToString()
+  spec.csharp:
+  - uid: System.Object.ToString
+    name: ToString
+    nameWithType: Object.ToString
+    fullName: System.Object.ToString
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.ToString
+    name: ToString
+    nameWithType: Object.ToString
+    fullName: System.Object.ToString
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System
+  commentId: N:System
+  isExternal: true
+  name: System
+  nameWithType: System
+  fullName: System
+- uid: DesktopMagicPluginAPI.Inputs.TextBox
+  commentId: T:DesktopMagicPluginAPI.Inputs.TextBox
+  name: TextBox
+  nameWithType: TextBox
+  fullName: DesktopMagicPluginAPI.Inputs.TextBox
+- uid: DesktopMagicPluginAPI.Inputs.TextBox.Value*
+  commentId: Overload:DesktopMagicPluginAPI.Inputs.TextBox.Value
+  name: Value
+  nameWithType: TextBox.Value
+  fullName: DesktopMagicPluginAPI.Inputs.TextBox.Value
+- uid: System.String
+  commentId: T:System.String
+  parent: System
+  isExternal: true
+  name: String
+  nameWithType: String
+  fullName: System.String
+- uid: DesktopMagicPluginAPI.Inputs.TextBox.#ctor*
+  commentId: Overload:DesktopMagicPluginAPI.Inputs.TextBox.#ctor
+  name: TextBox
+  nameWithType: TextBox.TextBox
+  fullName: DesktopMagicPluginAPI.Inputs.TextBox.TextBox

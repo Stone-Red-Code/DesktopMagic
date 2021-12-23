@@ -1,0 +1,801 @@
+### YamlMime:ManagedReference
+items:
+- uid: DesktopMagicPluginAPI.Plugin
+  commentId: T:DesktopMagicPluginAPI.Plugin
+  id: Plugin
+  parent: DesktopMagicPluginAPI
+  children:
+  - DesktopMagicPluginAPI.Plugin.Application
+  - DesktopMagicPluginAPI.Plugin.Main
+  - DesktopMagicPluginAPI.Plugin.OnMouseClick(System.Drawing.Point,DesktopMagicPluginAPI.Inputs.MouseButton)
+  - DesktopMagicPluginAPI.Plugin.OnMouseMove(System.Drawing.Point)
+  - DesktopMagicPluginAPI.Plugin.OnMouseWheel(System.Drawing.Point,System.Int32)
+  - DesktopMagicPluginAPI.Plugin.RenderQuality
+  - DesktopMagicPluginAPI.Plugin.Start
+  - DesktopMagicPluginAPI.Plugin.Stop
+  - DesktopMagicPluginAPI.Plugin.UpdateInterval
+  langs:
+  - csharp
+  - vb
+  name: Plugin
+  nameWithType: Plugin
+  fullName: DesktopMagicPluginAPI.Plugin
+  type: Class
+  source:
+    remote:
+      path: src/DesktopMagicPluginAPI/Plugin.cs
+      branch: develop
+      repo: https://github.com/Stone-Red-Code/DesktopMagic.git
+    id: Plugin
+    path: Plugin.cs
+    startLine: 11
+  assemblies:
+  - DesktopMagicPluginAPI
+  namespace: DesktopMagicPluginAPI
+  summary: "\nThe plugin class.\n"
+  example: []
+  syntax:
+    content: public abstract class Plugin
+    content.vb: Public MustInherit Class Plugin
+  inheritance:
+  - System.Object
+  inheritedMembers:
+  - System.Object.Equals(System.Object)
+  - System.Object.Equals(System.Object,System.Object)
+  - System.Object.GetHashCode
+  - System.Object.GetType
+  - System.Object.MemberwiseClone
+  - System.Object.ReferenceEquals(System.Object,System.Object)
+  - System.Object.ToString
+  modifiers.csharp:
+  - public
+  - abstract
+  - class
+  modifiers.vb:
+  - Public
+  - MustInherit
+  - Class
+- uid: DesktopMagicPluginAPI.Plugin.Application
+  commentId: P:DesktopMagicPluginAPI.Plugin.Application
+  id: Application
+  parent: DesktopMagicPluginAPI.Plugin
+  langs:
+  - csharp
+  - vb
+  name: Application
+  nameWithType: Plugin.Application
+  fullName: DesktopMagicPluginAPI.Plugin.Application
+  type: Property
+  source:
+    remote:
+      path: src/DesktopMagicPluginAPI/Plugin.cs
+      branch: develop
+      repo: https://github.com/Stone-Red-Code/DesktopMagic.git
+    id: Application
+    path: Plugin.cs
+    startLine: 18
+  assemblies:
+  - DesktopMagicPluginAPI
+  namespace: DesktopMagicPluginAPI
+  summary: "\nInformations about the main application.\n"
+  example: []
+  syntax:
+    content: public IPluginData Application { get; set; }
+    parameters: []
+    return:
+      type: DesktopMagicPluginAPI.IPluginData
+    content.vb: Public Property Application As IPluginData
+  overload: DesktopMagicPluginAPI.Plugin.Application*
+  modifiers.csharp:
+  - public
+  - get
+  - set
+  modifiers.vb:
+  - Public
+- uid: DesktopMagicPluginAPI.Plugin.UpdateInterval
+  commentId: P:DesktopMagicPluginAPI.Plugin.UpdateInterval
+  id: UpdateInterval
+  parent: DesktopMagicPluginAPI.Plugin
+  langs:
+  - csharp
+  - vb
+  name: UpdateInterval
+  nameWithType: Plugin.UpdateInterval
+  fullName: DesktopMagicPluginAPI.Plugin.UpdateInterval
+  type: Property
+  source:
+    remote:
+      path: src/DesktopMagicPluginAPI/Plugin.cs
+      branch: develop
+      repo: https://github.com/Stone-Red-Code/DesktopMagic.git
+    id: UpdateInterval
+    path: Plugin.cs
+    startLine: 27
+  assemblies:
+  - DesktopMagicPluginAPI
+  namespace: DesktopMagicPluginAPI
+  summary: "\nGets or sets the interval, expressed in milliseconds, at which to call the <xref href=\"DesktopMagicPluginAPI.Plugin.Main\" data-throw-if-not-resolved=\"false\"></xref> method.\n"
+  example: []
+  syntax:
+    content: public virtual int UpdateInterval { get; set; }
+    parameters: []
+    return:
+      type: System.Int32
+    content.vb: Public Overridable Property UpdateInterval As Integer
+  overload: DesktopMagicPluginAPI.Plugin.UpdateInterval*
+  modifiers.csharp:
+  - public
+  - virtual
+  - get
+  - set
+  modifiers.vb:
+  - Public
+  - Overridable
+- uid: DesktopMagicPluginAPI.Plugin.RenderQuality
+  commentId: P:DesktopMagicPluginAPI.Plugin.RenderQuality
+  id: RenderQuality
+  parent: DesktopMagicPluginAPI.Plugin
+  langs:
+  - csharp
+  - vb
+  name: RenderQuality
+  nameWithType: Plugin.RenderQuality
+  fullName: DesktopMagicPluginAPI.Plugin.RenderQuality
+  type: Property
+  source:
+    remote:
+      path: src/DesktopMagicPluginAPI/Plugin.cs
+      branch: develop
+      repo: https://github.com/Stone-Red-Code/DesktopMagic.git
+    id: RenderQuality
+    path: Plugin.cs
+    startLine: 32
+  assemblies:
+  - DesktopMagicPluginAPI
+  namespace: DesktopMagicPluginAPI
+  summary: "\nGets or sets the render quality of the bitmap image.\n"
+  example: []
+  syntax:
+    content: public virtual RenderQuality RenderQuality { get; set; }
+    parameters: []
+    return:
+      type: DesktopMagicPluginAPI.Drawing.RenderQuality
+    content.vb: Public Overridable Property RenderQuality As RenderQuality
+  overload: DesktopMagicPluginAPI.Plugin.RenderQuality*
+  modifiers.csharp:
+  - public
+  - virtual
+  - get
+  - set
+  modifiers.vb:
+  - Public
+  - Overridable
+- uid: DesktopMagicPluginAPI.Plugin.Start
+  commentId: M:DesktopMagicPluginAPI.Plugin.Start
+  id: Start
+  parent: DesktopMagicPluginAPI.Plugin
+  langs:
+  - csharp
+  - vb
+  name: Start()
+  nameWithType: Plugin.Start()
+  fullName: DesktopMagicPluginAPI.Plugin.Start()
+  type: Method
+  source:
+    remote:
+      path: src/DesktopMagicPluginAPI/Plugin.cs
+      branch: develop
+      repo: https://github.com/Stone-Red-Code/DesktopMagic.git
+    id: Start
+    path: Plugin.cs
+    startLine: 37
+  assemblies:
+  - DesktopMagicPluginAPI
+  namespace: DesktopMagicPluginAPI
+  summary: "\nOccurs once when the plugin gets activated.\n"
+  example: []
+  syntax:
+    content: public virtual void Start()
+    content.vb: Public Overridable Sub Start
+  overload: DesktopMagicPluginAPI.Plugin.Start*
+  modifiers.csharp:
+  - public
+  - virtual
+  modifiers.vb:
+  - Public
+  - Overridable
+- uid: DesktopMagicPluginAPI.Plugin.Stop
+  commentId: M:DesktopMagicPluginAPI.Plugin.Stop
+  id: Stop
+  parent: DesktopMagicPluginAPI.Plugin
+  langs:
+  - csharp
+  - vb
+  name: Stop()
+  nameWithType: Plugin.Stop()
+  fullName: DesktopMagicPluginAPI.Plugin.Stop()
+  type: Method
+  source:
+    remote:
+      path: src/DesktopMagicPluginAPI/Plugin.cs
+      branch: develop
+      repo: https://github.com/Stone-Red-Code/DesktopMagic.git
+    id: Stop
+    path: Plugin.cs
+    startLine: 44
+  assemblies:
+  - DesktopMagicPluginAPI
+  namespace: DesktopMagicPluginAPI
+  summary: "\nOccurs once when the plugin gets deactivated.\n"
+  example: []
+  syntax:
+    content: public virtual void Stop()
+    content.vb: Public Overridable Sub Stop
+  overload: DesktopMagicPluginAPI.Plugin.Stop*
+  modifiers.csharp:
+  - public
+  - virtual
+  modifiers.vb:
+  - Public
+  - Overridable
+- uid: DesktopMagicPluginAPI.Plugin.Main
+  commentId: M:DesktopMagicPluginAPI.Plugin.Main
+  id: Main
+  parent: DesktopMagicPluginAPI.Plugin
+  langs:
+  - csharp
+  - vb
+  name: Main()
+  nameWithType: Plugin.Main()
+  fullName: DesktopMagicPluginAPI.Plugin.Main()
+  type: Method
+  source:
+    remote:
+      path: src/DesktopMagicPluginAPI/Plugin.cs
+      branch: develop
+      repo: https://github.com/Stone-Red-Code/DesktopMagic.git
+    id: Main
+    path: Plugin.cs
+    startLine: 52
+  assemblies:
+  - DesktopMagicPluginAPI
+  namespace: DesktopMagicPluginAPI
+  summary: "\nOccurs when the <xref href=\"DesktopMagicPluginAPI.Plugin.UpdateInterval\" data-throw-if-not-resolved=\"false\"></xref> elapses.\n"
+  example: []
+  syntax:
+    content: public abstract Bitmap Main()
+    return:
+      type: System.Drawing.Bitmap
+      description: ''
+    content.vb: Public MustOverride Function Main As Bitmap
+  overload: DesktopMagicPluginAPI.Plugin.Main*
+  modifiers.csharp:
+  - public
+  - abstract
+  modifiers.vb:
+  - Public
+  - MustOverride
+- uid: DesktopMagicPluginAPI.Plugin.OnMouseClick(System.Drawing.Point,DesktopMagicPluginAPI.Inputs.MouseButton)
+  commentId: M:DesktopMagicPluginAPI.Plugin.OnMouseClick(System.Drawing.Point,DesktopMagicPluginAPI.Inputs.MouseButton)
+  id: OnMouseClick(System.Drawing.Point,DesktopMagicPluginAPI.Inputs.MouseButton)
+  parent: DesktopMagicPluginAPI.Plugin
+  langs:
+  - csharp
+  - vb
+  name: OnMouseClick(Point, MouseButton)
+  nameWithType: Plugin.OnMouseClick(Point, MouseButton)
+  fullName: DesktopMagicPluginAPI.Plugin.OnMouseClick(System.Drawing.Point, DesktopMagicPluginAPI.Inputs.MouseButton)
+  type: Method
+  source:
+    remote:
+      path: src/DesktopMagicPluginAPI/Plugin.cs
+      branch: develop
+      repo: https://github.com/Stone-Red-Code/DesktopMagic.git
+    id: OnMouseClick
+    path: Plugin.cs
+    startLine: 59
+  assemblies:
+  - DesktopMagicPluginAPI
+  namespace: DesktopMagicPluginAPI
+  summary: "\nOccurs when the window is clicked by the mouse.\n"
+  example: []
+  syntax:
+    content: public virtual void OnMouseClick(Point position, MouseButton mouseButton)
+    parameters:
+    - id: position
+      type: System.Drawing.Point
+      description: The x- and y-coordinates of the mouse pointer position relative to the plugin window.
+    - id: mouseButton
+      type: DesktopMagicPluginAPI.Inputs.MouseButton
+      description: The button associated with the event.
+    content.vb: Public Overridable Sub OnMouseClick(position As Point, mouseButton As MouseButton)
+  overload: DesktopMagicPluginAPI.Plugin.OnMouseClick*
+  modifiers.csharp:
+  - public
+  - virtual
+  modifiers.vb:
+  - Public
+  - Overridable
+- uid: DesktopMagicPluginAPI.Plugin.OnMouseMove(System.Drawing.Point)
+  commentId: M:DesktopMagicPluginAPI.Plugin.OnMouseMove(System.Drawing.Point)
+  id: OnMouseMove(System.Drawing.Point)
+  parent: DesktopMagicPluginAPI.Plugin
+  langs:
+  - csharp
+  - vb
+  name: OnMouseMove(Point)
+  nameWithType: Plugin.OnMouseMove(Point)
+  fullName: DesktopMagicPluginAPI.Plugin.OnMouseMove(System.Drawing.Point)
+  type: Method
+  source:
+    remote:
+      path: src/DesktopMagicPluginAPI/Plugin.cs
+      branch: develop
+      repo: https://github.com/Stone-Red-Code/DesktopMagic.git
+    id: OnMouseMove
+    path: Plugin.cs
+    startLine: 67
+  assemblies:
+  - DesktopMagicPluginAPI
+  namespace: DesktopMagicPluginAPI
+  summary: "\nOccurs when the mouse pointer is moved over the control.\n"
+  example: []
+  syntax:
+    content: public virtual void OnMouseMove(Point position)
+    parameters:
+    - id: position
+      type: System.Drawing.Point
+      description: The x- and y-coordinates of the mouse pointer position relative to the plugin window.
+    content.vb: Public Overridable Sub OnMouseMove(position As Point)
+  overload: DesktopMagicPluginAPI.Plugin.OnMouseMove*
+  modifiers.csharp:
+  - public
+  - virtual
+  modifiers.vb:
+  - Public
+  - Overridable
+- uid: DesktopMagicPluginAPI.Plugin.OnMouseWheel(System.Drawing.Point,System.Int32)
+  commentId: M:DesktopMagicPluginAPI.Plugin.OnMouseWheel(System.Drawing.Point,System.Int32)
+  id: OnMouseWheel(System.Drawing.Point,System.Int32)
+  parent: DesktopMagicPluginAPI.Plugin
+  langs:
+  - csharp
+  - vb
+  name: OnMouseWheel(Point, Int32)
+  nameWithType: Plugin.OnMouseWheel(Point, Int32)
+  fullName: DesktopMagicPluginAPI.Plugin.OnMouseWheel(System.Drawing.Point, System.Int32)
+  type: Method
+  source:
+    remote:
+      path: src/DesktopMagicPluginAPI/Plugin.cs
+      branch: develop
+      repo: https://github.com/Stone-Red-Code/DesktopMagic.git
+    id: OnMouseWheel
+    path: Plugin.cs
+    startLine: 76
+  assemblies:
+  - DesktopMagicPluginAPI
+  namespace: DesktopMagicPluginAPI
+  summary: "\nOccurs when the user rotates the mouse wheel while the mouse pointer is over this element.\n"
+  example: []
+  syntax:
+    content: public virtual void OnMouseWheel(Point position, int delta)
+    parameters:
+    - id: position
+      type: System.Drawing.Point
+      description: The x- and y-coordinates of the mouse pointer position relative to the plugin window.
+    - id: delta
+      type: System.Int32
+      description: A value that indicates the amount that the mouse wheel has changed.
+    content.vb: Public Overridable Sub OnMouseWheel(position As Point, delta As Integer)
+  overload: DesktopMagicPluginAPI.Plugin.OnMouseWheel*
+  modifiers.csharp:
+  - public
+  - virtual
+  modifiers.vb:
+  - Public
+  - Overridable
+references:
+- uid: DesktopMagicPluginAPI
+  commentId: N:DesktopMagicPluginAPI
+  name: DesktopMagicPluginAPI
+  nameWithType: DesktopMagicPluginAPI
+  fullName: DesktopMagicPluginAPI
+- uid: System.Object
+  commentId: T:System.Object
+  parent: System
+  isExternal: true
+  name: Object
+  nameWithType: Object
+  fullName: System.Object
+- uid: System.Object.Equals(System.Object)
+  commentId: M:System.Object.Equals(System.Object)
+  parent: System.Object
+  isExternal: true
+  name: Equals(Object)
+  nameWithType: Object.Equals(Object)
+  fullName: System.Object.Equals(System.Object)
+  spec.csharp:
+  - uid: System.Object.Equals(System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.Equals(System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.Equals(System.Object,System.Object)
+  commentId: M:System.Object.Equals(System.Object,System.Object)
+  parent: System.Object
+  isExternal: true
+  name: Equals(Object, Object)
+  nameWithType: Object.Equals(Object, Object)
+  fullName: System.Object.Equals(System.Object, System.Object)
+  spec.csharp:
+  - uid: System.Object.Equals(System.Object,System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.Equals(System.Object,System.Object)
+    name: Equals
+    nameWithType: Object.Equals
+    fullName: System.Object.Equals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.GetHashCode
+  commentId: M:System.Object.GetHashCode
+  parent: System.Object
+  isExternal: true
+  name: GetHashCode()
+  nameWithType: Object.GetHashCode()
+  fullName: System.Object.GetHashCode()
+  spec.csharp:
+  - uid: System.Object.GetHashCode
+    name: GetHashCode
+    nameWithType: Object.GetHashCode
+    fullName: System.Object.GetHashCode
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.GetHashCode
+    name: GetHashCode
+    nameWithType: Object.GetHashCode
+    fullName: System.Object.GetHashCode
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.GetType
+  commentId: M:System.Object.GetType
+  parent: System.Object
+  isExternal: true
+  name: GetType()
+  nameWithType: Object.GetType()
+  fullName: System.Object.GetType()
+  spec.csharp:
+  - uid: System.Object.GetType
+    name: GetType
+    nameWithType: Object.GetType
+    fullName: System.Object.GetType
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.GetType
+    name: GetType
+    nameWithType: Object.GetType
+    fullName: System.Object.GetType
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.MemberwiseClone
+  commentId: M:System.Object.MemberwiseClone
+  parent: System.Object
+  isExternal: true
+  name: MemberwiseClone()
+  nameWithType: Object.MemberwiseClone()
+  fullName: System.Object.MemberwiseClone()
+  spec.csharp:
+  - uid: System.Object.MemberwiseClone
+    name: MemberwiseClone
+    nameWithType: Object.MemberwiseClone
+    fullName: System.Object.MemberwiseClone
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.MemberwiseClone
+    name: MemberwiseClone
+    nameWithType: Object.MemberwiseClone
+    fullName: System.Object.MemberwiseClone
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.ReferenceEquals(System.Object,System.Object)
+  commentId: M:System.Object.ReferenceEquals(System.Object,System.Object)
+  parent: System.Object
+  isExternal: true
+  name: ReferenceEquals(Object, Object)
+  nameWithType: Object.ReferenceEquals(Object, Object)
+  fullName: System.Object.ReferenceEquals(System.Object, System.Object)
+  spec.csharp:
+  - uid: System.Object.ReferenceEquals(System.Object,System.Object)
+    name: ReferenceEquals
+    nameWithType: Object.ReferenceEquals
+    fullName: System.Object.ReferenceEquals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.ReferenceEquals(System.Object,System.Object)
+    name: ReferenceEquals
+    nameWithType: Object.ReferenceEquals
+    fullName: System.Object.ReferenceEquals
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: ', '
+    nameWithType: ', '
+    fullName: ', '
+  - uid: System.Object
+    name: Object
+    nameWithType: Object
+    fullName: System.Object
+    isExternal: true
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System.Object.ToString
+  commentId: M:System.Object.ToString
+  parent: System.Object
+  isExternal: true
+  name: ToString()
+  nameWithType: Object.ToString()
+  fullName: System.Object.ToString()
+  spec.csharp:
+  - uid: System.Object.ToString
+    name: ToString
+    nameWithType: Object.ToString
+    fullName: System.Object.ToString
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+  spec.vb:
+  - uid: System.Object.ToString
+    name: ToString
+    nameWithType: Object.ToString
+    fullName: System.Object.ToString
+    isExternal: true
+  - name: (
+    nameWithType: (
+    fullName: (
+  - name: )
+    nameWithType: )
+    fullName: )
+- uid: System
+  commentId: N:System
+  isExternal: true
+  name: System
+  nameWithType: System
+  fullName: System
+- uid: DesktopMagicPluginAPI.Plugin.Application*
+  commentId: Overload:DesktopMagicPluginAPI.Plugin.Application
+  name: Application
+  nameWithType: Plugin.Application
+  fullName: DesktopMagicPluginAPI.Plugin.Application
+- uid: DesktopMagicPluginAPI.IPluginData
+  commentId: T:DesktopMagicPluginAPI.IPluginData
+  parent: DesktopMagicPluginAPI
+  name: IPluginData
+  nameWithType: IPluginData
+  fullName: DesktopMagicPluginAPI.IPluginData
+- uid: DesktopMagicPluginAPI.Plugin.Main
+  commentId: M:DesktopMagicPluginAPI.Plugin.Main
+  isExternal: true
+- uid: DesktopMagicPluginAPI.Plugin.UpdateInterval*
+  commentId: Overload:DesktopMagicPluginAPI.Plugin.UpdateInterval
+  name: UpdateInterval
+  nameWithType: Plugin.UpdateInterval
+  fullName: DesktopMagicPluginAPI.Plugin.UpdateInterval
+- uid: System.Int32
+  commentId: T:System.Int32
+  parent: System
+  isExternal: true
+  name: Int32
+  nameWithType: Int32
+  fullName: System.Int32
+- uid: DesktopMagicPluginAPI.Plugin.RenderQuality*
+  commentId: Overload:DesktopMagicPluginAPI.Plugin.RenderQuality
+  name: RenderQuality
+  nameWithType: Plugin.RenderQuality
+  fullName: DesktopMagicPluginAPI.Plugin.RenderQuality
+- uid: DesktopMagicPluginAPI.Drawing.RenderQuality
+  commentId: T:DesktopMagicPluginAPI.Drawing.RenderQuality
+  parent: DesktopMagicPluginAPI.Drawing
+  name: RenderQuality
+  nameWithType: RenderQuality
+  fullName: DesktopMagicPluginAPI.Drawing.RenderQuality
+- uid: DesktopMagicPluginAPI.Drawing
+  commentId: N:DesktopMagicPluginAPI.Drawing
+  name: DesktopMagicPluginAPI.Drawing
+  nameWithType: DesktopMagicPluginAPI.Drawing
+  fullName: DesktopMagicPluginAPI.Drawing
+- uid: DesktopMagicPluginAPI.Plugin.Start*
+  commentId: Overload:DesktopMagicPluginAPI.Plugin.Start
+  name: Start
+  nameWithType: Plugin.Start
+  fullName: DesktopMagicPluginAPI.Plugin.Start
+- uid: DesktopMagicPluginAPI.Plugin.Stop*
+  commentId: Overload:DesktopMagicPluginAPI.Plugin.Stop
+  name: Stop
+  nameWithType: Plugin.Stop
+  fullName: DesktopMagicPluginAPI.Plugin.Stop
+- uid: DesktopMagicPluginAPI.Plugin.UpdateInterval
+  commentId: P:DesktopMagicPluginAPI.Plugin.UpdateInterval
+  isExternal: true
+- uid: DesktopMagicPluginAPI.Plugin.Main*
+  commentId: Overload:DesktopMagicPluginAPI.Plugin.Main
+  name: Main
+  nameWithType: Plugin.Main
+  fullName: DesktopMagicPluginAPI.Plugin.Main
+- uid: System.Drawing.Bitmap
+  commentId: T:System.Drawing.Bitmap
+  parent: System.Drawing
+  isExternal: true
+  name: Bitmap
+  nameWithType: Bitmap
+  fullName: System.Drawing.Bitmap
+- uid: System.Drawing
+  commentId: N:System.Drawing
+  isExternal: true
+  name: System.Drawing
+  nameWithType: System.Drawing
+  fullName: System.Drawing
+- uid: DesktopMagicPluginAPI.Plugin.OnMouseClick*
+  commentId: Overload:DesktopMagicPluginAPI.Plugin.OnMouseClick
+  name: OnMouseClick
+  nameWithType: Plugin.OnMouseClick
+  fullName: DesktopMagicPluginAPI.Plugin.OnMouseClick
+- uid: System.Drawing.Point
+  commentId: T:System.Drawing.Point
+  parent: System.Drawing
+  isExternal: true
+  name: Point
+  nameWithType: Point
+  fullName: System.Drawing.Point
+- uid: DesktopMagicPluginAPI.Inputs.MouseButton
+  commentId: T:DesktopMagicPluginAPI.Inputs.MouseButton
+  parent: DesktopMagicPluginAPI.Inputs
+  name: MouseButton
+  nameWithType: MouseButton
+  fullName: DesktopMagicPluginAPI.Inputs.MouseButton
+- uid: DesktopMagicPluginAPI.Inputs
+  commentId: N:DesktopMagicPluginAPI.Inputs
+  name: DesktopMagicPluginAPI.Inputs
+  nameWithType: DesktopMagicPluginAPI.Inputs
+  fullName: DesktopMagicPluginAPI.Inputs
+- uid: DesktopMagicPluginAPI.Plugin.OnMouseMove*
+  commentId: Overload:DesktopMagicPluginAPI.Plugin.OnMouseMove
+  name: OnMouseMove
+  nameWithType: Plugin.OnMouseMove
+  fullName: DesktopMagicPluginAPI.Plugin.OnMouseMove
+- uid: DesktopMagicPluginAPI.Plugin.OnMouseWheel*
+  commentId: Overload:DesktopMagicPluginAPI.Plugin.OnMouseWheel
+  name: OnMouseWheel
+  nameWithType: Plugin.OnMouseWheel
+  fullName: DesktopMagicPluginAPI.Plugin.OnMouseWheel

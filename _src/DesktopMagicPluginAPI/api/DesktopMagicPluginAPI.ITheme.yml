@@ -1,0 +1,321 @@
+### YamlMime:ManagedReference
+items:
+- uid: DesktopMagicPluginAPI.ITheme
+  commentId: T:DesktopMagicPluginAPI.ITheme
+  id: ITheme
+  parent: DesktopMagicPluginAPI
+  children:
+  - DesktopMagicPluginAPI.ITheme.BackgroundColor
+  - DesktopMagicPluginAPI.ITheme.CornerRadius
+  - DesktopMagicPluginAPI.ITheme.Font
+  - DesktopMagicPluginAPI.ITheme.Margin
+  - DesktopMagicPluginAPI.ITheme.PrimaryColor
+  - DesktopMagicPluginAPI.ITheme.SecondaryColor
+  langs:
+  - csharp
+  - vb
+  name: ITheme
+  nameWithType: ITheme
+  fullName: DesktopMagicPluginAPI.ITheme
+  type: Interface
+  source:
+    remote:
+      path: src/DesktopMagicPluginAPI/ITheme.cs
+      branch: develop
+      repo: https://github.com/Stone-Red-Code/DesktopMagic.git
+    id: ITheme
+    path: ITheme.cs
+    startLine: 7
+  assemblies:
+  - DesktopMagicPluginAPI
+  namespace: DesktopMagicPluginAPI
+  summary: "\nThe theme settings of the main application.\n"
+  example: []
+  syntax:
+    content: public interface ITheme
+    content.vb: Public Interface ITheme
+  modifiers.csharp:
+  - public
+  - interface
+  modifiers.vb:
+  - Public
+  - Interface
+- uid: DesktopMagicPluginAPI.ITheme.PrimaryColor
+  commentId: P:DesktopMagicPluginAPI.ITheme.PrimaryColor
+  id: PrimaryColor
+  parent: DesktopMagicPluginAPI.ITheme
+  langs:
+  - csharp
+  - vb
+  name: PrimaryColor
+  nameWithType: ITheme.PrimaryColor
+  fullName: DesktopMagicPluginAPI.ITheme.PrimaryColor
+  type: Property
+  source:
+    remote:
+      path: src/DesktopMagicPluginAPI/ITheme.cs
+      branch: develop
+      repo: https://github.com/Stone-Red-Code/DesktopMagic.git
+    id: PrimaryColor
+    path: ITheme.cs
+    startLine: 12
+  assemblies:
+  - DesktopMagicPluginAPI
+  namespace: DesktopMagicPluginAPI
+  summary: "\nGets the primary color of the current theme.\n"
+  example: []
+  syntax:
+    content: Color PrimaryColor { get; }
+    parameters: []
+    return:
+      type: System.Drawing.Color
+    content.vb: ReadOnly Property PrimaryColor As Color
+  overload: DesktopMagicPluginAPI.ITheme.PrimaryColor*
+  modifiers.csharp:
+  - get
+  modifiers.vb:
+  - ReadOnly
+- uid: DesktopMagicPluginAPI.ITheme.SecondaryColor
+  commentId: P:DesktopMagicPluginAPI.ITheme.SecondaryColor
+  id: SecondaryColor
+  parent: DesktopMagicPluginAPI.ITheme
+  langs:
+  - csharp
+  - vb
+  name: SecondaryColor
+  nameWithType: ITheme.SecondaryColor
+  fullName: DesktopMagicPluginAPI.ITheme.SecondaryColor
+  type: Property
+  source:
+    remote:
+      path: src/DesktopMagicPluginAPI/ITheme.cs
+      branch: develop
+      repo: https://github.com/Stone-Red-Code/DesktopMagic.git
+    id: SecondaryColor
+    path: ITheme.cs
+    startLine: 17
+  assemblies:
+  - DesktopMagicPluginAPI
+  namespace: DesktopMagicPluginAPI
+  summary: "\nGets the secondary color of the current theme.\n"
+  example: []
+  syntax:
+    content: Color SecondaryColor { get; }
+    parameters: []
+    return:
+      type: System.Drawing.Color
+    content.vb: ReadOnly Property SecondaryColor As Color
+  overload: DesktopMagicPluginAPI.ITheme.SecondaryColor*
+  modifiers.csharp:
+  - get
+  modifiers.vb:
+  - ReadOnly
+- uid: DesktopMagicPluginAPI.ITheme.BackgroundColor
+  commentId: P:DesktopMagicPluginAPI.ITheme.BackgroundColor
+  id: BackgroundColor
+  parent: DesktopMagicPluginAPI.ITheme
+  langs:
+  - csharp
+  - vb
+  name: BackgroundColor
+  nameWithType: ITheme.BackgroundColor
+  fullName: DesktopMagicPluginAPI.ITheme.BackgroundColor
+  type: Property
+  source:
+    remote:
+      path: src/DesktopMagicPluginAPI/ITheme.cs
+      branch: develop
+      repo: https://github.com/Stone-Red-Code/DesktopMagic.git
+    id: BackgroundColor
+    path: ITheme.cs
+    startLine: 22
+  assemblies:
+  - DesktopMagicPluginAPI
+  namespace: DesktopMagicPluginAPI
+  summary: "\nGets the background color of the current theme.\n"
+  example: []
+  syntax:
+    content: Color BackgroundColor { get; }
+    parameters: []
+    return:
+      type: System.Drawing.Color
+    content.vb: ReadOnly Property BackgroundColor As Color
+  overload: DesktopMagicPluginAPI.ITheme.BackgroundColor*
+  modifiers.csharp:
+  - get
+  modifiers.vb:
+  - ReadOnly
+- uid: DesktopMagicPluginAPI.ITheme.Font
+  commentId: P:DesktopMagicPluginAPI.ITheme.Font
+  id: Font
+  parent: DesktopMagicPluginAPI.ITheme
+  langs:
+  - csharp
+  - vb
+  name: Font
+  nameWithType: ITheme.Font
+  fullName: DesktopMagicPluginAPI.ITheme.Font
+  type: Property
+  source:
+    remote:
+      path: src/DesktopMagicPluginAPI/ITheme.cs
+      branch: develop
+      repo: https://github.com/Stone-Red-Code/DesktopMagic.git
+    id: Font
+    path: ITheme.cs
+    startLine: 27
+  assemblies:
+  - DesktopMagicPluginAPI
+  namespace: DesktopMagicPluginAPI
+  summary: "\nGets the font of the current theme.\n"
+  example: []
+  syntax:
+    content: string Font { get; }
+    parameters: []
+    return:
+      type: System.String
+    content.vb: ReadOnly Property Font As String
+  overload: DesktopMagicPluginAPI.ITheme.Font*
+  modifiers.csharp:
+  - get
+  modifiers.vb:
+  - ReadOnly
+- uid: DesktopMagicPluginAPI.ITheme.CornerRadius
+  commentId: P:DesktopMagicPluginAPI.ITheme.CornerRadius
+  id: CornerRadius
+  parent: DesktopMagicPluginAPI.ITheme
+  langs:
+  - csharp
+  - vb
+  name: CornerRadius
+  nameWithType: ITheme.CornerRadius
+  fullName: DesktopMagicPluginAPI.ITheme.CornerRadius
+  type: Property
+  source:
+    remote:
+      path: src/DesktopMagicPluginAPI/ITheme.cs
+      branch: develop
+      repo: https://github.com/Stone-Red-Code/DesktopMagic.git
+    id: CornerRadius
+    path: ITheme.cs
+    startLine: 32
+  assemblies:
+  - DesktopMagicPluginAPI
+  namespace: DesktopMagicPluginAPI
+  summary: "\nGets the corner radius of the current theme.\n"
+  example: []
+  syntax:
+    content: int CornerRadius { get; }
+    parameters: []
+    return:
+      type: System.Int32
+    content.vb: ReadOnly Property CornerRadius As Integer
+  overload: DesktopMagicPluginAPI.ITheme.CornerRadius*
+  modifiers.csharp:
+  - get
+  modifiers.vb:
+  - ReadOnly
+- uid: DesktopMagicPluginAPI.ITheme.Margin
+  commentId: P:DesktopMagicPluginAPI.ITheme.Margin
+  id: Margin
+  parent: DesktopMagicPluginAPI.ITheme
+  langs:
+  - csharp
+  - vb
+  name: Margin
+  nameWithType: ITheme.Margin
+  fullName: DesktopMagicPluginAPI.ITheme.Margin
+  type: Property
+  source:
+    remote:
+      path: src/DesktopMagicPluginAPI/ITheme.cs
+      branch: develop
+      repo: https://github.com/Stone-Red-Code/DesktopMagic.git
+    id: Margin
+    path: ITheme.cs
+    startLine: 37
+  assemblies:
+  - DesktopMagicPluginAPI
+  namespace: DesktopMagicPluginAPI
+  summary: "\nGets the corner radius of the current theme.\n"
+  example: []
+  syntax:
+    content: int Margin { get; }
+    parameters: []
+    return:
+      type: System.Int32
+    content.vb: ReadOnly Property Margin As Integer
+  overload: DesktopMagicPluginAPI.ITheme.Margin*
+  modifiers.csharp:
+  - get
+  modifiers.vb:
+  - ReadOnly
+references:
+- uid: DesktopMagicPluginAPI
+  commentId: N:DesktopMagicPluginAPI
+  name: DesktopMagicPluginAPI
+  nameWithType: DesktopMagicPluginAPI
+  fullName: DesktopMagicPluginAPI
+- uid: DesktopMagicPluginAPI.ITheme.PrimaryColor*
+  commentId: Overload:DesktopMagicPluginAPI.ITheme.PrimaryColor
+  name: PrimaryColor
+  nameWithType: ITheme.PrimaryColor
+  fullName: DesktopMagicPluginAPI.ITheme.PrimaryColor
+- uid: System.Drawing.Color
+  commentId: T:System.Drawing.Color
+  parent: System.Drawing
+  isExternal: true
+  name: Color
+  nameWithType: Color
+  fullName: System.Drawing.Color
+- uid: System.Drawing
+  commentId: N:System.Drawing
+  isExternal: true
+  name: System.Drawing
+  nameWithType: System.Drawing
+  fullName: System.Drawing
+- uid: DesktopMagicPluginAPI.ITheme.SecondaryColor*
+  commentId: Overload:DesktopMagicPluginAPI.ITheme.SecondaryColor
+  name: SecondaryColor
+  nameWithType: ITheme.SecondaryColor
+  fullName: DesktopMagicPluginAPI.ITheme.SecondaryColor
+- uid: DesktopMagicPluginAPI.ITheme.BackgroundColor*
+  commentId: Overload:DesktopMagicPluginAPI.ITheme.BackgroundColor
+  name: BackgroundColor
+  nameWithType: ITheme.BackgroundColor
+  fullName: DesktopMagicPluginAPI.ITheme.BackgroundColor
+- uid: DesktopMagicPluginAPI.ITheme.Font*
+  commentId: Overload:DesktopMagicPluginAPI.ITheme.Font
+  name: Font
+  nameWithType: ITheme.Font
+  fullName: DesktopMagicPluginAPI.ITheme.Font
+- uid: System.String
+  commentId: T:System.String
+  parent: System
+  isExternal: true
+  name: String
+  nameWithType: String
+  fullName: System.String
+- uid: System
+  commentId: N:System
+  isExternal: true
+  name: System
+  nameWithType: System
+  fullName: System
+- uid: DesktopMagicPluginAPI.ITheme.CornerRadius*
+  commentId: Overload:DesktopMagicPluginAPI.ITheme.CornerRadius
+  name: CornerRadius
+  nameWithType: ITheme.CornerRadius
+  fullName: DesktopMagicPluginAPI.ITheme.CornerRadius
+- uid: System.Int32
+  commentId: T:System.Int32
+  parent: System
+  isExternal: true
+  name: Int32
+  nameWithType: Int32
+  fullName: System.Int32
+- uid: DesktopMagicPluginAPI.ITheme.Margin*
+  commentId: Overload:DesktopMagicPluginAPI.ITheme.Margin
+  name: Margin
+  nameWithType: ITheme.Margin
+  fullName: DesktopMagicPluginAPI.ITheme.Margin

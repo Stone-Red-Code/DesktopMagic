@@ -1,0 +1,34 @@
+### YamlMime:ManagedReference
+items:
+- uid: DesktopMagicPluginAPI.Drawing
+  commentId: N:DesktopMagicPluginAPI.Drawing
+  id: DesktopMagicPluginAPI.Drawing
+  children:
+  - DesktopMagicPluginAPI.Drawing.GraphicsExtentions
+  - DesktopMagicPluginAPI.Drawing.RenderQuality
+  langs:
+  - csharp
+  - vb
+  name: DesktopMagicPluginAPI.Drawing
+  nameWithType: DesktopMagicPluginAPI.Drawing
+  fullName: DesktopMagicPluginAPI.Drawing
+  type: Namespace
+  assemblies:
+  - DesktopMagicPluginAPI
+references:
+- uid: DesktopMagicPluginAPI.Drawing.GraphicsExtentions
+  commentId: T:DesktopMagicPluginAPI.Drawing.GraphicsExtentions
+  name: GraphicsExtentions
+  nameWithType: GraphicsExtentions
+  fullName: DesktopMagicPluginAPI.Drawing.GraphicsExtentions
+- uid: DesktopMagicPluginAPI.Drawing.RenderQuality
+  commentId: T:DesktopMagicPluginAPI.Drawing.RenderQuality
+  parent: DesktopMagicPluginAPI.Drawing
+  name: RenderQuality
+  nameWithType: RenderQuality
+  fullName: DesktopMagicPluginAPI.Drawing.RenderQuality
+- uid: DesktopMagicPluginAPI.Drawing
+  commentId: N:DesktopMagicPluginAPI.Drawing
+  name: DesktopMagicPluginAPI.Drawing
+  nameWithType: DesktopMagicPluginAPI.Drawing
+  fullName: DesktopMagicPluginAPI.Drawing

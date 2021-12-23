@@ -1,0 +1,40 @@
+### YamlMime:TableOfContent
+- uid: DesktopMagicPluginAPI
+  name: DesktopMagicPluginAPI
+  items:
+  - uid: DesktopMagicPluginAPI.IPluginData
+    name: IPluginData
+  - uid: DesktopMagicPluginAPI.ITheme
+    name: ITheme
+  - uid: DesktopMagicPluginAPI.Plugin
+    name: Plugin
+- uid: DesktopMagicPluginAPI.Drawing
+  name: DesktopMagicPluginAPI.Drawing
+  items:
+  - uid: DesktopMagicPluginAPI.Drawing.GraphicsExtentions
+    name: GraphicsExtentions
+  - uid: DesktopMagicPluginAPI.Drawing.RenderQuality
+    name: RenderQuality
+- uid: DesktopMagicPluginAPI.Inputs
+  name: DesktopMagicPluginAPI.Inputs
+  items:
+  - uid: DesktopMagicPluginAPI.Inputs.Button
+    name: Button
+  - uid: DesktopMagicPluginAPI.Inputs.CheckBox
+    name: CheckBox
+  - uid: DesktopMagicPluginAPI.Inputs.ComboBox
+    name: ComboBox
+  - uid: DesktopMagicPluginAPI.Inputs.Element
+    name: Element
+  - uid: DesktopMagicPluginAPI.Inputs.ElementAttribute
+    name: ElementAttribute
+  - uid: DesktopMagicPluginAPI.Inputs.IntegerUpDown
+    name: IntegerUpDown
+  - uid: DesktopMagicPluginAPI.Inputs.Label
+    name: Label
+  - uid: DesktopMagicPluginAPI.Inputs.MouseButton
+    name: MouseButton
+  - uid: DesktopMagicPluginAPI.Inputs.Slider
+    name: Slider
+  - uid: DesktopMagicPluginAPI.Inputs.TextBox
+    name: TextBox
