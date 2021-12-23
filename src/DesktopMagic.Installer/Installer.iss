@@ -2,14 +2,14 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "DesktopMagic"
-#define MyAppVersion "0.0.3.1"
+#define MyAppVersion "0.0.3.2"
 #define MyAppPublisher "Stone_Red"
 #define MyAppExeName "DesktopMagic.exe"
 
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application. Do not use the same AppId value in installers for other applications.
 ; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)
-AppId={{61FE5CE9-47C3-4255-A1F4-5BCF4ACA0876}
+AppId={{61FE5CE9-47C3-4255-A1F4-5BCF4ACA0879}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
 ;AppVerName={#MyAppName} {#MyAppVersion}
@@ -36,7 +36,7 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 Name: "quicklaunchicon"; Description: "{cm:CreateQuickLaunchIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked; OnlyBelowVersion: 6.1; Check: not IsAdminInstallMode
 
 [Files]
-Source: "..\DesktopMagic\bin\Release\net5.0-windows\publish\DesktopMagic.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\DesktopMagic\bin\Release\net6.0-windows\publish\*"; DestDir: "{app}"; Flags: ignoreversion
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
