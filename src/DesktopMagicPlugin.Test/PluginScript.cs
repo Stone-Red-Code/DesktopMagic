@@ -13,12 +13,12 @@ namespace DesktopMagicPlugin.Test
     public class GifPlugin : Plugin
     {
         [Element("Gif path:")]
-        private TextBox input = new TextBox("");
+        private readonly TextBox input = new TextBox("");
 
         [Element]
-        private Label info = new Label("");
+        private readonly Label info = new Label("");
 
-        private List<Bitmap> bitmaps = new List<Bitmap>();
+        private readonly List<Bitmap> bitmaps = new List<Bitmap>();
 
         private int frameCount = -1;
 

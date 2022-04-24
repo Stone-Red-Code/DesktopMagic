@@ -15,7 +15,7 @@ namespace DesktopMagic.BuiltInWindowElements
         private const int fftLength = 1024; // NAudio fft wants powers of two!
         private readonly SampleAggregator sampleAggregator = new SampleAggregator(fftLength);
         private volatile bool calculate = true;
-        private Bitmap output = new Bitmap(880, 300);
+        private readonly Bitmap output = new Bitmap(880, 300);
 
         public override int UpdateInterval => 0;
 
@@ -241,7 +241,10 @@ namespace DesktopMagic.BuiltInWindowElements
 
                 Application.UpdateWindow();
             }
-            catch { }
+            catch (Exception ex)
+            {
+                App.Logger.Log(ex.Message, "Music Visualizer", LogSeverity.Error);
+            }
         }
 
         private void SetPoints(PointF[] points, int width, int height, int offset)

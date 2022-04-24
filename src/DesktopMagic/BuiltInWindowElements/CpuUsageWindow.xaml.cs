@@ -14,8 +14,8 @@ namespace DesktopMagic
 {
     public partial class CpuUsageWindow : Window
     {
-        private RegistryKey key;
-        private PerformanceCounter cpuCounter = new PerformanceCounter();
+        private readonly RegistryKey key;
+        private readonly PerformanceCounter cpuCounter = new PerformanceCounter();
 
         public CpuUsageWindow()
         {
@@ -39,15 +39,19 @@ namespace DesktopMagic
             cpuCounter.CounterName = "% Processor Time";
             cpuCounter.InstanceName = "_Total";
 
-            Timer t = new Timer();
-            t.Interval = 100;
+            Timer t = new Timer
+            {
+                Interval = 100
+            };
             t.Elapsed += UpdateTimer_Elapsed;
             t.Start();
 
-            Timer valueTimer = new Timer();
-            valueTimer.Interval = 1000;
+            Timer valueTimer = new Timer
+            {
+                Interval = 1000
+            };
             valueTimer.Elapsed += ValueTimer_Elapsed;
-            ;
+
             valueTimer.Start();
 
             key = Registry.CurrentUser.CreateSubKey(@"Software\" + App.AppName);

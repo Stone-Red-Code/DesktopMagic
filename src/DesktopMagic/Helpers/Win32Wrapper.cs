@@ -209,7 +209,7 @@ namespace DesktopMagic
             ShowWindow = 0x0040
         }
 
-        public enum WindowLongFlags : int
+        public enum WindowLongFlags
         {
             GWL_EXSTYLE = -20,
             GWLP_HINSTANCE = -6,

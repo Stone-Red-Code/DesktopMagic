@@ -23,7 +23,7 @@ namespace DesktopMagicPluginAPI.Inputs
         /// </summary>
         /// <param name="name">The name of the element.</param>
         /// <param name="orderIndex">The order index of the element.</param>
-        public ElementAttribute(string name = "", int orderIndex = 0)
+        public ElementAttribute(string name, int orderIndex = 0)
         {
             Name = name;
             OrderIndex = orderIndex;
@@ -33,7 +33,7 @@ namespace DesktopMagicPluginAPI.Inputs
         /// Marks a Property as element with the provided <paramref name="orderIndex"/>.
         /// </summary>
         /// <param name="orderIndex">The order index of the element.</param>
-        public ElementAttribute(int orderIndex = 0)
+        public ElementAttribute(int orderIndex)
         {
             OrderIndex = orderIndex;
         }

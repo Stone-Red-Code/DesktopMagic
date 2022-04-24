@@ -12,6 +12,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -24,7 +25,7 @@ namespace DesktopMagic
     {
         #region Global settings
 
-        internal static Theme Theme = new Theme();
+        internal static Theme Theme { get; } = new Theme();
         public static bool EditMode { get; private set; } = false;
 
         #endregion Global settings
@@ -128,7 +129,7 @@ namespace DesktopMagic
                 string PluginName = fileName[(fileName.LastIndexOf("\\", StringComparison.InvariantCulture) + 1)..].Replace(fileName[fileName.LastIndexOf(".", StringComparison.InvariantCulture)..], "");
                 try
                 {
-                    _ = Directory.CreateDirectory(PluginsPath + "\\" + PluginName);
+                    _ = Directory.CreateDirectory(Path.Combine(PluginsPath, PluginName));
                     File.Move(fileName, $"{PluginsPath}\\{PluginName}\\{PluginName}.dll");
                 }
                 catch (Exception ex)
@@ -278,7 +279,10 @@ namespace DesktopMagic
                         Windows.RemoveAt(index);
                         WindowNames.RemoveAt(index);
                     }
-                    catch { }
+                    catch (Exception ex)
+                    {
+                        App.Logger.Log(ex.Message, "Main", LogSeverity.Error);
+                    }
                 }
             }
             key.SetValue(checkBox.Name, checkBox.IsChecked.ToString());
@@ -362,7 +366,7 @@ namespace DesktopMagic
             {
                 if (musicVisualizerColorTextBox.Text.Length > 0)
                 {
-                    if (musicVisualizerColorTextBox.Text.ToCharArray()[0] != '#')
+                    if (musicVisualizerColorTextBox.Text[0] != '#')
                     {
                         musicVisualizerColorTextBox.Text = "#" + musicVisualizerColorTextBox.Text.Replace("#", "");
                     }
@@ -587,15 +591,13 @@ namespace DesktopMagic
 
             string[] lines = File.ReadAllLines(App.ApplicationDataPath + "\\layouts.save");
             string[] data = lines[layoutsComboBox.SelectedIndex].Split(';');
-            foreach (string dat in data)
+            foreach (string dat in data.Where(dat => dat.Contains(':')))
             {
-                if (dat.Contains(":"))
-                {
-                    string value = dat[(dat.LastIndexOf(":", StringComparison.InvariantCulture) + 1)..];
-                    string name = dat.Replace(":" + value, "");
-                    key.SetValue(name, value);
-                }
+                string value = dat[(dat.LastIndexOf(":", StringComparison.InvariantCulture) + 1)..];
+                string name = dat.Replace(":" + value, "");
+                key.SetValue(name, value);
             }
+
             LoadLayout(false);
             for (int i = 0; i < fontComboBox.Items.Count; i++)
             {
@@ -612,17 +614,17 @@ namespace DesktopMagic
             InputDialog inputDialog = new((string)FindResource("enterLayoutName"));
             if (inputDialog.ShowDialog() == true)
             {
-                string content = "";
+                StringBuilder content = new StringBuilder();
                 foreach (string valueName in key.GetValueNames())
                 {
                     if (valueName != "SelectedLayout")
                     {
-                        content += valueName + ":" + key.GetValue(valueName).ToString() + ";";
+                        content.Append($"{valueName}:{key.GetValue(valueName).ToString()};");
                     }
                 }
-                content += inputDialog.ResponseText + "\n";
+                content.AppendLine(inputDialog.ResponseText);
 
-                File.AppendAllText(App.ApplicationDataPath + "\\layouts.save", content);
+                File.AppendAllText(App.ApplicationDataPath + "\\layouts.save", content.ToString());
                 key.SetValue("SelectedLayout", -1);
                 LoadLayoutNames();
                 layoutsComboBox.SelectedIndex = layoutsComboBox.Items.Count - 1;
@@ -655,18 +657,18 @@ namespace DesktopMagic
                 lock (App.ApplicationDataPath)
                 {
                     List<string> lines = File.ReadAllLines(App.ApplicationDataPath + "\\layouts.save").ToList();
-                    string content = "";
+                    StringBuilder content = new StringBuilder();
                     foreach (string valueName in key.GetValueNames())
                     {
                         if (valueName != "SelectedLayout")
                         {
-                            content += valueName + ":" + key.GetValue(valueName).ToString() + ";";
+                            content.Append($"{valueName}:{key.GetValue(valueName).ToString()};");
                         }
                     }
                     Dispatcher.Invoke(() =>
                     {
-                        content += layoutsComboBox.SelectedItem.ToString();
-                        lines[layoutsComboBox.SelectedIndex] = content;
+                        content.Append(layoutsComboBox.SelectedItem.ToString());
+                        lines[layoutsComboBox.SelectedIndex] = content.ToString();
                     });
                     File.WriteAllLines(App.ApplicationDataPath + "\\layouts.save", lines);
                 }

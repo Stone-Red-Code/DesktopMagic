@@ -50,7 +50,7 @@ namespace DesktopMagic.Dialogs
         {
             if (colorHexTextBox.Text.Length > 0)
             {
-                if (colorHexTextBox.Text.ToCharArray()[0] != '#')
+                if (colorHexTextBox.Text[0] != '#')
                 {
                     colorHexTextBox.Text = "#" + colorHexTextBox.Text.Replace("#", "");
                 }
@@ -88,8 +88,6 @@ namespace DesktopMagic.Dialogs
                 ResultColor = systemColor;
                 colorRechtangle.Fill = brush;
                 colorHexTextBox.Foreground = Brushes.Black;
-
-                return;
             }
             else
             {

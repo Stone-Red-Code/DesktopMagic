@@ -216,7 +216,9 @@ public partial class PluginWindow : Window
     {
         try
         {
+#pragma warning disable S3011 // Reflection should not be used to increase accessibility of classes, methods, or fields
             FieldInfo[] props = instance.GetType().GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.GetField);
+#pragma warning restore S3011 // Reflection should not be used to increase accessibility of classes, methods, or fields
 
             List<SettingElement> settingElements = new List<SettingElement>();
             foreach (FieldInfo prop in props)
@@ -251,7 +253,6 @@ public partial class PluginWindow : Window
             App.Logger.Log(ex.ToString(), "Plugin", LogSeverity.Error);
             _ = MessageBox.Show("File execution error:\n" + ex, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             Exit();
-            return;
         }
     }
 
@@ -378,7 +379,7 @@ public partial class PluginWindow : Window
 
             default:
                 return;
-        };
+        }
 
         System.Drawing.Point point = new System.Drawing.Point((int)pixelMousePositionX, (int)pixelMousePositionY);
         pluginClassInstance.OnMouseClick(point, mouseButton);
