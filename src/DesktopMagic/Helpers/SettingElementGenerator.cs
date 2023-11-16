@@ -203,7 +203,7 @@ internal class SettingElementGenerator(ComboBox optionsComboBox)
             {
                 try
                 {
-                    eComboBox.Value = comboBox.Text;
+                    eComboBox.Value = comboBox.SelectedItem.ToString();
                 }
                 catch (Exception ex)
                 {
