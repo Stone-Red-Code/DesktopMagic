@@ -14,6 +14,7 @@ namespace DesktopMagic;
 /// </summary>
 public partial class App : Application
 {
+    public const string AppName = "Desktop Magic";
     private readonly string logFilePath;
     private readonly Mutex _mutex;
 #if DEBUG
@@ -21,9 +22,7 @@ public partial class App : Application
 #else
     private readonly Updater updater = new Updater(TimeSpan.FromDays(1), "https://raw.githubusercontent.com/Stone-Red-Code/DesktopMagic/main/update/updateInfo.json");
 #endif
-
-    public const string AppName = "Desktop Magic";
-    public static string ApplicationDataPath { get; } = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\" + AppName;
+    public static string ApplicationDataPath { get; } = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "StoneRed", AppName);
 
     public static Logger Logger { get; } = new Logger();
 
@@ -55,6 +54,11 @@ public partial class App : Application
         }
     }
 
+    protected void CloseMutexHandler(object sender, EventArgs e)
+    {
+        _mutex?.Close();
+    }
+
     private void Updater_UpdateAvailible(string version, string additionalInformation)
     {
         updater.Update();
@@ -73,11 +77,6 @@ public partial class App : Application
     private void Updater_ProgressChanged(long? totalFileSize, long totalBytesDownloaded, double? progressPercentage)
     {
         Logger.Log($"Downloading: {progressPercentage}% {totalBytesDownloaded}/{totalFileSize}", "Updater");
-    }
-
-    protected void CloseMutexHandler(object sender, EventArgs e)
-    {
-        _mutex?.Close();
     }
 
     private void Setup(bool clearLogFile)
