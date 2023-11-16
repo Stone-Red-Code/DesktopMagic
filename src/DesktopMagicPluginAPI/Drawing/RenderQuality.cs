@@ -1,29 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace DesktopMagicPluginAPI.Drawing;
 
-namespace DesktopMagicPluginAPI.Drawing
+/// <summary>
+/// Specifies which render quality is used to display the bitmap images.
+/// </summary>
+public enum RenderQuality
 {
     /// <summary>
-    /// Specifies which render quality is used to display the bitmap images.
+    /// Slower then <see cref="Low"/> but produces higher quality output.
     /// </summary>
-    public enum RenderQuality
-    {
-        /// <summary>
-        /// Slower then <see cref="Low"/> but produces higher quality output.
-        /// </summary>
-        High,
+    High,
 
-        /// <summary>
-        /// Faster then <see cref="High"/> but produces lower quality output.
-        /// </summary>
-        Low,
+    /// <summary>
+    /// Faster then <see cref="High"/> but produces lower quality output.
+    /// </summary>
+    Low,
 
-        /// <summary>
-        /// Provides performance benefits over <see cref="Low"/>
-        /// </summary>
-        Performance
-    }
+    /// <summary>
+    /// Provides performance benefits over <see cref="Low"/>
+    /// </summary>
+    Performance
 }

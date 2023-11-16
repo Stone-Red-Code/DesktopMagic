@@ -12,7 +12,7 @@
     <RepositoryUrl>https://github.com/Stone-Red-Code/DesktopMagic</RepositoryUrl>
     <AssemblyVersion>0.0.3.2</AssemblyVersion>
     <FileVersion>0.0.3.2</FileVersion>
-    <TargetFramework>net6.0-windows</TargetFramework>
+    <TargetFramework>net8.0-windows7.0</TargetFramework>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -27,12 +27,12 @@
 
   <ItemGroup>
     <PackageReference Include="AlwaysUpToDate" Version="1.0.0.4" />
-    <PackageReference Include="Extended.Wpf.Toolkit" Version="4.1.0" />
-    <PackageReference Include="Google.Apis.Calendar.v3" Version="1.55.0.2410" />
-    <PackageReference Include="MaterialDesignThemes" Version="4.0.0" />
-    <PackageReference Include="NAudio" Version="2.0.1" />
+    <PackageReference Include="Extended.Wpf.Toolkit" Version="4.5.1" />
+    <PackageReference Include="Google.Apis.Calendar.v3" Version="1.64.0.3171" />
+    <PackageReference Include="MaterialDesignThemes" Version="4.9.0" />
+    <PackageReference Include="NAudio" Version="2.2.1" />
     <PackageReference Include="Stone_Red-C-Sharp-Utilities" Version="1.0.3.1" />
-    <PackageReference Include="System.Management" Version="5.0.0" />
+    <PackageReference Include="System.Management" Version="8.0.0" />
   </ItemGroup>
 
   <ItemGroup>

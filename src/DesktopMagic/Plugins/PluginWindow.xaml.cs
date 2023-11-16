@@ -24,6 +24,10 @@ namespace DesktopMagic;
 
 public partial class PluginWindow : Window
 {
+    public event Action PluginLoaded;
+
+    public event Action OnExit;
+
     private readonly RegistryKey key;
     private Thread pluginThread;
     private System.Timers.Timer valueTimer;
@@ -33,10 +37,6 @@ public partial class PluginWindow : Window
     public bool IsRunning { get; private set; } = true;
     public string PluginName { get; private set; }
     public string PluginFolderPath { get; private set; }
-
-    public event Action PluginLoaded;
-
-    public event Action OnExit;
 
     public PluginWindow(string pluginName)
     {
@@ -77,6 +77,21 @@ public partial class PluginWindow : Window
         this.pluginClassInstance = pluginClassInstance;
     }
 
+    public void UpdatePluginWindow()
+    {
+        ValueTimer_Elapsed(valueTimer, null);
+    }
+
+    public void Exit()
+    {
+        IsRunning = false;
+
+        Dispatcher.Invoke(() =>
+        {
+            OnExit?.Invoke();
+        });
+    }
+
     protected override void OnSourceInitialized(EventArgs e)
     {
         base.OnSourceInitialized(e);
@@ -87,18 +102,26 @@ public partial class PluginWindow : Window
         WindowPos.GetWindowLong(helper.Handle, WindowPos.GWL_EXSTYLE) | WindowPos.WS_EX_NOACTIVATE);
     }
 
-    private void Window_ContentRendered(object sender, EventArgs e)
+    private static BitmapSource BitmapToImageSource(Bitmap bitmap)
     {
-        pluginThread = new Thread(() =>
-        {
-            LoadPlugin();
-        });
-        pluginThread.Start();
+        BitmapData bitmapData = bitmap.LockBits(
+            new Rectangle(0, 0, bitmap.Width, bitmap.Height),
+            ImageLockMode.ReadOnly, bitmap.PixelFormat);
+
+        BitmapSource bitmapSource = BitmapSource.Create(
+            bitmapData.Width, bitmapData.Height,
+            bitmap.HorizontalResolution, bitmap.VerticalResolution,
+            PixelFormats.Bgra32, null,
+            bitmapData.Scan0, bitmapData.Stride * bitmapData.Height, bitmapData.Stride);
+
+        bitmap.UnlockBits(bitmapData);
+        return bitmapSource;
     }
 
-    public void UpdatePluginWindow()
+    private void Window_ContentRendered(object sender, EventArgs e)
     {
-        ValueTimer_Elapsed(valueTimer, null);
+        pluginThread = new Thread(LoadPlugin);
+        pluginThread.Start();
     }
 
     private void UpdateTimer_Elapsed(object sender, ElapsedEventArgs e)
@@ -171,7 +194,7 @@ public partial class PluginWindow : Window
         {
             byte[] assemblyBytes = File.ReadAllBytes($"{PluginFolderPath}\\{PluginName}.dll");
             Assembly dll = Assembly.Load(assemblyBytes);
-            Type instanceType = dll.GetTypes().FirstOrDefault(type => type.GetTypeInfo().BaseType == typeof(Plugin));
+            Type instanceType = Array.Find(dll.GetTypes(), type => type.GetTypeInfo().BaseType == typeof(Plugin));
 
             if (instanceType is null)
             {
@@ -220,7 +243,7 @@ public partial class PluginWindow : Window
             FieldInfo[] props = instance.GetType().GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.GetField);
 #pragma warning restore S3011 // Reflection should not be used to increase accessibility of classes, methods, or fields
 
-            List<SettingElement> settingElements = new List<SettingElement>();
+            List<SettingElement> settingElements = [];
             foreach (FieldInfo prop in props)
             {
                 if (prop.GetValue(instance) is Element element)
@@ -237,14 +260,10 @@ public partial class PluginWindow : Window
                 }
             }
 
-            settingElements = settingElements.OrderBy(x => x.OrderIndex).ToList();
-            if (MainWindow.PluginsSettings.ContainsKey(PluginName))
+            settingElements = [.. settingElements.OrderBy(x => x.OrderIndex)];
+            if (!MainWindow.PluginsSettings.TryAdd(PluginName, settingElements))
             {
                 MainWindow.PluginsSettings[PluginName] = settingElements;
-            }
-            else
-            {
-                MainWindow.PluginsSettings.Add(PluginName, settingElements);
             }
         }
         catch (Exception ex)
@@ -305,32 +324,6 @@ public partial class PluginWindow : Window
         {
             valueTimer.Stop();
         }
-    }
-
-    private static BitmapSource BitmapToImageSource(Bitmap bitmap)
-    {
-        BitmapData bitmapData = bitmap.LockBits(
-            new Rectangle(0, 0, bitmap.Width, bitmap.Height),
-            ImageLockMode.ReadOnly, bitmap.PixelFormat);
-
-        BitmapSource bitmapSource = BitmapSource.Create(
-            bitmapData.Width, bitmapData.Height,
-            bitmap.HorizontalResolution, bitmap.VerticalResolution,
-            PixelFormats.Bgra32, null,
-            bitmapData.Scan0, bitmapData.Stride * bitmapData.Height, bitmapData.Stride);
-
-        bitmap.UnlockBits(bitmapData);
-        return bitmapSource;
-    }
-
-    public void Exit()
-    {
-        IsRunning = false;
-
-        Dispatcher.Invoke(() =>
-        {
-            OnExit?.Invoke();
-        });
     }
 
     private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)

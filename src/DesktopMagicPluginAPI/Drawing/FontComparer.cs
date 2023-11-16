@@ -1,26 +1,33 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace DesktopMagicPluginAPI.Drawing
+namespace DesktopMagicPluginAPI.Drawing;
+
+internal class FontComparer : IEqualityComparer<Font>
 {
-    internal class FontComparer : IEqualityComparer<Font>
+    public bool Equals(Font font1, Font font2)
     {
-        public bool Equals(Font font1, Font font2)
+        if (font1.Name != font2.Name)
         {
-            if (font1.Name != font2.Name) return false;
-            if (font1.SizeInPoints != font2.SizeInPoints) return false;
-            if (font1.Style != font2.Style) return false;
-            return true;
+            return false;
         }
 
-        public int GetHashCode([DisallowNull] Font obj)
+        if (font1.SizeInPoints != font2.SizeInPoints)
         {
-            return obj.GetHashCode();
+            return false;
         }
+
+        if (font1.Style != font2.Style)
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    public int GetHashCode([DisallowNull] Font obj)
+    {
+        return obj.GetHashCode();
     }
 }

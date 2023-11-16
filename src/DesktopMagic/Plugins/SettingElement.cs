@@ -2,16 +2,9 @@
 
 namespace DesktopMagic.Plugins;
 
-internal class SettingElement
+internal class SettingElement(Element element, string name, int orderIndex)
 {
-    public Element Element { get; }
-    public string Name { get; }
-    public int OrderIndex { get; }
-
-    public SettingElement(Element element, string name, int orderIndex)
-    {
-        Element = element;
-        Name = name;
-        OrderIndex = orderIndex;
-    }
+    public Element Element { get; } = element;
+    public string Name { get; } = name;
+    public int OrderIndex { get; } = orderIndex;
 }

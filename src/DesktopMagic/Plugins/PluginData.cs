@@ -4,14 +4,9 @@ using System.Drawing;
 
 namespace DesktopMagic.Plugins;
 
-internal class PluginData : IPluginData
+internal class PluginData(PluginWindow window) : IPluginData
 {
-    private readonly PluginWindow window;
-
-    public PluginData(PluginWindow window)
-    {
-        this.window = window;
-    }
+    private readonly PluginWindow window = window;
 
     public string Font => Theme.Font;
 

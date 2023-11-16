@@ -25,8 +25,8 @@ namespace DesktopMagic
     {
         #region Global settings
 
-        internal static Theme Theme { get; } = new Theme();
         public static bool EditMode { get; private set; } = false;
+        internal static Theme Theme { get; } = new Theme();
 
         #endregion Global settings
 
@@ -42,18 +42,16 @@ namespace DesktopMagic
 
         #region Plugins settings
 
-        internal static Dictionary<string, List<SettingElement>> PluginsSettings { get; } = new Dictionary<string, List<SettingElement>>();
+        internal static Dictionary<string, List<SettingElement>> PluginsSettings { get; } = [];
 
         #endregion Plugins settings
 
-        public static List<PluginWindow> Windows { get; } = new List<PluginWindow>();
-        public static List<string> WindowNames { get; } = new List<string>();
         private readonly RegistryKey key;
         private readonly System.Windows.Forms.NotifyIcon notifyIcon = new();
-
         private bool loaded = false;
-
         private bool blockWindowsClosing = true;
+        public static List<PluginWindow> Windows { get; } = [];
+        public static List<string> WindowNames { get; } = [];
 
         public MainWindow()
         {
@@ -126,7 +124,7 @@ namespace DesktopMagic
 
             foreach (string fileName in Directory.GetFiles(PluginsPath, "*.dll"))
             {
-                string PluginName = fileName[(fileName.LastIndexOf("\\", StringComparison.InvariantCulture) + 1)..].Replace(fileName[fileName.LastIndexOf(".", StringComparison.InvariantCulture)..], "");
+                string PluginName = fileName[(fileName.LastIndexOf('\\') + 1)..].Replace(fileName[fileName.LastIndexOf('.')..], "");
                 try
                 {
                     _ = Directory.CreateDirectory(Path.Combine(PluginsPath, PluginName));
@@ -143,10 +141,10 @@ namespace DesktopMagic
                 foreach (string fileName in Directory.GetFiles(directory).Where(s => s.EndsWith(".dll", StringComparison.InvariantCulture) || s.EndsWith(".cs", StringComparison.InvariantCulture)))
                 {
                     string badChars = ",#-<>?!=()*,. ";
-                    string PluginName = fileName[(fileName.LastIndexOf("\\", StringComparison.InvariantCulture) + 1)..].Replace(fileName[fileName.LastIndexOf(".", StringComparison.InvariantCulture)..], "");
+                    string PluginName = fileName[(fileName.LastIndexOf('\\') + 1)..].Replace(fileName[fileName.LastIndexOf('.')..], "");
                     string clearPluginName = PluginName;
 
-                    if (PluginName == directory[(directory.LastIndexOf("\\", StringComparison.InvariantCulture) + 1)..])
+                    if (PluginName == directory[(directory.LastIndexOf('\\') + 1)..])
                     {
                         foreach (char c in badChars)
                         {
@@ -156,9 +154,9 @@ namespace DesktopMagic
                         CheckBox checkBox = new()
                         {
                             Name = "_PluginCb_" + clearPluginName,
-                            Content = PluginName
+                            Content = PluginName,
+                            Style = (Style)FindResource("MaterialDesignDarkCheckBox")
                         };
-                        checkBox.Style = (Style)FindResource("MaterialDesignDarkCheckBox");
                         checkBox.Click += CheckBox_Click;
 
                         bool exists = false;
@@ -446,7 +444,7 @@ namespace DesktopMagic
                 optionsPanel.UpdateLayout();
 
                 bool success = PluginsSettings.TryGetValue(optionsComboBox.SelectedItem.ToString(), out List<SettingElement> settingElements);
-                if (!success || settingElements?.Count == 0)
+                if (!success || settingElements is null || settingElements.Count == 0)
                 {
                     _ = optionsPanel.Children.Add(new TextBlock() { Text = (string)FindResource("noOptions") });
                     return;
@@ -593,7 +591,7 @@ namespace DesktopMagic
             string[] data = lines[layoutsComboBox.SelectedIndex].Split(';');
             foreach (string dat in data.Where(dat => dat.Contains(':')))
             {
-                string value = dat[(dat.LastIndexOf(":", StringComparison.InvariantCulture) + 1)..];
+                string value = dat[(dat.LastIndexOf(':') + 1)..];
                 string name = dat.Replace(":" + value, "");
                 key.SetValue(name, value);
             }
@@ -638,7 +636,7 @@ namespace DesktopMagic
                 return;
             }
 
-            List<string> lines = File.ReadAllLines(App.ApplicationDataPath + "\\layouts.save").ToList();
+            List<string> lines = [.. File.ReadAllLines(App.ApplicationDataPath + "\\layouts.save")];
             lines.RemoveAt(layoutsComboBox.SelectedIndex);
             File.WriteAllLines(App.ApplicationDataPath + "\\layouts.save", lines);
             LoadLayoutNames();
@@ -656,7 +654,7 @@ namespace DesktopMagic
             {
                 lock (App.ApplicationDataPath)
                 {
-                    List<string> lines = File.ReadAllLines(App.ApplicationDataPath + "\\layouts.save").ToList();
+                    List<string> lines = [.. File.ReadAllLines(App.ApplicationDataPath + "\\layouts.save")];
                     StringBuilder content = new StringBuilder();
                     foreach (string valueName in key.GetValueNames())
                     {
@@ -682,7 +680,7 @@ namespace DesktopMagic
 
             foreach (string line in lines)
             {
-                string name = line[(line.LastIndexOf(";", StringComparison.InvariantCulture) + 1)..];
+                string name = line[(line.LastIndexOf(';') + 1)..];
                 _ = layoutsComboBox.Items.Add(name);
             }
             layoutsComboBox.SelectedIndex = int.Parse(key.GetValue("SelectedLayout", "0").ToString(), CultureInfo.InvariantCulture);
@@ -857,7 +855,7 @@ namespace DesktopMagic
 
         private void SetLanguageDictionary()
         {
-            ResourceDictionary dict = new ResourceDictionary();
+            ResourceDictionary dict = [];
             string currentCulture = Thread.CurrentThread.CurrentUICulture.ToString();
 
             if (currentCulture.Contains("de"))

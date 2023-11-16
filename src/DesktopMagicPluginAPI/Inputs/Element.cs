@@ -1,23 +1,22 @@
 ﻿using System;
 
-namespace DesktopMagicPluginAPI.Inputs
+namespace DesktopMagicPluginAPI.Inputs;
+
+/// <summary>
+/// The element base class.
+/// </summary>
+public abstract class Element
 {
     /// <summary>
-    /// The element base class.
+    /// Occurs when the value has been changed.
     /// </summary>
-    public abstract class Element
-    {
-        /// <summary>
-        /// Occurs when the value has been changed.
-        /// </summary>
-        public event Action OnValueChanged;
+    public event Action OnValueChanged;
 
-        /// <summary>
-        /// Triggers the <see cref="OnValueChanged"/> event.
-        /// </summary>
-        protected void ValueChanged()
-        {
-            OnValueChanged?.Invoke();
-        }
+    /// <summary>
+    /// Triggers the <see cref="OnValueChanged"/> event.
+    /// </summary>
+    protected void ValueChanged()
+    {
+        OnValueChanged?.Invoke();
     }
 }
