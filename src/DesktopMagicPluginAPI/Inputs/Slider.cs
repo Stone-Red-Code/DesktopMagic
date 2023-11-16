@@ -43,14 +43,6 @@ public sealed class Slider : Element
     /// <param name="value">The value assigned to the <see cref="Slider"/> element.</param>
     public Slider(double min, double max, double value = 0)
     {
-        if (min < 0)
-        {
-            throw new ArgumentException("Value can not be negative!", nameof(min));
-        }
-        if (max < 0)
-        {
-            throw new ArgumentException("Value can not be negative!", nameof(max));
-        }
         if (min > max)
         {
             throw new ArgumentException($"{nameof(min)} is greater than or equal to {nameof(max)}!");

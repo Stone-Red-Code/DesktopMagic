@@ -20,9 +20,22 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="BuiltInWindowElements\CpuUsageWindow.xaml.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Remove="icon.ico" />
     <None Remove="icons8_volunteering_26_85L_icon.ico" />
     <None Remove="icon_Dark.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Remove="BuiltInWindowElements\CpuUsageWindow.xaml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="BuiltInWindowElements\CpuUsageWindow.xaml" />
+    <None Include="BuiltInWindowElements\CpuUsageWindow.xaml.cs" />
   </ItemGroup>
 
   <ItemGroup>

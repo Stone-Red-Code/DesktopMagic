@@ -44,14 +44,6 @@ public class IntegerUpDown : Element
     /// <exception cref="ArgumentException"></exception>
     public IntegerUpDown(int min, int max, int value = 0)
     {
-        if (min < 0)
-        {
-            throw new ArgumentException("Value can not be negative!", nameof(min));
-        }
-        if (max < 0)
-        {
-            throw new ArgumentException("Value can not be negative!", nameof(max));
-        }
         if (min > max)
         {
             throw new ArgumentException($"{nameof(min)} is greater than or equal to {nameof(max)}!");

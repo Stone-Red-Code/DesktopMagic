@@ -25,20 +25,10 @@ namespace DesktopMagic
     {
         #region Global settings
 
-        public static bool EditMode { get; private set; } = false;
         internal static Theme Theme { get; } = new Theme();
+        internal static bool EditMode { get; private set; } = false;
 
         #endregion Global settings
-
-        #region Music Visualizer Settings
-
-        public static int SpectrumMode { get; private set; } = 0;
-        public static int AmplifierLevel { get; private set; } = 0;
-        public static bool MirrorMode { get; private set; } = false;
-        public static bool LineMode { get; private set; } = false;
-        public static System.Drawing.Color? MusicVisualzerColor { get; private set; }
-
-        #endregion Music Visualizer Settings
 
         #region Plugins settings
 
@@ -336,80 +326,6 @@ namespace DesktopMagic
 
         #region Options
 
-        private void AmplifierLevelSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
-        {
-            amplifierLevelLabel.Content = (int)amplifierLevelSlider.Value;
-            AmplifierLevel = (int)amplifierLevelSlider.Value;
-            key.SetValue("AmplifierLevel", AmplifierLevel);
-            SaveLayout();
-        }
-
-        private void MirrorModeCheckBox_Click(object sender, RoutedEventArgs e)
-        {
-            MirrorMode = (bool)mirrorModeCheckBox.IsChecked;
-            key.SetValue("MirrorMode", mirrorModeCheckBox.IsChecked.ToString());
-            SaveLayout();
-        }
-
-        private void LineModeCheckBox_Click(object sender, RoutedEventArgs e)
-        {
-            LineMode = (bool)lineModeCheckBox.IsChecked;
-            key.SetValue("LineMode", lineModeCheckBox.IsChecked.ToString());
-            SaveLayout();
-        }
-
-        private void MusicVisualizerColorTextBox_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            if (!string.IsNullOrWhiteSpace(musicVisualizerColorTextBox.Text) && musicVisualizerColorTextBox.Text != "Default")
-            {
-                if (musicVisualizerColorTextBox.Text.Length > 0)
-                {
-                    if (musicVisualizerColorTextBox.Text[0] != '#')
-                    {
-                        musicVisualizerColorTextBox.Text = "#" + musicVisualizerColorTextBox.Text.Replace("#", "");
-                    }
-                }
-                else
-                {
-                    musicVisualizerColorTextBox.Text = "#";
-                    musicVisualizerColorTextBox.Select(musicVisualizerColorTextBox.Text.Length, 0);
-                }
-
-                if (musicVisualizerColorTextBox.SelectionStart == 0)
-                {
-                    if (musicVisualizerColorTextBox.Text.Length <= 2)
-                    {
-                        musicVisualizerColorTextBox.Select(musicVisualizerColorTextBox.Text.Length, 0);
-                    }
-                    else
-                    {
-                        musicVisualizerColorTextBox.Select(1, 0);
-                    }
-                }
-
-                string hex = musicVisualizerColorTextBox.Text;
-
-                if (MultiColorConverter.TryConvertToSystemColor(hex, out System.Drawing.Color systemColor))
-                {
-                    MusicVisualzerColor = systemColor;
-                    musicVisualizerColorTextBox.Foreground = Brushes.Black;
-
-                    key.SetValue("MusicVisualizerColor", musicVisualizerColorTextBox.Text);
-                    SaveLayout();
-                }
-                else
-                {
-                    musicVisualizerColorTextBox.Foreground = Brushes.Red;
-                }
-            }
-            else
-            {
-                MusicVisualzerColor = null;
-                key.SetValue("MusicVisualizerColor", musicVisualizerColorTextBox.Text);
-                SaveLayout();
-            }
-        }
-
         private void FontComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             Theme.Font = fontComboBox.SelectedValue.ToString().Replace("System.Windows.Controls.ComboBoxItem: ", "");
@@ -417,60 +333,44 @@ namespace DesktopMagic
             SaveLayout();
         }
 
-        private void SpectrumModeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            SpectrumMode = spectrumModeComboBox.SelectedIndex;
-            key.SetValue("SpectrumMode", spectrumModeComboBox.SelectedIndex);
-
-            mirrorModeCheckBox.IsEnabled = spectrumModeComboBox.SelectedIndex != 1;
-            SaveLayout();
-        }
-
         private void OptionsComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (optionsComboBox.SelectedIndex < 1)
+            optionsPanel.Visibility = Visibility.Visible;
+            optionsPanel.Children.Clear();
+            optionsPanel.UpdateLayout();
+
+            if (optionsComboBox.SelectedItem is null)
             {
-                if (musicVisualizerOptionsPanel != null)
-                {
-                    musicVisualizerOptionsPanel.Visibility = Visibility.Visible;
-                    optionsPanel.Visibility = Visibility.Collapsed;
-                }
+                return;
             }
-            else
+
+            bool success = PluginsSettings.TryGetValue(optionsComboBox.SelectedItem.ToString(), out List<SettingElement> settingElements);
+            if (!success || settingElements is null || settingElements.Count == 0)
             {
-                musicVisualizerOptionsPanel.Visibility = Visibility.Collapsed;
-                optionsPanel.Visibility = Visibility.Visible;
-                optionsPanel.Children.Clear();
-                optionsPanel.UpdateLayout();
+                _ = optionsPanel.Children.Add(new TextBlock() { Text = (string)FindResource("noOptions") });
+                return;
+            }
 
-                bool success = PluginsSettings.TryGetValue(optionsComboBox.SelectedItem.ToString(), out List<SettingElement> settingElements);
-                if (!success || settingElements is null || settingElements.Count == 0)
+            SettingElementGenerator settingElementGenerator = new SettingElementGenerator(optionsComboBox);
+
+            foreach (SettingElement settingElement in settingElements)
+            {
+                DockPanel dockPanel = new()
                 {
-                    _ = optionsPanel.Children.Add(new TextBlock() { Text = (string)FindResource("noOptions") });
-                    return;
-                }
+                    LastChildFill = true,
+                    HorizontalAlignment = HorizontalAlignment.Stretch
+                };
+                _ = optionsPanel.Children.Add(dockPanel);
 
-                SettingElementGenerator settingElementGenerator = new SettingElementGenerator(optionsComboBox);
-
-                foreach (SettingElement settingElement in settingElements)
+                TextBlock textBlock = new()
                 {
-                    DockPanel dockPanel = new()
-                    {
-                        LastChildFill = true,
-                        HorizontalAlignment = HorizontalAlignment.Stretch
-                    };
-                    _ = optionsPanel.Children.Add(dockPanel);
+                    Text = $"{settingElement.Name}:",
+                    Padding = new Thickness(0, 0, 3, 0),
+                    VerticalAlignment = VerticalAlignment.Center
+                };
 
-                    TextBlock textBlock = new()
-                    {
-                        Text = settingElement.Name,
-                        Padding = new Thickness(0, 0, 3, 0),
-                        VerticalAlignment = VerticalAlignment.Center
-                    };
-
-                    _ = dockPanel.Children.Add(textBlock);
-                    settingElementGenerator.Generate(settingElement, dockPanel, textBlock);
-                }
+                _ = dockPanel.Children.Add(textBlock);
+                settingElementGenerator.Generate(settingElement, dockPanel, textBlock);
             }
         }
 
@@ -689,11 +589,6 @@ namespace DesktopMagic
         private void LoadLayout(bool minimize = true)
         {
             Theme.Font = key.GetValue("Font", "Segoe UI").ToString();
-            spectrumModeComboBox.SelectedIndex = int.Parse(key.GetValue("SpectrumMode", "0").ToString(), CultureInfo.InvariantCulture);
-            amplifierLevelSlider.Value = int.Parse(key.GetValue("AmplifierLevel", "0").ToString(), CultureInfo.InvariantCulture);
-            mirrorModeCheckBox.IsChecked = bool.Parse(key.GetValue("MirrorMode", "false").ToString());
-            lineModeCheckBox.IsChecked = bool.Parse(key.GetValue("LineMode", "false").ToString());
-            musicVisualizerColorTextBox.Text = key.GetValue("MusicVisualizerColor", "").ToString();
             cornerRadiusTextBox.Text = key.GetValue("CornerRadius", "0").ToString();
             marginTextBox.Text = key.GetValue("Margin", "0").ToString();
             blockWindowsClosing = false;
@@ -722,11 +617,6 @@ namespace DesktopMagic
             secondaryColorRechtangle.Fill = Theme.SecondaryBrush;
             backgroundColorRechtangle.Fill = Theme.BackgroundBrush;
 
-            MusicVisualizerColorTextBox_TextChanged(null, null);
-            MirrorModeCheckBox_Click(null, null);
-            LineModeCheckBox_Click(null, null);
-            SpectrumModeComboBox_SelectionChanged(null, null);
-            AmplifierLevelSlider_ValueChanged(null, null);
             CornerRadiusTextBox_TextChanged(null, null);
             MarginTextBox_TextChanged(null, null);
 

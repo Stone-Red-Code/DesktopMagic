@@ -31,14 +31,14 @@
                 <DockPanel Margin="0,0,2.5,0">
                     <Grid DockPanel.Dock="Top">
                         <Rectangle Grid.Row="1" Fill="#FFECECEC" Height="24" />
-                        <CheckBox x:Name="EditCheckBox" VerticalAlignment="Center" Grid.Row="1" Content="{DynamicResource edit}" Click="EditCheckBox_Click" Foreground="Black" BorderBrush="#FF323232" Style="{StaticResource MaterialDesignDarkCheckBox}" IsChecked="True"/>
+                        <CheckBox x:Name="EditCheckBox" VerticalAlignment="Center" Grid.Row="1" Content="{DynamicResource edit}" Click="EditCheckBox_Click" Foreground="Black" BorderBrush="#FF323232" Style="{StaticResource MaterialDesignDarkCheckBox}" IsChecked="True" />
                     </Grid>
                     <ScrollViewer Background="#FFBBBBBB" PreviewMouseWheel="ScrollViewer_PreviewMouseWheel">
                         <StackPanel x:Name="stackPanel">
                             <CheckBox x:Name="TimeCb" Content="{DynamicResource time}" Click="CheckBox_Click"  Style="{StaticResource MaterialDesignDarkCheckBox}" />
                             <CheckBox x:Name="DateCb" Content="{DynamicResource date}" Click="CheckBox_Click" Style="{StaticResource MaterialDesignDarkCheckBox}" />
                             <CheckBox x:Name="CpuUsageCb" Content="{DynamicResource cpuUsage}" Click="CheckBox_Click" Style="{StaticResource MaterialDesignDarkCheckBox}" />
-                            <CheckBox x:Name="CalendarCb" Content="{DynamicResource googleCalendar}"  Click="CheckBox_Click" Style="{StaticResource MaterialDesignDarkCheckBox}" Visibility="Collapsed"/>
+                            <CheckBox x:Name="CalendarCb" Content="{DynamicResource googleCalendar}"  Click="CheckBox_Click" Style="{StaticResource MaterialDesignDarkCheckBox}" Visibility="Collapsed" />
                             <!--Currently disabled because it's not working-->
                             <CheckBox x:Name="MusicVisualizerCb" Content="{DynamicResource musicVisualizer}" HorizontalAlignment="Left"  VerticalAlignment="Top" Click="CheckBox_Click" Style="{StaticResource MaterialDesignDarkCheckBox}" />
                         </StackPanel>
@@ -46,24 +46,10 @@
                 </DockPanel>
 
                 <DockPanel Grid.Column="1"  Margin="2.5,0,0,0">
-                    <ComboBox x:Name="optionsComboBox" DockPanel.Dock="Top" Height="24" SelectedIndex="0" SelectionChanged="OptionsComboBox_SelectionChanged" Background="#FFECECEC" Padding="4" VerticalAlignment="Center"/>
+                    <ComboBox x:Name="optionsComboBox" DockPanel.Dock="Top" Height="24" SelectedIndex="0" SelectionChanged="OptionsComboBox_SelectionChanged" Background="#FFECECEC" Padding="4" VerticalAlignment="Center" />
                     <ScrollViewer Background="#FFBBBBBB">
                         <Grid>
-                            <StackPanel x:Name="optionsPanel" Margin="3,3,3,0" HorizontalAlignment="Stretch" Visibility="Collapsed" >
-                            </StackPanel>
-                            <StackPanel x:Name="musicVisualizerOptionsPanel" Margin="3,3,3,0">
-                                <Label Content="{DynamicResource color}" HorizontalAlignment="Left" VerticalAlignment="Top" Padding="0,1" />
-                                <TextBox x:Name="musicVisualizerColorTextBox" Text="" TextChanged="MusicVisualizerColorTextBox_TextChanged" MaxLength="7" CharacterCasing="Upper">
-                                    <materialDesign:TextFieldAssist.CharacterCounterStyle>
-                                        <Style TargetType="TextBlock" />
-                                    </materialDesign:TextFieldAssist.CharacterCounterStyle>
-                                </TextBox>
-                                <ComboBox x:Name="spectrumModeComboBox" ItemsSource="{DynamicResource musicVisualizerOptionsComboboxItems}" HorizontalAlignment="Left" VerticalAlignment="Top" Width="120" SelectionChanged="SpectrumModeComboBox_SelectionChanged" />
-                                <CheckBox x:Name="mirrorModeCheckBox" Content="{DynamicResource mirrorMode}" Click="MirrorModeCheckBox_Click" Style="{StaticResource MaterialDesignDarkCheckBox}" />
-                                <CheckBox x:Name="lineModeCheckBox" Content="{DynamicResource lineMode}" Click="LineModeCheckBox_Click" Style="{StaticResource MaterialDesignDarkCheckBox}" />
-                                <Label Content="{DynamicResource amplifier}" HorizontalAlignment="Left" VerticalAlignment="Top" Padding="0,1" />
-                                <Slider x:Name="amplifierLevelSlider"  HorizontalAlignment="Stretch" VerticalAlignment="Top" ValueChanged="AmplifierLevelSlider_ValueChanged" Maximum="50" Minimum="-50" SmallChange="1" LargeChange="5" Foreground="Gray" />
-                                <Label x:Name="amplifierLevelLabel" Content="Label" HorizontalAlignment="Left" VerticalAlignment="Top" Padding="0,1" />
+                            <StackPanel x:Name="optionsPanel" Margin="3,3,3,0" HorizontalAlignment="Stretch" Visibility="Collapsed">
                             </StackPanel>
                         </Grid>
                     </ScrollViewer>
@@ -75,20 +61,20 @@
                     <RowDefinition Height="110" />
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition/>
-                    <ColumnDefinition/>
+                    <ColumnDefinition />
+                    <ColumnDefinition />
                 </Grid.ColumnDefinitions>
                 <Grid Grid.Column="0" Margin="{StaticResource DefaultMargin}" HorizontalAlignment="Stretch">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
-                    
+
                     <TextBlock Text="Display Font: " Grid.Column="0" Grid.Row="0" VerticalAlignment="Center"></TextBlock>
                     <ComboBox x:Name="fontComboBox" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Top" SelectionChanged="FontComboBox_SelectionChanged" Margin="0,0,0,5" />
 
@@ -111,7 +97,7 @@
                         <Border CornerRadius="1" BorderThickness="1.5" BorderBrush="Gray" Height="23" Width="23"  Margin="0,0,5,0">
                             <Rectangle x:Name="primaryColorRechtangle" Fill="White" />
                         </Border>
-                        <Button Content="Change Primary Color" Height="23" FontSize="12" FontWeight="Regular" Click="ChangePrimaryColorButton_Click"/>
+                        <Button Content="Change Primary Color" Height="23" FontSize="12" FontWeight="Regular" Click="ChangePrimaryColorButton_Click" />
                     </DockPanel>
                     <DockPanel Margin="0,0,0,5">
                         <Border CornerRadius="1" BorderThickness="1.5" BorderBrush="Gray" Height="23" Width="23"  Margin="0,0,5,0">

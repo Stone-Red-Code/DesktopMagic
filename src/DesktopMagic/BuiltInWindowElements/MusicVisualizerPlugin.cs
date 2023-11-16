@@ -1,6 +1,7 @@
 ﻿using DesktopMagic.Helpers;
 
 using DesktopMagicPluginAPI;
+using DesktopMagicPluginAPI.Inputs;
 
 using NAudio.Wave;
 
@@ -19,6 +20,22 @@ internal class MusicVisualizerPlugin : Plugin
     private readonly SampleAggregator sampleAggregator = new SampleAggregator(fftLength);
 
     private readonly Bitmap output = new Bitmap(880, 300);
+
+    [Element("Mirror")]
+    private readonly CheckBox mirrorMode = new CheckBox(false);
+
+    [Element("Line")]
+    private readonly CheckBox lineMode = new CheckBox(false);
+
+    [Element("Spectrum Mode")]
+    private readonly ComboBox spectrumMode = new ComboBox("Bottom", "Middle", "Top");
+
+    [Element("Amplification")]
+    private readonly IntegerUpDown amplifierLevel = new IntegerUpDown(-50, 50, 0);
+
+    [Element("Line thickness")]
+    private readonly IntegerUpDown lineThickness = new IntegerUpDown(1, 10, 1);
+
     private WasapiLoopbackCapture waveIn;
     private volatile bool calculate = true;
     private List<double> lastFft = [];
@@ -78,7 +95,7 @@ internal class MusicVisualizerPlugin : Plugin
                 v = 20;
             }
 
-            int multiplier = 100 - (MainWindow.AmplifierLevel * 2);
+            int multiplier = 100 - (amplifierLevel.Value * 2);
             multiplier = multiplier == 0 ? 1 : multiplier;
             fft.Add(Math.Abs(e.Result[i].Y * v / multiplier));
         }
@@ -165,12 +182,12 @@ internal class MusicVisualizerPlugin : Plugin
         {
             int offset = 0;
 
-            if (!MainWindow.MirrorMode && MainWindow.SpectrumMode != 1)
+            if (!mirrorMode.Value && spectrumMode.Value != "Middle")
             {
                 scaledFft.Insert(0, 0);
             }
 
-            if (!MainWindow.LineMode)
+            if (!lineMode.Value)
             {
                 offset = 1;
             }
@@ -183,17 +200,18 @@ internal class MusicVisualizerPlugin : Plugin
                 int fftIndex = 0;
                 bool fftIndexReverse = false;
 
-                if (MainWindow.MirrorMode || MainWindow.SpectrumMode == 1)
+                if (mirrorMode.Value || spectrumMode.Value == "Middle")
                 {
                     fftIndex = scaledFft.Count - 1;
                 }
+
                 for (int pointIndex = 0; pointIndex < scaledFft.Count; pointIndex += 1)
                 {
                     int value = (int)Math.Max(scaledFft[fftIndex] * 50000, 0);
 
-                    switch (MainWindow.SpectrumMode)
+                    switch (spectrumMode.Value)
                     {
-                        case 1:
+                        case "Middle":
 
                             if (!fftIndexReverse)
                             {
@@ -202,7 +220,7 @@ internal class MusicVisualizerPlugin : Plugin
                             }
                             break;
 
-                        case 2:
+                        case "Top":
                             points[pointIndex + 1] = new PointF(2 * pointIndex, value);
                             break;
 
@@ -211,7 +229,7 @@ internal class MusicVisualizerPlugin : Plugin
                             break;
                     }
 
-                    if (MainWindow.MirrorMode || MainWindow.SpectrumMode == 1)
+                    if (mirrorMode.Value || spectrumMode.Value == "Middle")
                     {
                         if (!fftIndexReverse)
                         {
@@ -231,20 +249,18 @@ internal class MusicVisualizerPlugin : Plugin
 
                 SetPoints(points, output.Width, output.Height, offset);
 
-                Brush brush = MainWindow.MusicVisualzerColor.HasValue
-                    ? new SolidBrush(MainWindow.MusicVisualzerColor.Value)
-                    : new SolidBrush(MainWindow.Theme.PrimaryColor);
+                Brush brush = new SolidBrush(Application.Theme.PrimaryColor);
 
-                if (MainWindow.LineMode)
+                if (lineMode.Value)
                 {
-                    if (MainWindow.SpectrumMode == 1)
+                    if (spectrumMode.Value == "Middle")
                     {
-                        gr.DrawLines(new Pen(brush), points.Take(points.Length / 2).ToArray());
-                        gr.DrawLines(new Pen(brush), points.Skip(points.Length / 2).ToArray());
+                        gr.DrawLines(new Pen(brush, lineThickness.Value), points.Take(points.Length / 2).ToArray());
+                        gr.DrawLines(new Pen(brush, lineThickness.Value), points.Skip(points.Length / 2).ToArray());
                     }
                     else
                     {
-                        gr.DrawLines(new Pen(brush), points);
+                        gr.DrawLines(new Pen(brush, lineThickness.Value), points);
                     }
                 }
                 else
@@ -263,9 +279,9 @@ internal class MusicVisualizerPlugin : Plugin
 
     private void SetPoints(PointF[] points, int width, int height, int offset)
     {
-        switch (MainWindow.SpectrumMode)
+        switch (spectrumMode.Value)
         {
-            case 1:
+            case "Middle":
                 points[0] = new PointF(width, height / 2);
                 points[^1] = new PointF(0, height / 2);
 
@@ -273,7 +289,7 @@ internal class MusicVisualizerPlugin : Plugin
                 points[(points.Length / 2) - 1] = new PointF(0, height / 2);
                 break;
 
-            case 2:
+            case "Top":
                 points[0] = new PointF(0, 0 - offset);
                 points[^1] = new PointF(points[^2].X, 0 - offset);
                 break;

@@ -9,7 +9,7 @@ namespace DesktopMagic.BuiltInWindowElements;
 
 internal class TimePlugin : Plugin
 {
-    [Element("Display Seconds:")]
+    [Element("Display Seconds")]
     private readonly CheckBox displaySecondscheckBox = new CheckBox(true);
 
     public override int UpdateInterval => 1000;
