@@ -74,6 +74,16 @@ internal static partial class MultiColorConverter
         }
     }
 
+    public static System.Windows.Media.Color ConvertToMediaColor(System.Drawing.Color color)
+    {
+        return System.Windows.Media.Color.FromArgb(color.A, color.R, color.G, color.B);
+    }
+
+    public static System.Drawing.Color ConvertToSystemColor(System.Windows.Media.Color color)
+    {
+        return System.Drawing.Color.FromArgb(color.A, color.R, color.G, color.B);
+    }
+
     [GeneratedRegex("(?:[0-9a-fA-F]{8})")]
     private static partial Regex Hex8();
 

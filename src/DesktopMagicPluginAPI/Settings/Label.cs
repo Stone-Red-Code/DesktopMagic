@@ -1,9 +1,11 @@
-﻿namespace DesktopMagicPluginAPI.Inputs;
+﻿using DesktopMagicPluginAPI.Settings;
+
+namespace DesktopMagicPluginAPI.Inputs;
 
 /// <summary>
 /// Represents a label control.
 /// </summary>
-public class Label : Element
+public class Label : Setting
 {
     private string _value;
 

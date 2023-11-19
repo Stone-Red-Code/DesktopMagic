@@ -1,11 +1,11 @@
 ﻿using System;
 
-namespace DesktopMagicPluginAPI.Inputs;
+namespace DesktopMagicPluginAPI.Settings;
 
 /// <summary>
 /// Represents a button control.
 /// </summary>
-public class Button : Element
+public class Button : Setting
 {
     /// <summary>
     /// Occurs when the button gets clicked.

@@ -1,5 +1,6 @@
 ﻿using DesktopMagicPluginAPI;
 using DesktopMagicPluginAPI.Inputs;
+using DesktopMagicPluginAPI.Settings;
 
 using System;
 using System.Drawing;
@@ -9,7 +10,7 @@ namespace DesktopMagic.BuiltInWindowElements;
 
 internal class DatePlugin : Plugin
 {
-    [Element("Short date")]
+    [Setting("Short date")]
     private readonly CheckBox shortDatecheckBox = new CheckBox(true);
 
     private DateTime oldDateTime = DateTime.MinValue;

@@ -2,6 +2,7 @@
 
 using DesktopMagicPluginAPI;
 using DesktopMagicPluginAPI.Inputs;
+using DesktopMagicPluginAPI.Settings;
 
 using NAudio.Wave;
 
@@ -21,19 +22,19 @@ internal class MusicVisualizerPlugin : Plugin
 
     private readonly Bitmap output = new Bitmap(880, 300);
 
-    [Element("Mirror")]
+    [Setting("Mirror")]
     private readonly CheckBox mirrorMode = new CheckBox(false);
 
-    [Element("Line")]
+    [Setting("Line")]
     private readonly CheckBox lineMode = new CheckBox(false);
 
-    [Element("Spectrum Mode")]
+    [Setting("Spectrum Mode")]
     private readonly ComboBox spectrumMode = new ComboBox("Bottom", "Middle", "Top");
 
-    [Element("Amplification")]
+    [Setting("Amplification")]
     private readonly IntegerUpDown amplifierLevel = new IntegerUpDown(-50, 50, 0);
 
-    [Element("Line thickness")]
+    [Setting("Line thickness")]
     private readonly IntegerUpDown lineThickness = new IntegerUpDown(1, 10, 1);
 
     private WasapiLoopbackCapture waveIn;

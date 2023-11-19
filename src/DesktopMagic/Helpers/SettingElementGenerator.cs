@@ -10,11 +10,11 @@ internal class SettingElementGenerator(ComboBox optionsComboBox)
 {
     private readonly ComboBox optionsComboBox = optionsComboBox;
 
-    public void Generate(SettingElement settingElement, DockPanel dockPanel, TextBlock textBlock)
+    public void Generate(InputElement settingElement, DockPanel dockPanel, TextBlock textBlock)
     {
         dockPanel.UpdateLayout();
         textBlock.UpdateLayout();
-        if (settingElement.Element is DesktopMagicPluginAPI.Inputs.Label eLabel)
+        if (settingElement.Input is DesktopMagicPluginAPI.Inputs.Label eLabel)
         {
             textBlock.Text = eLabel.Value;
             textBlock.Margin = new Thickness(0, 5, 3, 0);
@@ -33,7 +33,7 @@ internal class SettingElementGenerator(ComboBox optionsComboBox)
                 });
             };
         }
-        else if (settingElement.Element is DesktopMagicPluginAPI.Inputs.Button eButton)
+        else if (settingElement.Input is DesktopMagicPluginAPI.Settings.Button eButton)
         {
             Button button = new()
             {
@@ -66,7 +66,7 @@ internal class SettingElementGenerator(ComboBox optionsComboBox)
 
             _ = dockPanel.Children.Add(button);
         }
-        else if (settingElement.Element is DesktopMagicPluginAPI.Inputs.CheckBox eCheckBox)
+        else if (settingElement.Input is DesktopMagicPluginAPI.Settings.CheckBox eCheckBox)
         {
             CheckBox checkBox = new()
             {
@@ -96,7 +96,7 @@ internal class SettingElementGenerator(ComboBox optionsComboBox)
 
             _ = dockPanel.Children.Add(checkBox);
         }
-        else if (settingElement.Element is DesktopMagicPluginAPI.Inputs.TextBox eTextBox)
+        else if (settingElement.Input is DesktopMagicPluginAPI.Settings.TextBox eTextBox)
         {
             TextBox textBox = new()
             {
@@ -125,7 +125,7 @@ internal class SettingElementGenerator(ComboBox optionsComboBox)
             };
             _ = dockPanel.Children.Add(textBox);
         }
-        else if (settingElement.Element is DesktopMagicPluginAPI.Inputs.IntegerUpDown eIntegerUpDown)
+        else if (settingElement.Input is DesktopMagicPluginAPI.Settings.IntegerUpDown eIntegerUpDown)
         {
             Xceed.Wpf.Toolkit.IntegerUpDown integerUpDown = new()
             {
@@ -155,7 +155,7 @@ internal class SettingElementGenerator(ComboBox optionsComboBox)
             };
             _ = dockPanel.Children.Add(integerUpDown);
         }
-        else if (settingElement.Element is DesktopMagicPluginAPI.Inputs.Slider eSlider)
+        else if (settingElement.Input is DesktopMagicPluginAPI.Settings.Slider eSlider)
         {
             Slider slider = new()
             {
@@ -188,7 +188,7 @@ internal class SettingElementGenerator(ComboBox optionsComboBox)
 
             _ = dockPanel.Children.Add(slider);
         }
-        else if (settingElement.Element is DesktopMagicPluginAPI.Inputs.ComboBox eComboBox)
+        else if (settingElement.Input is DesktopMagicPluginAPI.Settings.ComboBox eComboBox)
         {
             ComboBox comboBox = new()
             {

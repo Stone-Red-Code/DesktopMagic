@@ -1,5 +1,6 @@
 ﻿using DesktopMagicPluginAPI;
 using DesktopMagicPluginAPI.Inputs;
+using DesktopMagicPluginAPI.Settings;
 
 using System;
 using System.Collections.Generic;
@@ -14,10 +15,10 @@ public class GifPlugin : Plugin
 {
     private const string SaveFilePath = "gifPath.txt";
 
-    [Element("Gif path:")]
+    [Setting("Gif path:")]
     private readonly TextBox input = new TextBox("");
 
-    [Element]
+    [Setting]
     private readonly Label info = new Label("");
 
     private readonly List<Bitmap> bitmaps = [];

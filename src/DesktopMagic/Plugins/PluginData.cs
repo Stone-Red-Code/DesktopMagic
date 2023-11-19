@@ -1,18 +1,16 @@
-﻿using DesktopMagicPluginAPI;
+﻿using DesktopMagic.Settings;
+
+using DesktopMagicPluginAPI;
 
 using System.Drawing;
 
 namespace DesktopMagic.Plugins;
 
-internal class PluginData(PluginWindow window) : IPluginData
+internal class PluginData(PluginWindow window, PluginSettings pluginSettings) : IPluginData
 {
     private readonly PluginWindow window = window;
 
-    public string Font => Theme.Font;
-
-    public Color Color => Theme.PrimaryColor;
-
-    public ITheme Theme { get; } = MainWindow.Theme;
+    public ITheme Theme { get; } = pluginSettings.Theme;
 
     public Size WindowSize => new Size((int)window.ActualWidth, (int)window.ActualHeight);
 

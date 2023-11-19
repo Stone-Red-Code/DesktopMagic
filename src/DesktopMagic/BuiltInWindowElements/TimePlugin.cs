@@ -1,5 +1,6 @@
 ﻿using DesktopMagicPluginAPI;
 using DesktopMagicPluginAPI.Inputs;
+using DesktopMagicPluginAPI.Settings;
 
 using System;
 using System.Drawing;
@@ -9,7 +10,7 @@ namespace DesktopMagic.BuiltInWindowElements;
 
 internal class TimePlugin : Plugin
 {
-    [Element("Display Seconds")]
+    [Setting("Display Seconds")]
     private readonly CheckBox displaySecondscheckBox = new CheckBox(true);
 
     public override int UpdateInterval => 1000;

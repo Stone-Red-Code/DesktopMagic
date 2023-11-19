@@ -1,5 +1,4 @@
-﻿using System;
-using System.Drawing;
+﻿using System.Drawing;
 
 namespace DesktopMagicPluginAPI;
 
@@ -8,18 +7,6 @@ namespace DesktopMagicPluginAPI;
 /// </summary>
 public interface IPluginData
 {
-    /// <summary>
-    /// Gets the current font of the current theme.
-    /// </summary>
-    [Obsolete("Use the \"Theme\" property instead")]
-    string Font { get; }
-
-    /// <summary>
-    /// Gets the current color of the current theme.
-    /// </summary>
-    [Obsolete("Use the \"Theme\" property instead")]
-    Color Color { get; }
-
     /// <summary>
     /// Gets the current theme setting of the main application.
     /// </summary>

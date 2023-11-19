@@ -1,11 +1,13 @@
-﻿using System.Collections.ObjectModel;
+﻿using DesktopMagicPluginAPI.Inputs;
 
-namespace DesktopMagicPluginAPI.Inputs;
+using System.Collections.ObjectModel;
+
+namespace DesktopMagicPluginAPI.Settings;
 
 /// <summary>
 /// Represents a selection control with a drop-down list.
 /// </summary>
-public class ComboBox : Element
+public class ComboBox : Setting
 {
     private string _value;
 

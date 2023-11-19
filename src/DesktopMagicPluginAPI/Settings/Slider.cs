@@ -1,11 +1,11 @@
 ﻿using System;
 
-namespace DesktopMagicPluginAPI.Inputs;
+namespace DesktopMagicPluginAPI.Settings;
 
 /// <summary>
 /// Represents a slider control.
 /// </summary>
-public sealed class Slider : Element
+public sealed class Slider : Setting
 {
     private double _value;
 

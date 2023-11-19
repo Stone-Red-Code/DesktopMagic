@@ -6,7 +6,7 @@ namespace DesktopMagicPluginAPI.Inputs;
 /// Marks a Property as element.
 /// </summary>
 [AttributeUsage(AttributeTargets.Field)]
-public class ElementAttribute : Attribute
+public class SettingAttribute : Attribute
 {
     /// <summary>
     /// The name of the element.
@@ -23,7 +23,7 @@ public class ElementAttribute : Attribute
     /// </summary>
     /// <param name="name">The name of the element.</param>
     /// <param name="orderIndex">The order index of the element.</param>
-    public ElementAttribute(string name, int orderIndex = 0)
+    public SettingAttribute(string name, int orderIndex = 0)
     {
         Name = name;
         OrderIndex = orderIndex;
@@ -33,13 +33,13 @@ public class ElementAttribute : Attribute
     /// Marks a Property as element with the provided <paramref name="orderIndex"/>.
     /// </summary>
     /// <param name="orderIndex">The order index of the element.</param>
-    public ElementAttribute(int orderIndex)
+    public SettingAttribute(int orderIndex)
     {
         OrderIndex = orderIndex;
     }
 
-    /// <inheritdoc cref="ElementAttribute"/>
-    public ElementAttribute()
+    /// <inheritdoc cref="SettingAttribute"/>
+    public SettingAttribute()
     {
     }
 }

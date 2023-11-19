@@ -1,11 +1,11 @@
 ﻿using System;
 
-namespace DesktopMagicPluginAPI.Inputs;
+namespace DesktopMagicPluginAPI.Settings;
 
 /// <summary>
 /// The element base class.
 /// </summary>
-public abstract class Element
+public abstract class Setting
 {
     /// <summary>
     /// Occurs when the value has been changed.

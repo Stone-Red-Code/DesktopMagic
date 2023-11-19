@@ -1,9 +1,9 @@
-﻿namespace DesktopMagicPluginAPI.Inputs;
+﻿namespace DesktopMagicPluginAPI.Settings;
 
 /// <summary>
 /// Represents a text box control.
 /// </summary>
-public class TextBox : Element
+public class TextBox : Setting
 {
     private string _value;
 

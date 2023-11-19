@@ -1,9 +1,9 @@
-﻿namespace DesktopMagicPluginAPI.Inputs;
+﻿namespace DesktopMagicPluginAPI.Settings;
 
 /// <summary>
 /// Represents a check box control.
 /// </summary>
-public class CheckBox : Element
+public class CheckBox : Setting
 {
     private bool _value;
 

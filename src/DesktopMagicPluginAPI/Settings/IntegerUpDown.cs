@@ -1,11 +1,11 @@
 ﻿using System;
 
-namespace DesktopMagicPluginAPI.Inputs;
+namespace DesktopMagicPluginAPI.Settings;
 
 /// <summary>
 /// Represents a up-down control.
 /// </summary>
-public class IntegerUpDown : Element
+public class IntegerUpDown : Setting
 {
     private int _value;
 
