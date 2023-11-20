@@ -45,10 +45,10 @@ public partial class PluginWindow : Window
 
         Window w = new()
         {
-            Left = settings.Position.X,
-            Top = settings.Position.Y,
-            Width = settings.Size.X,
-            Height = settings.Size.Y,
+            Top = -100,
+            Left = -100,
+            Width = 0,
+            Height = 0,
 
             WindowStyle = WindowStyle.ToolWindow,
             ShowInTaskbar = false
@@ -66,6 +66,11 @@ public partial class PluginWindow : Window
 
         PluginName = pluginName;
         this.settings = settings;
+
+        Left = settings.Position.X;
+        Top = settings.Position.Y;
+        Width = settings.Size.X;
+        Height = settings.Size.Y;
     }
 
     public PluginWindow(Plugin pluginClassInstance, string pluginName, Settings.PluginSettings settings) : this(pluginName, settings)
@@ -159,7 +164,7 @@ public partial class PluginWindow : Window
     {
         if (pluginClassInstance is null)
         {
-            PluginFolderPath = $"{Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)}\\{App.AppName}\\Plugins\\{PluginName}";
+            PluginFolderPath = $"{App.ApplicationDataPath}\\Plugins\\{PluginName}";
 
             if (!File.Exists($"{PluginFolderPath}\\{PluginName}.dll"))
             {

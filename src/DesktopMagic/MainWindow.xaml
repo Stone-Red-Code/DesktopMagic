@@ -130,7 +130,7 @@
 
                     <Rectangle Fill="#FFC5C5C5" Stroke="#FFC5C5C5" Grid.ColumnSpan="3" />
                     <StackPanel Margin="{StaticResource DefaultMargin}" VerticalAlignment="Bottom">
-                        <ComboBox ItemsSource="{Binding Settings.Layouts}" DisplayMemberPath="Name" SelectedValue="{Binding Settings.CurrentLayoutName}" SelectedValuePath="Name" HorizontalAlignment="Left" Margin="0,0,0,5" Width="170" Height="20" SelectionChanged="LayoutsComboBox_SelectionChanged" />
+                        <ComboBox x:Name="layoutsComboBox" ItemsSource="{Binding Settings.Layouts}" DisplayMemberPath="Name" SelectedValue="{Binding Settings.CurrentLayoutName}" SelectedValuePath="Name" HorizontalAlignment="Left" Margin="0,0,0,5" Width="170" Height="20" SelectionChanged="LayoutsComboBox_SelectionChanged" />
                         <Button x:Name="newLayoutButton" Content="{DynamicResource newLayout}" Margin="0,0,0,5" HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="170" Click="NewLayoutButton_Click" FontWeight="Regular" />
                         <Button x:Name="removeLayoutButton" Content="{DynamicResource deleteLayout}" HorizontalAlignment="Left"  VerticalAlignment="Bottom" Width="170" Click="RemoveLayoutButton_Click" FontWeight="Regular" />
                     </StackPanel>

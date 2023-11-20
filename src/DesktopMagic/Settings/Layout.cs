@@ -2,6 +2,7 @@
 
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using System.Runtime.CompilerServices;
 
 namespace DesktopMagic.Settings;
@@ -46,7 +47,7 @@ internal class Layout(string name) : INotifyPropertyChanged
 
     public void UpdatePlugins()
     {
-        OnPropertyChanged(nameof(Plugins));
+        Plugins = Plugins.ToDictionary();
     }
 
     protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)

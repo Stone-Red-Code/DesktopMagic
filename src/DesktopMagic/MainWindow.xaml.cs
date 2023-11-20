@@ -84,12 +84,6 @@ namespace DesktopMagic
                 }
                 App.Logger.Log("Created Plugins Folder", "Main");
 
-                if (!File.Exists(App.ApplicationDataPath + "\\layouts.save"))
-                {
-                    File.WriteAllText(App.ApplicationDataPath + "\\layouts.save", ";" + (string)FindResource("default"));
-                }
-                App.Logger.Log("Created layouts.save file", "Main");
-
                 //Write To Log File and Load Elements
 
                 App.Logger.Log("Loading Plugin names", "Main");
@@ -111,8 +105,11 @@ namespace DesktopMagic
 
         private void LoadPlugins()
         {
+            pluginNames.Clear();
+
             pluginNames.Add("MusicVisualizer");
-            pluginNames.Add("Test");
+            pluginNames.Add("Time");
+            pluginNames.Add("Date");
 
             string pluginsPath = App.ApplicationDataPath + "\\Plugins";
 
@@ -155,31 +152,64 @@ namespace DesktopMagic
 
         #region Windows
 
-        private void EditCheckBox_Click(object sender, RoutedEventArgs e)
+        private void EditCheckBox_Click(object? sender, RoutedEventArgs? e)
         {
             EditMode = EditCheckBox.IsChecked == true;
             SaveSettings();
         }
 
-        private void PluginCheckBox_Click(object sender, RoutedEventArgs e)
+        private void PluginCheckBox_Click(object sender, RoutedEventArgs? e)
         {
-            string pluginName = ((CheckBox)sender).Content.ToString() ?? string.Empty;
+            if (sender is not CheckBox checkBox)
+            {
+                return;
+            }
 
+            LoadPlugin(checkBox.Content.ToString() ?? string.Empty);
+        }
+
+        private void LoadPlugin(string pluginName)
+        {
             if (!Settings.CurrentLayout.Plugins.TryGetValue(pluginName, out PluginSettings? pluginSettings))
             {
                 pluginSettings = new PluginSettings();
                 Settings.CurrentLayout.Plugins.Add(pluginName, pluginSettings);
             }
 
-            CheckBox checkBox = (CheckBox)sender;
-            PluginWindow window = new PluginWindow(pluginName, pluginSettings)
+            PluginWindow window;
+
+            if (pluginName == "MusicVisualizer")
             {
-                Title = pluginName
-            };
+                window = new PluginWindow(new MusicVisualizerPlugin(), pluginName, pluginSettings)
+                {
+                    Title = pluginName
+                };
+            }
+            else if (pluginName == "Time")
+            {
+                window = new PluginWindow(new TimePlugin(), pluginName, pluginSettings)
+                {
+                    Title = pluginName
+                };
+            }
+            else if (pluginName == "Date")
+            {
+                window = new PluginWindow(new DatePlugin(), pluginName, pluginSettings)
+                {
+                    Title = pluginName
+                };
+            }
+            else
+            {
+                window = new PluginWindow(pluginName, pluginSettings)
+                {
+                    Title = pluginName
+                };
+            }
 
             blockWindowsClosing = false;
 
-            if (!WindowNames.Contains(window.Title) && checkBox.IsChecked == true)
+            if (!WindowNames.Contains(window.Title) && pluginSettings.Enabled)
             {
                 _ = Task.Run(() =>
                 {
@@ -190,19 +220,18 @@ namespace DesktopMagic
                         {
                             Dispatcher.Invoke(() =>
                             {
-                                if (!optionsComboBox.Items.Contains(checkBox.Content.ToString()))
+                                if (!optionsComboBox.Items.Contains(pluginName))
                                 {
-                                    _ = optionsComboBox.Items.Add(checkBox.Content.ToString());
+                                    _ = optionsComboBox.Items.Add(pluginName);
                                 }
                                 optionsComboBox.SelectedIndex = -1;
-                                optionsComboBox.SelectedIndex = optionsComboBox.Items.IndexOf(checkBox.Content.ToString());
+                                optionsComboBox.SelectedIndex = optionsComboBox.Items.IndexOf(pluginName);
                                 window.PluginLoaded -= onPluginLoaded;
                             });
                         };
                         window.OnExit += () =>
                         {
-                            checkBox.IsChecked = false;
-                            PluginCheckBox_Click(checkBox, null);
+                            pluginSettings.Enabled = false;
                         };
                         window.PluginLoaded += onPluginLoaded;
 
@@ -235,18 +264,22 @@ namespace DesktopMagic
                     }
                 }
             }
-            pluginSettings.Enabled = checkBox.IsChecked == true;
+
             blockWindowsClosing = true;
-            SaveSettings();
         }
 
-        private void DisplayWindow_ContentRendered(object sender, EventArgs e)
+        private void DisplayWindow_ContentRendered(object? sender, EventArgs e)
         {
-            WindowPos.SendWpfWindowBack((Window)sender);
-            WindowPos.SendWpfWindowBack((Window)sender);
+            if (sender is not Window window)
+            {
+                return;
+            }
+
+            WindowPos.SendWpfWindowBack(window);
+            WindowPos.SendWpfWindowBack(window);
         }
 
-        private void DisplayWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        private void DisplayWindow_Closing(object? sender, System.ComponentModel.CancelEventArgs e)
         {
             e.Cancel = blockWindowsClosing;
         }
@@ -255,6 +288,7 @@ namespace DesktopMagic
         {
             MessageBoxResult msbRes = MessageBox.Show((string)FindResource("wantToCloseProgram"), App.AppName, MessageBoxButton.YesNo);
             e.Cancel = msbRes != MessageBoxResult.Yes;
+            SaveSettings();
         }
 
         private void Window_Closed(object sender, EventArgs e)
@@ -268,7 +302,7 @@ namespace DesktopMagic
             Environment.Exit(0);
         }
 
-        private void Window_StateChanged(object sender, EventArgs e)
+        private void Window_StateChanged(object? sender, EventArgs? e)
         {
             if (WindowState == WindowState.Minimized)
             {
@@ -291,7 +325,6 @@ namespace DesktopMagic
         private void FontComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             Settings.CurrentLayout.Theme.Font = fontComboBox.SelectedValue.ToString()!.Replace("System.Windows.Controls.ComboBoxItem: ", "");
-            SaveSettings();
         }
 
         private void OptionsComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -368,8 +401,6 @@ namespace DesktopMagic
             {
                 Settings.CurrentLayout.Theme.PrimaryColor = colorDialog.ResultColor;
                 primaryColorRechtangle.Fill = colorDialog.ResultBrush;
-
-                SaveSettings();
             }
         }
 
@@ -380,8 +411,6 @@ namespace DesktopMagic
             {
                 Settings.CurrentLayout.Theme.SecondaryColor = colorDialog.ResultColor;
                 secondaryColorRechtangle.Fill = colorDialog.ResultBrush;
-
-                SaveSettings();
             }
         }
 
@@ -392,19 +421,16 @@ namespace DesktopMagic
             {
                 Settings.CurrentLayout.Theme.BackgroundColor = colorDialog.ResultColor;
                 backgroundColorRechtangle.Fill = colorDialog.ResultBrush;
-
-                SaveSettings();
             }
         }
 
-        private void CornerRadiusTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        private void CornerRadiusTextBox_TextChanged(object? sender, TextChangedEventArgs? e)
         {
             bool sucess = int.TryParse(cornerRadiusTextBox.Text, out int cornerRadius);
             if (sucess)
             {
                 cornerRadiusTextBox.Foreground = Brushes.Black;
                 Settings.CurrentLayout.Theme.CornerRadius = cornerRadius;
-                SaveSettings();
             }
             else
             {
@@ -412,14 +438,13 @@ namespace DesktopMagic
             }
         }
 
-        private void MarginTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        private void MarginTextBox_TextChanged(object? sender, TextChangedEventArgs? e)
         {
             bool sucess = int.TryParse(marginTextBox.Text, out int margin);
             if (sucess)
             {
                 marginTextBox.Foreground = Brushes.Black;
                 Settings.CurrentLayout.Theme.Margin = margin;
-                SaveSettings();
             }
             else
             {
@@ -429,9 +454,21 @@ namespace DesktopMagic
 
         #region Layout
 
+        private readonly JsonSerializerOptions jsonSettingsOptions = new()
+        {
+            Converters =
+            {
+                new ColorJsonConverter()
+            }
+        };
+
         private void LayoutsComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            LoadLayout(false);
+            if (loaded)
+            {
+                SaveSettings();
+                LoadLayout(false);
+            }
         }
 
         private void NewLayoutButton_Click(object sender, RoutedEventArgs e)
@@ -458,7 +495,7 @@ namespace DesktopMagic
                 return;
             }
 
-            string json = JsonSerializer.Serialize(Settings);
+            string json = JsonSerializer.Serialize(Settings, jsonSettingsOptions);
             File.WriteAllText(Path.Combine(App.ApplicationDataPath, "settings.json"), json);
         }
 
@@ -479,7 +516,7 @@ namespace DesktopMagic
 
             string json = File.ReadAllText(Path.Combine(App.ApplicationDataPath, "settings.json"));
 
-            Settings = JsonSerializer.Deserialize<DesktopMagicSettings>(json) ?? new DesktopMagicSettings()
+            Settings = JsonSerializer.Deserialize<DesktopMagicSettings>(json, jsonSettingsOptions) ?? new DesktopMagicSettings()
             {
                 Layouts =
                 [
@@ -513,8 +550,6 @@ namespace DesktopMagic
             WindowNames.Clear();
             optionsComboBox.Items.Clear();
 
-            _ = optionsComboBox.Items.Add((string)FindResource("musicVisualizer"));
-
             bool showWindow = true;
 
             foreach (string pluginName in pluginNames)
@@ -522,8 +557,13 @@ namespace DesktopMagic
                 if (!Settings.CurrentLayout.Plugins.TryGetValue(pluginName, out PluginSettings? pluginSettings))
                 {
                     Settings.CurrentLayout.Plugins.Add(pluginName, new PluginSettings());
-                    Settings.CurrentLayout.UpdatePlugins();
+
                     continue;
+                }
+
+                if (pluginSettings.Enabled)
+                {
+                    LoadPlugin(pluginName);
                 }
 
                 if (showWindow && pluginSettings.Enabled)
@@ -531,6 +571,8 @@ namespace DesktopMagic
                     showWindow = false;
                 }
             }
+
+            Settings.CurrentLayout.UpdatePlugins();
 
             if (!showWindow && minimize)
             {
@@ -549,16 +591,7 @@ namespace DesktopMagic
         private void UpdatePluginsButton_Click(object sender, RoutedEventArgs e)
         {
             LoadPlugins();
-            _ = Task.Run(() =>
-              {
-                  foreach (Window window in Windows.ToArray())
-                  {
-                      if (window.GetType() == typeof(PluginWindow))
-                      {
-                          ((PluginWindow)window).UpdatePluginWindow();
-                      }
-                  }
-              });
+            LoadLayout(false);
         }
 
         private void OpenPluginsFolderButton_Click(object sender, RoutedEventArgs e)
@@ -573,7 +606,7 @@ namespace DesktopMagic
             e.Handled = true;
         }
 
-        private void TaskbarIcon_TrayLeftClick(object sender, EventArgs e)
+        private void TaskbarIcon_TrayLeftClick(object? sender, EventArgs e)
         {
             for (int i = 0; i < 10; i++)
             {
