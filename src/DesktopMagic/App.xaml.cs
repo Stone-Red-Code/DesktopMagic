@@ -38,6 +38,7 @@ public partial class App : Application
         {
             Setup(false);
             Logger.Log("Shutting down because other instance already running.", "Setup");
+            _ = MessageBox.Show($"Another instance of {AppName} is already running.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             //Shutdown Application
             Current.Shutdown();
         }
