@@ -121,6 +121,7 @@ public partial class PluginWindow : Window
 
     private void Window_ContentRendered(object? sender, EventArgs e)
     {
+        App.Logger.Log($"\"{PluginName}\" - Starting plugin thread", "Plugin");
         pluginThread = new Thread(LoadPlugin);
         pluginThread.Start();
     }
@@ -162,13 +163,17 @@ public partial class PluginWindow : Window
 
     private void LoadPlugin()
     {
+        App.Logger.Log($"\"{PluginName}\" - Loading plugin", "Plugin");
+
         if (pluginClassInstance is null)
         {
             PluginFolderPath = $"{App.ApplicationDataPath}\\Plugins\\{PluginName}";
 
             if (!File.Exists($"{PluginFolderPath}\\{PluginName}.dll"))
             {
+                App.Logger.Log($"\"{PluginName}\" - File does not exist", "Plugin", LogSeverity.Error);
                 _ = MessageBox.Show("File does not exist!", $"Error \"{PluginName}\"", MessageBoxButton.OK, MessageBoxImage.Error);
+
                 Exit();
                 return;
             }
@@ -199,7 +204,9 @@ public partial class PluginWindow : Window
 
             if (instanceType is null)
             {
+                App.Logger.Log($"\"{PluginName}\" - The \"Plugin\" class could not be found! It has to inherit from \"{typeof(Plugin).FullName}\"", "Plugin", LogSeverity.Error);
                 _ = MessageBox.Show($"The \"Plugin\" class could not be found! It has to inherit from \"{typeof(Plugin).FullName}\"", $"Error \"{PluginName}\"", MessageBoxButton.OK, MessageBoxImage.Error);
+
                 Exit();
                 return;
             }
@@ -213,6 +220,7 @@ public partial class PluginWindow : Window
         }
         else
         {
+            App.Logger.Log($"\"{PluginName}\" - The \"Plugin\" class could not be found! It has to inherit from \"{typeof(Plugin).FullName}\"", "Plugin", LogSeverity.Error);
             _ = MessageBox.Show($"The \"Plugin\" class has to inherit from \"{typeof(Plugin).FullName}\"", $"Error \"{PluginName}\"", MessageBoxButton.OK, MessageBoxImage.Error);
             Exit();
             return;
@@ -238,6 +246,8 @@ public partial class PluginWindow : Window
 
     private void LoadOptions(object instance)
     {
+        App.Logger.Log($"\"{PluginName}\" - Loading plugin options", "Plugin");
+
         try
         {
 #pragma warning disable S3011 // Reflection should not be used to increase accessibility of classes, methods, or fields
@@ -325,6 +335,7 @@ public partial class PluginWindow : Window
 
     private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
     {
+        App.Logger.Log($"\"{PluginName}\" - Stopping plugin", "Plugin");
         pluginClassInstance?.Stop();
         IsRunning = false;
     }
