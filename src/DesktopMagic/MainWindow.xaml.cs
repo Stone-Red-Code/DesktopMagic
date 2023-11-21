@@ -34,6 +34,12 @@ namespace DesktopMagic
         public static List<PluginWindow> Windows { get; } = [];
         public static List<string> WindowNames { get; } = [];
 
+        private Dictionary<string, Type> builtInPlugins = new()
+        {
+            {"Music Visualizer", typeof(MusicVisualizerPlugin)},
+            {"Time", typeof(TimePlugin)},
+            {"Date", typeof(DatePlugin)}
+        };
         internal static bool EditMode { get; set; } = false;
 
         private DesktopMagicSettings Settings
@@ -107,9 +113,7 @@ namespace DesktopMagic
         {
             pluginNames.Clear();
 
-            pluginNames.Add("MusicVisualizer");
-            pluginNames.Add("Time");
-            pluginNames.Add("Date");
+            pluginNames.AddRange(builtInPlugins.Keys);
 
             string pluginsPath = App.ApplicationDataPath + "\\Plugins";
 
@@ -178,23 +182,9 @@ namespace DesktopMagic
 
             PluginWindow window;
 
-            if (pluginName == "MusicVisualizer")
+            if (builtInPlugins.TryGetValue(pluginName, out Type? pluginType))
             {
-                window = new PluginWindow(new MusicVisualizerPlugin(), pluginName, pluginSettings)
-                {
-                    Title = pluginName
-                };
-            }
-            else if (pluginName == "Time")
-            {
-                window = new PluginWindow(new TimePlugin(), pluginName, pluginSettings)
-                {
-                    Title = pluginName
-                };
-            }
-            else if (pluginName == "Date")
-            {
-                window = new PluginWindow(new DatePlugin(), pluginName, pluginSettings)
+                window = new PluginWindow((DesktopMagicPluginAPI.Plugin)Activator.CreateInstance(pluginType)!, pluginName, pluginSettings)
                 {
                     Title = pluginName
                 };
