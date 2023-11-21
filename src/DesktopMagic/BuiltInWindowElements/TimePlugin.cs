@@ -11,13 +11,15 @@ namespace DesktopMagic.BuiltInWindowElements;
 internal class TimePlugin : Plugin
 {
     [Setting("Display Seconds")]
-    private readonly CheckBox displaySecondscheckBox = new CheckBox(true);
+    private readonly CheckBox displaySecondsCheckBox = new CheckBox(true);
 
     public override int UpdateInterval => 1000;
 
+    private string? oldFont = null;
+    private float maxWidth = 0;
     public override Bitmap Main()
     {
-        string time = displaySecondscheckBox.Value ? DateTime.Now.ToLongTimeString() : DateTime.Now.ToShortTimeString();
+        string time = displaySecondsCheckBox.Value ? DateTime.Now.ToLongTimeString() : DateTime.Now.ToShortTimeString();
 
         Font font = new Font(Application.Theme.Font, 200);
 
@@ -28,7 +30,18 @@ internal class TimePlugin : Plugin
 
         SizeF size = tmpGr.MeasureString(time, font);
 
-        bmp = new Bitmap((int)size.Width, (int)size.Height);
+        if (oldFont != Application.Theme.Font)
+        {
+            oldFont = Application.Theme.Font;
+            maxWidth = 0;
+        }
+
+        if (size.Width > maxWidth)
+        {
+            maxWidth = size.Width;
+        }
+
+        bmp = new Bitmap((int)maxWidth, (int)size.Height);
         bmp.SetResolution(100, 100);
 
         using Graphics gr = Graphics.FromImage(bmp);
