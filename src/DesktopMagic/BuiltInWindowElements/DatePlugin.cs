@@ -1,6 +1,5 @@
-﻿using DesktopMagicPluginAPI;
-using DesktopMagicPluginAPI.Inputs;
-using DesktopMagicPluginAPI.Settings;
+﻿using DesktopMagic.Api;
+using DesktopMagic.Api.Settings;
 
 using System;
 using System.Drawing;
@@ -10,16 +9,16 @@ namespace DesktopMagic.BuiltInWindowElements;
 
 internal class DatePlugin : Plugin
 {
-    [Setting("Short date")]
+    [Setting("short-date", "Short date")]
     private readonly CheckBox shortDatecheckBox = new CheckBox(true);
 
     private DateTime oldDateTime = DateTime.MinValue;
     private Color oldColor = Color.White;
-    private string oldFont;
+    private string oldFont = string.Empty;
     private bool oldShortDatecheckBoxValue;
     public override int UpdateInterval => 1000;
 
-    public override Bitmap Main()
+    public override Bitmap? Main()
     {
         if (oldDateTime.Date == DateTime.Now.Date && oldColor == Application.Theme.PrimaryColor && oldFont == Application.Theme.Font && oldShortDatecheckBoxValue == shortDatecheckBox.Value)
         {

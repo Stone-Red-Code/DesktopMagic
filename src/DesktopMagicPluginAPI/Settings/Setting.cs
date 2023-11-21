@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 
-namespace DesktopMagicPluginAPI.Settings;
+[assembly: InternalsVisibleTo("DesktopMagic")]
+
+namespace DesktopMagic.Api.Settings;
 
 /// <summary>
 /// The element base class.
@@ -10,7 +13,15 @@ public abstract class Setting
     /// <summary>
     /// Occurs when the value has been changed.
     /// </summary>
-    public event Action OnValueChanged;
+    public event Action? OnValueChanged;
+
+    internal virtual string GetJsonValue()
+    {
+        return string.Empty;
+    }
+
+    internal virtual void SetJsonValue(string value)
+    { }
 
     /// <summary>
     /// Triggers the <see cref="OnValueChanged"/> event.

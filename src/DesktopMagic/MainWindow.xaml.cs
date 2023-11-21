@@ -4,17 +4,12 @@ using DesktopMagic.Helpers;
 using DesktopMagic.Plugins;
 using DesktopMagic.Settings;
 
-using Microsoft.Win32;
-
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Diagnostics;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -29,17 +24,18 @@ namespace DesktopMagic
         private readonly System.Windows.Forms.NotifyIcon notifyIcon = new();
 
         private readonly MainWindowDataContext mainWindowDataContext = new();
-        private bool loaded = false;
-        private bool blockWindowsClosing = true;
-        public static List<PluginWindow> Windows { get; } = [];
-        public static List<string> WindowNames { get; } = [];
 
-        private Dictionary<string, Type> builtInPlugins = new()
+        private readonly Dictionary<string, Type> builtInPlugins = new()
         {
             {"Music Visualizer", typeof(MusicVisualizerPlugin)},
             {"Time", typeof(TimePlugin)},
             {"Date", typeof(DatePlugin)}
         };
+
+        private bool loaded = false;
+        private bool blockWindowsClosing = true;
+        public static List<PluginWindow> Windows { get; } = [];
+        public static List<string> WindowNames { get; } = [];
         internal static bool EditMode { get; set; } = false;
 
         private DesktopMagicSettings Settings
@@ -184,7 +180,7 @@ namespace DesktopMagic
 
             if (builtInPlugins.TryGetValue(pluginName, out Type? pluginType))
             {
-                window = new PluginWindow((DesktopMagicPluginAPI.Plugin)Activator.CreateInstance(pluginType)!, pluginName, pluginSettings)
+                window = new PluginWindow((DesktopMagic.Api.Plugin)Activator.CreateInstance(pluginType)!, pluginName, pluginSettings)
                 {
                     Title = pluginName
                 };
@@ -337,7 +333,7 @@ namespace DesktopMagic
 
             SettingElementGenerator settingElementGenerator = new SettingElementGenerator(optionsComboBox);
 
-            foreach (InputElement settingElement in pluginSettings.Settings)
+            foreach (SettingElement settingElement in pluginSettings.Settings)
             {
                 DockPanel dockPanel = new()
                 {
@@ -466,8 +462,14 @@ namespace DesktopMagic
             InputDialog inputDialog = new((string)FindResource("enterLayoutName"));
             if (inputDialog.ShowDialog() == true)
             {
-                Settings.Layouts.Add(new Layout(inputDialog.ResponseText));
-                Settings.CurrentLayoutName = inputDialog.ResponseText;
+                if (Settings.Layouts.Any(l => l.Name.Trim() == inputDialog.ResponseText.Trim()))
+                {
+                    _ = MessageBox.Show((string)FindResource("layoutAlreadyExists"));
+                    return;
+                }
+
+                Settings.Layouts.Add(new Layout(inputDialog.ResponseText.Trim()));
+                Settings.CurrentLayoutName = inputDialog.ResponseText.Trim();
                 SaveSettings();
             }
         }

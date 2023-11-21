@@ -10,11 +10,11 @@ internal class SettingElementGenerator(ComboBox optionsComboBox)
 {
     private readonly ComboBox optionsComboBox = optionsComboBox;
 
-    public void Generate(InputElement settingElement, DockPanel dockPanel, TextBlock textBlock)
+    public void Generate(SettingElement settingElement, DockPanel dockPanel, TextBlock textBlock)
     {
         dockPanel.UpdateLayout();
         textBlock.UpdateLayout();
-        if (settingElement.Input is DesktopMagicPluginAPI.Inputs.Label eLabel)
+        if (settingElement.Input is DesktopMagic.Api.Settings.Label eLabel)
         {
             textBlock.Text = eLabel.Value;
             textBlock.Margin = new Thickness(0, 5, 3, 0);
@@ -33,7 +33,7 @@ internal class SettingElementGenerator(ComboBox optionsComboBox)
                 });
             };
         }
-        else if (settingElement.Input is DesktopMagicPluginAPI.Settings.Button eButton)
+        else if (settingElement.Input is DesktopMagic.Api.Settings.Button eButton)
         {
             Button button = new()
             {
@@ -66,7 +66,7 @@ internal class SettingElementGenerator(ComboBox optionsComboBox)
 
             _ = dockPanel.Children.Add(button);
         }
-        else if (settingElement.Input is DesktopMagicPluginAPI.Settings.CheckBox eCheckBox)
+        else if (settingElement.Input is DesktopMagic.Api.Settings.CheckBox eCheckBox)
         {
             CheckBox checkBox = new()
             {
@@ -96,7 +96,7 @@ internal class SettingElementGenerator(ComboBox optionsComboBox)
 
             _ = dockPanel.Children.Add(checkBox);
         }
-        else if (settingElement.Input is DesktopMagicPluginAPI.Settings.TextBox eTextBox)
+        else if (settingElement.Input is DesktopMagic.Api.Settings.TextBox eTextBox)
         {
             TextBox textBox = new()
             {
@@ -125,7 +125,7 @@ internal class SettingElementGenerator(ComboBox optionsComboBox)
             };
             _ = dockPanel.Children.Add(textBox);
         }
-        else if (settingElement.Input is DesktopMagicPluginAPI.Settings.IntegerUpDown eIntegerUpDown)
+        else if (settingElement.Input is DesktopMagic.Api.Settings.IntegerUpDown eIntegerUpDown)
         {
             Xceed.Wpf.Toolkit.IntegerUpDown integerUpDown = new()
             {
@@ -155,7 +155,7 @@ internal class SettingElementGenerator(ComboBox optionsComboBox)
             };
             _ = dockPanel.Children.Add(integerUpDown);
         }
-        else if (settingElement.Input is DesktopMagicPluginAPI.Settings.Slider eSlider)
+        else if (settingElement.Input is DesktopMagic.Api.Settings.Slider eSlider)
         {
             Slider slider = new()
             {
@@ -188,7 +188,7 @@ internal class SettingElementGenerator(ComboBox optionsComboBox)
 
             _ = dockPanel.Children.Add(slider);
         }
-        else if (settingElement.Input is DesktopMagicPluginAPI.Settings.ComboBox eComboBox)
+        else if (settingElement.Input is DesktopMagic.Api.Settings.ComboBox eComboBox)
         {
             ComboBox comboBox = new()
             {
@@ -196,14 +196,14 @@ internal class SettingElementGenerator(ComboBox optionsComboBox)
                 IsEditable = false,
                 VerticalAlignment = VerticalAlignment.Center,
                 HorizontalAlignment = HorizontalAlignment.Stretch,
-                SelectedIndex = 0
+                SelectedItem = eComboBox.Value
             };
 
             comboBox.SelectionChanged += (_s, _e) =>
             {
                 try
                 {
-                    eComboBox.Value = comboBox.SelectedItem.ToString();
+                    eComboBox.Value = comboBox.SelectedItem.ToString() ?? string.Empty;
                 }
                 catch (Exception ex)
                 {
@@ -224,7 +224,7 @@ internal class SettingElementGenerator(ComboBox optionsComboBox)
     {
         App.Logger.Log(message, "PluginInput");
         _ = MessageBox.Show("File execution error:\n" + message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-        int index = MainWindow.WindowNames.IndexOf(optionsComboBox.SelectedItem.ToString());
+        int index = MainWindow.WindowNames.IndexOf(optionsComboBox.SelectedItem.ToString() ?? string.Empty);
 
         PluginWindow window = MainWindow.Windows[index];
         window?.Exit();

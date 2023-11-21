@@ -1,4 +1,4 @@
-﻿namespace DesktopMagicPluginAPI.Drawing;
+﻿namespace DesktopMagic.Api.Drawing;
 
 /// <summary>
 /// Specifies which render quality is used to display the bitmap images.

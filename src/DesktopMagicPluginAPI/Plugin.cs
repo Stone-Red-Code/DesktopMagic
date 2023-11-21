@@ -1,10 +1,10 @@
-﻿using DesktopMagicPluginAPI.Drawing;
-using DesktopMagicPluginAPI.Inputs;
+﻿using DesktopMagic.Api.Drawing;
+using DesktopMagic.Api.Settings;
 
 using System;
 using System.Drawing;
 
-namespace DesktopMagicPluginAPI;
+namespace DesktopMagic.Api;
 
 /// <summary>
 /// The plugin class.
@@ -50,7 +50,7 @@ public abstract class Plugin
     /// Occurs when the <see cref="UpdateInterval"/> elapses.
     /// </summary>
     /// <returns></returns>
-    public abstract Bitmap Main();
+    public abstract Bitmap? Main();
 
     /// <summary>
     /// Occurs when the window is clicked by the mouse.

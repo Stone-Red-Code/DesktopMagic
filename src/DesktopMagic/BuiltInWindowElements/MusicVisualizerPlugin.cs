@@ -1,8 +1,6 @@
-﻿using DesktopMagic.Helpers;
-
-using DesktopMagicPluginAPI;
-using DesktopMagicPluginAPI.Inputs;
-using DesktopMagicPluginAPI.Settings;
+﻿using DesktopMagic.Api;
+using DesktopMagic.Api.Settings;
+using DesktopMagic.Helpers;
 
 using NAudio.Wave;
 
@@ -22,22 +20,22 @@ internal class MusicVisualizerPlugin : Plugin
 
     private readonly Bitmap output = new Bitmap(880, 300);
 
-    [Setting("Mirror")]
+    [Setting("mirror", "Mirror")]
     private readonly CheckBox mirrorMode = new CheckBox(false);
 
-    [Setting("Line")]
+    [Setting("line", "Line")]
     private readonly CheckBox lineMode = new CheckBox(false);
 
-    [Setting("Spectrum Mode")]
+    [Setting("spectrum-mode", "Spectrum Mode")]
     private readonly ComboBox spectrumMode = new ComboBox("Bottom", "Middle", "Top");
 
-    [Setting("Amplification")]
+    [Setting("amplification", "Amplification")]
     private readonly IntegerUpDown amplifierLevel = new IntegerUpDown(-50, 50, 0);
 
-    [Setting("Line thickness")]
+    [Setting("line-thickness", "Line thickness")]
     private readonly IntegerUpDown lineThickness = new IntegerUpDown(1, 10, 1);
 
-    private WasapiLoopbackCapture waveIn;
+    private WasapiLoopbackCapture waveIn = null!;
     private volatile bool calculate = true;
     private List<double> lastFft = [];
     public override int UpdateInterval => 0;
@@ -64,7 +62,7 @@ internal class MusicVisualizerPlugin : Plugin
         waveIn?.StopRecording();
     }
 
-    private void OnDataAvailable(object sender, WaveInEventArgs e)
+    private void OnDataAvailable(object? sender, WaveInEventArgs e)
     {
         if (calculate)
         {
@@ -80,7 +78,7 @@ internal class MusicVisualizerPlugin : Plugin
         }
     }
 
-    private void FftCalculated(object sender, FftEventArgs e)
+    private void FftCalculated(object? sender, FftEventArgs e)
     {
         if (!calculate)
         {

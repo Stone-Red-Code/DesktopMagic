@@ -1,4 +1,4 @@
-﻿namespace DesktopMagicPluginAPI.Settings;
+﻿namespace DesktopMagic.Api.Settings;
 
 /// <summary>
 /// Represents a check box control.
@@ -30,5 +30,16 @@ public class CheckBox : Setting
     public CheckBox(bool value)
     {
         Value = value;
+    }
+
+    internal override string GetJsonValue()
+    {
+        return Value.ToString();
+    }
+
+    internal override void SetJsonValue(string value)
+    {
+        _ = bool.TryParse(value, out bool result);
+        Value = result;
     }
 }

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace DesktopMagicPluginAPI.Settings;
+namespace DesktopMagic.Api.Settings;
 
 /// <summary>
 /// Represents a slider control.
@@ -59,5 +59,16 @@ public sealed class Slider : Setting
         Minimum = min;
         Maximum = max;
         Value = value;
+    }
+
+    internal override string GetJsonValue()
+    {
+        return Value.ToString();
+    }
+
+    internal override void SetJsonValue(string value)
+    {
+        _ = double.TryParse(value, out double result);
+        Value = result;
     }
 }

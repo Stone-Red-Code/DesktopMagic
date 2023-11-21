@@ -1,4 +1,4 @@
-﻿namespace DesktopMagicPluginAPI.Settings;
+﻿namespace DesktopMagic.Api.Settings;
 
 /// <summary>
 /// Represents a text box control.
@@ -28,6 +28,16 @@ public class TextBox : Setting
     /// </summary>
     /// <param name="value">The text associated with this control.</param>
     public TextBox(string value)
+    {
+        Value = value;
+    }
+
+    internal override string GetJsonValue()
+    {
+        return Value;
+    }
+
+    internal override void SetJsonValue(string value)
     {
         Value = value;
     }

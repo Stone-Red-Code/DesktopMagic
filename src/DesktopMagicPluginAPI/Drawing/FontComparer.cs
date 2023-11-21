@@ -2,7 +2,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 
-namespace DesktopMagicPluginAPI.Drawing;
+namespace DesktopMagic.Api.Drawing;
 
 internal class FontComparer : IEqualityComparer<Font>
 {

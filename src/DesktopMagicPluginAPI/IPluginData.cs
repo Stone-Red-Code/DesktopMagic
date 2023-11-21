@@ -1,6 +1,6 @@
 ﻿using System.Drawing;
 
-namespace DesktopMagicPluginAPI;
+namespace DesktopMagic.Api;
 
 /// <summary>
 ///  Defines properties and methods that provide information about the main application.

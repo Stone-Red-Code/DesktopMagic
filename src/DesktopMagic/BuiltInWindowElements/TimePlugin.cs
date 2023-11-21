@@ -1,6 +1,5 @@
-﻿using DesktopMagicPluginAPI;
-using DesktopMagicPluginAPI.Inputs;
-using DesktopMagicPluginAPI.Settings;
+﻿using DesktopMagic.Api;
+using DesktopMagic.Api.Settings;
 
 using System;
 using System.Drawing;
@@ -10,13 +9,13 @@ namespace DesktopMagic.BuiltInWindowElements;
 
 internal class TimePlugin : Plugin
 {
-    [Setting("Display Seconds")]
+    [Setting("display-seconds", "Display Seconds")]
     private readonly CheckBox displaySecondsCheckBox = new CheckBox(true);
-
-    public override int UpdateInterval => 1000;
 
     private string? oldFont = null;
     private float maxWidth = 0;
+    public override int UpdateInterval => 1000;
+
     public override Bitmap Main()
     {
         string time = displaySecondsCheckBox.Value ? DateTime.Now.ToLongTimeString() : DateTime.Now.ToShortTimeString();

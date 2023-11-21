@@ -1,6 +1,5 @@
-﻿using DesktopMagic.Helpers;
-
-using DesktopMagicPluginAPI;
+﻿using DesktopMagic.Api;
+using DesktopMagic.Helpers;
 
 using System.ComponentModel;
 using System.Runtime.CompilerServices;

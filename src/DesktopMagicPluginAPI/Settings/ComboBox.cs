@@ -1,8 +1,7 @@
-﻿using DesktopMagicPluginAPI.Inputs;
+﻿using System.Collections.ObjectModel;
+using System.Text.Json;
 
-using System.Collections.ObjectModel;
-
-namespace DesktopMagicPluginAPI.Settings;
+namespace DesktopMagic.Api.Settings;
 
 /// <summary>
 /// Represents a selection control with a drop-down list.
@@ -43,5 +42,26 @@ public class ComboBox : Setting
         {
             Items.Add(item);
         }
+    }
+
+    internal override string GetJsonValue()
+    {
+        return JsonSerializer.Serialize(new { Value, Items });
+    }
+
+    internal override void SetJsonValue(string value)
+    {
+        if (string.IsNullOrEmpty(value))
+        {
+            return;
+        }
+
+        JsonElement json = JsonSerializer.Deserialize<JsonElement>(value);
+        Items.Clear();
+        foreach (JsonElement item in json.GetProperty(nameof(Items)).EnumerateArray())
+        {
+            Items.Add(item.GetString() ?? string.Empty);
+        }
+        Value = json.GetProperty(nameof(Value)).GetString() ?? string.Empty;
     }
 }

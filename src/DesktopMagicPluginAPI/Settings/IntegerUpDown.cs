@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace DesktopMagicPluginAPI.Settings;
+namespace DesktopMagic.Api.Settings;
 
 /// <summary>
 /// Represents a up-down control.
@@ -60,5 +60,16 @@ public class IntegerUpDown : Setting
         Minimum = min;
         Maximum = max;
         Value = value;
+    }
+
+    internal override string GetJsonValue()
+    {
+        return Value.ToString();
+    }
+
+    internal override void SetJsonValue(string value)
+    {
+        _ = int.TryParse(value, out int result);
+        Value = result;
     }
 }

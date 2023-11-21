@@ -1,6 +1,4 @@
-﻿using DesktopMagicPluginAPI.Settings;
-
-namespace DesktopMagicPluginAPI.Inputs;
+﻿namespace DesktopMagic.Api.Settings;
 
 /// <summary>
 /// Represents a label control.

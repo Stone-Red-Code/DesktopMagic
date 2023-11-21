@@ -11,6 +11,7 @@
     <AssemblyVersion>0.0.0.5</AssemblyVersion>
     <PackageProjectUrl></PackageProjectUrl>
     <FileVersion>0.0.0.5</FileVersion>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

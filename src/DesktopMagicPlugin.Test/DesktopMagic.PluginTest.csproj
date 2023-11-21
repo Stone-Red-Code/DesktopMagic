@@ -10,6 +10,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DesktopMagicPluginAPI\DesktopMagicPluginAPI.csproj" />
+    <ProjectReference Include="..\DesktopMagicPluginAPI\DesktopMagic.Api.csproj" />
   </ItemGroup>
 </Project>

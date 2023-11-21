@@ -1,11 +1,9 @@
-﻿using DesktopMagic.Helpers;
+﻿using DesktopMagic.Api;
+using DesktopMagic.Api.Drawing;
+using DesktopMagic.Api.Settings;
+using DesktopMagic.Helpers;
 using DesktopMagic.Plugins;
 using DesktopMagic.Settings;
-
-using DesktopMagicPluginAPI;
-using DesktopMagicPluginAPI.Drawing;
-using DesktopMagicPluginAPI.Inputs;
-using DesktopMagicPluginAPI.Settings;
 
 using System;
 using System.Collections.Generic;
@@ -254,7 +252,7 @@ public partial class PluginWindow : Window
             FieldInfo[] props = instance.GetType().GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.GetField);
 #pragma warning restore S3011 // Reflection should not be used to increase accessibility of classes, methods, or fields
 
-            List<InputElement> settingElements = [];
+            List<SettingElement> settingElements = [];
             foreach (FieldInfo prop in props)
             {
                 if (prop.GetValue(instance) is Setting element)
@@ -264,7 +262,15 @@ public partial class PluginWindow : Window
                     {
                         if (attribute is SettingAttribute elementAttribute)
                         {
-                            settingElements.Add(new InputElement(element, elementAttribute.Name, elementAttribute.OrderIndex));
+                            SettingElement settingElement = new SettingElement(element, elementAttribute.Id, elementAttribute.Name, elementAttribute.OrderIndex);
+
+                            if (settings.Settings.Exists(e => e.Id == elementAttribute.Id))
+                            {
+                                SettingElement settingsSettingElement = settings.Settings.First(e => e.Id == elementAttribute.Id);
+                                settingElement.JsonValue = settingsSettingElement.JsonValue;
+                            }
+
+                            settingElements.Add(settingElement);
                             break;
                         }
                     }

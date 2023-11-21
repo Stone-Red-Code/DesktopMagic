@@ -13,7 +13,7 @@ public class PluginSettings : INotifyPropertyChanged
     public event PropertyChangedEventHandler? PropertyChanged;
 
     private readonly Theme? theme;
-    private List<InputElement> settings = [];
+    private List<SettingElement> settings = [];
     private bool enabled = false;
     private Point position = new Point(100, 100);
     private Point size = new Point(300, 300);
@@ -21,7 +21,7 @@ public class PluginSettings : INotifyPropertyChanged
     [JsonIgnore]
     public Theme Theme => theme is null ? MainWindowDataContext.GetSettings().CurrentLayout.Theme : theme;
 
-    public List<InputElement> Settings
+    public List<SettingElement> Settings
     {
         get => settings;
         set

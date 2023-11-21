@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 
-namespace DesktopMagicPluginAPI.Drawing;
+namespace DesktopMagic.Api.Drawing;
 
 /// <summary>
 /// Extensions for the <see cref="Graphics"/> class.

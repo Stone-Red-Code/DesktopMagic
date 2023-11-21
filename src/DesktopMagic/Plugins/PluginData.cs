@@ -1,6 +1,5 @@
-﻿using DesktopMagic.Settings;
-
-using DesktopMagicPluginAPI;
+﻿using DesktopMagic.Api;
+using DesktopMagic.Settings;
 
 using System.Drawing;
 

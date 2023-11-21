@@ -1,6 +1,5 @@
-﻿using DesktopMagicPluginAPI;
-using DesktopMagicPluginAPI.Inputs;
-using DesktopMagicPluginAPI.Settings;
+﻿using DesktopMagic.Api;
+using DesktopMagic.Api.Settings;
 
 using System;
 using System.Collections.Generic;
@@ -9,16 +8,16 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Threading.Tasks;
 
-namespace DesktopMagicPlugin.Test;
+namespace DesktopMagic.PluginTest;
 
 public class GifPlugin : Plugin
 {
     private const string SaveFilePath = "gifPath.txt";
 
-    [Setting("Gif path:")]
+    [Setting("gif-path", "Gif path:")]
     private readonly TextBox input = new TextBox("");
 
-    [Setting]
+    [Setting("info")]
     private readonly Label info = new Label("");
 
     private readonly List<Bitmap> bitmaps = [];
@@ -64,7 +63,7 @@ public class GifPlugin : Plugin
 
                     PropertyItem item = gif.GetPropertyItem(0x5100); // FrameDelay in libgdiplus
 
-                    UpdateInterval = (item.Value[0] + (item.Value[1] * 256)) * 10; //FrameDelay in ms
+                    UpdateInterval = (item.Value[0] + item.Value[1] * 256) * 10; //FrameDelay in ms
                     bitmaps.Clear();
                     for (int i = 0; i < gif.GetFrameCount(FrameDimension.Time); i++)
                     {

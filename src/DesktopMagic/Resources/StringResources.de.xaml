@@ -25,6 +25,7 @@
     <system:String x:Key="ok">Ok</system:String>
     <system:String x:Key="cancel">Abbrechen</system:String>
     <system:String x:Key="enterLayoutName">Layoutnamen eingeben:</system:String>
+    <system:String x:Key="layoutAlreadyExists">Layout exestiert bereits!</system:String>
     <col:ArrayList x:Key="musicVisualizerOptionsComboboxItems">
         <system:String>Unten</system:String>
         <system:String>Mitte</system:String>

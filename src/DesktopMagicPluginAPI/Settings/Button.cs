@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace DesktopMagicPluginAPI.Settings;
+namespace DesktopMagic.Api.Settings;
 
 /// <summary>
 /// Represents a button control.

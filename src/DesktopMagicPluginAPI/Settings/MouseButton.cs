@@ -1,4 +1,4 @@
-﻿namespace DesktopMagicPluginAPI.Inputs;
+﻿namespace DesktopMagic.Api.Settings;
 
 /// <summary>
 /// Mouse Buttons
