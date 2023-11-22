@@ -6,7 +6,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Inno\" />
+    <Compile Remove="Inno\**" />
+    <EmbeddedResource Remove="Inno\**" />
+    <None Remove="Inno\**" />
   </ItemGroup>
 
   <ItemGroup>
