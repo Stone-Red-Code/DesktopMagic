@@ -14,38 +14,63 @@ namespace DesktopMagic;
 /// </summary>
 public partial class App : Application
 {
+    public const string AppGuid = "{{61FE5CE9-47C3-4255-A1F4-5BCF4ACA0879}";
+
     public const string AppName = "Desktop Magic";
     private readonly string logFilePath;
-    private readonly Mutex _mutex;
 #if DEBUG
     private readonly Updater updater = new Updater(TimeSpan.FromDays(1), "https://raw.githubusercontent.com/Stone-Red-Code/DesktopMagic/develop/update/updateInfo.json");
 #else
     private readonly Updater updater = new Updater(TimeSpan.FromDays(1), "https://raw.githubusercontent.com/Stone-Red-Code/DesktopMagic/main/update/updateInfo.json");
 #endif
+    private Thread? eventThread;
+    private EventWaitHandle eventWaitHandle;
+
+    private Logger logger = new Logger();
     public static string ApplicationDataPath { get; } = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "StoneRed", AppName);
 
-    public static Logger Logger { get; } = new Logger();
+    public static Logger Logger
+    {
+        get
+        {
+            lock (Current)
+            {
+                return ((App)Current).logger;
+            }
+        }
+    }
 
     public App()
     {
         logFilePath = ApplicationDataPath + "\\Log.log";
 
-        // Try to grab mutex
-        _mutex = new Mutex(true, $"Stone_Red{AppName}", out bool createdNew);
+        // Setup global event handler
+        eventWaitHandle = new EventWaitHandle(false, EventResetMode.AutoReset, AppGuid, out bool createdNew);
 
         //check if creating new was successful
         if (!createdNew)
         {
             Setup(false);
-            Logger.Log("Shutting down because other instance already running.", "Setup");
-            _ = MessageBox.Show($"Another instance of {AppName} is already running.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            Logger.Log("Shutting down because other instance already running.", "Setup", LogSeverity.Warn);
             //Shutdown Application
+            _ = eventWaitHandle.Set();
             Current.Shutdown();
         }
         else
         {
+            eventThread = new Thread(
+                () =>
+                {
+                    while (eventWaitHandle.WaitOne())
+                    {
+                        _ = Current.Dispatcher.BeginInvoke(
+                            () => ((MainWindow)Current.MainWindow).RestoreWindow());
+                    }
+                });
+            eventThread.Start();
+
             Setup(true);
-            Exit += CloseMutexHandler;
+            Exit += CloseHandler;
 
             updater.ProgressChanged += Updater_ProgressChanged;
             updater.OnException += Updater_OnException;
@@ -55,9 +80,10 @@ public partial class App : Application
         }
     }
 
-    protected void CloseMutexHandler(object sender, EventArgs e)
+    protected void CloseHandler(object sender, EventArgs e)
     {
-        _mutex?.Close();
+        eventWaitHandle.Close();
+        eventThread?.Interrupt();
     }
 
     private void Updater_UpdateAvailible(string version, string additionalInformation)

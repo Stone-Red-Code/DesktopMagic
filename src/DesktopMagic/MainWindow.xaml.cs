@@ -356,6 +356,19 @@ namespace DesktopMagic
 
         #endregion Options
 
+        internal void RestoreWindow()
+        {
+            for (int i = 0; i < 10; i++)
+            {
+                ShowInTaskbar = true;
+                Visibility = Visibility.Visible;
+                SystemCommands.RestoreWindow(this);
+                Topmost = true;
+                _ = Activate();
+                Topmost = false;
+            }
+        }
+
         private void TextBlock_Loaded(object sender, RoutedEventArgs e)
         {
             int index = 0;
@@ -600,15 +613,7 @@ namespace DesktopMagic
 
         private void TaskbarIcon_TrayLeftClick(object? sender, EventArgs e)
         {
-            for (int i = 0; i < 10; i++)
-            {
-                ShowInTaskbar = true;
-                Visibility = Visibility.Visible;
-                SystemCommands.RestoreWindow(this);
-                Topmost = true;
-                _ = Activate();
-                Topmost = false;
-            }
+            RestoreWindow();
         }
 
         private void GithubButton_Click(object sender, RoutedEventArgs e)
