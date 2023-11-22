@@ -557,8 +557,10 @@ namespace DesktopMagic
 
             bool showWindow = true;
 
+            // Load plugins
             foreach (string pluginName in pluginNames)
             {
+                // Add plugin to layout if it doesn't exist
                 if (!Settings.CurrentLayout.Plugins.TryGetValue(pluginName, out PluginSettings? pluginSettings))
                 {
                     Settings.CurrentLayout.Plugins.Add(pluginName, new PluginSettings());
@@ -574,6 +576,15 @@ namespace DesktopMagic
                 if (showWindow && pluginSettings.Enabled)
                 {
                     showWindow = false;
+                }
+            }
+
+            // Remove plugins that are not loaded anymore
+            foreach (string pluginName in Settings.CurrentLayout.Plugins.Keys)
+            {
+                if (!pluginNames.Contains(pluginName))
+                {
+                    Settings.CurrentLayout.Plugins.Remove(pluginName);
                 }
             }
 
