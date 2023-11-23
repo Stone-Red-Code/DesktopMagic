@@ -1,5 +1,4 @@
 ﻿using System.Collections.ObjectModel;
-using System.Text.Json;
 
 namespace DesktopMagic.Api.Settings;
 
@@ -8,7 +7,7 @@ namespace DesktopMagic.Api.Settings;
 /// </summary>
 public class ComboBox : Setting
 {
-    private string _value;
+    private string _value = string.Empty;
 
     /// <summary>
     /// Gets the collection used to generate the content of the <see cref="ComboBox"/>.
@@ -38,6 +37,8 @@ public class ComboBox : Setting
     /// <param name="items"></param>
     public ComboBox(params string[] items)
     {
+        Value = items[0];
+
         foreach (string item in items)
         {
             Items.Add(item);
@@ -46,7 +47,7 @@ public class ComboBox : Setting
 
     internal override string GetJsonValue()
     {
-        return JsonSerializer.Serialize(new { Value, Items });
+        return Value;
     }
 
     internal override void SetJsonValue(string value)
@@ -56,12 +57,6 @@ public class ComboBox : Setting
             return;
         }
 
-        JsonElement json = JsonSerializer.Deserialize<JsonElement>(value);
-        Items.Clear();
-        foreach (JsonElement item in json.GetProperty(nameof(Items)).EnumerateArray())
-        {
-            Items.Add(item.GetString() ?? string.Empty);
-        }
-        Value = json.GetProperty(nameof(Value)).GetString() ?? string.Empty;
+        Value = value;
     }
 }

@@ -29,7 +29,8 @@ namespace DesktopMagic
         {
             {"Music Visualizer", typeof(MusicVisualizerPlugin)},
             {"Time", typeof(TimePlugin)},
-            {"Date", typeof(DatePlugin)}
+            {"Date", typeof(DatePlugin)},
+            {"Cpu Usage", typeof(CpuMonitorPlugin)}
         };
 
         private bool loaded = false;
@@ -338,7 +339,8 @@ namespace DesktopMagic
                 DockPanel dockPanel = new()
                 {
                     LastChildFill = true,
-                    HorizontalAlignment = HorizontalAlignment.Stretch
+                    HorizontalAlignment = HorizontalAlignment.Stretch,
+                    Margin = new Thickness(0, 0, 0, 5)
                 };
                 _ = optionsPanel.Children.Add(dockPanel);
 

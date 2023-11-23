@@ -11,7 +11,13 @@ namespace DesktopMagic.Api;
 /// </summary>
 public abstract class Plugin
 {
-    private IPluginData application = null;
+    [Setting("horizontalAlignment", "Horizontal Alignment", -999)]
+    internal ComboBox horizontalAlignment = new ComboBox("Center", "Left", "Right");
+
+    [Setting("verticalAlignment", "Vertical Alignment", -998)]
+    internal ComboBox verticalAlignment = new ComboBox("Center", "Top", "Bottom");
+
+    private IPluginData application = null!;
 
     /// <summary>
     /// Informations about the main application.

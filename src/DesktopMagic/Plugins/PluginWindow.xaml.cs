@@ -131,6 +131,8 @@ public partial class PluginWindow : Window
             if (MainWindow.EditMode)
             {
                 panel.Visibility = Visibility.Visible;
+                imageBorder.BorderThickness = new Thickness(3);
+                image.Margin = new(-3);
                 WindowPos.SetIsLocked(this, false);
                 tileBar.CaptionHeight = tileBar.CaptionHeight = ActualHeight - 10 < 0 ? 0 : ActualHeight - 10;
                 ResizeMode = ResizeMode.CanResize;
@@ -138,6 +140,8 @@ public partial class PluginWindow : Window
             else
             {
                 panel.Visibility = Visibility.Collapsed;
+                imageBorder.BorderThickness = new Thickness(0);
+                image.Margin = new Thickness(0);
                 WindowPos.SetIsLocked(this, true);
                 tileBar.CaptionHeight = 0;
                 ResizeMode = ResizeMode.NoResize;
@@ -224,7 +228,8 @@ public partial class PluginWindow : Window
             return;
         }
 
-        LoadOptions(instance);
+        LoadOptions(pluginClassInstance);
+        BindDefaultSettings(pluginClassInstance);
 
         valueTimer = new System.Timers.Timer
         {
@@ -239,6 +244,40 @@ public partial class PluginWindow : Window
         {
             valueTimer.Interval = pluginClassInstance.UpdateInterval;
             valueTimer.Start();
+        }
+    }
+
+    private void BindDefaultSettings(Plugin pluginClassInstance)
+    {
+        Dispatcher.Invoke(() =>
+        {
+            SetHorizontalAlignment();
+            SetVerticalAlignment();
+
+            pluginClassInstance.horizontalAlignment.OnValueChanged += SetHorizontalAlignment;
+            pluginClassInstance.verticalAlignment.OnValueChanged += SetVerticalAlignment;
+        });
+
+        void SetVerticalAlignment()
+        {
+            viewBox.VerticalAlignment = pluginClassInstance.verticalAlignment.Value switch
+            {
+                "Top" => VerticalAlignment.Top,
+                "Center" => VerticalAlignment.Center,
+                "Bottom" => VerticalAlignment.Bottom,
+                _ => VerticalAlignment.Center
+            };
+        }
+
+        void SetHorizontalAlignment()
+        {
+            viewBox.HorizontalAlignment = pluginClassInstance.horizontalAlignment.Value switch
+            {
+                "Left" => HorizontalAlignment.Left,
+                "Center" => HorizontalAlignment.Center,
+                "Right" => HorizontalAlignment.Right,
+                _ => HorizontalAlignment.Center
+            };
         }
     }
 
@@ -294,7 +333,7 @@ public partial class PluginWindow : Window
         {
             if (IsRunning && pluginClassInstance is not null)
             {
-                Bitmap result = pluginClassInstance.Main();
+                Bitmap? result = pluginClassInstance.Main();
 
                 if (pluginClassInstance.UpdateInterval > 0)
                 {

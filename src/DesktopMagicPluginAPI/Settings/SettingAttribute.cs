@@ -5,13 +5,13 @@ namespace DesktopMagic.Api.Settings;
 /// <summary>
 /// Marks a Property as element.
 /// </summary>
-[AttributeUsage(AttributeTargets.Field)]
+[AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
 public class SettingAttribute : Attribute
 {
     /// <summary>
     /// The name of the element.
     /// </summary>
-    public string Name { get; set; }
+    public string Name { get; set; } = string.Empty;
 
     /// <summary>
     /// The order index of the element.

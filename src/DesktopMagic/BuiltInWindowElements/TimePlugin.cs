@@ -12,8 +12,6 @@ internal class TimePlugin : Plugin
     [Setting("display-seconds", "Display Seconds")]
     private readonly CheckBox displaySecondsCheckBox = new CheckBox(true);
 
-    private string? oldFont = null;
-    private float maxWidth = 0;
     public override int UpdateInterval => 1000;
 
     public override Bitmap Main()
@@ -29,18 +27,7 @@ internal class TimePlugin : Plugin
 
         SizeF size = tmpGr.MeasureString(time, font);
 
-        if (oldFont != Application.Theme.Font)
-        {
-            oldFont = Application.Theme.Font;
-            maxWidth = 0;
-        }
-
-        if (size.Width > maxWidth)
-        {
-            maxWidth = size.Width;
-        }
-
-        bmp = new Bitmap((int)maxWidth, (int)size.Height);
+        bmp = new Bitmap((int)size.Width, (int)size.Height);
         bmp.SetResolution(100, 100);
 
         using Graphics gr = Graphics.FromImage(bmp);
