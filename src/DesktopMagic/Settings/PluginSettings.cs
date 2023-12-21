@@ -1,4 +1,5 @@
-﻿using DesktopMagic.Plugins;
+﻿using DesktopMagic.DataContexts;
+using DesktopMagic.Plugins;
 
 using System.Collections.Generic;
 using System.ComponentModel;

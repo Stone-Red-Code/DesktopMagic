@@ -1,4 +1,5 @@
 ﻿using DesktopMagic.BuiltInWindowElements;
+using DesktopMagic.DataContexts;
 using DesktopMagic.Dialogs;
 using DesktopMagic.Helpers;
 using DesktopMagic.Plugins;
@@ -642,6 +643,10 @@ namespace DesktopMagic
 
         private void DownloadPluginsButton_Click(object sender, RoutedEventArgs e)
         {
+            PluginManager pluginManager = new PluginManager();
+            pluginManager.ShowDialog();
+
+            return;
             string uri = "https://github.com/Stone-Red-Code/DesktopMagic-Plugins";
             ProcessStartInfo psi = new ProcessStartInfo
             {

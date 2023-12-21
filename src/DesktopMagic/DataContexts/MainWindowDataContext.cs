@@ -3,7 +3,7 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
-namespace DesktopMagic;
+namespace DesktopMagic.DataContexts;
 
 internal class MainWindowDataContext : INotifyPropertyChanged
 {
