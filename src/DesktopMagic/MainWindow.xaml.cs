@@ -131,7 +131,7 @@ namespace DesktopMagic
 
             foreach (string directory in Directory.GetDirectories(pluginsPath))
             {
-                foreach (string fileName in Directory.GetFiles(directory).Where(s => s.EndsWith(".dll", StringComparison.InvariantCulture) || s.EndsWith(".cs", StringComparison.InvariantCulture)))
+                foreach (string fileName in Directory.GetFiles(directory).Where(s => s.EndsWith(".dll", StringComparison.InvariantCulture)))
                 {
                     string badChars = ",#-<>?!=()*,. ";
                     string pluginName = fileName[(fileName.LastIndexOf('\\') + 1)..].Replace(fileName[fileName.LastIndexOf('.')..], "");
@@ -641,19 +641,11 @@ namespace DesktopMagic
             _ = Process.Start(psi);
         }
 
-        private void DownloadPluginsButton_Click(object sender, RoutedEventArgs e)
+        private void PluginManagerButton_Click(object sender, RoutedEventArgs e)
         {
             PluginManager pluginManager = new PluginManager();
             pluginManager.ShowDialog();
-
-            return;
-            string uri = "https://github.com/Stone-Red-Code/DesktopMagic-Plugins";
-            ProcessStartInfo psi = new ProcessStartInfo
-            {
-                UseShellExecute = true,
-                FileName = uri
-            };
-            _ = Process.Start(psi);
+            LoadPlugins();
         }
 
         private void SetLanguageDictionary()

@@ -1,9 +1,10 @@
 ﻿using Modio.NET.Models;
 
 using System;
+using System.Windows.Input;
 
 namespace DesktopMagic.DataContexts;
-internal class ModEntryDataContext(Mod mod)
+internal class ModEntryDataContext(Mod mod, ICommand installCommand)
 {
     public string Name => mod.Name!;
 
@@ -13,4 +14,6 @@ internal class ModEntryDataContext(Mod mod)
 
     public DateTime FormattedDateAdded => DateTimeOffset.FromUnixTimeSeconds(mod.DateAdded).LocalDateTime;
     public DateTime FormattedDateUpdated => DateTimeOffset.FromUnixTimeSeconds(mod.DateUpdated).LocalDateTime;
+
+    public ICommand InstallCommand => installCommand;
 }

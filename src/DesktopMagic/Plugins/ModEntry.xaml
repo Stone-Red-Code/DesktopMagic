@@ -3,11 +3,14 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              xmlns:local="clr-namespace:DesktopMagic.Plugins"
              xmlns:dataContext="clr-namespace:DesktopMagic.DataContexts"
              d:DataContext="{d:DesignInstance Type=dataContext:ModEntryDataContext}"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">
+             d:DesignHeight="450" d:DesignWidth="800"
+             Background="{DynamicResource MaterialDesignPaper}"
+             FontFamily="{DynamicResource MaterialDesignFont}">
     <Grid Background="White" Margin="10">
         <Grid.RowDefinitions>
             <RowDefinition/>
@@ -15,22 +18,22 @@
         </Grid.RowDefinitions>
 
         <Grid.ColumnDefinitions>
-            <ColumnDefinition/>
+            <ColumnDefinition Width="auto"/>
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
 
-        <Border HorizontalAlignment="Left" Width="100" Height="100" BorderThickness="1" BorderBrush="Black">
+        <Border HorizontalAlignment="Left" Width="100" Height="100" BorderThickness="1" BorderBrush="LightGray">
             <Image Source="{Binding Logo}" Width="100" Height="100"/>
         </Border>
 
 
-        <StackPanel Grid.Column="1" HorizontalAlignment="Right">
-            <Label Content="{Binding FormattedDateAdded}" ContentStringFormat="Added: {0}"/>
-            <Label Content="{Binding FormattedDateUpdated}" ContentStringFormat="Updated: {0}"/>
-            <Button Margin="10" Content="Download"/>
+        <StackPanel Grid.Column="1" HorizontalAlignment="Stretch">
+            <Label Content="{Binding FormattedDateAdded}" HorizontalAlignment="Center" ContentStringFormat="Added: {0}"/>
+            <Label Content="{Binding FormattedDateUpdated}" HorizontalAlignment="Center" ContentStringFormat="Updated: {0}"/>
+            <Button Command="{Binding InstallCommand}" HorizontalAlignment="Stretch" Margin="10" Content="Install"/>
         </StackPanel>
 
-        <StackPanel Grid.Row="1">
+        <StackPanel Grid.Row="1" Grid.ColumnSpan="2">
             <Label Content="{Binding Name}" FontSize="20"/>
             <Label Content="{Binding Description}"/>
         </StackPanel>

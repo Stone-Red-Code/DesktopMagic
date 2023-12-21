@@ -7,7 +7,7 @@
     <system:String x:Key="mirrorMode">Spiegeln</system:String>
     <system:String x:Key="updatePlugins">Plugins Neu Laden</system:String>
     <system:String x:Key="openPluginsFolder">Plugins Ordner Öffnen</system:String>
-    <system:String x:Key="downloadPlugins">Plugins Herunterladen</system:String>
+    <system:String x:Key="pluginManager">Plugin Manager</system:String>
     <system:String x:Key="color">Farbe:</system:String>
     <system:String x:Key="default">Standard</system:String>
     <system:String x:Key="wantToCloseProgram">Wollen sie das Programm wirklich schließen?</system:String>

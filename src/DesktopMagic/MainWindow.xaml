@@ -136,11 +136,11 @@
                         <Button x:Name="removeLayoutButton" Content="{DynamicResource deleteLayout}" HorizontalAlignment="Left"  VerticalAlignment="Bottom" Width="170" Click="RemoveLayoutButton_Click" FontWeight="Regular" />
                     </StackPanel>
                     <StackPanel Grid.Column="1" Margin="{StaticResource DefaultMargin}" VerticalAlignment="Bottom">
-                        <Button x:Name="downloadPluginsButton"  Content="{DynamicResource downloadPlugins}" Margin="0,0,0,5" HorizontalAlignment="Center" Width="170" Click="DownloadPluginsButton_Click"  FontWeight="Regular" Cursor="Hand" />
+                        <Button x:Name="updatePluginsButton" Content="{DynamicResource updatePlugins}" Margin="0,0,0,5" HorizontalAlignment="Center" Width="170" Click="UpdatePluginsButton_Click" FontWeight="Regular" />
                         <Button x:Name="githubButton" Content="GitHub" HorizontalAlignment="Center" Width="170" Click="GithubButton_Click"  FontWeight="Regular" Cursor="Hand" />
                     </StackPanel>
                     <StackPanel Grid.Column="2" Margin="{StaticResource DefaultMargin}" VerticalAlignment="Bottom">
-                        <Button x:Name="updatePluginsButton" Content="{DynamicResource updatePlugins}" Margin="0,0,0,5" HorizontalAlignment="Right" Width="170" Click="UpdatePluginsButton_Click" FontWeight="Regular" />
+                        <Button x:Name="downloadPluginsButton"  Content="{DynamicResource pluginManager}" Margin="0,0,0,5" HorizontalAlignment="Right" Width="170" Click="PluginManagerButton_Click"  FontWeight="Regular" Cursor="Hand" />
                         <Button x:Name="openPluginsFolderButton" Content="{DynamicResource openPluginsFolder}" HorizontalAlignment="Right" Width="170" Click="OpenPluginsFolderButton_Click" FontWeight="Regular" />
                     </StackPanel>
                 </Grid>
