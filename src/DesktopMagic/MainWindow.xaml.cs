@@ -145,6 +145,12 @@ namespace DesktopMagic
                     continue;
                 }
 
+                if (plugins.ContainsKey(pluginMetadata.Id))
+                {
+                    App.Logger.Log($"Plugin \"{directory}\" has the same id as another plugin", "Main", LogSeverity.Error);
+                    continue;
+                }
+
                 plugins.Add(pluginMetadata.Id, new(pluginMetadata, directory));
             }
         }
