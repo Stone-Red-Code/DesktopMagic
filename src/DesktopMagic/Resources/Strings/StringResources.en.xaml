@@ -5,7 +5,7 @@
 
     <system:String x:Key="lineMode">Line</system:String>
     <system:String x:Key="mirrorMode">Mirror</system:String>
-    <system:String x:Key="updatePlugins">Reload Plugins</system:String>
+    <system:String x:Key="updatePlugins">Reload</system:String>
     <system:String x:Key="openPluginsFolder">Open Plugins Folder</system:String>
     <system:String x:Key="pluginManager">Plugin Manager</system:String>
     <system:String x:Key="color">Color:</system:String>
@@ -26,6 +26,8 @@
     <system:String x:Key="cancel">Cancel</system:String>
     <system:String x:Key="enterLayoutName">Enter layout name</system:String>
     <system:String x:Key="layoutAlreadyExists">Layout already exists!</system:String>
+    <system:String x:Key="install">Install</system:String>
+    <system:String x:Key="remove">Remove</system:String>
     <col:ArrayList x:Key="musicVisualizerOptionsComboboxItems">
         <system:String>Bottom</system:String>
         <system:String>Middle</system:String>

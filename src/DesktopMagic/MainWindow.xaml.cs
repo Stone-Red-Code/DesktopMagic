@@ -669,11 +669,11 @@ namespace DesktopMagic
 
             if (currentCulture.Contains("de"))
             {
-                dict.Source = new Uri("..\\Resources\\StringResources.de.xaml", UriKind.Relative);
+                dict.Source = new Uri("..\\Resources\\Strings\\StringResources.de.xaml", UriKind.Relative);
             }
             else
             {
-                dict.Source = new Uri("..\\Resources\\StringResources.en.xaml", UriKind.Relative);
+                dict.Source = new Uri("..\\Resources\\Strings\\StringResources.en.xaml", UriKind.Relative);
             }
             Resources.MergedDictionaries.Add(dict);
         }

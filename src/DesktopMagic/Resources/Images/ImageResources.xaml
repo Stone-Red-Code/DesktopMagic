@@ -1,0 +1,6 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <BitmapImage x:Key="Icon" UriSource="/icon.ico" />
+    <BitmapImage x:Key="ModioCogBlue" UriSource="modio-cog-blue.png" />
+    <BitmapImage x:Key="ModioLogoBlueDark" UriSource="modio-logo-bluedark.png" />
+</ResourceDictionary>

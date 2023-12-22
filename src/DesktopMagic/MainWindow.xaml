@@ -11,7 +11,7 @@
         Closing="Window_Closing"
         Closed="Window_Closed"
         ShowInTaskbar="True"
-        Icon="icon.ico"
+        Icon="{StaticResource Icon}"
         Background="{DynamicResource MaterialDesignPaper}"
         FontFamily="{DynamicResource MaterialDesignFont}"
         Height="520"

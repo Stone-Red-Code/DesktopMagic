@@ -24,6 +24,7 @@
                 <RowDefinition Height="auto" />
                 <RowDefinition Height="auto" />
                 <RowDefinition />
+                <RowDefinition Height="auto" />
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition />
@@ -57,6 +58,10 @@
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
+
+            <DockPanel Grid.Row="3" Grid.ColumnSpan="2">
+                <Image Source="{StaticResource ModioLogoBlueDark}" Height="30" HorizontalAlignment="Left" />
+            </DockPanel>
         </Grid>
     </busyIndicator:BusyMask>
 </Window>

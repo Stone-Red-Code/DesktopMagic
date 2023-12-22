@@ -24,6 +24,14 @@
     <None Remove="icon.ico" />
     <None Remove="icons8_volunteering_26_85L_icon.ico" />
     <None Remove="icon_Dark.ico" />
+    <None Remove="Resources\Images\modio-cog-blue.png" />
+    <None Remove="Resources\Images\modio-logo-bluedark.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Resources\Images\modio-cog-blue.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
   </ItemGroup>
 
   <ItemGroup>
@@ -49,5 +57,6 @@
     <Resource Include="icon.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
+    <Resource Include="Resources\Images\modio-logo-bluedark.png" />
   </ItemGroup>
 </Project>
