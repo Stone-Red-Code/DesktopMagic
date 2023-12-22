@@ -22,6 +22,10 @@ public class PluginSettings : INotifyPropertyChanged
     [JsonIgnore]
     public Theme Theme => theme is null ? MainWindowDataContext.GetSettings().CurrentLayout.Theme : theme;
 
+    // Only for internal use to show the name of the plugin in the main window
+    [JsonIgnore]
+    public string Name { get; set; } = string.Empty;
+
     public List<SettingElement> Settings
     {
         get => settings;

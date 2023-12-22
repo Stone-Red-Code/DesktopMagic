@@ -15,7 +15,7 @@ internal class PluginData(PluginWindow window, PluginSettings pluginSettings) : 
 
     public Point WindowPosition => new Point((int)window.Left, (int)window.Top);
 
-    public string PluginName => window.PluginName;
+    public string PluginName => window.PluginMetadata.Name;
 
     public string PluginPath => window.PluginFolderPath;
 

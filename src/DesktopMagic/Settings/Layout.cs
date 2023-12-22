@@ -13,7 +13,7 @@ internal class Layout(string name) : INotifyPropertyChanged
 
     private string name = name;
     private Theme theme = new Theme();
-    private Dictionary<string, PluginSettings> plugins = [];
+    private Dictionary<uint, PluginSettings> plugins = [];
 
     public Theme Theme
     {
@@ -25,7 +25,7 @@ internal class Layout(string name) : INotifyPropertyChanged
         }
     }
 
-    public Dictionary<string, PluginSettings> Plugins
+    public Dictionary<uint, PluginSettings> Plugins
     {
         get => plugins;
         set

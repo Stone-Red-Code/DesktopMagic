@@ -5,6 +5,8 @@ using DesktopMagic.Helpers;
 using DesktopMagic.Plugins;
 using DesktopMagic.Settings;
 
+using Stone_Red_Utilities.StringExtentions;
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -26,12 +28,12 @@ namespace DesktopMagic
 
         private readonly MainWindowDataContext mainWindowDataContext = new();
 
-        private readonly Dictionary<string, Type> builtInPlugins = new()
+        private readonly Dictionary<PluginMetadata, Type> builtInPlugins = new()
         {
-            {"Music Visualizer", typeof(MusicVisualizerPlugin)},
-            {"Time", typeof(TimePlugin)},
-            {"Date", typeof(DatePlugin)},
-            {"Cpu Usage", typeof(CpuMonitorPlugin)}
+            {new("Music Visualizer", 1), typeof(MusicVisualizerPlugin)},
+            {new("Time",2), typeof(TimePlugin)},
+            {new("Date",3), typeof(DatePlugin)},
+            {new("Cpu Usage", 4), typeof(CpuMonitorPlugin)}
         };
 
         private bool loaded = false;
@@ -76,7 +78,7 @@ namespace DesktopMagic
 
         #region Load
 
-        private readonly List<string> pluginNames = [];
+        private readonly Dictionary<uint, InternalPluginData> plugins = [];
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
@@ -109,44 +111,41 @@ namespace DesktopMagic
 
         private void LoadPlugins()
         {
-            pluginNames.Clear();
+            plugins.Clear();
 
-            pluginNames.AddRange(builtInPlugins.Keys);
+            foreach (var buildInPlugin in builtInPlugins.Keys)
+            {
+                plugins.Add(buildInPlugin.Id, new(buildInPlugin, string.Empty));
+            }
 
             string pluginsPath = App.ApplicationDataPath + "\\Plugins";
 
-            foreach (string fileName in Directory.GetFiles(pluginsPath, "*.dll"))
-            {
-                string pluginName = fileName[(fileName.LastIndexOf('\\') + 1)..].Replace(fileName[fileName.LastIndexOf('.')..], "");
-                try
-                {
-                    _ = Directory.CreateDirectory(Path.Combine(pluginsPath, pluginName));
-                    File.Move(fileName, $"{pluginsPath}\\{pluginName}\\{pluginName}.dll");
-                }
-                catch (Exception ex)
-                {
-                    App.Logger.Log(ex.Message, "Main", LogSeverity.Error);
-                }
-            }
-
             foreach (string directory in Directory.GetDirectories(pluginsPath))
             {
-                foreach (string fileName in Directory.GetFiles(directory).Where(s => s.EndsWith(".dll", StringComparison.InvariantCulture)))
+                string? pluginDllPath = Directory.GetFiles(directory, "main.dll").FirstOrDefault();
+                string? pluginMetadataPath = Directory.GetFiles(directory, "metadata.json").FirstOrDefault();
+
+                if (pluginDllPath is null)
                 {
-                    string badChars = ",#-<>?!=()*,. ";
-                    string pluginName = fileName[(fileName.LastIndexOf('\\') + 1)..].Replace(fileName[fileName.LastIndexOf('.')..], "");
-                    string clearPluginName = pluginName;
-
-                    if (pluginName == directory[(directory.LastIndexOf('\\') + 1)..])
-                    {
-                        foreach (char c in badChars)
-                        {
-                            clearPluginName = clearPluginName.Replace(c, '_');
-                        }
-
-                        pluginNames.Add(pluginName);
-                    }
+                    App.Logger.Log($"Plugin \"{directory}\" has no \"main.dll\"", "Main", LogSeverity.Error);
+                    continue;
                 }
+
+                if (pluginMetadataPath is null)
+                {
+                    App.Logger.Log($"Plugin \"{directory}\" has no \"metadata.json\"", "Main", LogSeverity.Warn);
+                    continue;
+                }
+
+                PluginMetadata? pluginMetadata = JsonSerializer.Deserialize<PluginMetadata>(File.ReadAllText(pluginMetadataPath));
+
+                if (pluginMetadata is null)
+                {
+                    App.Logger.Log($"Plugin \"{directory}\" has no valid \"metadata.json\"", "Main", LogSeverity.Error);
+                    continue;
+                }
+
+                plugins.Add(pluginMetadata.Id, new(pluginMetadata, directory));
             }
         }
 
@@ -167,31 +166,36 @@ namespace DesktopMagic
                 return;
             }
 
-            LoadPlugin(checkBox.Content.ToString() ?? string.Empty);
+            LoadPlugin(uint.Parse(checkBox.Tag.ToString()!));
         }
 
-        private void LoadPlugin(string pluginName)
+        private void LoadPlugin(uint pluginId)
         {
-            if (!Settings.CurrentLayout.Plugins.TryGetValue(pluginName, out PluginSettings? pluginSettings))
+            if (!plugins.TryGetValue(pluginId, out InternalPluginData? internalPluginData))
+            {
+                return;
+            }
+
+            if (!Settings.CurrentLayout.Plugins.TryGetValue(pluginId, out PluginSettings? pluginSettings))
             {
                 pluginSettings = new PluginSettings();
-                Settings.CurrentLayout.Plugins.Add(pluginName, pluginSettings);
+                Settings.CurrentLayout.Plugins.Add(pluginId, pluginSettings);
             }
 
             PluginWindow window;
 
-            if (builtInPlugins.TryGetValue(pluginName, out Type? pluginType))
+            if (builtInPlugins.TryGetValue(internalPluginData.Metadata, out Type? pluginType))
             {
-                window = new PluginWindow((DesktopMagic.Api.Plugin)Activator.CreateInstance(pluginType)!, pluginName, pluginSettings)
+                window = new PluginWindow((Api.Plugin)Activator.CreateInstance(pluginType)!, internalPluginData.Metadata, pluginSettings)
                 {
-                    Title = pluginName
+                    Title = internalPluginData.Metadata.Name
                 };
             }
             else
             {
-                window = new PluginWindow(pluginName, pluginSettings)
+                window = new PluginWindow(internalPluginData.Metadata, pluginSettings, internalPluginData.DirectoryPath)
                 {
-                    Title = pluginName
+                    Title = internalPluginData.Metadata.Name
                 };
             }
 
@@ -208,12 +212,12 @@ namespace DesktopMagic
                         {
                             Dispatcher.Invoke(() =>
                             {
-                                if (!optionsComboBox.Items.Contains(pluginName))
+                                if (!optionsComboBox.Items.Contains(internalPluginData.Metadata))
                                 {
-                                    _ = optionsComboBox.Items.Add(pluginName);
+                                    _ = optionsComboBox.Items.Add(internalPluginData.Metadata);
                                 }
                                 optionsComboBox.SelectedIndex = -1;
-                                optionsComboBox.SelectedIndex = optionsComboBox.Items.IndexOf(pluginName);
+                                optionsComboBox.SelectedIndex = optionsComboBox.Items.IndexOf(internalPluginData.Metadata);
                                 window.PluginLoaded -= onPluginLoaded;
                             });
                         };
@@ -326,7 +330,7 @@ namespace DesktopMagic
                 return;
             }
 
-            bool success = Settings.CurrentLayout.Plugins.TryGetValue(optionsComboBox.SelectedItem.ToString()!, out Settings.PluginSettings? pluginSettings);
+            bool success = Settings.CurrentLayout.Plugins.TryGetValue(((PluginMetadata)optionsComboBox.SelectedItem).Id, out Settings.PluginSettings? pluginSettings);
             if (!success || pluginSettings is null || pluginSettings.Settings.Count == 0)
             {
                 _ = optionsPanel.Children.Add(new TextBlock() { Text = (string)FindResource("noOptions") });
@@ -561,19 +565,22 @@ namespace DesktopMagic
             bool showWindow = true;
 
             // Load plugins
-            foreach (string pluginName in pluginNames)
+            foreach (uint pluginId in plugins.Keys)
             {
                 // Add plugin to layout if it doesn't exist
-                if (!Settings.CurrentLayout.Plugins.TryGetValue(pluginName, out PluginSettings? pluginSettings))
+                if (!Settings.CurrentLayout.Plugins.TryGetValue(pluginId, out PluginSettings? pluginSettings))
                 {
-                    Settings.CurrentLayout.Plugins.Add(pluginName, new PluginSettings());
+                    Settings.CurrentLayout.Plugins.Add(pluginId, new PluginSettings());
 
                     continue;
                 }
 
+                InternalPluginData internalPluginData = plugins[pluginId];
+                pluginSettings.Name = internalPluginData.Metadata.Name;
+
                 if (pluginSettings.Enabled)
                 {
-                    LoadPlugin(pluginName);
+                    LoadPlugin(pluginId);
                 }
 
                 if (showWindow && pluginSettings.Enabled)
@@ -583,11 +590,11 @@ namespace DesktopMagic
             }
 
             // Remove plugins that are not loaded anymore
-            foreach (string pluginName in Settings.CurrentLayout.Plugins.Keys)
+            foreach (uint pluginId in Settings.CurrentLayout.Plugins.Keys)
             {
-                if (!pluginNames.Contains(pluginName))
+                if (!plugins.ContainsKey(pluginId))
                 {
-                    Settings.CurrentLayout.Plugins.Remove(pluginName);
+                    Settings.CurrentLayout.Plugins.Remove(pluginId);
                 }
             }
 
@@ -646,6 +653,7 @@ namespace DesktopMagic
             PluginManager pluginManager = new PluginManager();
             pluginManager.ShowDialog();
             LoadPlugins();
+            LoadLayout(false);
         }
 
         private void SetLanguageDictionary()
@@ -663,5 +671,11 @@ namespace DesktopMagic
             }
             Resources.MergedDictionaries.Add(dict);
         }
+    }
+
+    internal class InternalPluginData(PluginMetadata pluginMetadata, string directoryPath)
+    {
+        public PluginMetadata Metadata { get; set; } = pluginMetadata;
+        public string DirectoryPath { get; set; } = directoryPath;
     }
 }

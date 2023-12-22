@@ -34,10 +34,10 @@ public partial class PluginWindow : Window
     private Plugin? pluginClassInstance;
 
     public bool IsRunning { get; private set; } = true;
-    public string PluginName { get; private set; }
+    public PluginMetadata PluginMetadata { get; private set; }
     public string? PluginFolderPath { get; private set; }
 
-    public PluginWindow(string pluginName, PluginSettings settings)
+    public PluginWindow(PluginMetadata pluginMetadata, PluginSettings settings, string pluginFolderPath)
     {
         InitializeComponent();
 
@@ -62,16 +62,18 @@ public partial class PluginWindow : Window
         t.Elapsed += UpdateTimer_Elapsed;
         t.Start();
 
-        PluginName = pluginName;
+        PluginMetadata = pluginMetadata;
         this.settings = settings;
 
         Left = settings.Position.X;
         Top = settings.Position.Y;
         Width = settings.Size.X;
         Height = settings.Size.Y;
+
+        PluginFolderPath = pluginFolderPath;
     }
 
-    public PluginWindow(Plugin pluginClassInstance, string pluginName, Settings.PluginSettings settings) : this(pluginName, settings)
+    public PluginWindow(Plugin pluginClassInstance, PluginMetadata pluginMetadata, PluginSettings settings) : this(pluginMetadata, settings, string.Empty)
     {
         this.pluginClassInstance = pluginClassInstance;
     }
@@ -119,7 +121,7 @@ public partial class PluginWindow : Window
 
     private void Window_ContentRendered(object? sender, EventArgs e)
     {
-        App.Logger.Log($"\"{PluginName}\" - Starting plugin thread", "Plugin");
+        App.Logger.Log($"\"{PluginMetadata}\" - Starting plugin thread", "Plugin");
         pluginThread = new Thread(LoadPlugin);
         pluginThread.Start();
     }
@@ -165,20 +167,15 @@ public partial class PluginWindow : Window
 
     private void LoadPlugin()
     {
-        App.Logger.Log($"\"{PluginName}\" - Loading plugin", "Plugin");
+        App.Logger.Log($"\"{PluginMetadata}\" - Loading plugin", "Plugin");
 
-        if (pluginClassInstance is null)
+        if (pluginClassInstance is null && !File.Exists($"{PluginFolderPath}\\main.dll"))
         {
-            PluginFolderPath = $"{App.ApplicationDataPath}\\Plugins\\{PluginName}";
+            App.Logger.Log($"\"{PluginMetadata}\" - File \"main.dll\" does not exist", "Plugin", LogSeverity.Error);
+            _ = MessageBox.Show("File \"main.dll\" does not exist!", $"Error \"{PluginMetadata}\"", MessageBoxButton.OK, MessageBoxImage.Error);
 
-            if (!File.Exists($"{PluginFolderPath}\\{PluginName}.dll"))
-            {
-                App.Logger.Log($"\"{PluginName}\" - File does not exist", "Plugin", LogSeverity.Error);
-                _ = MessageBox.Show("File does not exist!", $"Error \"{PluginName}\"", MessageBoxButton.OK, MessageBoxImage.Error);
-
-                Exit();
-                return;
-            }
+            Exit();
+            return;
         }
 
         try
@@ -187,8 +184,8 @@ public partial class PluginWindow : Window
         }
         catch (Exception ex)
         {
-            App.Logger.Log($"\"{PluginName}\" - {ex}", "Plugin", LogSeverity.Error);
-            _ = MessageBox.Show("File execution error:\n" + ex, $"Error \"{PluginName}\"", MessageBoxButton.OK, MessageBoxImage.Error);
+            App.Logger.Log($"\"{PluginMetadata}\" - {ex}", "Plugin", LogSeverity.Error);
+            _ = MessageBox.Show("File execution error:\n" + ex, $"Error \"{PluginMetadata}\"", MessageBoxButton.OK, MessageBoxImage.Error);
             Exit();
             return;
         }
@@ -200,14 +197,14 @@ public partial class PluginWindow : Window
         object? instance = pluginClassInstance;
         if (instance is null)
         {
-            byte[] assemblyBytes = File.ReadAllBytes($"{PluginFolderPath}\\{PluginName}.dll");
+            byte[] assemblyBytes = File.ReadAllBytes($"{PluginFolderPath}\\main.dll");
             Assembly dll = Assembly.Load(assemblyBytes);
             Type? instanceType = Array.Find(dll.GetTypes(), type => type.GetTypeInfo().BaseType == typeof(Plugin));
 
             if (instanceType is null)
             {
-                App.Logger.Log($"\"{PluginName}\" - The \"Plugin\" class could not be found! It has to inherit from \"{typeof(Plugin).FullName}\"", "Plugin", LogSeverity.Error);
-                _ = MessageBox.Show($"The \"Plugin\" class could not be found! It has to inherit from \"{typeof(Plugin).FullName}\"", $"Error \"{PluginName}\"", MessageBoxButton.OK, MessageBoxImage.Error);
+                App.Logger.Log($"\"{PluginMetadata}\" - The \"Plugin\" class could not be found! It has to inherit from \"{typeof(Plugin).FullName}\"", "Plugin", LogSeverity.Error);
+                _ = MessageBox.Show($"The \"Plugin\" class could not be found! It has to inherit from \"{typeof(Plugin).FullName}\"", $"Error \"{PluginMetadata}\"", MessageBoxButton.OK, MessageBoxImage.Error);
 
                 Exit();
                 return;
@@ -222,8 +219,8 @@ public partial class PluginWindow : Window
         }
         else
         {
-            App.Logger.Log($"\"{PluginName}\" - The \"Plugin\" class could not be found! It has to inherit from \"{typeof(Plugin).FullName}\"", "Plugin", LogSeverity.Error);
-            _ = MessageBox.Show($"The \"Plugin\" class has to inherit from \"{typeof(Plugin).FullName}\"", $"Error \"{PluginName}\"", MessageBoxButton.OK, MessageBoxImage.Error);
+            App.Logger.Log($"\"{PluginMetadata}\" - The \"Plugin\" class could not be found! It has to inherit from \"{typeof(Plugin).FullName}\"", "Plugin", LogSeverity.Error);
+            _ = MessageBox.Show($"The \"Plugin\" class has to inherit from \"{typeof(Plugin).FullName}\"", $"Error \"{PluginMetadata}\"", MessageBoxButton.OK, MessageBoxImage.Error);
             Exit();
             return;
         }
@@ -283,7 +280,7 @@ public partial class PluginWindow : Window
 
     private void LoadOptions(object instance)
     {
-        App.Logger.Log($"\"{PluginName}\" - Loading plugin options", "Plugin");
+        App.Logger.Log($"\"{PluginMetadata}\" - Loading plugin options", "Plugin");
 
         try
         {
@@ -321,8 +318,8 @@ public partial class PluginWindow : Window
         catch (Exception ex)
         {
             IsRunning = false;
-            App.Logger.Log($"\"{PluginName}\" - {ex}", "Plugin", LogSeverity.Error);
-            _ = MessageBox.Show("File execution error:\n" + ex, $"Error \"{PluginName}\"", MessageBoxButton.OK, MessageBoxImage.Error);
+            App.Logger.Log($"\"{PluginMetadata}\" - {ex}", "Plugin", LogSeverity.Error);
+            _ = MessageBox.Show("File execution error:\n" + ex, $"Error \"{PluginMetadata}\"", MessageBoxButton.OK, MessageBoxImage.Error);
             Exit();
         }
     }
@@ -366,8 +363,8 @@ public partial class PluginWindow : Window
         catch (Exception ex)
         {
             IsRunning = false;
-            App.Logger.Log($"\"{PluginName}\" - {ex}", "Plugin", LogSeverity.Error);
-            _ = MessageBox.Show("File execution error:\n" + ex, $"Error \"{PluginName}\"", MessageBoxButton.OK, MessageBoxImage.Error);
+            App.Logger.Log($"\"{PluginMetadata}\" - {ex}", "Plugin", LogSeverity.Error);
+            _ = MessageBox.Show("File execution error:\n" + ex, $"Error \"{PluginMetadata}\"", MessageBoxButton.OK, MessageBoxImage.Error);
             Exit();
             return;
         }
@@ -380,7 +377,7 @@ public partial class PluginWindow : Window
 
     private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
     {
-        App.Logger.Log($"\"{PluginName}\" - Stopping plugin", "Plugin");
+        App.Logger.Log($"\"{PluginMetadata}\" - Stopping plugin", "Plugin");
         pluginClassInstance?.Stop();
         IsRunning = false;
     }

@@ -9,6 +9,7 @@
                 <ResourceDictionary Source="Resources\StringResources.en.xaml" />
                 <materialDesign:BundledTheme BaseTheme="Light" PrimaryColor="Grey" SecondaryColor="LightBlue" />
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Defaults.xaml" />
+                <ResourceDictionary Source="pack://application:,,,/BusyIndicator;component/Theme/Default.xaml" />
             </ResourceDictionary.MergedDictionaries>
             <Thickness x:Key="DefaultMargin" Top="6" Left="6" Right="6" Bottom ="6"></Thickness>
         </ResourceDictionary>

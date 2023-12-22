@@ -4,54 +4,59 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        xmlns:busyIndicator="https://github.com/moh3ngolshani/BusyIndicator"
         xmlns:local="clr-namespace:DesktopMagic.Plugins"
         xmlns:dataContexts="clr-namespace:DesktopMagic.DataContexts"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance Type=dataContexts:PluginManagerDataContext}"
-        Title="PluginManager" 
+        Title="PluginManager"
         Height="450"
         Width="800"
         MinHeight="520"
         MinWidth="700"
+        WindowStyle="ToolWindow"
         Background="{DynamicResource MaterialDesignPaper}"
         FontFamily="{DynamicResource MaterialDesignFont}">
-    <Grid Margin="5">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="auto"/>
-            <RowDefinition Height="auto"/>
-            <RowDefinition/>
-        </Grid.RowDefinitions>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition/>
-            <ColumnDefinition/>
-        </Grid.ColumnDefinitions>
 
-        <Label Content="All plugins" FontSize="20"/>
+    <busyIndicator:BusyMask x:Name="BusyIndicator" IsBusy="{Binding IsLoading}"  IndicatorType="Cogs"  BusyContent="Please wait..."  BusyContentMargin="0,20,0,0"  IsBusyAtStartup="False">
+        <Grid Margin="5">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
+                <RowDefinition />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition />
+            </Grid.ColumnDefinitions>
 
-        <TextBox Grid.Row="1" materialDesign:HintAssist.Hint="Search..." materialDesign:TextFieldAssist.HasLeadingIcon="True"  materialDesign:TextFieldAssist.LeadingIcon="Search"/>
+            <Label Content="All plugins" FontSize="20" />
 
-        <ItemsControl Grid.Row="2" ItemsSource="{Binding Mods}">
-            <ItemsControl.ItemTemplate>
-                <DataTemplate>
-                    <Border BorderBrush="LightGray" BorderThickness="1">
-                        <local:ModEntry/>
-                    </Border>
-                </DataTemplate>
-            </ItemsControl.ItemTemplate>
-        </ItemsControl>
+            <TextBox Grid.Row="1" materialDesign:HintAssist.Hint="Search..." materialDesign:TextFieldAssist.HasLeadingIcon="True"  materialDesign:TextFieldAssist.LeadingIcon="Search" />
 
-        <Label Grid.Column="1" Content="Installed plugins" FontSize="20"/>
-    
-        <TextBox Grid.Row="1" Grid.Column="1" materialDesign:HintAssist.Hint="Search..." materialDesign:TextFieldAssist.HasLeadingIcon="True"  materialDesign:TextFieldAssist.LeadingIcon="Search"/>
+            <ItemsControl Grid.Row="2" ItemsSource="{Binding AllPlugins}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border BorderBrush="LightGray" BorderThickness="1">
+                            <local:ModEntry />
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
 
-        <ItemsControl Grid.Row="2" Grid.Column="1" ItemsSource="{Binding Mods}">
-            <ItemsControl.ItemTemplate>
-                <DataTemplate>
-                    <Border BorderBrush="LightGray" BorderThickness="1">
-                        <local:ModEntry/>
-                    </Border>
-                </DataTemplate>
-            </ItemsControl.ItemTemplate>
-        </ItemsControl>
-    </Grid>
+            <Label Grid.Column="1" Content="Installed plugins" FontSize="20" />
+
+            <TextBox Grid.Row="1" Grid.Column="1" materialDesign:HintAssist.Hint="Search..." materialDesign:TextFieldAssist.HasLeadingIcon="True"  materialDesign:TextFieldAssist.LeadingIcon="Search" />
+
+            <ItemsControl Grid.Row="2" Grid.Column="1" ItemsSource="{Binding InstalledPlugins}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border BorderBrush="LightGray" BorderThickness="1">
+                            <local:ModEntry />
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </Grid>
+    </busyIndicator:BusyMask>
 </Window>
