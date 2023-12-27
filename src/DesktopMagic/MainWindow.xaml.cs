@@ -188,71 +188,18 @@ namespace DesktopMagic
                 Settings.CurrentLayout.Plugins.Add(pluginId, pluginSettings);
             }
 
-            PluginWindow window;
-
-            if (builtInPlugins.TryGetValue(internalPluginData.Metadata, out Type? pluginType))
+            if (WindowNames.Contains(internalPluginData.Metadata.Id.ToString()) || !pluginSettings.Enabled)
             {
-                window = new PluginWindow((Api.Plugin)Activator.CreateInstance(pluginType)!, internalPluginData.Metadata, pluginSettings)
-                {
-                    Title = internalPluginData.Metadata.Name
-                };
-            }
-            else
-            {
-                window = new PluginWindow(internalPluginData.Metadata, pluginSettings, internalPluginData.DirectoryPath)
-                {
-                    Title = internalPluginData.Metadata.Name
-                };
-            }
-
-            blockWindowsClosing = false;
-
-            if (!WindowNames.Contains(window.Title) && pluginSettings.Enabled)
-            {
-                _ = Task.Run(() =>
-                {
-                    Dispatcher.Invoke(() =>
-                    {
-                        Action? onPluginLoaded = null;
-                        onPluginLoaded = () =>
-                        {
-                            Dispatcher.Invoke(() =>
-                            {
-                                if (!optionsComboBox.Items.Contains(internalPluginData.Metadata))
-                                {
-                                    _ = optionsComboBox.Items.Add(internalPluginData.Metadata);
-                                }
-                                optionsComboBox.SelectedIndex = -1;
-                                optionsComboBox.SelectedIndex = optionsComboBox.Items.IndexOf(internalPluginData.Metadata);
-                                window.PluginLoaded -= onPluginLoaded;
-                            });
-                        };
-                        window.OnExit += () =>
-                        {
-                            pluginSettings.Enabled = false;
-                        };
-                        window.PluginLoaded += onPluginLoaded;
-
-                        window.ShowInTaskbar = false;
-                        window.Show();
-                        window.ContentRendered += DisplayWindow_ContentRendered;
-                        window.Closing += DisplayWindow_Closing;
-                        Windows.Add(window);
-                        WindowNames.Add(window.Title);
-                    });
-                });
-            }
-            else
-            {
-                int index = WindowNames.IndexOf(window.Title);
+                int index = WindowNames.IndexOf(internalPluginData.Metadata.Id.ToString());
 
                 if (index >= 0)
                 {
                     //Not sure how to handle this
                     try
                     {
+                        blockWindowsClosing = false;
                         Windows[index].Close();
-
+                        blockWindowsClosing = true;
                         Windows.RemoveAt(index);
                         WindowNames.RemoveAt(index);
                     }
@@ -261,9 +208,52 @@ namespace DesktopMagic
                         App.Logger.Log(ex.Message, "Main", LogSeverity.Error);
                     }
                 }
+                return;
             }
 
-            blockWindowsClosing = true;
+            PluginWindow window;
+
+            if (builtInPlugins.TryGetValue(internalPluginData.Metadata, out Type? pluginType))
+            {
+                window = new PluginWindow((Api.Plugin)Activator.CreateInstance(pluginType)!, internalPluginData.Metadata, pluginSettings)
+                {
+                    Title = internalPluginData.Metadata.Id.ToString()
+                };
+            }
+            else
+            {
+                window = new PluginWindow(internalPluginData.Metadata, pluginSettings, internalPluginData.DirectoryPath)
+                {
+                    Title = internalPluginData.Metadata.Id.ToString()
+                };
+            }
+
+            Action? onPluginLoaded = null;
+            onPluginLoaded = () =>
+            {
+                Dispatcher.Invoke(() =>
+                {
+                    if (!optionsComboBox.Items.Contains(internalPluginData.Metadata))
+                    {
+                        _ = optionsComboBox.Items.Add(internalPluginData.Metadata);
+                    }
+                    optionsComboBox.SelectedIndex = -1;
+                    optionsComboBox.SelectedIndex = optionsComboBox.Items.IndexOf(internalPluginData.Metadata);
+                    window.PluginLoaded -= onPluginLoaded;
+                });
+            };
+            window.OnExit += () =>
+            {
+                pluginSettings.Enabled = false;
+            };
+            window.PluginLoaded += onPluginLoaded;
+
+            window.ShowInTaskbar = false;
+            window.Show();
+            window.ContentRendered += DisplayWindow_ContentRendered;
+            window.Closing += DisplayWindow_Closing;
+            Windows.Add(window);
+            WindowNames.Add(window.Title);
         }
 
         private void DisplayWindow_ContentRendered(object? sender, EventArgs e)

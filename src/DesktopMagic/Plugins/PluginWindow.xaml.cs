@@ -28,9 +28,9 @@ public partial class PluginWindow : Window
     public event Action? OnExit;
 
     private readonly PluginSettings settings;
+    private readonly System.Timers.Timer? updateTimer;
     private Thread? pluginThread;
     private System.Timers.Timer? valueTimer;
-
     private Plugin? pluginClassInstance;
 
     public bool IsRunning { get; private set; } = true;
@@ -55,12 +55,12 @@ public partial class PluginWindow : Window
         Owner = w;
         w.Hide();
 
-        System.Timers.Timer t = new System.Timers.Timer
+        updateTimer = new System.Timers.Timer
         {
             Interval = 100
         };
-        t.Elapsed += UpdateTimer_Elapsed;
-        t.Start();
+        updateTimer.Elapsed += UpdateTimer_Elapsed;
+        updateTimer.Start();
 
         PluginMetadata = pluginMetadata;
         this.settings = settings;
@@ -163,6 +163,11 @@ public partial class PluginWindow : Window
                 border.CornerRadius = new CornerRadius(settings.Theme.CornerRadius);
             }
         });
+
+        if (!IsRunning)
+        {
+            updateTimer?.Stop();
+        }
     }
 
     private void LoadPlugin()
@@ -378,8 +383,8 @@ public partial class PluginWindow : Window
     private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
     {
         App.Logger.Log($"\"{PluginMetadata}\" - Stopping plugin", "Plugin");
-        pluginClassInstance?.Stop();
         IsRunning = false;
+        pluginClassInstance?.Stop();
     }
 
     #region Window Events
