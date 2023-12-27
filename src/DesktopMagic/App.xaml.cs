@@ -23,10 +23,10 @@ public partial class App : Application
 #else
     private readonly Updater updater = new Updater(TimeSpan.FromDays(1), "https://raw.githubusercontent.com/Stone-Red-Code/DesktopMagic/main/update/updateInfo.json");
 #endif
-    private Thread? eventThread;
-    private EventWaitHandle eventWaitHandle;
+    private readonly Thread? eventThread;
+    private readonly EventWaitHandle eventWaitHandle;
 
-    private Logger logger = new Logger();
+    private readonly Logger logger = new Logger();
     public static string ApplicationDataPath { get; } = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "StoneRed", AppName);
 
     public static Logger Logger
@@ -42,7 +42,7 @@ public partial class App : Application
 
     public App()
     {
-        logFilePath = ApplicationDataPath + "\\Log.log";
+        logFilePath = ApplicationDataPath + "\\log.log";
 
         // Setup global event handler
         eventWaitHandle = new EventWaitHandle(false, EventResetMode.AutoReset, AppGuid, out bool createdNew);

@@ -121,7 +121,7 @@ public partial class PluginWindow : Window
 
     private void Window_ContentRendered(object? sender, EventArgs e)
     {
-        App.Logger.Log($"\"{PluginMetadata}\" - Starting plugin thread", "Plugin");
+        App.Logger.Log($"\"{PluginMetadata.Name}\" - Starting plugin thread", "Plugin");
         pluginThread = new Thread(LoadPlugin);
         pluginThread.Start();
     }

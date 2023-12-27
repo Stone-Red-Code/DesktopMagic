@@ -111,6 +111,7 @@ namespace DesktopMagic
 
         private void LoadPlugins()
         {
+            mainWindowDataContext.IsLoading = true;
             plugins.Clear();
 
             foreach (var buildInPlugin in builtInPlugins.Keys)
@@ -153,6 +154,7 @@ namespace DesktopMagic
 
                 plugins.Add(pluginMetadata.Id, new(pluginMetadata, directory));
             }
+            mainWindowDataContext.IsLoading = false;
         }
 
         #endregion Load
@@ -194,7 +196,6 @@ namespace DesktopMagic
 
                 if (index >= 0)
                 {
-                    //Not sure how to handle this
                     try
                     {
                         blockWindowsClosing = false;
@@ -428,8 +429,8 @@ namespace DesktopMagic
 
         private void CornerRadiusTextBox_TextChanged(object? sender, TextChangedEventArgs? e)
         {
-            bool sucess = int.TryParse(cornerRadiusTextBox.Text, out int cornerRadius);
-            if (sucess)
+            bool success = int.TryParse(cornerRadiusTextBox.Text, out int cornerRadius);
+            if (success)
             {
                 cornerRadiusTextBox.Foreground = Brushes.Black;
                 Settings.CurrentLayout.Theme.CornerRadius = cornerRadius;
@@ -442,8 +443,8 @@ namespace DesktopMagic
 
         private void MarginTextBox_TextChanged(object? sender, TextChangedEventArgs? e)
         {
-            bool sucess = int.TryParse(marginTextBox.Text, out int margin);
-            if (sucess)
+            bool success = int.TryParse(marginTextBox.Text, out int margin);
+            if (success)
             {
                 marginTextBox.Foreground = Brushes.Black;
                 Settings.CurrentLayout.Theme.Margin = margin;
@@ -535,6 +536,7 @@ namespace DesktopMagic
 
         private void LoadLayout(bool minimize = true)
         {
+            mainWindowDataContext.IsLoading = true;
             cornerRadiusTextBox.Text = Settings.CurrentLayout.Theme.CornerRadius.ToString();
             marginTextBox.Text = Settings.CurrentLayout.Theme.Margin.ToString();
             blockWindowsClosing = false;
@@ -607,6 +609,7 @@ namespace DesktopMagic
                 WindowState = WindowState.Normal;
                 Window_StateChanged(null, null);
             }
+            mainWindowDataContext.IsLoading = false;
         }
 
         #endregion Layout
@@ -634,7 +637,7 @@ namespace DesktopMagic
             RestoreWindow();
         }
 
-        private void GithubButton_Click(object sender, RoutedEventArgs e)
+        private void GitHubButton_Click(object sender, RoutedEventArgs e)
         {
             string uri = "https://github.com/Stone-Red-Code/DesktopMagic";
             ProcessStartInfo psi = new ProcessStartInfo
