@@ -13,7 +13,7 @@ namespace DesktopMagic.PluginTest;
 
 public class GifPlugin : Plugin
 {
-    [Setting("gif-path", "Gif path:")]
+    [Setting("gif-path", "GIF path")]
     private readonly TextBox input = new TextBox("");
 
     [Setting("info")]
@@ -39,6 +39,7 @@ public class GifPlugin : Plugin
     public override void Stop()
     {
         cancellationTokenSource.Cancel();
+        cancellationTokenSource.Dispose();
 
         bitmaps.Clear();
     }
