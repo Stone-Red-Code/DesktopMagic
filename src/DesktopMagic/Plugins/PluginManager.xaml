@@ -33,21 +33,40 @@
 
             <Label Content="All plugins" FontSize="20" />
 
-            <TextBox Grid.Row="1" materialDesign:HintAssist.Hint="Search..." materialDesign:TextFieldAssist.HasLeadingIcon="True"  materialDesign:TextFieldAssist.LeadingIcon="Search" />
+            <TextBox Grid.Row="1" Text="{Binding AllPluginsSearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TextChanged="AllPluginsSearchTextBox_TextChanged" materialDesign:HintAssist.Hint="Search..." materialDesign:TextFieldAssist.HasLeadingIcon="True"  materialDesign:TextFieldAssist.LeadingIcon="Search" />
 
-            <ItemsControl Grid.Row="2" ItemsSource="{Binding AllPlugins}">
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <Border BorderBrush="LightGray" BorderThickness="1">
-                            <local:ModEntry />
-                        </Border>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
+            <busyIndicator:BusyMask Grid.Row="2" IsBusy="{Binding IsSearching}" IndicatorType="Ring"  BusyContent="Searching..."  BusyContentMargin="0,50,0,0"  IsBusyAtStartup="False">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <ItemsControl ItemsSource="{Binding AllPlugins}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border BorderBrush="LightGray" BorderThickness="1">
+                                    <local:ModEntry />
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                        <ItemsControl.Style>
+                            <Style TargetType="ItemsControl">
+                                <Style.Triggers>
+                                    <Trigger Property="HasItems" Value="false">
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate>
+                                                    <TextBlock Text="No plugins found!" FontSize="20" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </ItemsControl.Style>
+                    </ItemsControl>
+                </ScrollViewer>
+            </busyIndicator:BusyMask>
 
             <Label Grid.Column="1" Content="Installed plugins" FontSize="20" />
 
-            <TextBox Grid.Row="1" Grid.Column="1" materialDesign:HintAssist.Hint="Search..." materialDesign:TextFieldAssist.HasLeadingIcon="True"  materialDesign:TextFieldAssist.LeadingIcon="Search" />
+            <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding InstalledPluginsSearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TextChanged="InstalledPluginsSearchTextBox_TextChanged" materialDesign:HintAssist.Hint="Search..." materialDesign:TextFieldAssist.HasLeadingIcon="True"  materialDesign:TextFieldAssist.LeadingIcon="Search" />
 
             <ItemsControl Grid.Row="2" Grid.Column="1" ItemsSource="{Binding InstalledPlugins}">
                 <ItemsControl.ItemTemplate>
@@ -57,11 +76,26 @@
                         </Border>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
+                <ItemsControl.Style>
+                    <Style TargetType="ItemsControl">
+                        <Style.Triggers>
+                            <Trigger Property="HasItems" Value="false">
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate>
+                                            <TextBlock Text="No plugins found!" FontSize="20" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </ItemsControl.Style>
             </ItemsControl>
 
-            <DockPanel Grid.Row="3" Grid.ColumnSpan="2">
-                <Image Source="{StaticResource ModioLogoBlueDark}" Height="30" HorizontalAlignment="Left" />
-            </DockPanel>
+            <Border Grid.Row="3" Grid.ColumnSpan="2" Padding="0 5 0 0" BorderThickness="0 2 0 0" BorderBrush="DarkGray">
+                <Image Source="{StaticResource ModioLogoBlueDark}" Cursor="Hand" Height="30" MouseUp="Image_MouseUp" HorizontalAlignment="Left" />
+            </Border>
         </Grid>
     </busyIndicator:BusyMask>
 </Window>

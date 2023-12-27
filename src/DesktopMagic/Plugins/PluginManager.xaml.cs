@@ -2,6 +2,7 @@
 using DesktopMagic.Helpers;
 
 using Modio.NET;
+using Modio.NET.Filters;
 using Modio.NET.Models;
 
 using System;
@@ -15,6 +16,7 @@ using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Threading;
 
 using File = System.IO.File;
 using Path = System.IO.Path;
@@ -26,17 +28,28 @@ namespace DesktopMagic.Plugins;
 /// </summary>
 public partial class PluginManager : Window
 {
+    private const int modIoGameId = 5665;
     private readonly Client client = new Client(new Credentials("88e6ea774c3a502b06114e7fee0829ac"));
     private readonly HttpClient httpClient = new();
 
     private readonly PluginManagerDataContext pluginManagerDataContext = new();
     private readonly string pluginsPath = Path.Combine(App.ApplicationDataPath, "Plugins");
 
+    private readonly DispatcherTimer searchTimer = new()
+    {
+        Interval = TimeSpan.FromMilliseconds(300),
+    };
+
     public PluginManager()
     {
         InitializeComponent();
 
         DataContext = pluginManagerDataContext;
+        searchTimer.Tick += async (sender, e) =>
+        {
+            searchTimer.Stop();
+            await SearchAllPlugins(pluginManagerDataContext.AllPluginsSearchText);
+        };
     }
 
     public void Remove(string pluginPath, uint? id)
@@ -81,7 +94,9 @@ public partial class PluginManager : Window
             }
         }
 
-        IAsyncEnumerable<Mod> mods = client.Games[5665].Mods.Search().ToEnumerableAsync();
+        Filter filter = ModFilter.Popular.Desc().Limit(100);
+
+        IAsyncEnumerable<Mod> mods = client.Games[modIoGameId].Mods.Search(filter).ToEnumerableAsync();
         await foreach (Mod mod in mods)
         {
             if (pluginIds.Contains(mod.Id))
@@ -91,6 +106,8 @@ public partial class PluginManager : Window
 
             pluginManagerDataContext.AllPlugins.Add(new PluginEntryDataContext(new(mod), new CommandHandler(async () => await Install(mod))));
         }
+
+        pluginManagerDataContext.IsLoading = false;
     }
 
     protected override void OnClosing(CancelEventArgs e)
@@ -101,8 +118,6 @@ public partial class PluginManager : Window
     private async Task Install(Mod mod)
     {
         pluginManagerDataContext.IsLoading = true;
-
-        Debug.WriteLine(mod.Modfile?.Download?.BinaryUrl + " | " + pluginsPath);
 
         if (mod.Modfile?.Download?.BinaryUrl is null)
         {
@@ -148,5 +163,66 @@ public partial class PluginManager : Window
         pluginManagerDataContext.InstalledPlugins.Add(new PluginEntryDataContext(new PluginMetadata(mod), new CommandHandler(() => Remove(pluginPath, mod.Id)), true));
 
         pluginManagerDataContext.IsLoading = false;
+    }
+
+    private void Image_MouseUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
+    {
+        string uri = "https://mod.io/g/DesktopMagic";
+        ProcessStartInfo psi = new ProcessStartInfo
+        {
+            UseShellExecute = true,
+            FileName = uri
+        };
+        _ = Process.Start(psi);
+    }
+
+    private void AllPluginsSearchTextBox_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
+    {
+        pluginManagerDataContext.IsSearching = true;
+        searchTimer.Stop();
+        searchTimer.Start();
+    }
+
+    private void InstalledPluginsSearchTextBox_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
+    {
+        if (string.IsNullOrWhiteSpace(pluginManagerDataContext.InstalledPluginsSearchText))
+        {
+            foreach (PluginEntryDataContext pluginEntryDataContext in pluginManagerDataContext.InstalledPlugins)
+            {
+                pluginEntryDataContext.IsVisible = true;
+            }
+        }
+        else
+        {
+            foreach (PluginEntryDataContext pluginEntryDataContext in pluginManagerDataContext.InstalledPlugins)
+            {
+                pluginEntryDataContext.IsVisible = pluginEntryDataContext.Name.Contains(pluginManagerDataContext.InstalledPluginsSearchText, StringComparison.OrdinalIgnoreCase);
+            }
+        }
+    }
+
+    private async Task SearchAllPlugins(string searchString)
+    {
+        pluginManagerDataContext.AllPlugins.Clear();
+
+        if (!searchString.Contains('*'))
+        {
+            searchString = $"*{searchString.Trim()}*";
+        }
+
+        Filter filter = ModFilter.Name.Like($"{searchString}").And(ModFilter.Popular.Desc()).Limit(100);
+
+        IAsyncEnumerable<Mod> mods = client.Games[modIoGameId].Mods.Search(filter).ToEnumerableAsync();
+        await foreach (Mod mod in mods)
+        {
+            if (pluginManagerDataContext.InstalledPlugins.Any(p => p.Id == mod.Id))
+            {
+                continue;
+            }
+
+            pluginManagerDataContext.AllPlugins.Add(new PluginEntryDataContext(new(mod), new CommandHandler(async () => await Install(mod))));
+        }
+
+        pluginManagerDataContext.IsSearching = false;
     }
 }

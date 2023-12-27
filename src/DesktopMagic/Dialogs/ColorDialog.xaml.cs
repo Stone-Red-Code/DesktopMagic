@@ -15,7 +15,7 @@ public partial class ColorDialog : Window
 {
     public System.Drawing.Color ResultColor { get; private set; }
 
-    public Brush ResultBrush { get; private set; }
+    public Brush ResultBrush { get; private set; } = Brushes.Transparent;
 
     public ColorDialog(string content, System.Drawing.Color defaultColor, string title = "ColorDialog")
     {

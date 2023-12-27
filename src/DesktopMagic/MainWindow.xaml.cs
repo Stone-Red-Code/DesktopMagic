@@ -573,15 +573,16 @@ namespace DesktopMagic
             // Load plugins
             foreach (uint pluginId in plugins.Keys)
             {
+                InternalPluginData internalPluginData = plugins[pluginId];
+
                 // Add plugin to layout if it doesn't exist
                 if (!Settings.CurrentLayout.Plugins.TryGetValue(pluginId, out PluginSettings? pluginSettings))
                 {
-                    Settings.CurrentLayout.Plugins.Add(pluginId, new PluginSettings());
+                    Settings.CurrentLayout.Plugins.Add(pluginId, new PluginSettings() { Name = internalPluginData.Metadata.Name });
 
                     continue;
                 }
 
-                InternalPluginData internalPluginData = plugins[pluginId];
                 pluginSettings.Name = internalPluginData.Metadata.Name;
 
                 if (pluginSettings.Enabled)
