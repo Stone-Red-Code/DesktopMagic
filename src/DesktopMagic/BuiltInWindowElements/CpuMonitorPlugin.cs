@@ -11,12 +11,16 @@ namespace DesktopMagic.BuiltInWindowElements;
 
 internal class CpuMonitorPlugin : Plugin
 {
-    private readonly PerformanceCounter cpuCounter = new PerformanceCounter("Processor Information", "% Processor Utility", "_Total");
-
     [Setting("usage-circle", "Show pie")]
     private readonly CheckBox usageCircleCheckBox = new CheckBox(false);
 
+    private PerformanceCounter cpuCounter = null!;
     public override int UpdateInterval => 1000;
+
+    public override void Start()
+    {
+        cpuCounter = new PerformanceCounter("Processor Information", "% Processor Utility", "_Total");
+    }
 
     public override Bitmap Main()
     {
