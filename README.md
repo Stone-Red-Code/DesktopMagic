@@ -1,7 +1,7 @@
 # DesktopMagic
  
 > DesktopMagic allows you to improve the looks of your Windows desktop!\
-> You can add useful elements to your desktop like a clock, a audio visualizer or even your own plugins!
+> You can add useful elements to your desktop like a clock, an audio visualizer or even your own plugins using mod.io!
 
 - [Releases](https://github.com/Stone-Red-Code/DesktopMagic/releases)
 - [Download plugins](https://mod.io/g/desktopmagic)
