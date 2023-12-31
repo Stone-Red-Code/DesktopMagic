@@ -2,6 +2,8 @@
 
 using AlwaysUpToDate;
 
+using Stone_Red_C_Sharp_Utilities.Logging;
+
 using System;
 using System.IO;
 using System.Threading;
@@ -29,16 +31,7 @@ public partial class App : Application
     private readonly Logger logger = new Logger();
     public static string ApplicationDataPath { get; } = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "StoneRed", AppName);
 
-    public static Logger Logger
-    {
-        get
-        {
-            lock (Current)
-            {
-                return ((App)Current).logger;
-            }
-        }
-    }
+    public static Logger Logger => ((App)Current).logger;
 
     public App()
     {
@@ -143,7 +136,7 @@ public partial class App : Application
             },
             FormatConfig = new FormatConfig()
             {
-                DebugConsoleFormat = $"> {{{LogFormatType.DateTime}:hh:mm:ss}} | {{{LogFormatType.LogSeverity},-5}} | {{{LogFormatType.Message}}}\nat {{{LogFormatType.LineNumber}}} | {{{LogFormatType.FilePath}}}"
+                DebugConsoleFormat = $"> {{{LogFormatType.DateTime}:HH:mm:ss}} | {{{LogFormatType.LogSeverity},-5}} | {{{LogFormatType.Message}}}\nat {{{LogFormatType.LineNumber}}} | {{{LogFormatType.FilePath}}}"
             }
         };
 

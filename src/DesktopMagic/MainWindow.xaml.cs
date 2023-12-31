@@ -5,8 +5,6 @@ using DesktopMagic.Helpers;
 using DesktopMagic.Plugins;
 using DesktopMagic.Settings;
 
-using Stone_Red_Utilities.StringExtentions;
-
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;

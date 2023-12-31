@@ -7,7 +7,7 @@ namespace DesktopMagic.Helpers;
 internal class SampleAggregator
 {
     // FFT
-    public event EventHandler<FftEventArgs> FftCalculated;
+    public event EventHandler<FftEventArgs>? FftCalculated;
 
     // This Complex is NAudio's own!
     private readonly Complex[] fftBuffer;
