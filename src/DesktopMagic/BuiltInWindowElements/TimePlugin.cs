@@ -1,55 +1,40 @@
-﻿using DesktopMagicPluginAPI;
-using DesktopMagicPluginAPI.Drawing;
-using DesktopMagicPluginAPI.Inputs;
+﻿using DesktopMagic.Api;
+using DesktopMagic.Api.Settings;
 
 using System;
 using System.Drawing;
 using System.Drawing.Text;
 
-namespace DesktopMagic.BuiltInWindowElements
+namespace DesktopMagic.BuiltInWindowElements;
+
+internal class TimePlugin : Plugin
 {
-    internal class TimePlugin : Plugin
+    [Setting("display-seconds", "Display Seconds")]
+    private readonly CheckBox displaySecondsCheckBox = new CheckBox(true);
+
+    public override int UpdateInterval => 1000;
+
+    public override Bitmap Main()
     {
-        [Element("Display Seconds:")]
-        private CheckBox checkBox = new CheckBox(true);
+        string time = displaySecondsCheckBox.Value ? DateTime.Now.ToLongTimeString() : DateTime.Now.ToShortTimeString();
 
-        public override int UpdateInterval => 1000;
+        Font font = new Font(Application.Theme.Font, 200);
 
-        public override Bitmap Main()
-        {
-            string time = checkBox.Value ? DateTime.Now.ToLongTimeString() : DateTime.Now.ToShortTimeString();
+        Bitmap bmp = new Bitmap(1, 1);
+        bmp.SetResolution(100, 100);
+        using Graphics tmpGr = Graphics.FromImage(bmp);
+        tmpGr.TextRenderingHint = TextRenderingHint.AntiAlias;
 
-            Font font = new Font(Application.Theme.Font, 200);
+        SizeF size = tmpGr.MeasureString(time, font);
 
-            Bitmap bmp = new Bitmap(1, 1);
-            using Graphics tmpGr = Graphics.FromImage(bmp);
-            tmpGr.TextRenderingHint = TextRenderingHint.AntiAlias;
+        bmp = new Bitmap((int)size.Width, (int)size.Height);
+        bmp.SetResolution(100, 100);
 
-            SizeF size = CalculateSize(tmpGr, font);
+        using Graphics gr = Graphics.FromImage(bmp);
 
-            bmp = new Bitmap((int)size.Width, (int)size.Height);
-            bmp.SetResolution(100, 100);
+        gr.TextRenderingHint = TextRenderingHint.AntiAlias;
+        gr.DrawString(time, font, new SolidBrush(Application.Theme.PrimaryColor), 0, 0);
 
-            using Graphics gr = Graphics.FromImage(bmp);
-
-            gr.TextRenderingHint = TextRenderingHint.AntiAlias;
-            gr.DrawStringNoLeftPadding(time, font, new SolidBrush(Application.Theme.PrimaryColor), 0, 0);
-
-            return bmp;
-        }
-
-        private SizeF CalculateSize(Graphics graphics, Font font)
-        {
-            string template = checkBox.Value ? "##:##:##" : "##:##";
-            SizeF size = new SizeF();
-            for (int i = 0; i < 9; i++)
-            {
-                SizeF newSize = graphics.MeasureStringNoLeftPadding(template.Replace("#", i.ToString()), font);
-
-                size.Width = Math.Max(size.Width, newSize.Width);
-                size.Height = Math.Max(size.Height, newSize.Height);
-            }
-            return size;
-        }
+        return bmp;
     }
 }

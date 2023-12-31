@@ -2,6 +2,8 @@
 
 using AlwaysUpToDate;
 
+using Stone_Red_C_Sharp_Utilities.Logging;
+
 using System;
 using System.IO;
 using System.Threading;
@@ -14,38 +16,54 @@ namespace DesktopMagic;
 /// </summary>
 public partial class App : Application
 {
+    public const string AppGuid = "{{61FE5CE9-47C3-4255-A1F4-5BCF4ACA0879}";
+
+    public const string AppName = "Desktop Magic";
     private readonly string logFilePath;
-    private readonly Mutex _mutex;
 #if DEBUG
     private readonly Updater updater = new Updater(TimeSpan.FromDays(1), "https://raw.githubusercontent.com/Stone-Red-Code/DesktopMagic/develop/update/updateInfo.json");
 #else
     private readonly Updater updater = new Updater(TimeSpan.FromDays(1), "https://raw.githubusercontent.com/Stone-Red-Code/DesktopMagic/main/update/updateInfo.json");
 #endif
+    private readonly Thread? eventThread;
+    private readonly EventWaitHandle eventWaitHandle;
 
-    public const string AppName = "Desktop Magic";
-    public static string ApplicationDataPath { get; } = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\" + AppName;
+    private readonly Logger logger = new Logger();
+    public static string ApplicationDataPath { get; } = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "StoneRed", AppName);
 
-    public static Logger Logger { get; } = new Logger();
+    public static Logger Logger => ((App)Current).logger;
 
     public App()
     {
-        logFilePath = ApplicationDataPath + "\\Log.log";
+        logFilePath = ApplicationDataPath + "\\log.log";
 
-        // Try to grab mutex
-        _mutex = new Mutex(true, $"Stone_Red{AppName}", out bool createdNew);
+        // Setup global event handler
+        eventWaitHandle = new EventWaitHandle(false, EventResetMode.AutoReset, AppGuid, out bool createdNew);
 
         //check if creating new was successful
         if (!createdNew)
         {
             Setup(false);
-            Logger.Log("Shutting down because other instance already running.", "Setup");
+            Logger.Log("Shutting down because other instance already running.", "Setup", LogSeverity.Warn);
             //Shutdown Application
+            _ = eventWaitHandle.Set();
             Current.Shutdown();
         }
         else
         {
+            eventThread = new Thread(
+                () =>
+                {
+                    while (eventWaitHandle.WaitOne())
+                    {
+                        _ = Current.Dispatcher.BeginInvoke(
+                            () => ((MainWindow)Current.MainWindow).RestoreWindow());
+                    }
+                });
+            eventThread.Start();
+
             Setup(true);
-            Exit += CloseMutexHandler;
+            Exit += CloseHandler;
 
             updater.ProgressChanged += Updater_ProgressChanged;
             updater.OnException += Updater_OnException;
@@ -53,6 +71,12 @@ public partial class App : Application
             updater.UpdateAvailible += Updater_UpdateAvailible;
             updater.Start();
         }
+    }
+
+    protected void CloseHandler(object sender, EventArgs e)
+    {
+        eventWaitHandle.Close();
+        eventThread?.Interrupt();
     }
 
     private void Updater_UpdateAvailible(string version, string additionalInformation)
@@ -73,11 +97,6 @@ public partial class App : Application
     private void Updater_ProgressChanged(long? totalFileSize, long totalBytesDownloaded, double? progressPercentage)
     {
         Logger.Log($"Downloading: {progressPercentage}% {totalBytesDownloaded}/{totalFileSize}", "Updater");
-    }
-
-    protected void CloseMutexHandler(object sender, EventArgs e)
-    {
-        _mutex?.Close();
     }
 
     private void Setup(bool clearLogFile)
@@ -117,7 +136,7 @@ public partial class App : Application
             },
             FormatConfig = new FormatConfig()
             {
-                DebugConsoleFormat = $"> {{{LogFormatType.DateTime}:hh:mm:ss}} | {{{LogFormatType.LogSeverity},-5}} | {{{LogFormatType.Message}}}\nat {{{LogFormatType.LineNumber}}} | {{{LogFormatType.FilePath}}}"
+                DebugConsoleFormat = $"> {{{LogFormatType.DateTime}:HH:mm:ss}} | {{{LogFormatType.LogSeverity},-5}} | {{{LogFormatType.Message}}}\nat {{{LogFormatType.LineNumber}}} | {{{LogFormatType.FilePath}}}"
             }
         };
 

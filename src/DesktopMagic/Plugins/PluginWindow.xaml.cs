@@ -1,10 +1,9 @@
-﻿using DesktopMagic.Plugins;
-
-using DesktopMagicPluginAPI;
-using DesktopMagicPluginAPI.Drawing;
-using DesktopMagicPluginAPI.Inputs;
-
-using Microsoft.Win32;
+﻿using DesktopMagic.Api;
+using DesktopMagic.Api.Drawing;
+using DesktopMagic.Api.Settings;
+using DesktopMagic.Helpers;
+using DesktopMagic.Plugins;
+using DesktopMagic.Settings;
 
 using System;
 using System.Collections.Generic;
@@ -24,21 +23,21 @@ namespace DesktopMagic;
 
 public partial class PluginWindow : Window
 {
-    private readonly RegistryKey key;
-    private Thread pluginThread;
-    private System.Timers.Timer valueTimer;
+    public event Action? PluginLoaded;
 
-    private Plugin pluginClassInstance;
+    public event Action? OnExit;
+
+    private readonly PluginSettings settings;
+    private readonly System.Timers.Timer? updateTimer;
+    private Thread? pluginThread;
+    private System.Timers.Timer? valueTimer;
+    private Plugin? pluginClassInstance;
 
     public bool IsRunning { get; private set; } = true;
-    public string PluginName { get; private set; }
-    public string PluginFolderPath { get; private set; }
+    public PluginMetadata PluginMetadata { get; private set; }
+    public string? PluginFolderPath { get; private set; }
 
-    public event Action PluginLoaded;
-
-    public event Action OnExit;
-
-    public PluginWindow(string pluginName)
+    public PluginWindow(PluginMetadata pluginMetadata, PluginSettings settings, string pluginFolderPath)
     {
         InitializeComponent();
 
@@ -56,25 +55,42 @@ public partial class PluginWindow : Window
         Owner = w;
         w.Hide();
 
-        System.Timers.Timer t = new System.Timers.Timer
+        updateTimer = new System.Timers.Timer
         {
             Interval = 100
         };
-        t.Elapsed += UpdateTimer_Elapsed;
-        t.Start();
+        updateTimer.Elapsed += UpdateTimer_Elapsed;
+        updateTimer.Start();
 
-        PluginName = pluginName;
+        PluginMetadata = pluginMetadata;
+        this.settings = settings;
 
-        key = Registry.CurrentUser.CreateSubKey(@"Software\" + App.AppName);
-        Top = double.Parse(key.GetValue(pluginName + "WindowTop", 100).ToString());
-        Left = double.Parse(key.GetValue(pluginName + "WindowLeft", 100).ToString());
-        Height = double.Parse(key.GetValue(pluginName + "WindowHeight", 200).ToString());
-        Width = double.Parse(key.GetValue(pluginName + "WindowWidth", 500).ToString());
+        Left = settings.Position.X;
+        Top = settings.Position.Y;
+        Width = settings.Size.X;
+        Height = settings.Size.Y;
+
+        PluginFolderPath = pluginFolderPath;
     }
 
-    public PluginWindow(Plugin pluginClassInstance, string pluginName) : this(pluginName)
+    public PluginWindow(Plugin pluginClassInstance, PluginMetadata pluginMetadata, PluginSettings settings) : this(pluginMetadata, settings, string.Empty)
     {
         this.pluginClassInstance = pluginClassInstance;
+    }
+
+    public void UpdatePluginWindow()
+    {
+        ValueTimer_Elapsed(valueTimer, null);
+    }
+
+    public void Exit()
+    {
+        IsRunning = false;
+
+        Dispatcher.Invoke(() =>
+        {
+            OnExit?.Invoke();
+        });
     }
 
     protected override void OnSourceInitialized(EventArgs e)
@@ -87,27 +103,38 @@ public partial class PluginWindow : Window
         WindowPos.GetWindowLong(helper.Handle, WindowPos.GWL_EXSTYLE) | WindowPos.WS_EX_NOACTIVATE);
     }
 
-    private void Window_ContentRendered(object sender, EventArgs e)
+    private static BitmapSource BitmapToImageSource(Bitmap bitmap)
     {
-        pluginThread = new Thread(() =>
-        {
-            LoadPlugin();
-        });
+        BitmapData bitmapData = bitmap.LockBits(
+            new Rectangle(0, 0, bitmap.Width, bitmap.Height),
+            ImageLockMode.ReadOnly, bitmap.PixelFormat);
+
+        BitmapSource bitmapSource = BitmapSource.Create(
+            bitmapData.Width, bitmapData.Height,
+            bitmap.HorizontalResolution, bitmap.VerticalResolution,
+            PixelFormats.Bgra32, null,
+            bitmapData.Scan0, bitmapData.Stride * bitmapData.Height, bitmapData.Stride);
+
+        bitmap.UnlockBits(bitmapData);
+        return bitmapSource;
+    }
+
+    private void Window_ContentRendered(object? sender, EventArgs e)
+    {
+        App.Logger.Log($"\"{PluginMetadata.Name}\" - Starting plugin thread", "Plugin");
+        pluginThread = new Thread(LoadPlugin);
         pluginThread.Start();
     }
 
-    public void UpdatePluginWindow()
-    {
-        ValueTimer_Elapsed(valueTimer, null);
-    }
-
-    private void UpdateTimer_Elapsed(object sender, ElapsedEventArgs e)
+    private void UpdateTimer_Elapsed(object? sender, ElapsedEventArgs e)
     {
         Dispatcher.Invoke(() =>
         {
             if (MainWindow.EditMode)
             {
                 panel.Visibility = Visibility.Visible;
+                imageBorder.BorderThickness = new Thickness(3);
+                image.Margin = new(-3);
                 WindowPos.SetIsLocked(this, false);
                 tileBar.CaptionHeight = tileBar.CaptionHeight = ActualHeight - 10 < 0 ? 0 : ActualHeight - 10;
                 ResizeMode = ResizeMode.CanResize;
@@ -115,6 +142,8 @@ public partial class PluginWindow : Window
             else
             {
                 panel.Visibility = Visibility.Collapsed;
+                imageBorder.BorderThickness = new Thickness(0);
+                image.Margin = new Thickness(0);
                 WindowPos.SetIsLocked(this, true);
                 tileBar.CaptionHeight = 0;
                 ResizeMode = ResizeMode.NoResize;
@@ -122,32 +151,36 @@ public partial class PluginWindow : Window
 
             if (!IsRunning)
             {
-                ((System.Timers.Timer)sender).Stop();
+                (sender as System.Timers.Timer)?.Stop();
             }
             else
             {
-                viewBox.Margin = new Thickness(MainWindow.Theme.Margin);
-                border.Width = viewBox.ActualWidth + (MainWindow.Theme.Margin * 2);
-                border.Height = viewBox.ActualHeight + (MainWindow.Theme.Margin * 2);
-                rectangleGeometry.Rect = new Rect(-MainWindow.Theme.Margin, -MainWindow.Theme.Margin, border.ActualWidth, border.ActualHeight);
-                border.Background = MainWindow.Theme.BackgroundBrush;
-                border.CornerRadius = new CornerRadius(MainWindow.Theme.CornerRadius);
+                viewBox.Margin = new Thickness(settings.Theme.Margin);
+                border.Width = viewBox.ActualWidth + (settings.Theme.Margin * 2);
+                border.Height = viewBox.ActualHeight + (settings.Theme.Margin * 2);
+                rectangleGeometry.Rect = new Rect(-settings.Theme.Margin, -settings.Theme.Margin, border.ActualWidth, border.ActualHeight);
+                border.Background = new SolidColorBrush(MultiColorConverter.ConvertToMediaColor(settings.Theme.BackgroundColor));
+                border.CornerRadius = new CornerRadius(settings.Theme.CornerRadius);
             }
         });
+
+        if (!IsRunning)
+        {
+            updateTimer?.Stop();
+        }
     }
 
     private void LoadPlugin()
     {
-        if (pluginClassInstance is null)
-        {
-            PluginFolderPath = $"{Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)}\\{App.AppName}\\Plugins\\{PluginName}";
+        App.Logger.Log($"\"{PluginMetadata.Name}\" - Loading plugin", "Plugin");
 
-            if (!File.Exists($"{PluginFolderPath}\\{PluginName}.dll"))
-            {
-                _ = MessageBox.Show("File does not exist!", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-                Exit();
-                return;
-            }
+        if (pluginClassInstance is null && !File.Exists($"{PluginFolderPath}\\main.dll"))
+        {
+            App.Logger.Log($"\"{PluginMetadata.Name}\" - File \"main.dll\" does not exist", "Plugin", LogSeverity.Error);
+            _ = MessageBox.Show("File \"main.dll\" does not exist!", $"Error \"{PluginMetadata.Name}\"", MessageBoxButton.OK, MessageBoxImage.Error);
+
+            Exit();
+            return;
         }
 
         try
@@ -156,8 +189,8 @@ public partial class PluginWindow : Window
         }
         catch (Exception ex)
         {
-            App.Logger.Log(ex.ToString(), "Plugin", LogSeverity.Error);
-            _ = MessageBox.Show("File execution error:\n" + ex, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            App.Logger.Log($"\"{PluginMetadata.Name}\" - {ex}", "Plugin", LogSeverity.Error);
+            _ = MessageBox.Show("File execution error:\n" + ex, $"Error \"{PluginMetadata.Name}\"", MessageBoxButton.OK, MessageBoxImage.Error);
             Exit();
             return;
         }
@@ -166,35 +199,39 @@ public partial class PluginWindow : Window
 
     private void ExecuteSource()
     {
-        object instance = pluginClassInstance;
+        object? instance = pluginClassInstance;
         if (instance is null)
         {
-            byte[] assemblyBytes = File.ReadAllBytes($"{PluginFolderPath}\\{PluginName}.dll");
+            byte[] assemblyBytes = File.ReadAllBytes($"{PluginFolderPath}\\main.dll");
             Assembly dll = Assembly.Load(assemblyBytes);
-            Type instanceType = dll.GetTypes().FirstOrDefault(type => type.GetTypeInfo().BaseType == typeof(Plugin));
+            Type? instanceType = Array.Find(dll.GetTypes(), type => type.GetTypeInfo().BaseType == typeof(Plugin));
 
             if (instanceType is null)
             {
-                _ = MessageBox.Show($"The \"Plugin\" class could not be found! It has to inherit from \"{typeof(Plugin).FullName}\"", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                App.Logger.Log($"\"{PluginMetadata.Name}\" - The \"Plugin\" class could not be found! It has to inherit from \"{typeof(Plugin).FullName}\"", "Plugin", LogSeverity.Error);
+                _ = MessageBox.Show($"The \"Plugin\" class could not be found! It has to inherit from \"{typeof(Plugin).FullName}\"", $"Error \"{PluginMetadata.Name}\"", MessageBoxButton.OK, MessageBoxImage.Error);
+
                 Exit();
                 return;
             }
 
             instance = Activator.CreateInstance(instanceType);
         }
-        if (instance is Plugin)
+        if (instance is Plugin plugin)
         {
-            pluginClassInstance = instance as Plugin;
-            pluginClassInstance.Application = new PluginData(this);
+            pluginClassInstance = plugin;
+            pluginClassInstance.Application = new Plugins.PluginData(this, settings);
         }
         else
         {
-            _ = MessageBox.Show($"The \"Plugin\" class has to inherit from \"{typeof(Plugin).FullName}\"", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            App.Logger.Log($"\"{PluginMetadata.Name}\" - The \"Plugin\" class could not be found! It has to inherit from \"{typeof(Plugin).FullName}\"", "Plugin", LogSeverity.Error);
+            _ = MessageBox.Show($"The \"Plugin\" class has to inherit from \"{typeof(Plugin).FullName}\"", $"Error \"{PluginMetadata.Name}\"", MessageBoxButton.OK, MessageBoxImage.Error);
             Exit();
             return;
         }
 
-        LoadOptions(instance);
+        LoadOptions(pluginClassInstance);
+        BindDefaultSettings(pluginClassInstance);
 
         valueTimer = new System.Timers.Timer
         {
@@ -212,64 +249,101 @@ public partial class PluginWindow : Window
         }
     }
 
+    private void BindDefaultSettings(Plugin pluginClassInstance)
+    {
+        Dispatcher.Invoke(() =>
+        {
+            SetHorizontalAlignment();
+            SetVerticalAlignment();
+
+            pluginClassInstance.horizontalAlignment.OnValueChanged += SetHorizontalAlignment;
+            pluginClassInstance.verticalAlignment.OnValueChanged += SetVerticalAlignment;
+        });
+
+        void SetVerticalAlignment()
+        {
+            viewBox.VerticalAlignment = pluginClassInstance.verticalAlignment.Value switch
+            {
+                "Top" => VerticalAlignment.Top,
+                "Center" => VerticalAlignment.Center,
+                "Bottom" => VerticalAlignment.Bottom,
+                _ => VerticalAlignment.Center
+            };
+        }
+
+        void SetHorizontalAlignment()
+        {
+            viewBox.HorizontalAlignment = pluginClassInstance.horizontalAlignment.Value switch
+            {
+                "Left" => HorizontalAlignment.Left,
+                "Center" => HorizontalAlignment.Center,
+                "Right" => HorizontalAlignment.Right,
+                _ => HorizontalAlignment.Center
+            };
+        }
+    }
+
     private void LoadOptions(object instance)
     {
+        App.Logger.Log($"\"{PluginMetadata.Name}\" - Loading plugin options", "Plugin");
+
         try
         {
+#pragma warning disable S3011 // Reflection should not be used to increase accessibility of classes, methods, or fields
             FieldInfo[] props = instance.GetType().GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.GetField);
+#pragma warning restore S3011 // Reflection should not be used to increase accessibility of classes, methods, or fields
 
-            List<SettingElement> settingElements = new List<SettingElement>();
+            List<SettingElement> settingElements = [];
             foreach (FieldInfo prop in props)
             {
-                if (prop.GetValue(instance) is Element element)
+                if (prop.GetValue(instance) is Setting element)
                 {
                     object[] attributes = prop.GetCustomAttributes(true);
                     foreach (object attribute in attributes)
                     {
-                        if (attribute is ElementAttribute elementAttribute)
+                        if (attribute is SettingAttribute elementAttribute)
                         {
-                            settingElements.Add(new SettingElement(element, elementAttribute.Name, elementAttribute.OrderIndex));
+                            SettingElement settingElement = new SettingElement(element, elementAttribute.Id, elementAttribute.Name, elementAttribute.OrderIndex);
+
+                            if (settings.Settings.Exists(e => e.Id == elementAttribute.Id))
+                            {
+                                SettingElement settingsSettingElement = settings.Settings.First(e => e.Id == elementAttribute.Id);
+                                settingElement.JsonValue = settingsSettingElement.JsonValue;
+                            }
+
+                            settingElements.Add(settingElement);
                             break;
                         }
                     }
                 }
             }
 
-            settingElements = settingElements.OrderBy(x => x.OrderIndex).ToList();
-            if (MainWindow.PluginsSettings.ContainsKey(PluginName))
-            {
-                MainWindow.PluginsSettings[PluginName] = settingElements;
-            }
-            else
-            {
-                MainWindow.PluginsSettings.Add(PluginName, settingElements);
-            }
+            settings.Settings = [.. settingElements.OrderBy(x => x.OrderIndex)];
         }
         catch (Exception ex)
         {
             IsRunning = false;
-            App.Logger.Log(ex.ToString(), "Plugin", LogSeverity.Error);
-            _ = MessageBox.Show("File execution error:\n" + ex, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            App.Logger.Log($"\"{PluginMetadata.Name}\" - {ex}", "Plugin", LogSeverity.Error);
+            _ = MessageBox.Show("File execution error:\n" + ex, $"Error \"{PluginMetadata.Name}\"", MessageBoxButton.OK, MessageBoxImage.Error);
             Exit();
-            return;
         }
     }
 
-    private void ValueTimer_Elapsed(object sender, ElapsedEventArgs e)
+    private void ValueTimer_Elapsed(object? sender, ElapsedEventArgs? e)
     {
         try
         {
-            if (IsRunning)
+            if (IsRunning && pluginClassInstance is not null)
             {
-                Bitmap result = pluginClassInstance.Main();
+                Bitmap? result = pluginClassInstance.Main();
 
                 if (pluginClassInstance.UpdateInterval > 0)
                 {
-                    valueTimer.Interval = pluginClassInstance.UpdateInterval;
+                    valueTimer!.Interval = pluginClassInstance.UpdateInterval;
                 }
                 else
                 {
-                    valueTimer.Stop();
+                    valueTimer!.Stop();
                 }
 
                 if (result is not null)
@@ -294,62 +368,36 @@ public partial class PluginWindow : Window
         catch (Exception ex)
         {
             IsRunning = false;
-            App.Logger.Log(ex.ToString(), "Plugin", LogSeverity.Error);
-            _ = MessageBox.Show("File execution error:\n" + ex, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            App.Logger.Log($"\"{PluginMetadata.Name}\" - {ex}", "Plugin", LogSeverity.Error);
+            _ = MessageBox.Show("File execution error:\n" + ex, $"Error \"{PluginMetadata.Name}\"", MessageBoxButton.OK, MessageBoxImage.Error);
             Exit();
             return;
         }
 
         if (!IsRunning)
         {
-            valueTimer.Stop();
+            valueTimer!.Stop();
         }
-    }
-
-    private static BitmapSource BitmapToImageSource(Bitmap bitmap)
-    {
-        BitmapData bitmapData = bitmap.LockBits(
-            new Rectangle(0, 0, bitmap.Width, bitmap.Height),
-            ImageLockMode.ReadOnly, bitmap.PixelFormat);
-
-        BitmapSource bitmapSource = BitmapSource.Create(
-            bitmapData.Width, bitmapData.Height,
-            bitmap.HorizontalResolution, bitmap.VerticalResolution,
-            PixelFormats.Bgra32, null,
-            bitmapData.Scan0, bitmapData.Stride * bitmapData.Height, bitmapData.Stride);
-
-        bitmap.UnlockBits(bitmapData);
-        return bitmapSource;
-    }
-
-    public void Exit()
-    {
-        IsRunning = false;
-
-        Dispatcher.Invoke(() =>
-        {
-            OnExit?.Invoke();
-        });
     }
 
     private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
     {
-        pluginClassInstance?.Stop();
+        App.Logger.Log($"\"{PluginMetadata.Name}\" - Stopping plugin", "Plugin");
         IsRunning = false;
+        pluginClassInstance?.Stop();
     }
 
     #region Window Events
 
     private void Window_LocationChanged(object sender, EventArgs e)
     {
-        key.SetValue(PluginName + "WindowTop", Top);
-        key.SetValue(PluginName + "WindowLeft", Left);
+        settings.Position = new System.Windows.Point(Left, Top);
     }
 
     private void Window_SizeChanged(object sender, SizeChangedEventArgs e)
     {
-        key.SetValue(PluginName + "WindowHeight", Height);
-        key.SetValue(PluginName + "WindowWidth", Width);
+        settings.Size = new System.Windows.Point(Width, Height);
+
         tileBar.CaptionHeight = ActualHeight - 10;
     }
 
@@ -378,10 +426,10 @@ public partial class PluginWindow : Window
 
             default:
                 return;
-        };
+        }
 
         System.Drawing.Point point = new System.Drawing.Point((int)pixelMousePositionX, (int)pixelMousePositionY);
-        pluginClassInstance.OnMouseClick(point, mouseButton);
+        pluginClassInstance?.OnMouseClick(point, mouseButton);
     }
 
     private void Window_MouseMove(object sender, System.Windows.Input.MouseEventArgs e)
@@ -392,7 +440,7 @@ public partial class PluginWindow : Window
         double pixelMousePositionY = e.GetPosition(image).Y * bitmapImage.PixelHeight / image.ActualHeight;
 
         System.Drawing.Point point = new System.Drawing.Point((int)pixelMousePositionX, (int)pixelMousePositionY);
-        pluginClassInstance.OnMouseMove(point);
+        pluginClassInstance?.OnMouseMove(point);
     }
 
     private void Window_MouseWheel(object sender, System.Windows.Input.MouseWheelEventArgs e)
@@ -403,7 +451,7 @@ public partial class PluginWindow : Window
         double pixelMousePositionY = e.GetPosition(image).Y * bitmapImage.PixelHeight / image.ActualHeight;
 
         System.Drawing.Point point = new System.Drawing.Point((int)pixelMousePositionX, (int)pixelMousePositionY);
-        pluginClassInstance.OnMouseWheel(point, e.Delta);
+        pluginClassInstance?.OnMouseWheel(point, e.Delta);
     }
 
     #endregion Window Events

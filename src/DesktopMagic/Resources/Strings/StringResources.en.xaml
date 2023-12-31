@@ -1,0 +1,36 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:col="clr-namespace:System.Collections;assembly=mscorlib"
+                    xmlns:system="clr-namespace:System;assembly=mscorlib">
+
+    <system:String x:Key="lineMode">Line</system:String>
+    <system:String x:Key="mirrorMode">Mirror</system:String>
+    <system:String x:Key="updatePlugins">Reload</system:String>
+    <system:String x:Key="openPluginsFolder">Open Plugins Folder</system:String>
+    <system:String x:Key="pluginManager">Plugin Manager</system:String>
+    <system:String x:Key="color">Color:</system:String>
+    <system:String x:Key="default">Default</system:String>
+    <system:String x:Key="wantToCloseProgram">Do you really want to close the program?</system:String>
+    <system:String x:Key="noOptions">No Options!</system:String>
+    <system:String x:Key="edit">Edit</system:String>
+    <system:String x:Key="time">Time</system:String>
+    <system:String x:Key="date">Date</system:String>
+    <system:String x:Key="cpuUsage">CPU Usage</system:String>
+    <system:String x:Key="googleCalendar">Google Calendar</system:String>
+    <system:String x:Key="musicVisualizer">Music Visualizer</system:String>
+    <system:String x:Key="musicVisualizerOptions">Music Visualizer Options:</system:String>
+    <system:String x:Key="amplifier">Signal Amplification:</system:String>
+    <system:String x:Key="newLayout">New Layout</system:String>
+    <system:String x:Key="deleteLayout">Delete Layout</system:String>
+    <system:String x:Key="ok">Ok</system:String>
+    <system:String x:Key="cancel">Cancel</system:String>
+    <system:String x:Key="enterLayoutName">Enter layout name</system:String>
+    <system:String x:Key="layoutAlreadyExists">Layout already exists!</system:String>
+    <system:String x:Key="install">Install</system:String>
+    <system:String x:Key="remove">Remove</system:String>
+    <col:ArrayList x:Key="musicVisualizerOptionsComboboxItems">
+        <system:String>Bottom</system:String>
+        <system:String>Middle</system:String>
+        <system:String>Top</system:String>
+    </col:ArrayList>
+</ResourceDictionary>

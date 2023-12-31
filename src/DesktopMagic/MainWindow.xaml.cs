@@ -1,17 +1,17 @@
 ﻿using DesktopMagic.BuiltInWindowElements;
+using DesktopMagic.DataContexts;
 using DesktopMagic.Dialogs;
 using DesktopMagic.Helpers;
 using DesktopMagic.Plugins;
-
-using Microsoft.Win32;
+using DesktopMagic.Settings;
 
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -22,44 +22,36 @@ namespace DesktopMagic
 {
     public partial class MainWindow : Window
     {
-        #region Global settings
-
-        internal static Theme Theme = new Theme();
-        public static bool EditMode { get; private set; } = false;
-
-        #endregion Global settings
-
-        #region Music Visualizer Settings
-
-        public static int SpectrumMode { get; private set; } = 0;
-        public static int AmplifierLevel { get; private set; } = 0;
-        public static bool MirrorMode { get; private set; } = false;
-        public static bool LineMode { get; private set; } = false;
-        public static System.Drawing.Color? MusicVisualzerColor { get; private set; }
-
-        #endregion Music Visualizer Settings
-
-        #region Plugins settings
-
-        internal static Dictionary<string, List<SettingElement>> PluginsSettings { get; } = new Dictionary<string, List<SettingElement>>();
-
-        #endregion Plugins settings
-
-        public static List<PluginWindow> Windows { get; } = new List<PluginWindow>();
-        public static List<string> WindowNames { get; } = new List<string>();
-        private readonly RegistryKey key;
         private readonly System.Windows.Forms.NotifyIcon notifyIcon = new();
 
-        private bool loaded = false;
+        private readonly MainWindowDataContext mainWindowDataContext = new();
 
+        private readonly Dictionary<PluginMetadata, Type> builtInPlugins = new()
+        {
+            {new("Music Visualizer", 1), typeof(MusicVisualizerPlugin)},
+            {new("Time",2), typeof(TimePlugin)},
+            {new("Date",3), typeof(DatePlugin)},
+            {new("Cpu Usage", 4), typeof(CpuMonitorPlugin)}
+        };
+
+        private bool loaded = false;
         private bool blockWindowsClosing = true;
+        public static List<PluginWindow> Windows { get; } = [];
+        public static List<string> WindowNames { get; } = [];
+        internal static bool EditMode { get; set; } = false;
+
+        private DesktopMagicSettings Settings
+        {
+            get => mainWindowDataContext.Settings;
+            set => mainWindowDataContext.Settings = value;
+        }
 
         public MainWindow()
         {
+            DataContext = mainWindowDataContext;
+
             try
             {
-                key = Registry.CurrentUser.CreateSubKey(@"Software\" + App.AppName);
-
                 Stream iconStream = Application.GetResourceStream(new Uri("pack://application:,,,/DesktopMagic;component/icon.ico")).Stream;
                 notifyIcon.Click += TaskbarIcon_TrayLeftClick;
                 notifyIcon.Visible = true;
@@ -84,6 +76,8 @@ namespace DesktopMagic
 
         #region Load
 
+        private readonly Dictionary<uint, InternalPluginData> plugins = [];
+
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
             try
@@ -94,18 +88,12 @@ namespace DesktopMagic
                 }
                 App.Logger.Log("Created Plugins Folder", "Main");
 
-                if (!File.Exists(App.ApplicationDataPath + "\\layouts.save"))
-                {
-                    File.WriteAllText(App.ApplicationDataPath + "\\layouts.save", ";" + (string)FindResource("default"));
-                }
-                App.Logger.Log("Created layouts.save file", "Main");
-
                 //Write To Log File and Load Elements
 
                 App.Logger.Log("Loading Plugin names", "Main");
                 LoadPlugins();
                 App.Logger.Log("Loading Layout names", "Main");
-                LoadLayoutNames();
+                LoadSettings();
                 App.Logger.Log("Loading Layout", "Main");
                 LoadLayout();
 
@@ -121,178 +109,164 @@ namespace DesktopMagic
 
         private void LoadPlugins()
         {
-            string PluginsPath = App.ApplicationDataPath + "\\Plugins";
+            mainWindowDataContext.IsLoading = true;
+            plugins.Clear();
 
-            foreach (string fileName in Directory.GetFiles(PluginsPath, "*.dll"))
+            foreach (var buildInPlugin in builtInPlugins.Keys)
             {
-                string PluginName = fileName[(fileName.LastIndexOf("\\", StringComparison.InvariantCulture) + 1)..].Replace(fileName[fileName.LastIndexOf(".", StringComparison.InvariantCulture)..], "");
-                try
-                {
-                    _ = Directory.CreateDirectory(PluginsPath + "\\" + PluginName);
-                    File.Move(fileName, $"{PluginsPath}\\{PluginName}\\{PluginName}.dll");
-                }
-                catch (Exception ex)
-                {
-                    App.Logger.Log(ex.Message, "Main", LogSeverity.Error);
-                }
+                plugins.Add(buildInPlugin.Id, new(buildInPlugin, string.Empty));
             }
 
-            foreach (string directory in Directory.GetDirectories(PluginsPath))
+            string pluginsPath = App.ApplicationDataPath + "\\Plugins";
+
+            foreach (string directory in Directory.GetDirectories(pluginsPath))
             {
-                foreach (string fileName in Directory.GetFiles(directory).Where(s => s.EndsWith(".dll", StringComparison.InvariantCulture) || s.EndsWith(".cs", StringComparison.InvariantCulture)))
+                string? pluginDllPath = Directory.GetFiles(directory, "main.dll").FirstOrDefault();
+                string? pluginMetadataPath = Directory.GetFiles(directory, "metadata.json").FirstOrDefault();
+
+                if (pluginDllPath is null)
                 {
-                    string badChars = ",#-<>?!=()*,. ";
-                    string PluginName = fileName[(fileName.LastIndexOf("\\", StringComparison.InvariantCulture) + 1)..].Replace(fileName[fileName.LastIndexOf(".", StringComparison.InvariantCulture)..], "");
-                    string clearPluginName = PluginName;
-
-                    if (PluginName == directory[(directory.LastIndexOf("\\", StringComparison.InvariantCulture) + 1)..])
-                    {
-                        foreach (char c in badChars)
-                        {
-                            clearPluginName = clearPluginName.Replace(c, '_');
-                        }
-
-                        CheckBox checkBox = new()
-                        {
-                            Name = "_PluginCb_" + clearPluginName,
-                            Content = PluginName
-                        };
-                        checkBox.Style = (Style)FindResource("MaterialDesignDarkCheckBox");
-                        checkBox.Click += CheckBox_Click;
-
-                        bool exists = false;
-                        foreach (UIElement item in stackPanel.Children)
-                        {
-                            if (((CheckBox)item).Name == "_PluginCb_" + clearPluginName)
-                            {
-                                exists = true;
-                                break;
-                            }
-                        }
-
-                        if (!exists)
-                        {
-                            _ = stackPanel.Children.Add(checkBox);
-                        }
-                    }
+                    App.Logger.Log($"Plugin \"{directory}\" has no \"main.dll\"", "Main", LogSeverity.Error);
+                    continue;
                 }
+
+                if (pluginMetadataPath is null)
+                {
+                    App.Logger.Log($"Plugin \"{directory}\" has no \"metadata.json\"", "Main", LogSeverity.Warn);
+                    continue;
+                }
+
+                PluginMetadata? pluginMetadata = JsonSerializer.Deserialize<PluginMetadata>(File.ReadAllText(pluginMetadataPath));
+
+                if (pluginMetadata is null)
+                {
+                    App.Logger.Log($"Plugin \"{directory}\" has no valid \"metadata.json\"", "Main", LogSeverity.Error);
+                    continue;
+                }
+
+                if (plugins.ContainsKey(pluginMetadata.Id))
+                {
+                    App.Logger.Log($"Plugin \"{directory}\" has the same id as another plugin", "Main", LogSeverity.Error);
+                    continue;
+                }
+
+                plugins.Add(pluginMetadata.Id, new(pluginMetadata, directory));
             }
+            mainWindowDataContext.IsLoading = false;
         }
 
         #endregion Load
 
         #region Windows
 
-        private void EditCheckBox_Click(object sender, RoutedEventArgs e)
+        private void EditCheckBox_Click(object? sender, RoutedEventArgs? e)
         {
-            EditMode = (bool)EditCheckBox.IsChecked;
-            SaveLayout();
+            EditMode = EditCheckBox.IsChecked == true;
+            SaveSettings();
         }
 
-        private void CheckBox_Click(object sender, RoutedEventArgs e)
+        private void PluginCheckBox_Click(object sender, RoutedEventArgs? e)
         {
-            CheckBox checkBox = (CheckBox)sender;
-            PluginWindow window = null;
-            blockWindowsClosing = false;
-
-            switch (checkBox.Name)
-            {
-                case "TimeCb":
-                    window = new PluginWindow(new TimePlugin(), checkBox.Content.ToString());
-                    break;
-
-                case "DateCb":
-                    window = new PluginWindow(new DatePlugin(), checkBox.Content.ToString());
-                    break;
-
-                case "CpuUsageCb":
-                    //window = new PluginWindow();
-                    break;
-
-                case "MusicVisualizerCb":
-                    window = new PluginWindow(new MusicVisualizerPlugin(), checkBox.Content.ToString());
-                    break;
-
-                default:
-                    if (!checkBox.Name.Contains("_PluginCb_"))
-                    {
-                        return;
-                    }
-
-                    window = new PluginWindow(checkBox.Content.ToString());
-                    break;
-            }
-
-            if (window is null)
+            if (sender is not CheckBox checkBox)
             {
                 return;
             }
-            window.Title = checkBox.Content.ToString();
-            if (!WindowNames.Contains(window.Title) && checkBox.IsChecked == true)
-            {
-                _ = Task.Run(() =>
-                {
-                    Dispatcher.Invoke(() =>
-                    {
-                        Action onPluginLoaded = null;
-                        onPluginLoaded = () =>
-                        {
-                            Dispatcher.Invoke(() =>
-                            {
-                                if (!optionsComboBox.Items.Contains(checkBox.Content.ToString()))
-                                {
-                                    _ = optionsComboBox.Items.Add(checkBox.Content.ToString());
-                                }
-                                optionsComboBox.SelectedIndex = -1;
-                                optionsComboBox.SelectedIndex = optionsComboBox.Items.IndexOf(checkBox.Content.ToString());
-                                window.PluginLoaded -= onPluginLoaded;
-                            });
-                        };
-                        window.OnExit += () =>
-                            {
-                                checkBox.IsChecked = false;
-                                CheckBox_Click(checkBox, null);
-                            };
-                        window.PluginLoaded += onPluginLoaded;
 
-                        window.ShowInTaskbar = false;
-                        window.Show();
-                        window.ContentRendered += DisplayWindow_ContentRendered;
-                        window.Closing += DisplayWindow_Closing;
-                        Windows.Add(window);
-                        WindowNames.Add(window.Title);
-                    });
-                });
-            }
-            else
+            LoadPlugin(uint.Parse(checkBox.Tag.ToString()!));
+        }
+
+        private void LoadPlugin(uint pluginId)
+        {
+            if (!plugins.TryGetValue(pluginId, out InternalPluginData? internalPluginData))
             {
-                int index = WindowNames.IndexOf(window.Title);
+                return;
+            }
+
+            if (!Settings.CurrentLayout.Plugins.TryGetValue(pluginId, out PluginSettings? pluginSettings))
+            {
+                pluginSettings = new PluginSettings();
+                Settings.CurrentLayout.Plugins.Add(pluginId, pluginSettings);
+            }
+
+            if (WindowNames.Contains(internalPluginData.Metadata.Id.ToString()) || !pluginSettings.Enabled)
+            {
+                int index = WindowNames.IndexOf(internalPluginData.Metadata.Id.ToString());
 
                 if (index >= 0)
                 {
-                    //Not sure how to handle this
                     try
                     {
+                        blockWindowsClosing = false;
                         Windows[index].Close();
-
+                        blockWindowsClosing = true;
                         Windows.RemoveAt(index);
                         WindowNames.RemoveAt(index);
                     }
-                    catch { }
+                    catch (Exception ex)
+                    {
+                        App.Logger.Log(ex.Message, "Main", LogSeverity.Error);
+                    }
                 }
+                return;
             }
-            key.SetValue(checkBox.Name, checkBox.IsChecked.ToString());
-            blockWindowsClosing = true;
-            SaveLayout();
+
+            PluginWindow window;
+
+            if (builtInPlugins.TryGetValue(internalPluginData.Metadata, out Type? pluginType))
+            {
+                window = new PluginWindow((Api.Plugin)Activator.CreateInstance(pluginType)!, internalPluginData.Metadata, pluginSettings)
+                {
+                    Title = internalPluginData.Metadata.Id.ToString()
+                };
+            }
+            else
+            {
+                window = new PluginWindow(internalPluginData.Metadata, pluginSettings, internalPluginData.DirectoryPath)
+                {
+                    Title = internalPluginData.Metadata.Id.ToString()
+                };
+            }
+
+            Action? onPluginLoaded = null;
+            onPluginLoaded = () =>
+            {
+                Dispatcher.Invoke(() =>
+                {
+                    if (!optionsComboBox.Items.Contains(internalPluginData.Metadata))
+                    {
+                        _ = optionsComboBox.Items.Add(internalPluginData.Metadata);
+                    }
+                    optionsComboBox.SelectedIndex = -1;
+                    optionsComboBox.SelectedIndex = optionsComboBox.Items.IndexOf(internalPluginData.Metadata);
+                    window.PluginLoaded -= onPluginLoaded;
+                });
+            };
+            window.OnExit += () =>
+            {
+                pluginSettings.Enabled = false;
+            };
+            window.PluginLoaded += onPluginLoaded;
+
+            window.ShowInTaskbar = false;
+            window.Show();
+            window.ContentRendered += DisplayWindow_ContentRendered;
+            window.Closing += DisplayWindow_Closing;
+            Windows.Add(window);
+            WindowNames.Add(window.Title);
         }
 
-        private void DisplayWindow_ContentRendered(object sender, EventArgs e)
+        private void DisplayWindow_ContentRendered(object? sender, EventArgs e)
         {
-            WindowPos.SendWpfWindowBack(sender as Window);
-            WindowPos.SendWpfWindowBack(sender as Window);
+            if (sender is not Window window)
+            {
+                return;
+            }
+
+            WindowPos.SendWpfWindowBack(window);
+            WindowPos.SendWpfWindowBack(window);
         }
 
-        private void DisplayWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        private void DisplayWindow_Closing(object? sender, System.ComponentModel.CancelEventArgs e)
         {
             e.Cancel = blockWindowsClosing;
         }
@@ -301,6 +275,7 @@ namespace DesktopMagic
         {
             MessageBoxResult msbRes = MessageBox.Show((string)FindResource("wantToCloseProgram"), App.AppName, MessageBoxButton.YesNo);
             e.Cancel = msbRes != MessageBoxResult.Yes;
+            SaveSettings();
         }
 
         private void Window_Closed(object sender, EventArgs e)
@@ -314,7 +289,7 @@ namespace DesktopMagic
             Environment.Exit(0);
         }
 
-        private void Window_StateChanged(object sender, EventArgs e)
+        private void Window_StateChanged(object? sender, EventArgs? e)
         {
             if (WindowState == WindowState.Minimized)
             {
@@ -334,145 +309,67 @@ namespace DesktopMagic
 
         #region Options
 
-        private void AmplifierLevelSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
-        {
-            amplifierLevelLabel.Content = (int)amplifierLevelSlider.Value;
-            AmplifierLevel = (int)amplifierLevelSlider.Value;
-            key.SetValue("AmplifierLevel", AmplifierLevel);
-            SaveLayout();
-        }
-
-        private void MirrorModeCheckBox_Click(object sender, RoutedEventArgs e)
-        {
-            MirrorMode = (bool)mirrorModeCheckBox.IsChecked;
-            key.SetValue("MirrorMode", mirrorModeCheckBox.IsChecked.ToString());
-            SaveLayout();
-        }
-
-        private void LineModeCheckBox_Click(object sender, RoutedEventArgs e)
-        {
-            LineMode = (bool)lineModeCheckBox.IsChecked;
-            key.SetValue("LineMode", lineModeCheckBox.IsChecked.ToString());
-            SaveLayout();
-        }
-
-        private void MusicVisualizerColorTextBox_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            if (!string.IsNullOrWhiteSpace(musicVisualizerColorTextBox.Text) && musicVisualizerColorTextBox.Text != "Default")
-            {
-                if (musicVisualizerColorTextBox.Text.Length > 0)
-                {
-                    if (musicVisualizerColorTextBox.Text.ToCharArray()[0] != '#')
-                    {
-                        musicVisualizerColorTextBox.Text = "#" + musicVisualizerColorTextBox.Text.Replace("#", "");
-                    }
-                }
-                else
-                {
-                    musicVisualizerColorTextBox.Text = "#";
-                    musicVisualizerColorTextBox.Select(musicVisualizerColorTextBox.Text.Length, 0);
-                }
-
-                if (musicVisualizerColorTextBox.SelectionStart == 0)
-                {
-                    if (musicVisualizerColorTextBox.Text.Length <= 2)
-                    {
-                        musicVisualizerColorTextBox.Select(musicVisualizerColorTextBox.Text.Length, 0);
-                    }
-                    else
-                    {
-                        musicVisualizerColorTextBox.Select(1, 0);
-                    }
-                }
-
-                string hex = musicVisualizerColorTextBox.Text;
-
-                if (MultiColorConverter.TryConvertToSystemColor(hex, out System.Drawing.Color systemColor))
-                {
-                    MusicVisualzerColor = systemColor;
-                    musicVisualizerColorTextBox.Foreground = Brushes.Black;
-
-                    key.SetValue("MusicVisualizerColor", musicVisualizerColorTextBox.Text);
-                    SaveLayout();
-                }
-                else
-                {
-                    musicVisualizerColorTextBox.Foreground = Brushes.Red;
-                }
-            }
-            else
-            {
-                MusicVisualzerColor = null;
-                key.SetValue("MusicVisualizerColor", musicVisualizerColorTextBox.Text);
-                SaveLayout();
-            }
-        }
-
         private void FontComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            Theme.Font = fontComboBox.SelectedValue.ToString().Replace("System.Windows.Controls.ComboBoxItem: ", "");
-            key.SetValue("Font", Theme.Font);
-            SaveLayout();
-        }
-
-        private void SpectrumModeComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            SpectrumMode = spectrumModeComboBox.SelectedIndex;
-            key.SetValue("SpectrumMode", spectrumModeComboBox.SelectedIndex);
-
-            mirrorModeCheckBox.IsEnabled = spectrumModeComboBox.SelectedIndex != 1;
-            SaveLayout();
+            Settings.CurrentLayout.Theme.Font = fontComboBox.SelectedValue.ToString()!.Replace("System.Windows.Controls.ComboBoxItem: ", "");
         }
 
         private void OptionsComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (optionsComboBox.SelectedIndex < 1)
+            optionsPanel.Visibility = Visibility.Visible;
+            optionsPanel.Children.Clear();
+            optionsPanel.UpdateLayout();
+
+            if (optionsComboBox.SelectedItem is null)
             {
-                if (musicVisualizerOptionsPanel != null)
-                {
-                    musicVisualizerOptionsPanel.Visibility = Visibility.Visible;
-                    optionsPanel.Visibility = Visibility.Collapsed;
-                }
+                return;
             }
-            else
+
+            bool success = Settings.CurrentLayout.Plugins.TryGetValue(((PluginMetadata)optionsComboBox.SelectedItem).Id, out Settings.PluginSettings? pluginSettings);
+            if (!success || pluginSettings is null || pluginSettings.Settings.Count == 0)
             {
-                musicVisualizerOptionsPanel.Visibility = Visibility.Collapsed;
-                optionsPanel.Visibility = Visibility.Visible;
-                optionsPanel.Children.Clear();
-                optionsPanel.UpdateLayout();
+                _ = optionsPanel.Children.Add(new TextBlock() { Text = (string)FindResource("noOptions") });
+                return;
+            }
 
-                bool success = PluginsSettings.TryGetValue(optionsComboBox.SelectedItem.ToString(), out List<SettingElement> settingElements);
-                if (!success || settingElements?.Count == 0)
+            SettingElementGenerator settingElementGenerator = new SettingElementGenerator(optionsComboBox);
+
+            foreach (SettingElement settingElement in pluginSettings.Settings)
+            {
+                DockPanel dockPanel = new()
                 {
-                    _ = optionsPanel.Children.Add(new TextBlock() { Text = (string)FindResource("noOptions") });
-                    return;
-                }
+                    LastChildFill = true,
+                    HorizontalAlignment = HorizontalAlignment.Stretch,
+                    Margin = new Thickness(0, 0, 0, 5)
+                };
+                _ = optionsPanel.Children.Add(dockPanel);
 
-                SettingElementGenerator settingElementGenerator = new SettingElementGenerator(optionsComboBox);
-
-                foreach (SettingElement settingElement in settingElements)
+                TextBlock textBlock = new()
                 {
-                    DockPanel dockPanel = new()
-                    {
-                        LastChildFill = true,
-                        HorizontalAlignment = HorizontalAlignment.Stretch
-                    };
-                    _ = optionsPanel.Children.Add(dockPanel);
+                    Text = $"{settingElement.Name}:",
+                    Padding = new Thickness(0, 0, 3, 0),
+                    VerticalAlignment = VerticalAlignment.Center
+                };
 
-                    TextBlock textBlock = new()
-                    {
-                        Text = settingElement.Name,
-                        Padding = new Thickness(0, 0, 3, 0),
-                        VerticalAlignment = VerticalAlignment.Center
-                    };
-
-                    _ = dockPanel.Children.Add(textBlock);
-                    settingElementGenerator.Generate(settingElement, dockPanel, textBlock);
-                }
+                _ = dockPanel.Children.Add(textBlock);
+                settingElementGenerator.Generate(settingElement, dockPanel, textBlock);
             }
         }
 
         #endregion Options
+
+        internal void RestoreWindow()
+        {
+            for (int i = 0; i < 10; i++)
+            {
+                ShowInTaskbar = true;
+                Visibility = Visibility.Visible;
+                SystemCommands.RestoreWindow(this);
+                Topmost = true;
+                _ = Activate();
+                Topmost = false;
+            }
+        }
 
         private void TextBlock_Loaded(object sender, RoutedEventArgs e)
         {
@@ -486,7 +383,7 @@ namespace DesktopMagic
                 };
                 _ = fontComboBox.Items.Add(comboBoxItem);
 
-                if (ff.ToString() == Theme.Font)
+                if (ff.ToString() == Settings.CurrentLayout.Theme.Font)
                 {
                     fontComboBox.SelectedIndex = index;
                 }
@@ -500,55 +397,41 @@ namespace DesktopMagic
 
         private void ChangePrimaryColorButton_Click(object sender, RoutedEventArgs e)
         {
-            ColorDialog colorDialog = new ColorDialog("Set Primary Color", Theme.PrimaryColor);
+            ColorDialog colorDialog = new ColorDialog("Set Primary Color", Settings.CurrentLayout.Theme.PrimaryColor);
             if (colorDialog.ShowDialog() == true)
             {
-                Theme.PrimaryBrush = colorDialog.ResultBrush;
-                Theme.PrimaryColor = colorDialog.ResultColor;
+                Settings.CurrentLayout.Theme.PrimaryColor = colorDialog.ResultColor;
                 primaryColorRechtangle.Fill = colorDialog.ResultBrush;
-
-                key.SetValue("PrimaryColor", MultiColorConverter.ConvertToHex(Theme.PrimaryColor));
-                SaveLayout();
             }
         }
 
         private void ChangeSecondaryColorButton_Click(object sender, RoutedEventArgs e)
         {
-            ColorDialog colorDialog = new ColorDialog("Set Secondary Color", Theme.SecondaryColor);
+            ColorDialog colorDialog = new ColorDialog("Set Secondary Color", Settings.CurrentLayout.Theme.SecondaryColor);
             if (colorDialog.ShowDialog() == true)
             {
-                Theme.SecondaryBrush = colorDialog.ResultBrush;
-                Theme.SecondaryColor = colorDialog.ResultColor;
+                Settings.CurrentLayout.Theme.SecondaryColor = colorDialog.ResultColor;
                 secondaryColorRechtangle.Fill = colorDialog.ResultBrush;
-
-                key.SetValue("SecondaryColor", MultiColorConverter.ConvertToHex(Theme.SecondaryColor));
-                SaveLayout();
             }
         }
 
         private void ChangeBackgroundColorButton_Click(object sender, RoutedEventArgs e)
         {
-            ColorDialog colorDialog = new ColorDialog("Set Background Color", Theme.BackgroundColor);
+            ColorDialog colorDialog = new ColorDialog("Set Background Color", Settings.CurrentLayout.Theme.BackgroundColor);
             if (colorDialog.ShowDialog() == true)
             {
-                Theme.BackgroundBrush = colorDialog.ResultBrush;
-                Theme.BackgroundColor = colorDialog.ResultColor;
+                Settings.CurrentLayout.Theme.BackgroundColor = colorDialog.ResultColor;
                 backgroundColorRechtangle.Fill = colorDialog.ResultBrush;
-
-                key.SetValue("BackgroundColor", MultiColorConverter.ConvertToHex(Theme.BackgroundColor));
-                SaveLayout();
             }
         }
 
-        private void CornerRadiusTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        private void CornerRadiusTextBox_TextChanged(object? sender, TextChangedEventArgs? e)
         {
-            bool sucess = int.TryParse(cornerRadiusTextBox.Text, out int cornerRadius);
-            if (sucess)
+            bool success = int.TryParse(cornerRadiusTextBox.Text, out int cornerRadius);
+            if (success)
             {
                 cornerRadiusTextBox.Foreground = Brushes.Black;
-                Theme.CornerRadius = cornerRadius;
-                key.SetValue("CornerRadius", cornerRadius);
-                SaveLayout();
+                Settings.CurrentLayout.Theme.CornerRadius = cornerRadius;
             }
             else
             {
@@ -556,15 +439,13 @@ namespace DesktopMagic
             }
         }
 
-        private void MarginTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        private void MarginTextBox_TextChanged(object? sender, TextChangedEventArgs? e)
         {
-            bool sucess = int.TryParse(marginTextBox.Text, out int margin);
-            if (sucess)
+            bool success = int.TryParse(marginTextBox.Text, out int margin);
+            if (success)
             {
                 marginTextBox.Foreground = Brushes.Black;
-                Theme.Margin = margin;
-                key.SetValue("Margin", margin);
-                SaveLayout();
+                Settings.CurrentLayout.Theme.Margin = margin;
             }
             else
             {
@@ -574,36 +455,20 @@ namespace DesktopMagic
 
         #region Layout
 
+        private readonly JsonSerializerOptions jsonSettingsOptions = new()
+        {
+            Converters =
+            {
+                new ColorJsonConverter()
+            }
+        };
+
         private void LayoutsComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            removeLayoutButton.IsEnabled = layoutsComboBox.SelectedIndex != 0;
-
-            if (layoutsComboBox.SelectedIndex == -1 || !loaded)
+            if (loaded)
             {
-                return;
-            }
-
-            key.SetValue("SelectedLayout", layoutsComboBox.SelectedIndex);
-
-            string[] lines = File.ReadAllLines(App.ApplicationDataPath + "\\layouts.save");
-            string[] data = lines[layoutsComboBox.SelectedIndex].Split(';');
-            foreach (string dat in data)
-            {
-                if (dat.Contains(":"))
-                {
-                    string value = dat[(dat.LastIndexOf(":", StringComparison.InvariantCulture) + 1)..];
-                    string name = dat.Replace(":" + value, "");
-                    key.SetValue(name, value);
-                }
-            }
-            LoadLayout(false);
-            for (int i = 0; i < fontComboBox.Items.Count; i++)
-            {
-                ComboBoxItem comboBoxItem = (ComboBoxItem)fontComboBox.Items[i];
-                if (comboBoxItem.FontFamily.ToString() == Theme.Font)
-                {
-                    fontComboBox.SelectedIndex = i;
-                }
+                SaveSettings();
+                LoadLayout(false);
             }
         }
 
@@ -612,121 +477,72 @@ namespace DesktopMagic
             InputDialog inputDialog = new((string)FindResource("enterLayoutName"));
             if (inputDialog.ShowDialog() == true)
             {
-                string content = "";
-                foreach (string valueName in key.GetValueNames())
+                if (Settings.Layouts.Any(l => l.Name.Trim() == inputDialog.ResponseText.Trim()))
                 {
-                    if (valueName != "SelectedLayout")
-                    {
-                        content += valueName + ":" + key.GetValue(valueName).ToString() + ";";
-                    }
+                    _ = MessageBox.Show((string)FindResource("layoutAlreadyExists"));
+                    return;
                 }
-                content += inputDialog.ResponseText + "\n";
 
-                File.AppendAllText(App.ApplicationDataPath + "\\layouts.save", content);
-                key.SetValue("SelectedLayout", -1);
-                LoadLayoutNames();
-                layoutsComboBox.SelectedIndex = layoutsComboBox.Items.Count - 1;
+                Settings.Layouts.Add(new Layout(inputDialog.ResponseText.Trim()));
+                Settings.CurrentLayoutName = inputDialog.ResponseText.Trim();
+                SaveSettings();
             }
         }
 
         private void RemoveLayoutButton_Click(object sender, RoutedEventArgs e)
         {
-            if (layoutsComboBox.SelectedIndex == -1)
-            {
-                return;
-            }
-
-            List<string> lines = File.ReadAllLines(App.ApplicationDataPath + "\\layouts.save").ToList();
-            lines.RemoveAt(layoutsComboBox.SelectedIndex);
-            File.WriteAllLines(App.ApplicationDataPath + "\\layouts.save", lines);
-            LoadLayoutNames();
-            layoutsComboBox.SelectedIndex = 0;
+            Settings.Layouts.Remove(Settings.CurrentLayout);
+            SaveSettings();
         }
 
-        private void SaveLayout()
+        private void SaveSettings()
         {
             if (!loaded)
             {
                 return;
             }
 
-            _ = Task.Run(() =>
-            {
-                lock (App.ApplicationDataPath)
-                {
-                    List<string> lines = File.ReadAllLines(App.ApplicationDataPath + "\\layouts.save").ToList();
-                    string content = "";
-                    foreach (string valueName in key.GetValueNames())
-                    {
-                        if (valueName != "SelectedLayout")
-                        {
-                            content += valueName + ":" + key.GetValue(valueName).ToString() + ";";
-                        }
-                    }
-                    Dispatcher.Invoke(() =>
-                    {
-                        content += layoutsComboBox.SelectedItem.ToString();
-                        lines[layoutsComboBox.SelectedIndex] = content;
-                    });
-                    File.WriteAllLines(App.ApplicationDataPath + "\\layouts.save", lines);
-                }
-            });
+            string json = JsonSerializer.Serialize(Settings, jsonSettingsOptions);
+            File.WriteAllText(Path.Combine(App.ApplicationDataPath, "settings.json"), json);
         }
 
-        private void LoadLayoutNames()
+        private void LoadSettings()
         {
-            layoutsComboBox.Items.Clear();
-            string[] lines = File.ReadAllLines(App.ApplicationDataPath + "\\layouts.save");
-
-            foreach (string line in lines)
+            if (!File.Exists(Path.Combine(App.ApplicationDataPath, "settings.json")))
             {
-                string name = line[(line.LastIndexOf(";", StringComparison.InvariantCulture) + 1)..];
-                _ = layoutsComboBox.Items.Add(name);
+                Settings = new DesktopMagicSettings()
+                {
+                    Layouts =
+                    [
+                        new Layout((string)FindResource("default"))
+                    ]
+                };
+
+                return;
             }
-            layoutsComboBox.SelectedIndex = int.Parse(key.GetValue("SelectedLayout", "0").ToString(), CultureInfo.InvariantCulture);
+
+            string json = File.ReadAllText(Path.Combine(App.ApplicationDataPath, "settings.json"));
+
+            Settings = JsonSerializer.Deserialize<DesktopMagicSettings>(json, jsonSettingsOptions) ?? new DesktopMagicSettings()
+            {
+                Layouts =
+                [
+                    new Layout((string)FindResource("default"))
+                ]
+            };
         }
 
         private void LoadLayout(bool minimize = true)
         {
-            Theme.Font = key.GetValue("Font", "Segoe UI").ToString();
-            spectrumModeComboBox.SelectedIndex = int.Parse(key.GetValue("SpectrumMode", "0").ToString(), CultureInfo.InvariantCulture);
-            amplifierLevelSlider.Value = int.Parse(key.GetValue("AmplifierLevel", "0").ToString(), CultureInfo.InvariantCulture);
-            mirrorModeCheckBox.IsChecked = bool.Parse(key.GetValue("MirrorMode", "false").ToString());
-            lineModeCheckBox.IsChecked = bool.Parse(key.GetValue("LineMode", "false").ToString());
-            musicVisualizerColorTextBox.Text = key.GetValue("MusicVisualizerColor", "").ToString();
-            cornerRadiusTextBox.Text = key.GetValue("CornerRadius", "0").ToString();
-            marginTextBox.Text = key.GetValue("Margin", "0").ToString();
+            mainWindowDataContext.IsLoading = true;
+            cornerRadiusTextBox.Text = Settings.CurrentLayout.Theme.CornerRadius.ToString();
+            marginTextBox.Text = Settings.CurrentLayout.Theme.Margin.ToString();
             blockWindowsClosing = false;
 
-            string primaryColorHex = key.GetValue("PrimaryColor", "#FFFFFFFF").ToString();
-            string secondaryColorHex = key.GetValue("SecondaryColor", "#FFFFFFFF").ToString();
-            string backgroundColorHex = key.GetValue("BackgroundColor", "#00FFFFFF").ToString();
+            primaryColorRechtangle.Fill = new SolidColorBrush(MultiColorConverter.ConvertToMediaColor(Settings.CurrentLayout.Theme.PrimaryColor));
+            secondaryColorRechtangle.Fill = new SolidColorBrush(MultiColorConverter.ConvertToMediaColor(Settings.CurrentLayout.Theme.SecondaryColor));
+            backgroundColorRechtangle.Fill = new SolidColorBrush(MultiColorConverter.ConvertToMediaColor(Settings.CurrentLayout.Theme.BackgroundColor));
 
-            _ = MultiColorConverter.TryConvertToSystemColor(primaryColorHex, out System.Drawing.Color primarySystemColor);
-            _ = MultiColorConverter.TryConvertToMediaColor(primaryColorHex, out Color primaryMediaColor);
-            _ = MultiColorConverter.TryConvertToSystemColor(secondaryColorHex, out System.Drawing.Color secondarySystemColor);
-            _ = MultiColorConverter.TryConvertToMediaColor(secondaryColorHex, out Color secondaryMediaColor);
-            _ = MultiColorConverter.TryConvertToSystemColor(backgroundColorHex, out System.Drawing.Color backgroundSystemColor);
-            _ = MultiColorConverter.TryConvertToMediaColor(backgroundColorHex, out Color backgroundMediaColor);
-
-            Theme.PrimaryColor = primarySystemColor;
-            Theme.PrimaryBrush = new SolidColorBrush(primaryMediaColor);
-
-            Theme.SecondaryColor = secondarySystemColor;
-            Theme.SecondaryBrush = new SolidColorBrush(secondaryMediaColor);
-
-            Theme.BackgroundColor = backgroundSystemColor;
-            Theme.BackgroundBrush = new SolidColorBrush(backgroundMediaColor);
-
-            primaryColorRechtangle.Fill = Theme.PrimaryBrush;
-            secondaryColorRechtangle.Fill = Theme.SecondaryBrush;
-            backgroundColorRechtangle.Fill = Theme.BackgroundBrush;
-
-            MusicVisualizerColorTextBox_TextChanged(null, null);
-            MirrorModeCheckBox_Click(null, null);
-            LineModeCheckBox_Click(null, null);
-            SpectrumModeComboBox_SelectionChanged(null, null);
-            AmplifierLevelSlider_ValueChanged(null, null);
             CornerRadiusTextBox_TextChanged(null, null);
             MarginTextBox_TextChanged(null, null);
 
@@ -742,40 +558,44 @@ namespace DesktopMagic
             WindowNames.Clear();
             optionsComboBox.Items.Clear();
 
-            _ = optionsComboBox.Items.Add((string)FindResource("musicVisualizer"));
-
-            IEnumerable<CheckBox> list = stackPanel.Children.OfType<CheckBox>();
             bool showWindow = true;
 
-            try
+            // Load plugins
+            foreach (uint pluginId in plugins.Keys)
             {
-                foreach (CheckBox checkBox in list)
+                InternalPluginData internalPluginData = plugins[pluginId];
+
+                // Add plugin to layout if it doesn't exist
+                if (!Settings.CurrentLayout.Plugins.TryGetValue(pluginId, out PluginSettings? pluginSettings))
                 {
-                    try
-                    {
-                        if (key.GetValue(checkBox.Name, "False").ToString() == "True")
-                        {
-                            checkBox.IsChecked = true;
-                            CheckBox_Click(checkBox, null);
-                            showWindow = false;
-                        }
-                        else
-                        {
-                            checkBox.IsChecked = false;
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        App.Logger.Log(ex.ToString(), "Main");
-                        _ = MessageBox.Show(ex.ToString());
-                    }
+                    Settings.CurrentLayout.Plugins.Add(pluginId, new PluginSettings() { Name = internalPluginData.Metadata.Name });
+
+                    continue;
+                }
+
+                pluginSettings.Name = internalPluginData.Metadata.Name;
+
+                if (pluginSettings.Enabled)
+                {
+                    LoadPlugin(pluginId);
+                }
+
+                if (showWindow && pluginSettings.Enabled)
+                {
+                    showWindow = false;
                 }
             }
-            catch (Exception ex)
+
+            // Remove plugins that are not loaded anymore
+            foreach (uint pluginId in Settings.CurrentLayout.Plugins.Keys)
             {
-                App.Logger.Log(ex.ToString(), "Main");
-                _ = MessageBox.Show(ex.ToString());
+                if (!plugins.ContainsKey(pluginId))
+                {
+                    Settings.CurrentLayout.Plugins.Remove(pluginId);
+                }
             }
+
+            Settings.CurrentLayout.UpdatePlugins();
 
             if (!showWindow && minimize)
             {
@@ -787,6 +607,7 @@ namespace DesktopMagic
                 WindowState = WindowState.Normal;
                 Window_StateChanged(null, null);
             }
+            mainWindowDataContext.IsLoading = false;
         }
 
         #endregion Layout
@@ -794,16 +615,7 @@ namespace DesktopMagic
         private void UpdatePluginsButton_Click(object sender, RoutedEventArgs e)
         {
             LoadPlugins();
-            _ = Task.Run(() =>
-              {
-                  foreach (Window window in Windows.ToArray())
-                  {
-                      if (window.GetType() == typeof(PluginWindow))
-                      {
-                          ((PluginWindow)window).UpdatePluginWindow();
-                      }
-                  }
-              });
+            LoadLayout(false);
         }
 
         private void OpenPluginsFolderButton_Click(object sender, RoutedEventArgs e)
@@ -818,20 +630,12 @@ namespace DesktopMagic
             e.Handled = true;
         }
 
-        private void TaskbarIcon_TrayLeftClick(object sender, EventArgs e)
+        private void TaskbarIcon_TrayLeftClick(object? sender, EventArgs e)
         {
-            for (int i = 0; i < 10; i++)
-            {
-                ShowInTaskbar = true;
-                Visibility = Visibility.Visible;
-                SystemCommands.RestoreWindow(this);
-                Topmost = true;
-                _ = Activate();
-                Topmost = false;
-            }
+            RestoreWindow();
         }
 
-        private void GithubButton_Click(object sender, RoutedEventArgs e)
+        private void GitHubButton_Click(object sender, RoutedEventArgs e)
         {
             string uri = "https://github.com/Stone-Red-Code/DesktopMagic";
             ProcessStartInfo psi = new ProcessStartInfo
@@ -842,31 +646,34 @@ namespace DesktopMagic
             _ = Process.Start(psi);
         }
 
-        private void DownloadPluginsButton_Click(object sender, RoutedEventArgs e)
+        private void PluginManagerButton_Click(object sender, RoutedEventArgs e)
         {
-            string uri = "https://github.com/Stone-Red-Code/DesktopMagic-Plugins";
-            ProcessStartInfo psi = new ProcessStartInfo
-            {
-                UseShellExecute = true,
-                FileName = uri
-            };
-            _ = Process.Start(psi);
+            PluginManager pluginManager = new PluginManager();
+            pluginManager.ShowDialog();
+            LoadPlugins();
+            LoadLayout(false);
         }
 
         private void SetLanguageDictionary()
         {
-            ResourceDictionary dict = new ResourceDictionary();
+            ResourceDictionary dict = [];
             string currentCulture = Thread.CurrentThread.CurrentUICulture.ToString();
 
             if (currentCulture.Contains("de"))
             {
-                dict.Source = new Uri("..\\Resources\\StringResources.de.xaml", UriKind.Relative);
+                dict.Source = new Uri("..\\Resources\\Strings\\StringResources.de.xaml", UriKind.Relative);
             }
             else
             {
-                dict.Source = new Uri("..\\Resources\\StringResources.en.xaml", UriKind.Relative);
+                dict.Source = new Uri("..\\Resources\\Strings\\StringResources.en.xaml", UriKind.Relative);
             }
             Resources.MergedDictionaries.Add(dict);
         }
+    }
+
+    internal class InternalPluginData(PluginMetadata pluginMetadata, string directoryPath)
+    {
+        public PluginMetadata Metadata { get; set; } = pluginMetadata;
+        public string DirectoryPath { get; set; } = directoryPath;
     }
 }

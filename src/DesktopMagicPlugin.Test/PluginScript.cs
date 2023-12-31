@@ -1,89 +1,108 @@
-﻿using DesktopMagicPluginAPI;
-using DesktopMagicPluginAPI.Inputs;
+﻿using DesktopMagic.Api;
+using DesktopMagic.Api.Settings;
 
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 
-namespace DesktopMagicPlugin.Test
+namespace DesktopMagic.PluginTest;
+
+public class GifPlugin : Plugin
 {
-    public class GifPlugin : Plugin
+    [Setting("gif-path", "GIF path")]
+    private readonly TextBox input = new TextBox("");
+
+    [Setting("info")]
+    private readonly Label info = new Label("");
+
+    private readonly List<Bitmap> bitmaps = [];
+
+    private readonly CancellationTokenSource cancellationTokenSource;
+    private int frameCount = -1;
+
+    public GifPlugin()
     {
-        [Element("Gif path:")]
-        private TextBox input = new TextBox("");
+        cancellationTokenSource = new CancellationTokenSource();
+    }
 
-        [Element]
-        private Label info = new Label("");
+    public override async void Start()
+    {
+        input.OnValueChanged += Input_OnValueChanged;
 
-        private List<Bitmap> bitmaps = new List<Bitmap>();
+        await LoadGif();
+    }
 
-        private int frameCount = -1;
+    public override void Stop()
+    {
+        cancellationTokenSource.Cancel();
+        cancellationTokenSource.Dispose();
 
-        private const string SaveFilePath = "gifPath.txt";
+        bitmaps.Clear();
+    }
 
-        public override void Start()
+    public override Bitmap Main()
+    {
+        if (bitmaps.Count == 0)
         {
-            input.OnValueChanged += Input_OnValueChanged;
-            if (File.Exists(SaveFilePath))
-            {
-                input.Value = File.ReadAllText(SaveFilePath);
-            }
+            return null;
         }
 
-        private void Input_OnValueChanged()
+        frameCount++;
+
+        if (frameCount >= bitmaps.Count)
         {
-            _ = Task.Run(() =>
+            frameCount = 0;
+        }
+
+        return bitmaps[frameCount];
+    }
+
+    private async void Input_OnValueChanged()
+    {
+        await LoadGif();
+    }
+
+    private Task LoadGif()
+    {
+        return Task.Run(() =>
+        {
+            try
             {
-                try
+                if (File.Exists(input.Value))
                 {
-                    if (File.Exists(input.Value))
+                    info.Value = "Loading...";
+                    Image gif = Image.FromFile(input.Value);
+
+                    PropertyItem item = gif.GetPropertyItem(0x5100); // FrameDelay in libgdiplus
+
+                    UpdateInterval = (item.Value[0] + (item.Value[1] * 256)) * 10; //FrameDelay in ms
+                    bitmaps.Clear();
+                    for (int i = 0; i < gif.GetFrameCount(FrameDimension.Time); i++)
                     {
-                        info.Value = "Loading...";
-                        Image gif = Image.FromFile(input.Value);
+                        cancellationTokenSource.Token.ThrowIfCancellationRequested();
 
-                        PropertyItem item = gif.GetPropertyItem(0x5100); // FrameDelay in libgdiplus
+                        _ = gif.SelectActiveFrame(FrameDimension.Time, i);
 
-                        UpdateInterval = (item.Value[0] + item.Value[1] * 256) * 10; //FrameDelay in ms
-                        bitmaps.Clear();
-                        for (int i = 0; i < gif.GetFrameCount(FrameDimension.Time); i++)
-                        {
-                            gif.SelectActiveFrame(FrameDimension.Time, i);
+                        bitmaps.Add(new Bitmap(gif));
 
-                            bitmaps.Add(new Bitmap(gif));
-                        }
-                        File.WriteAllText(SaveFilePath, input.Value);
-                        info.Value = string.Empty;
+                        info.Value = $"Loading frame {i + 1} of {gif.GetFrameCount(FrameDimension.Time)}";
                     }
-                    else
-                    {
-                        info.Value = "File not found!";
-                    }
+
+                    info.Value = string.Empty;
                 }
-                catch (Exception ex)
+                else
                 {
-                    info.Value = $"Error: {ex.Message}";
+                    info.Value = "File not found!";
                 }
-            });
-        }
-
-        public override Bitmap Main()
-        {
-            if (bitmaps.Count == 0)
-            {
-                return new Bitmap(1, 1);
             }
-
-            frameCount++;
-
-            if (frameCount >= bitmaps.Count)
+            catch (Exception ex)
             {
-                frameCount = 0;
+                info.Value = $"Error: {ex.Message}";
             }
-
-            return bitmaps[frameCount];
-        }
+        }, cancellationTokenSource.Token);
     }
 }

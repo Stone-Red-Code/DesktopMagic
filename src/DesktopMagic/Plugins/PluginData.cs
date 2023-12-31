@@ -1,29 +1,21 @@
-﻿using DesktopMagicPluginAPI;
+﻿using DesktopMagic.Api;
+using DesktopMagic.Settings;
 
 using System.Drawing;
 
 namespace DesktopMagic.Plugins;
 
-internal class PluginData : IPluginData
+internal class PluginData(PluginWindow window, PluginSettings pluginSettings) : IPluginData
 {
-    private readonly PluginWindow window;
+    private readonly PluginWindow window = window;
 
-    public PluginData(PluginWindow window)
-    {
-        this.window = window;
-    }
-
-    public string Font => Theme.Font;
-
-    public Color Color => Theme.PrimaryColor;
-
-    public ITheme Theme { get; } = MainWindow.Theme;
+    public ITheme Theme { get; } = pluginSettings.Theme;
 
     public Size WindowSize => new Size((int)window.ActualWidth, (int)window.ActualHeight);
 
     public Point WindowPosition => new Point((int)window.Left, (int)window.Top);
 
-    public string PluginName => window.PluginName;
+    public string PluginName => window.PluginMetadata.Name;
 
     public string PluginPath => window.PluginFolderPath;
 

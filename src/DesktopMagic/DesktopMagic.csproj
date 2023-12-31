@@ -7,12 +7,13 @@
     <ApplicationIcon>icon.ico</ApplicationIcon>
     <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
     <Authors>Stone_Red</Authors>
-    <Version>0.0.3.2</Version>
+    <Version>1.0.0.0</Version>
     <PackageProjectUrl>https://github.com/Stone-Red-Code/DesktopMagic</PackageProjectUrl>
     <RepositoryUrl>https://github.com/Stone-Red-Code/DesktopMagic</RepositoryUrl>
-    <AssemblyVersion>0.0.3.2</AssemblyVersion>
-    <FileVersion>0.0.3.2</FileVersion>
-    <TargetFramework>net6.0-windows</TargetFramework>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <FileVersion>1.0.0.0</FileVersion>
+    <TargetFramework>net8.0-windows7.0</TargetFramework>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -23,20 +24,29 @@
     <None Remove="icon.ico" />
     <None Remove="icons8_volunteering_26_85L_icon.ico" />
     <None Remove="icon_Dark.ico" />
+    <None Remove="Resources\Images\modio-cog-blue.png" />
+    <None Remove="Resources\Images\modio-logo-bluedark.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Resources\Images\modio-cog-blue.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="AlwaysUpToDate" Version="1.0.0.4" />
-    <PackageReference Include="Extended.Wpf.Toolkit" Version="4.1.0" />
-    <PackageReference Include="Google.Apis.Calendar.v3" Version="1.55.0.2410" />
-    <PackageReference Include="MaterialDesignThemes" Version="4.0.0" />
-    <PackageReference Include="NAudio" Version="2.0.1" />
-    <PackageReference Include="Stone_Red-C-Sharp-Utilities" Version="1.0.3.1" />
-    <PackageReference Include="System.Management" Version="5.0.0" />
+    <PackageReference Include="BusyIndicators" Version="2.1.2" />
+    <PackageReference Include="Extended.Wpf.Toolkit" Version="4.5.1" />
+    <PackageReference Include="MaterialDesignThemes" Version="4.9.0" />
+    <PackageReference Include="Modio.NET" Version="1.1.1" />
+    <PackageReference Include="NAudio" Version="2.2.1" />
+    <PackageReference Include="Stone_Red-C-Sharp-Utilities" Version="1.0.3.2" />
+    <PackageReference Include="System.Management" Version="8.0.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DesktopMagicPluginAPI\DesktopMagicPluginAPI.csproj" />
+    <ProjectReference Include="..\DesktopMagicPluginAPI\DesktopMagic.Api.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -46,5 +56,6 @@
     <Resource Include="icon.ico">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
+    <Resource Include="Resources\Images\modio-logo-bluedark.png" />
   </ItemGroup>
 </Project>
