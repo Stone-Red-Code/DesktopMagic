@@ -14,6 +14,10 @@
 1. Execute the `DesktopMagic-Installer.exe` file.
 1. (Optional) Put a shortcut to the `DesktopMagic.exe` file in the install directory into the `shell:startup` directory.
 
+## Follow the development
+[![Twitter(X)](http://img.shields.io/badge/Twitter-black.svg?&logo=x&style=for-the-badge&logoColor=white)](https://twitter.com/search?q=%23DesktopMagic%20%40StoneRedCode)
+
+
 ## Preview
 
 ![Screenshot 2023-12-31 164947](https://github.com/Stone-Red-Code/DesktopMagic/assets/56473591/191ac76f-264d-4e9f-8979-7a13b2a1cd12)
