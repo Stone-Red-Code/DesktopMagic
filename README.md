@@ -15,7 +15,7 @@
 1. (Optional) Put a shortcut to the `DesktopMagic.exe` file in the install directory into the `shell:startup` directory.
 
 ## Follow the development
-[![Twitter(X)](http://img.shields.io/badge/Twitter-black.svg?&logo=x&style=for-the-badge&logoColor=white)](https://twitter.com/search?q=%23DesktopMagic%20%40StoneRedCode)
+[![Twitter(X)](http://img.shields.io/badge/Twitter-black.svg?&logo=x&style=for-the-badge&logoColor=white)](https://twitter.com/search?q=%23DesktopMagic%20%40StoneRedCode&f=live)
 
 
 ## Preview
