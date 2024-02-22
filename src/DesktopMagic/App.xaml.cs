@@ -1,7 +1,5 @@
 ﻿global using Stone_Red_Utilities.Logging;
 
-using AlwaysUpToDate;
-
 using Stone_Red_C_Sharp_Utilities.Logging;
 
 using System;
@@ -20,11 +18,7 @@ public partial class App : Application
 
     public const string AppName = "Desktop Magic";
     private readonly string logFilePath;
-#if DEBUG
-    private readonly Updater updater = new Updater(TimeSpan.FromDays(1), "https://raw.githubusercontent.com/Stone-Red-Code/DesktopMagic/develop/update/updateInfo.json");
-#else
-    private readonly Updater updater = new Updater(TimeSpan.FromDays(1), "https://raw.githubusercontent.com/Stone-Red-Code/DesktopMagic/main/update/updateInfo.json");
-#endif
+
     private readonly Thread? eventThread;
     private readonly EventWaitHandle eventWaitHandle;
 
@@ -64,12 +58,6 @@ public partial class App : Application
 
             Setup(true);
             Exit += CloseHandler;
-
-            updater.ProgressChanged += Updater_ProgressChanged;
-            updater.OnException += Updater_OnException;
-            updater.NoUpdateAvailible += Updater_NoUpdateAvailible;
-            updater.UpdateAvailible += Updater_UpdateAvailible;
-            updater.Start();
         }
     }
 
@@ -77,26 +65,6 @@ public partial class App : Application
     {
         eventWaitHandle.Close();
         eventThread?.Interrupt();
-    }
-
-    private void Updater_UpdateAvailible(string version, string additionalInformation)
-    {
-        updater.Update();
-    }
-
-    private void Updater_NoUpdateAvailible()
-    {
-        Logger.Log("No update available", "Updater");
-    }
-
-    private void Updater_OnException(Exception exception)
-    {
-        Logger.Log(exception.ToString(), "Updater");
-    }
-
-    private void Updater_ProgressChanged(long? totalFileSize, long totalBytesDownloaded, double? progressPercentage)
-    {
-        Logger.Log($"Downloading: {progressPercentage}% {totalBytesDownloaded}/{totalFileSize}", "Updater");
     }
 
     private void Setup(bool clearLogFile)

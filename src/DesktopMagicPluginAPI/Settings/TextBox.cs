@@ -5,7 +5,7 @@
 /// </summary>
 public class TextBox : Setting
 {
-    private string _value;
+    private string _value = string.Empty;
 
     /// <summary>
     /// Gets or sets the text associated with this <see cref="TextBox"/>.

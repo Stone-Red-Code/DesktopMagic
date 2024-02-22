@@ -10,9 +10,9 @@ public class Button : Setting
     /// <summary>
     /// Occurs when the button gets clicked.
     /// </summary>
-    public event Action OnClick;
+    public event Action? OnClick;
 
-    private string _value;
+    private string _value = string.Empty;
 
     /// <summary>
     /// Gets or sets the text caption displayed in the <see cref="Button"/> element.

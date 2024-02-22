@@ -35,7 +35,7 @@ public partial class PluginWindow : Window
 
     public bool IsRunning { get; private set; } = true;
     public PluginMetadata PluginMetadata { get; private set; }
-    public string? PluginFolderPath { get; private set; }
+    public string PluginFolderPath { get; private set; }
 
     public PluginWindow(PluginMetadata pluginMetadata, PluginSettings settings, string pluginFolderPath)
     {
