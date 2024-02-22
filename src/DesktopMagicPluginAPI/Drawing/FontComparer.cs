@@ -6,8 +6,13 @@ namespace DesktopMagic.Api.Drawing;
 
 internal class FontComparer : IEqualityComparer<Font>
 {
-    public bool Equals(Font font1, Font font2)
+    public bool Equals(Font? font1, Font? font2)
     {
+        if (font1 is null || font2 is null)
+        {
+            return false;
+        }
+
         if (font1.Name != font2.Name)
         {
             return false;

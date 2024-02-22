@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Interop;
 using System.Windows.Shapes;
-
+#pragma warning disable
 namespace DesktopMagic
 {
     using static NativeMethods;
