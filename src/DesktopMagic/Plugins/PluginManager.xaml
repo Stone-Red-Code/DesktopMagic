@@ -52,7 +52,7 @@
                                         <Setter Property="Template">
                                             <Setter.Value>
                                                 <ControlTemplate>
-                                                    <TextBlock Text="No plugins found!" FontSize="20" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                                    <TextBlock Text="No plugins found!" FontSize="20" VerticalAlignment="Center" HorizontalAlignment="Center" />
                                                 </ControlTemplate>
                                             </Setter.Value>
                                         </Setter>
@@ -68,30 +68,32 @@
 
             <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding InstalledPluginsSearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TextChanged="InstalledPluginsSearchTextBox_TextChanged" materialDesign:HintAssist.Hint="Search..." materialDesign:TextFieldAssist.HasLeadingIcon="True"  materialDesign:TextFieldAssist.LeadingIcon="Search" />
 
-            <ItemsControl Grid.Row="2" Grid.Column="1" ItemsSource="{Binding InstalledPlugins}">
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <Border BorderBrush="LightGray" BorderThickness="1">
-                            <local:ModEntry />
-                        </Border>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-                <ItemsControl.Style>
-                    <Style TargetType="ItemsControl">
-                        <Style.Triggers>
-                            <Trigger Property="HasItems" Value="false">
-                                <Setter Property="Template">
-                                    <Setter.Value>
-                                        <ControlTemplate>
-                                            <TextBlock Text="No plugins found!" FontSize="20" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                                        </ControlTemplate>
-                                    </Setter.Value>
-                                </Setter>
-                            </Trigger>
-                        </Style.Triggers>
-                    </Style>
-                </ItemsControl.Style>
-            </ItemsControl>
+            <ScrollViewer Grid.Row="2" Grid.Column="1" VerticalScrollBarVisibility="Auto">
+                <ItemsControl  ItemsSource="{Binding InstalledPlugins}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border BorderBrush="LightGray" BorderThickness="1">
+                                <local:ModEntry />
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                    <ItemsControl.Style>
+                        <Style TargetType="ItemsControl">
+                            <Style.Triggers>
+                                <Trigger Property="HasItems" Value="false">
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate>
+                                                <TextBlock Text="No plugins found!" FontSize="20" VerticalAlignment="Center" HorizontalAlignment="Center" />
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ItemsControl.Style>
+                </ItemsControl>
+            </ScrollViewer>
 
             <Border Grid.Row="3" Grid.ColumnSpan="2" Padding="0 5 0 0" BorderThickness="0 2 0 0" BorderBrush="DarkGray">
                 <Image Source="{StaticResource ModioLogoBlueDark}" Cursor="Hand" Height="30" MouseUp="Image_MouseUp" HorizontalAlignment="Left" />
