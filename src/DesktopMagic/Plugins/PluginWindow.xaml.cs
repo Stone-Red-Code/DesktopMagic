@@ -202,8 +202,7 @@ public partial class PluginWindow : Window
         object? instance = pluginClassInstance;
         if (instance is null)
         {
-            byte[] assemblyBytes = File.ReadAllBytes($"{PluginFolderPath}\\main.dll");
-            Assembly dll = Assembly.Load(assemblyBytes);
+            Assembly dll = Assembly.LoadFrom($"{PluginFolderPath}\\main.dll");
             Type? instanceType = Array.Find(dll.GetTypes(), type => type.GetTypeInfo().BaseType == typeof(Plugin));
 
             if (instanceType is null)
