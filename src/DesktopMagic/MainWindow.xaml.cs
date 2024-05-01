@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.IO.Packaging;
 using System.Linq;
 using System.Reflection;
 using System.Text.Json;
@@ -63,9 +64,9 @@ namespace DesktopMagic
                 SetLanguageDictionary();
 
 #if DEBUG
-                Title = $"{App.AppName} - Dev {Assembly.GetExecutingAssembly().GetName().Version}";
+                Title = $"{App.AppName} - Dev {System.Windows.Forms.Application.ProductVersion}";
 #else
-                Title = $"{App.AppName} - {Assembly.GetExecutingAssembly().GetName().Version}";
+                Title = $"{App.AppName} - {System.Windows.Forms.Application.ProductVersion}";
 #endif
             }
             catch (Exception ex)
