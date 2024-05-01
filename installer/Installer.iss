@@ -4,7 +4,7 @@
 #expr Exec('cmd.exe /C ', 'dotnet build -o "' + SourcePath + '\publish" -c Release ' + SourcePath + '..\src\DesktopMagic\')
       
 #define MyAppName "DesktopMagic"
-#define MyAppVersion GetVersionNumbersString("/publish/DesktopMagic.exe")
+#define MyAppVersion GetStringFileInfo("/publish/DesktopMagic.exe","ProductVersion")
 #define MyAppPublisher "Stone_Red"
 #define MyAppExeName "DesktopMagic.exe"
              
