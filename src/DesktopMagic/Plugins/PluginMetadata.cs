@@ -7,7 +7,7 @@ namespace DesktopMagic.Plugins;
 
 public class PluginMetadata
 {
-    public string Name { get; set; }
+    public string Name { get; set; } = string.Empty;
 
     public uint Id { get; set; }
 
