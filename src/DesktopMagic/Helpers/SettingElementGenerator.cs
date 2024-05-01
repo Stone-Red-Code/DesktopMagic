@@ -222,7 +222,7 @@ internal class SettingElementGenerator(ComboBox optionsComboBox)
 
     private void DisplayException(string message)
     {
-        App.Logger.Log(message, "PluginInput");
+        App.Logger.LogInfo(message, source: "PluginInput");
         _ = MessageBox.Show("File execution error:\n" + message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
         int index = MainWindow.WindowNames.IndexOf(optionsComboBox.SelectedItem.ToString() ?? string.Empty);
 

@@ -36,11 +36,11 @@
 
   <ItemGroup>
     <PackageReference Include="BusyIndicators" Version="2.1.2" />
-    <PackageReference Include="Extended.Wpf.Toolkit" Version="4.5.1" />
-    <PackageReference Include="MaterialDesignThemes" Version="4.9.0" />
+    <PackageReference Include="CuteUtils" Version="1.0.0" />
+    <PackageReference Include="Extended.Wpf.Toolkit" Version="4.6.0" />
+    <PackageReference Include="MaterialDesignThemes" Version="5.0.0" />
     <PackageReference Include="Modio.NET" Version="1.1.1" />
     <PackageReference Include="NAudio" Version="2.2.1" />
-    <PackageReference Include="Stone_Red-C-Sharp-Utilities" Version="1.0.3.2" />
     <PackageReference Include="System.Management" Version="8.0.0" />
   </ItemGroup>
 

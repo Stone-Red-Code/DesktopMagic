@@ -86,23 +86,23 @@ namespace DesktopMagic
                 {
                     _ = Directory.CreateDirectory(App.ApplicationDataPath + "\\Plugins");
                 }
-                App.Logger.Log("Created Plugins Folder", "Main");
+                App.Logger.LogInfo("Created Plugins Folder", source: "Main");
 
                 //Write To Log File and Load Elements
 
-                App.Logger.Log("Loading Plugin names", "Main");
+                App.Logger.LogInfo("Loading Plugin names", source: "Main");
                 LoadPlugins();
-                App.Logger.Log("Loading Layout names", "Main");
+                App.Logger.LogInfo("Loading Layout names", source: "Main");
                 LoadSettings();
-                App.Logger.Log("Loading Layout", "Main");
+                App.Logger.LogInfo("Loading Layout", source: "Main");
                 LoadLayout();
 
                 loaded = true;
-                App.Logger.Log("Window Loaded", "Main");
+                App.Logger.LogInfo("Window Loaded", source: "Main");
             }
             catch (Exception ex)
             {
-                App.Logger.Log(ex.Message, "Main", LogSeverity.Error);
+                App.Logger.LogError(ex.Message, source: "Main");
                 _ = MessageBox.Show(ex.ToString());
             }
         }
@@ -126,13 +126,13 @@ namespace DesktopMagic
 
                 if (pluginDllPath is null)
                 {
-                    App.Logger.Log($"Plugin \"{directory}\" has no \"main.dll\"", "Main", LogSeverity.Error);
+                    App.Logger.LogError($"Plugin \"{directory}\" has no \"main.dll\"", source: "Main");
                     continue;
                 }
 
                 if (pluginMetadataPath is null)
                 {
-                    App.Logger.Log($"Plugin \"{directory}\" has no \"metadata.json\"", "Main", LogSeverity.Warn);
+                    App.Logger.LogWarn($"Plugin \"{directory}\" has no \"metadata.json\"", source: "Main");
                     continue;
                 }
 
@@ -140,13 +140,13 @@ namespace DesktopMagic
 
                 if (pluginMetadata is null)
                 {
-                    App.Logger.Log($"Plugin \"{directory}\" has no valid \"metadata.json\"", "Main", LogSeverity.Error);
+                    App.Logger.LogError($"Plugin \"{directory}\" has no valid \"metadata.json\"", source: "Main");
                     continue;
                 }
 
                 if (plugins.ContainsKey(pluginMetadata.Id))
                 {
-                    App.Logger.Log($"Plugin \"{directory}\" has the same id as another plugin", "Main", LogSeverity.Error);
+                    App.Logger.LogError($"Plugin \"{directory}\" has the same id as another plugin", source: "Main");
                     continue;
                 }
 
@@ -204,7 +204,7 @@ namespace DesktopMagic
                     }
                     catch (Exception ex)
                     {
-                        App.Logger.Log(ex.Message, "Main", LogSeverity.Error);
+                        App.Logger.LogError(ex.Message, source: "Main");
                     }
                 }
                 return;

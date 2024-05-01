@@ -1,6 +1,4 @@
-﻿global using Stone_Red_Utilities.Logging;
-
-using Stone_Red_C_Sharp_Utilities.Logging;
+﻿using CuteUtils.Logging;
 
 using System;
 using System.IO;
@@ -17,20 +15,57 @@ public partial class App : Application
     public const string AppGuid = "{{61FE5CE9-47C3-4255-A1F4-5BCF4ACA0879}";
 
     public const string AppName = "Desktop Magic";
-    private readonly string logFilePath;
+
+    private static readonly string logFilePath = Path.Combine(ApplicationDataPath, $"{AppName}.log");
 
     private readonly Thread? eventThread;
+
     private readonly EventWaitHandle eventWaitHandle;
 
-    private readonly Logger logger = new Logger();
-    public static string ApplicationDataPath { get; } = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "StoneRed", AppName);
+    public static Logger Logger { get; } = new Logger()
+    {
+        Config = new()
+        {
+            FatalConfig = new OutputConfig()
+            {
+                ConsoleColor = ConsoleColor.DarkRed,
+                LogTarget = LogTarget.DebugConsole | LogTarget.File,
+                FilePath = logFilePath
+            },
+            ErrorConfig = new OutputConfig()
+            {
+                ConsoleColor = ConsoleColor.Red,
+                LogTarget = LogTarget.DebugConsole | LogTarget.File,
+                FilePath = logFilePath
+            },
+            WarnConfig = new OutputConfig()
+            {
+                ConsoleColor = ConsoleColor.Yellow,
+                LogTarget = LogTarget.DebugConsole | LogTarget.File,
+                FilePath = logFilePath
+            },
+            InfoConfig = new OutputConfig()
+            {
+                ConsoleColor = ConsoleColor.White,
+                LogTarget = LogTarget.DebugConsole | LogTarget.File,
+                FilePath = logFilePath
+            },
+            DebugConfig = new OutputConfig()
+            {
+                ConsoleColor = ConsoleColor.Gray,
+                LogTarget = LogTarget.DebugConsole,
+            },
+            FormatConfig = new FormatConfig()
+            {
+                DebugConsoleFormat = $"> {{{LogFormatType.DateTime}:HH:mm:ss}} | {{{LogFormatType.LogSeverity},-5}} | {{{LogFormatType.Message}}}\nat {{{LogFormatType.LineNumber}}} | {{{LogFormatType.FilePath}}}"
+            }
+        }
+    };
 
-    public static Logger Logger => ((App)Current).logger;
+    public static string ApplicationDataPath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "StoneRed", AppName);
 
     public App()
     {
-        logFilePath = ApplicationDataPath + "\\log.log";
-
         // Setup global event handler
         eventWaitHandle = new EventWaitHandle(false, EventResetMode.AutoReset, AppGuid, out bool createdNew);
 
@@ -38,7 +73,7 @@ public partial class App : Application
         if (!createdNew)
         {
             Setup(false);
-            Logger.Log("Shutting down because other instance already running.", "Setup", LogSeverity.Warn);
+            Logger.LogWarn("Shutting down because other instance already running.", source: "Setup");
             //Shutdown Application
             _ = eventWaitHandle.Set();
             Current.Shutdown();
@@ -71,50 +106,13 @@ public partial class App : Application
     {
         AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
 
-        Logger.Config = new LogConfig()
-        {
-            FatalConfig = new OutputConfig()
-            {
-                Color = ConsoleColor.DarkRed,
-                LogTarget = LogTarget.DebugConsole | LogTarget.File,
-                FilePath = logFilePath
-            },
-            ErrorConfig = new OutputConfig()
-            {
-                Color = ConsoleColor.Red,
-                LogTarget = LogTarget.DebugConsole | LogTarget.File,
-                FilePath = logFilePath
-            },
-            WarnConfig = new OutputConfig()
-            {
-                Color = ConsoleColor.Yellow,
-                LogTarget = LogTarget.DebugConsole | LogTarget.File,
-                FilePath = logFilePath
-            },
-            InfoConfig = new OutputConfig()
-            {
-                Color = ConsoleColor.White,
-                LogTarget = LogTarget.DebugConsole | LogTarget.File,
-                FilePath = logFilePath
-            },
-            DebugConfig = new OutputConfig()
-            {
-                Color = ConsoleColor.Gray,
-                LogTarget = LogTarget.DebugConsole,
-            },
-            FormatConfig = new FormatConfig()
-            {
-                DebugConsoleFormat = $"> {{{LogFormatType.DateTime}:HH:mm:ss}} | {{{LogFormatType.LogSeverity},-5}} | {{{LogFormatType.Message}}}\nat {{{LogFormatType.LineNumber}}} | {{{LogFormatType.FilePath}}}"
-            }
-        };
-
         try
         {
             if (!Directory.Exists(ApplicationDataPath))
             {
                 _ = Directory.CreateDirectory(ApplicationDataPath);
             }
-            Logger.Log("Created ApplicationData Folder", "Main");
+            Logger.LogInfo("Created ApplicationData Folder", source: "Main");
         }
         catch (Exception ex)
         {
@@ -127,12 +125,12 @@ public partial class App : Application
             Logger.ClearLogFile(LogSeverity.Info);
         }
 
-        Logger.Log("Log setup complete", "Setup");
+        Logger.LogInfo("Setup complete", source: "Setup");
     }
 
     private void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
     {
         Exception exception = (Exception)e.ExceptionObject;
-        Logger.Log(exception + (e.IsTerminating ? "\t Process terminating!" : ""), exception.Source, LogSeverity.Fatal);
+        Logger.LogFatal(exception + (e.IsTerminating ? "\t Process terminating!" : ""), source: exception.Source ?? "Unknown");
     }
 }
