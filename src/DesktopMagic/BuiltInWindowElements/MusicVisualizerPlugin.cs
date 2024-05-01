@@ -272,7 +272,7 @@ internal class MusicVisualizerPlugin : Plugin
         }
         catch (Exception ex)
         {
-            App.Logger.Log(ex.Message, "Music Visualizer", LogSeverity.Error);
+            App.Logger.LogError(ex.Message, source: "Music Visualizer");
         }
     }
 
