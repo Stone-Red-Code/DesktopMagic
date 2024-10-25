@@ -127,19 +127,22 @@ internal class SettingElementGenerator(ComboBox optionsComboBox)
         }
         else if (settingElement.Input is DesktopMagic.Api.Settings.IntegerUpDown eIntegerUpDown)
         {
-            Xceed.Wpf.Toolkit.IntegerUpDown integerUpDown = new()
+            MaterialDesignThemes.Wpf.NumericUpDown numericUpDown = new()
             {
                 Value = eIntegerUpDown.Value,
                 Minimum = eIntegerUpDown.Minimum,
                 Maximum = eIntegerUpDown.Maximum,
+                IncreaseContent = new Label() { Content = "+" },
+                DecreaseContent = new Label() { Content = "–" },
                 VerticalAlignment = VerticalAlignment.Center,
-                HorizontalAlignment = HorizontalAlignment.Stretch
+                HorizontalAlignment = HorizontalAlignment.Stretch,
+                AllowChangeOnScroll = true
             };
-            integerUpDown.ValueChanged += (_s, _e) =>
+            numericUpDown.ValueChanged += (_s, _e) =>
             {
                 try
                 {
-                    eIntegerUpDown.Value = integerUpDown.Value.GetValueOrDefault();
+                    eIntegerUpDown.Value = numericUpDown.Value;
                 }
                 catch (Exception ex)
                 {
@@ -148,12 +151,12 @@ internal class SettingElementGenerator(ComboBox optionsComboBox)
             };
             eIntegerUpDown.OnValueChanged += () =>
             {
-                integerUpDown.Dispatcher.Invoke(() =>
+                numericUpDown.Dispatcher.Invoke(() =>
                 {
-                    integerUpDown.Value = eIntegerUpDown.Value;
+                    numericUpDown.Value = eIntegerUpDown.Value;
                 });
             };
-            _ = dockPanel.Children.Add(integerUpDown);
+            _ = dockPanel.Children.Add(numericUpDown);
         }
         else if (settingElement.Input is DesktopMagic.Api.Settings.Slider eSlider)
         {

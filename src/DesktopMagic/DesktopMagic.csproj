@@ -7,11 +7,11 @@
         <ApplicationIcon>icon.ico</ApplicationIcon>
         <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
         <Authors>Stone_Red</Authors>
-        <Version>1.0.1.240501</Version>
+        <Version>1.0.2.0</Version>
         <PackageProjectUrl>https://github.com/Stone-Red-Code/DesktopMagic</PackageProjectUrl>
         <RepositoryUrl>https://github.com/Stone-Red-Code/DesktopMagic</RepositoryUrl>
-        <AssemblyVersion>1.0.1.0501</AssemblyVersion>
-        <FileVersion>1.0.1.0501</FileVersion>
+        <AssemblyVersion>1.0.2.0</AssemblyVersion>
+        <FileVersion>1.0.2.0</FileVersion>
         <TargetFramework>net8.0-windows7.0</TargetFramework>
         <Nullable>enable</Nullable>
         <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
@@ -38,8 +38,7 @@
     <ItemGroup>
         <PackageReference Include="BusyIndicators" Version="2.1.2" />
         <PackageReference Include="CuteUtils" Version="1.0.0" />
-        <PackageReference Include="Extended.Wpf.Toolkit" Version="4.6.0" />
-        <PackageReference Include="MaterialDesignThemes" Version="5.0.0" />
+        <PackageReference Include="MaterialDesignThemes" Version="5.1.0" />
         <PackageReference Include="Modio.NET" Version="1.1.1" />
         <PackageReference Include="NAudio" Version="2.2.1" />
         <PackageReference Include="System.Management" Version="8.0.0" />
