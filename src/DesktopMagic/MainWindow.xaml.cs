@@ -1,4 +1,4 @@
-﻿using DesktopMagic.BuiltInWindowElements;
+﻿using DesktopMagic.BuiltInPlugins;
 using DesktopMagic.DataContexts;
 using DesktopMagic.Dialogs;
 using DesktopMagic.Helpers;

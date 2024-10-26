@@ -5,7 +5,7 @@ using System;
 using System.Drawing;
 using System.Drawing.Text;
 
-namespace DesktopMagic.BuiltInWindowElements;
+namespace DesktopMagic.BuiltInPlugins;
 
 internal class TimePlugin : Plugin
 {
