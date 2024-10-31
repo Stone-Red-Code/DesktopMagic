@@ -1,6 +1,6 @@
 ![DesktopMagic](https://socialify.git.ci/Stone-Red-Code/DesktopMagic/image?description=1&descriptionEditable=DesktopMagic%20allows%20you%20to%20improve%20the%20looks%20of%20your%20desktop!&forks=1&issues=1&logo=https%3A%2F%2Fgithub.com%2Fuser-attachments%2Fassets%2F34f3c473-a29a-4d71-9ec0-1387b04ad2c5&name=1&pattern=Formal%20Invitation&pulls=1&stargazers=1&theme=Auto)
 
-> You can add useful elements to your desktop like a clock, an audio visualizer or even your own plugins using mod.io!
+> You can add useful widgets to your desktop like a clock, an audio visualizer or even your own plugins using mod.io!
 
 - [Releases](https://github.com/Stone-Red-Code/DesktopMagic/releases)
 - [Download plugins](https://mod.io/g/desktopmagic)
