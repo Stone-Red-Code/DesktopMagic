@@ -58,14 +58,22 @@ public partial class PluginManager : Window
 
         PluginEntryDataContext? pluginEntryDataContext = pluginManagerDataContext.InstalledPlugins.FirstOrDefault(p => p.Id == id);
 
+        if (Directory.Exists(pluginPath))
+        {
+            try
+            {
+                Directory.Delete(pluginPath, true);
+            }
+            catch (Exception ex)
+            {
+                _ = MessageBox.Show(ex.Message, "Plugin Manager", MessageBoxButton.OK, MessageBoxImage.Error);
+                App.Logger.LogError(ex.Message, source: "PluginManager");
+            }
+        }
+
         if (pluginEntryDataContext is not null)
         {
             _ = pluginManagerDataContext.InstalledPlugins.Remove(pluginEntryDataContext);
-        }
-
-        if (Directory.Exists(pluginPath))
-        {
-            Directory.Delete(pluginPath, true);
         }
 
         pluginManagerDataContext.IsLoading = false;
@@ -85,7 +93,7 @@ public partial class PluginManager : Window
                 continue;
             }
 
-            PluginMetadata? pluginMetadata = JsonSerializer.Deserialize<PluginMetadata>(File.ReadAllText(pluginMetadataPath));
+            PluginMetadata? pluginMetadata = JsonSerializer.Deserialize<PluginMetadata>(await File.ReadAllTextAsync(pluginMetadataPath));
 
             if (pluginMetadata is not null)
             {
@@ -141,7 +149,7 @@ public partial class PluginManager : Window
         }
 
         string pluginMetadataPath = Path.Combine(pluginPath, "metadata.json");
-        File.WriteAllText(pluginMetadataPath, JsonSerializer.Serialize(new PluginMetadata(mod)));
+        await File.WriteAllTextAsync(pluginMetadataPath, JsonSerializer.Serialize(new PluginMetadata(mod)));
 
         File.Delete(zipFilePath);
 
