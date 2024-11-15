@@ -102,7 +102,13 @@ public partial class App : Application
         eventThread?.Interrupt();
     }
 
-    private void Setup(bool clearLogFile)
+    private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
+    {
+        Exception exception = (Exception)e.ExceptionObject;
+        Logger.LogFatal(exception + (e.IsTerminating ? "\t Process terminating!" : ""), source: exception.Source ?? "Unknown");
+    }
+
+    private static void Setup(bool clearLogFile)
     {
         AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
 
@@ -126,11 +132,5 @@ public partial class App : Application
         }
 
         Logger.LogInfo("Setup complete", source: "Setup");
-    }
-
-    private void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
-    {
-        Exception exception = (Exception)e.ExceptionObject;
-        Logger.LogFatal(exception + (e.IsTerminating ? "\t Process terminating!" : ""), source: exception.Source ?? "Unknown");
     }
 }

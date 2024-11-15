@@ -47,7 +47,7 @@ internal class SampleAggregator
         }
     }
 
-    private bool IsPowerOfTwo(int x)
+    private static bool IsPowerOfTwo(int x)
     {
         return (x & (x - 1)) == 0;
     }

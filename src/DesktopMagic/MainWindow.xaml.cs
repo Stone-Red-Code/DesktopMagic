@@ -160,6 +160,17 @@ namespace DesktopMagic
 
         #region Windows
 
+        private static void DisplayWindow_ContentRendered(object? sender, EventArgs e)
+        {
+            if (sender is not Window window)
+            {
+                return;
+            }
+
+            WindowPos.SendWpfWindowBack(window);
+            WindowPos.SendWpfWindowBack(window);
+        }
+
         private void EditCheckBox_Click(object? sender, RoutedEventArgs? e)
         {
             EditMode = EditCheckBox.IsChecked == true;
@@ -254,17 +265,6 @@ namespace DesktopMagic
             window.Closing += DisplayWindow_Closing;
             Windows.Add(window);
             WindowNames.Add(window.Title);
-        }
-
-        private void DisplayWindow_ContentRendered(object? sender, EventArgs e)
-        {
-            if (sender is not Window window)
-            {
-                return;
-            }
-
-            WindowPos.SendWpfWindowBack(window);
-            WindowPos.SendWpfWindowBack(window);
         }
 
         private void DisplayWindow_Closing(object? sender, System.ComponentModel.CancelEventArgs e)
@@ -370,6 +370,18 @@ namespace DesktopMagic
                 _ = Activate();
                 Topmost = false;
             }
+        }
+
+        private void OpenPluginsFolderButton_Click(object sender, RoutedEventArgs e)
+        {
+            _ = Process.Start("explorer.exe", App.ApplicationDataPath + "\\Plugins");
+        }
+
+        private void ScrollViewer_PreviewMouseWheel(object sender, System.Windows.Input.MouseWheelEventArgs e)
+        {
+            ScrollViewer scv = (ScrollViewer)sender;
+            scv.ScrollToVerticalOffset(scv.VerticalOffset - e.Delta);
+            e.Handled = true;
         }
 
         private void TextBlock_Loaded(object sender, RoutedEventArgs e)
@@ -617,18 +629,6 @@ namespace DesktopMagic
         {
             LoadPlugins();
             LoadLayout(false);
-        }
-
-        private void OpenPluginsFolderButton_Click(object sender, RoutedEventArgs e)
-        {
-            _ = Process.Start("explorer.exe", App.ApplicationDataPath + "\\Plugins");
-        }
-
-        private void ScrollViewer_PreviewMouseWheel(object sender, System.Windows.Input.MouseWheelEventArgs e)
-        {
-            ScrollViewer scv = (ScrollViewer)sender;
-            scv.ScrollToVerticalOffset(scv.VerticalOffset - e.Delta);
-            e.Handled = true;
         }
 
         private void TaskbarIcon_TrayLeftClick(object? sender, EventArgs e)

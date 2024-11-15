@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace DesktopMagic.Api.Settings;
 
@@ -22,6 +23,7 @@ public sealed class Slider : Setting
     /// <summary>
     /// Gets or sets the value assigned to the <see cref="Slider"/> element.
     /// </summary>
+    [SuppressMessage("Major Bug", "S1244:Floating point numbers should not be tested for equality", Justification = "Not applicable here since we want to detect changes in the value.")]
     public double Value
     {
         get => _value;

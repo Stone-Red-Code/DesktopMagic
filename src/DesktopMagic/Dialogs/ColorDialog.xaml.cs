@@ -97,7 +97,7 @@ public partial class ColorDialog : Window
 
     private void SetColorText()
     {
-        if (alphaSlider.Value == 255)
+        if ((int)alphaSlider.Value == 255)
         {
             colorHexTextBox.Text = "#";
         }
