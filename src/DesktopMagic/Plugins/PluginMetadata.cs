@@ -1,4 +1,4 @@
-﻿using Modio.NET.Models;
+﻿using Modio.Models;
 
 using System;
 using System.Text.Json.Serialization;

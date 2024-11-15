@@ -39,7 +39,7 @@
         <PackageReference Include="BusyIndicators" Version="2.1.2" />
         <PackageReference Include="CuteUtils" Version="1.0.0" />
         <PackageReference Include="MaterialDesignThemes" Version="5.1.0" />
-        <PackageReference Include="Modio.NET" Version="1.1.1" />
+        <PackageReference Include="Modio" Version="1.0.0" />
         <PackageReference Include="NAudio" Version="2.2.1" />
         <PackageReference Include="System.Management" Version="8.0.0" />
     </ItemGroup>

@@ -1,9 +1,9 @@
 ﻿using DesktopMagic.DataContexts;
 using DesktopMagic.Helpers;
 
-using Modio.NET;
-using Modio.NET.Filters;
-using Modio.NET.Models;
+using Modio;
+using Modio.Filters;
+using Modio.Models;
 
 using System;
 using System.Collections.Generic;
@@ -104,7 +104,7 @@ public partial class PluginManager : Window
 
         Filter filter = ModFilter.Popular.Desc().Limit(100);
 
-        IAsyncEnumerable<Mod> mods = client.Games[modIoGameId].Mods.Search(filter).ToEnumerableAsync();
+        IAsyncEnumerable<Mod> mods = client.Games[modIoGameId].Mods.Search(filter).ToEnumerable();
         await foreach (Mod mod in mods)
         {
             if (pluginIds.Contains(mod.Id))
@@ -220,7 +220,7 @@ public partial class PluginManager : Window
 
         Filter filter = ModFilter.Name.Like($"{searchString}").And(ModFilter.Popular.Desc()).Limit(100);
 
-        IAsyncEnumerable<Mod> mods = client.Games[modIoGameId].Mods.Search(filter).ToEnumerableAsync();
+        IAsyncEnumerable<Mod> mods = client.Games[modIoGameId].Mods.Search(filter).ToEnumerable();
         await foreach (Mod mod in mods)
         {
             if (pluginManagerDataContext.InstalledPlugins.Any(p => p.Id == mod.Id))
