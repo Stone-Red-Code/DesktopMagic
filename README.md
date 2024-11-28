@@ -9,12 +9,16 @@
 
 ## Setup
 
-1. Download one of the [releases](https://github.com/Stone-Red-Code/DesktopMagic/releases).
-1. Execute the `DesktopMagic-Installer.exe` file.
-1. (Optional) Put a shortcut to the `DesktopMagic.exe` file in the install directory into the `shell:startup` directory.
+1. Download & install the latest release
+   - Microsft Store: [Store Page](https://www.microsoft.com/store/productId/9NPV8F9K1CWM?ocid=pdpshare)
+   - GitHub: [Releases](https://github.com/Stone-Red-Code/DesktopMagic/releases)
+1. (Optional) Put a shortcut to the `DesktopMagic.exe` file in the installation directory into the `shell:startup` directory.
+1. Start the app and select the widgets you want to see on your desktop.
+1. Check the "Edit" Checkbox to move the widgets.
+1. Open the plugin manager to install third-party plugins.
 
 ## Follow the development
-[![Twitter(X)](http://img.shields.io/badge/Twitter-black.svg?&logo=x&style=for-the-badge&logoColor=white)](https://twitter.com/search?q=%23DesktopMagic%20%40StoneRedCode&f=live)
+[![Twitter(X)](http://img.shields.io/badge/Twitter-black.svg?&logo=x&style=for-the-badge&logoColor=white)](https://x.com/search?q=from%3A%40StoneRedCode%20%23DesktopMagic)
 
 
 ## Preview
