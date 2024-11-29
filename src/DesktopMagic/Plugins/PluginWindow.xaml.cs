@@ -28,9 +28,8 @@ public partial class PluginWindow : Window
     public event Action? OnExit;
 
     private readonly PluginSettings settings;
-    private readonly System.Timers.Timer? updateTimer;
     private Thread? pluginThread;
-    private System.Timers.Timer? valueTimer;
+    private System.Timers.Timer? updateTimer;
     private Plugin? pluginClassInstance;
 
     public bool IsRunning { get; private set; } = true;
@@ -55,12 +54,7 @@ public partial class PluginWindow : Window
         Owner = w;
         w.Hide();
 
-        updateTimer = new System.Timers.Timer
-        {
-            Interval = 100
-        };
-        updateTimer.Elapsed += UpdateTimer_Elapsed;
-        updateTimer.Start();
+        settings.Theme.PropertyChanged += (e, s) => ThemeChanged();
 
         PluginMetadata = pluginMetadata;
         this.settings = settings;
@@ -80,7 +74,8 @@ public partial class PluginWindow : Window
 
     public void UpdatePluginWindow()
     {
-        ValueTimer_Elapsed(valueTimer, null);
+        Dispatcher.Invoke(ThemeChanged);
+        UpdateTimer_Elapsed(updateTimer, null);
     }
 
     public void Exit()
@@ -91,6 +86,28 @@ public partial class PluginWindow : Window
         {
             OnExit?.Invoke();
         });
+    }
+
+    public void SetEditMode(bool enabled)
+    {
+        if (enabled)
+        {
+            panel.Visibility = Visibility.Visible;
+            imageBorder.BorderThickness = new Thickness(3);
+            image.Margin = new(-3);
+            WindowPos.SetIsLocked(this, false);
+            tileBar.CaptionHeight = tileBar.CaptionHeight = ActualHeight - 10 < 0 ? 0 : ActualHeight - 10;
+            ResizeMode = ResizeMode.CanResize;
+        }
+        else
+        {
+            panel.Visibility = Visibility.Collapsed;
+            imageBorder.BorderThickness = new Thickness(0);
+            image.Margin = new Thickness(0);
+            WindowPos.SetIsLocked(this, true);
+            tileBar.CaptionHeight = 0;
+            ResizeMode = ResizeMode.NoResize;
+        }
     }
 
     protected override void OnSourceInitialized(EventArgs e)
@@ -126,48 +143,11 @@ public partial class PluginWindow : Window
         pluginThread.Start();
     }
 
-    private void UpdateTimer_Elapsed(object? sender, ElapsedEventArgs e)
+    private void ThemeChanged()
     {
-        Dispatcher.Invoke(() =>
-        {
-            if (MainWindow.EditMode)
-            {
-                panel.Visibility = Visibility.Visible;
-                imageBorder.BorderThickness = new Thickness(3);
-                image.Margin = new(-3);
-                WindowPos.SetIsLocked(this, false);
-                tileBar.CaptionHeight = tileBar.CaptionHeight = ActualHeight - 10 < 0 ? 0 : ActualHeight - 10;
-                ResizeMode = ResizeMode.CanResize;
-            }
-            else
-            {
-                panel.Visibility = Visibility.Collapsed;
-                imageBorder.BorderThickness = new Thickness(0);
-                image.Margin = new Thickness(0);
-                WindowPos.SetIsLocked(this, true);
-                tileBar.CaptionHeight = 0;
-                ResizeMode = ResizeMode.NoResize;
-            }
-
-            if (!IsRunning)
-            {
-                (sender as System.Timers.Timer)?.Stop();
-            }
-            else
-            {
-                viewBox.Margin = new Thickness(settings.Theme.Margin);
-                border.Width = viewBox.ActualWidth + (settings.Theme.Margin * 2);
-                border.Height = viewBox.ActualHeight + (settings.Theme.Margin * 2);
-                rectangleGeometry.Rect = new Rect(-settings.Theme.Margin, -settings.Theme.Margin, border.ActualWidth, border.ActualHeight);
-                border.Background = new SolidColorBrush(MultiColorConverter.ConvertToMediaColor(settings.Theme.BackgroundColor));
-                border.CornerRadius = new CornerRadius(settings.Theme.CornerRadius);
-            }
-        });
-
-        if (!IsRunning)
-        {
-            updateTimer?.Stop();
-        }
+        viewBox.Margin = new Thickness(settings.Theme.Margin);
+        border.Background = new SolidColorBrush(MultiColorConverter.ConvertToMediaColor(settings.Theme.BackgroundColor));
+        border.CornerRadius = new CornerRadius(settings.Theme.CornerRadius);
     }
 
     private void LoadPlugin()
@@ -232,19 +212,19 @@ public partial class PluginWindow : Window
         LoadOptions(pluginClassInstance);
         BindDefaultSettings(pluginClassInstance);
 
-        valueTimer = new System.Timers.Timer
+        updateTimer = new System.Timers.Timer
         {
             Interval = 1000
         };
-        valueTimer.Elapsed += ValueTimer_Elapsed;
+        updateTimer.Elapsed += UpdateTimer_Elapsed;
 
         pluginClassInstance.Start();
         UpdatePluginWindow();
 
         if (pluginClassInstance.UpdateInterval > 0)
         {
-            valueTimer.Interval = pluginClassInstance.UpdateInterval;
-            valueTimer.Start();
+            updateTimer.Interval = pluginClassInstance.UpdateInterval;
+            updateTimer.Start();
         }
     }
 
@@ -261,24 +241,30 @@ public partial class PluginWindow : Window
 
         void SetVerticalAlignment()
         {
-            viewBox.VerticalAlignment = pluginClassInstance.verticalAlignment.Value switch
+            VerticalAlignment verticalAlignment = pluginClassInstance.verticalAlignment.Value switch
             {
                 "Top" => VerticalAlignment.Top,
                 "Center" => VerticalAlignment.Center,
                 "Bottom" => VerticalAlignment.Bottom,
                 _ => VerticalAlignment.Center
             };
+
+            viewBox.VerticalAlignment = verticalAlignment;
+            border.VerticalAlignment = verticalAlignment;
         }
 
         void SetHorizontalAlignment()
         {
-            viewBox.HorizontalAlignment = pluginClassInstance.horizontalAlignment.Value switch
+            HorizontalAlignment horizontalAlignment = pluginClassInstance.horizontalAlignment.Value switch
             {
                 "Left" => HorizontalAlignment.Left,
                 "Center" => HorizontalAlignment.Center,
                 "Right" => HorizontalAlignment.Right,
                 _ => HorizontalAlignment.Center
             };
+
+            viewBox.HorizontalAlignment = horizontalAlignment;
+            border.HorizontalAlignment = horizontalAlignment;
         }
     }
 
@@ -328,7 +314,7 @@ public partial class PluginWindow : Window
         }
     }
 
-    private void ValueTimer_Elapsed(object? sender, ElapsedEventArgs? e)
+    private void UpdateTimer_Elapsed(object? sender, ElapsedEventArgs? e)
     {
         try
         {
@@ -338,11 +324,11 @@ public partial class PluginWindow : Window
 
                 if (pluginClassInstance.UpdateInterval > 0)
                 {
-                    valueTimer!.Interval = pluginClassInstance.UpdateInterval;
+                    updateTimer!.Interval = pluginClassInstance.UpdateInterval;
                 }
                 else
                 {
-                    valueTimer!.Stop();
+                    updateTimer!.Stop();
                 }
 
                 if (result is not null)
@@ -375,8 +361,19 @@ public partial class PluginWindow : Window
 
         if (!IsRunning)
         {
-            valueTimer!.Stop();
+            updateTimer!.Stop();
         }
+    }
+
+    private void Border_SizeChanged(object sender, SizeChangedEventArgs e)
+    {
+        rectangleGeometry.Rect = new Rect(-settings.Theme.Margin, -settings.Theme.Margin, e.NewSize.Width, e.NewSize.Height);
+    }
+
+    private void ViewBox_SizeChanged(object sender, SizeChangedEventArgs e)
+    {
+        border.Width = e.NewSize.Width + (settings.Theme.Margin * 2);
+        border.Height = e.NewSize.Height + (settings.Theme.Margin * 2);
     }
 
     private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)

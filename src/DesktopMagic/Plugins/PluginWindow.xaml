@@ -17,8 +17,8 @@
     <Grid>
         <Rectangle x:Name="panel" Fill="#4CBAFFEF" Stroke="White" Margin="0,0,0,0" Visibility="Collapsed" />
 
-        <Border x:Name="border" />
-        <Viewbox x:Name="viewBox" StretchDirection="Both" Stretch="Uniform">
+        <Border SizeChanged="Border_SizeChanged" x:Name="border" />
+        <Viewbox SizeChanged="ViewBox_SizeChanged" x:Name="viewBox" StretchDirection="Both" Stretch="Uniform">
             <Viewbox.Clip>
                 <RectangleGeometry x:Name="rectangleGeometry" RadiusX="{Binding ElementName=border, Path=CornerRadius.TopLeft}" RadiusY="{Binding ElementName=border, Path=CornerRadius.TopLeft}" />
             </Viewbox.Clip>

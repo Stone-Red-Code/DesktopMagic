@@ -39,7 +39,6 @@ namespace DesktopMagic
         private bool blockWindowsClosing = true;
         public static List<PluginWindow> Windows { get; } = [];
         public static List<string> WindowNames { get; } = [];
-        internal static bool EditMode { get; set; } = false;
 
         private DesktopMagicSettings Settings
         {
@@ -173,7 +172,11 @@ namespace DesktopMagic
 
         private void EditCheckBox_Click(object? sender, RoutedEventArgs? e)
         {
-            EditMode = EditCheckBox.IsChecked == true;
+            foreach (PluginWindow window in Windows)
+            {
+                window.SetEditMode(EditCheckBox.IsChecked == true);
+            }
+
             SaveSettings();
         }
 
@@ -261,6 +264,7 @@ namespace DesktopMagic
 
             window.ShowInTaskbar = false;
             window.Show();
+            window.SetEditMode(EditCheckBox.IsChecked == true);
             window.ContentRendered += DisplayWindow_ContentRendered;
             window.Closing += DisplayWindow_Closing;
             Windows.Add(window);
@@ -565,7 +569,6 @@ namespace DesktopMagic
             }
 
             EditCheckBox.IsChecked = false;
-            EditMode = false;
             blockWindowsClosing = true;
             Windows.Clear();
             WindowNames.Clear();
