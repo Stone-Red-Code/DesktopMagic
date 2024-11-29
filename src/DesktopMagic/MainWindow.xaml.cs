@@ -53,10 +53,21 @@ namespace DesktopMagic
             try
             {
                 Stream iconStream = Application.GetResourceStream(new Uri("pack://application:,,,/DesktopMagic;component/icon.ico")).Stream;
-                notifyIcon.Click += TaskbarIcon_TrayLeftClick;
+                notifyIcon.MouseClick += NotifyIcon_MouseClick;
                 notifyIcon.Visible = true;
                 notifyIcon.Text = App.AppName;
                 notifyIcon.Icon = new System.Drawing.Icon(iconStream);
+                notifyIcon.ContextMenuStrip = new System.Windows.Forms.ContextMenuStrip()
+                {
+                    Items =
+                    {
+                        new System.Windows.Forms.ToolStripMenuItem("Open", null, (s, e) => RestoreWindow()),
+                        new System.Windows.Forms.ToolStripMenuItem("Toggle Edit Mode", null, (s, e) => { EditCheckBox.IsChecked = !EditCheckBox.IsChecked; EditCheckBox_Click(null, null); }),
+                        new System.Windows.Forms.ToolStripMenuItem("Plugin Manager", null, (s, e) => PluginManagerButton_Click(null!, null!)),
+                        new System.Windows.Forms.ToolStripMenuItem("GitHub", null, (s, e) => GitHubButton_Click(null!, null!)),
+                        new System.Windows.Forms.ToolStripMenuItem("Exit", null, (s, e) => Close()),
+                    }
+                };
 
                 InitializeComponent();
 
@@ -569,6 +580,7 @@ namespace DesktopMagic
             }
 
             EditCheckBox.IsChecked = false;
+            EditCheckBox_Click(null, null);
             blockWindowsClosing = true;
             Windows.Clear();
             WindowNames.Clear();
@@ -634,9 +646,12 @@ namespace DesktopMagic
             LoadLayout(false);
         }
 
-        private void TaskbarIcon_TrayLeftClick(object? sender, EventArgs e)
+        private void NotifyIcon_MouseClick(object? sender, System.Windows.Forms.MouseEventArgs e)
         {
-            RestoreWindow();
+            if (e.Button == System.Windows.Forms.MouseButtons.Left)
+            {
+                RestoreWindow();
+            }
         }
 
         private void GitHubButton_Click(object sender, RoutedEventArgs e)
