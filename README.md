@@ -3,7 +3,7 @@
 > You can add useful widgets to your desktop like a clock, an audio visualizer or even your own plugins using mod.io!
 
 - [Releases](https://github.com/Stone-Red-Code/DesktopMagic/releases)
-- [Download plugins](https://mod.io/g/desktopmagic)
+- [Browse plugins](https://mod.io/g/desktopmagic)
 - [Plugin creation guide](https://mod.io/g/desktopmagic/r/plugin-creation-guide)
 - [Licence](https://github.com/Stone-Red-Code/DesktopMagic/blob/main/LICENSE)
 
