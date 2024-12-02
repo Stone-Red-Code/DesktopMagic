@@ -9,12 +9,9 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.IO.Packaging;
 using System.Linq;
-using System.Reflection;
 using System.Text.Json;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -65,7 +62,7 @@ namespace DesktopMagic
                         new System.Windows.Forms.ToolStripMenuItem("Toggle Edit Mode", null, (s, e) => { EditCheckBox.IsChecked = !EditCheckBox.IsChecked; EditCheckBox_Click(null, null); }),
                         new System.Windows.Forms.ToolStripMenuItem("Plugin Manager", null, (s, e) => PluginManagerButton_Click(null!, null!)),
                         new System.Windows.Forms.ToolStripMenuItem("GitHub", null, (s, e) => GitHubButton_Click(null!, null!)),
-                        new System.Windows.Forms.ToolStripMenuItem("Exit", null, (s, e) => Close()),
+                        new System.Windows.Forms.ToolStripMenuItem("Quit", null, (s, e) => Quit()),
                     }
                 };
 
@@ -81,7 +78,7 @@ namespace DesktopMagic
             }
             catch (Exception ex)
             {
-                _ = MessageBox.Show(ex.ToString());
+                _ = MessageBox.Show(ex.ToString(), App.AppName, MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -93,12 +90,6 @@ namespace DesktopMagic
         {
             try
             {
-                if (!Directory.Exists(App.ApplicationDataPath + "\\Plugins"))
-                {
-                    _ = Directory.CreateDirectory(App.ApplicationDataPath + "\\Plugins");
-                }
-                App.Logger.LogInfo("Created Plugins Folder", source: "Main");
-
                 //Write To Log File and Load Elements
 
                 App.Logger.LogInfo("Loading Plugin names", source: "Main");
@@ -114,7 +105,7 @@ namespace DesktopMagic
             catch (Exception ex)
             {
                 App.Logger.LogError(ex.Message, source: "Main");
-                _ = MessageBox.Show(ex.ToString());
+                _ = MessageBox.Show(ex.ToString(), App.AppName, MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -128,9 +119,7 @@ namespace DesktopMagic
                 plugins.Add(buildInPlugin.Id, new(buildInPlugin, string.Empty));
             }
 
-            string pluginsPath = App.ApplicationDataPath + "\\Plugins";
-
-            foreach (string directory in Directory.GetDirectories(pluginsPath))
+            foreach (string directory in Directory.GetDirectories(App.PluginsPath))
             {
                 string? pluginDllPath = Directory.GetFiles(directory, "main.dll").FirstOrDefault();
                 string? pluginMetadataPath = Directory.GetFiles(directory, "metadata.json").FirstOrDefault();
@@ -289,9 +278,23 @@ namespace DesktopMagic
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            MessageBoxResult msbRes = MessageBox.Show((string)FindResource("wantToCloseProgram"), App.AppName, MessageBoxButton.YesNo);
-            e.Cancel = msbRes != MessageBoxResult.Yes;
             SaveSettings();
+
+            if (blockWindowsClosing)
+            {
+                e.Cancel = true;
+
+                EditCheckBox.IsChecked = false;
+                EditCheckBox_Click(null, null);
+                ShowInTaskbar = false;
+                Visibility = Visibility.Collapsed;
+
+                foreach (Window item in Windows)
+                {
+                    WindowPos.SendWpfWindowBack(item);
+                    WindowPos.SendWpfWindowBack(item);
+                }
+            }
         }
 
         private void Window_Closed(object sender, EventArgs e)
@@ -303,22 +306,6 @@ namespace DesktopMagic
                 window.Hide();
             }
             Environment.Exit(0);
-        }
-
-        private void Window_StateChanged(object? sender, EventArgs? e)
-        {
-            if (WindowState == WindowState.Minimized)
-            {
-                EditCheckBox.IsChecked = false;
-                EditCheckBox_Click(null, null);
-                ShowInTaskbar = false;
-                Visibility = Visibility.Collapsed;
-                foreach (Window item in Windows)
-                {
-                    WindowPos.SendWpfWindowBack(item);
-                    WindowPos.SendWpfWindowBack(item);
-                }
-            }
         }
 
         #endregion Windows
@@ -387,9 +374,15 @@ namespace DesktopMagic
             }
         }
 
+        private void Quit()
+        {
+            blockWindowsClosing = false;
+            Close();
+        }
+
         private void OpenPluginsFolderButton_Click(object sender, RoutedEventArgs e)
         {
-            _ = Process.Start("explorer.exe", App.ApplicationDataPath + "\\Plugins");
+            _ = Process.Start("explorer.exe", App.PluginsPath);
         }
 
         private void ScrollViewer_PreviewMouseWheel(object sender, System.Windows.Input.MouseWheelEventArgs e)
@@ -507,7 +500,7 @@ namespace DesktopMagic
             {
                 if (Settings.Layouts.Any(l => l.Name.Trim() == inputDialog.ResponseText.Trim()))
                 {
-                    _ = MessageBox.Show((string)FindResource("layoutAlreadyExists"));
+                    _ = MessageBox.Show((string)FindResource("layoutAlreadyExists"), App.AppName, MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
 
@@ -627,14 +620,13 @@ namespace DesktopMagic
 
             if (!showWindow && minimize)
             {
-                WindowState = WindowState.Minimized;
-                Window_StateChanged(null, null);
+                Close();
             }
             else
             {
-                WindowState = WindowState.Normal;
-                Window_StateChanged(null, null);
+                RestoreWindow();
             }
+
             mainWindowDataContext.IsLoading = false;
         }
 
@@ -670,7 +662,7 @@ namespace DesktopMagic
             PluginManager pluginManager = new PluginManager();
             pluginManager.ShowDialog();
             LoadPlugins();
-            LoadLayout(false);
+            LoadLayout(Visibility != Visibility.Visible);
         }
 
         private void SetLanguageDictionary()

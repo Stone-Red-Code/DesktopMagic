@@ -20,7 +20,6 @@
         MinHeight="520"
         MinWidth="570"
         WindowState="Minimized"
-        StateChanged="Window_StateChanged"
         Loaded="Window_Loaded">
 
     <busyIndicator:BusyMask x:Name="BusyIndicator" IsBusy="{Binding IsLoading}"  IndicatorType="Cogs"  BusyContent="Please wait..."  BusyContentMargin="0,20,0,0"  IsBusyAtStartup="False">

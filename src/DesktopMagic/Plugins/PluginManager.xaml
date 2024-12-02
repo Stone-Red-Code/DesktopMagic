@@ -9,7 +9,7 @@
         xmlns:dataContexts="clr-namespace:DesktopMagic.DataContexts"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance Type=dataContexts:PluginManagerDataContext}"
-        Title="PluginManager"
+        Title="Plugin Manager"
         Height="450"
         Width="800"
         MinHeight="520"

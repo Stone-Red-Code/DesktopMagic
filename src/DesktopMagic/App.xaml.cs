@@ -14,13 +14,17 @@ public partial class App : Application
 {
     public const string AppGuid = "{{61FE5CE9-47C3-4255-A1F4-5BCF4ACA0879}";
 
-    public const string AppName = "Desktop Magic";
+    public const string AppName = "DesktopMagic";
+
+    // This is the previous name of the application, used to migrate the application data folder
+    private const string PreviousAppName = "Desktop Magic";
 
     private static readonly string logFilePath = Path.Combine(ApplicationDataPath, $"{AppName}.log");
-
     private readonly Thread? eventThread;
-
     private readonly EventWaitHandle eventWaitHandle;
+    public static string ApplicationDataPath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "StoneRed", AppName);
+
+    public static string PluginsPath => Path.Combine(ApplicationDataPath, "Plugins");
 
     public static Logger Logger { get; } = new Logger()
     {
@@ -62,7 +66,7 @@ public partial class App : Application
         }
     };
 
-    public static string ApplicationDataPath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "StoneRed", AppName);
+    private static string PreviousApplicationDataPath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "StoneRed", PreviousAppName);
 
     public App()
     {
@@ -114,15 +118,27 @@ public partial class App : Application
 
         try
         {
+            if (Directory.Exists(PreviousApplicationDataPath))
+            {
+                Directory.Move(PreviousApplicationDataPath, ApplicationDataPath);
+                Logger.LogInfo("Migrated ApplicationData Folder", source: "Setup");
+            }
+
             if (!Directory.Exists(ApplicationDataPath))
             {
                 _ = Directory.CreateDirectory(ApplicationDataPath);
+                Logger.LogInfo("Created ApplicationData Folder", source: "Setup");
             }
-            Logger.LogInfo("Created ApplicationData Folder", source: "Main");
+
+            if (!Directory.Exists(PluginsPath))
+            {
+                _ = Directory.CreateDirectory(PluginsPath);
+                Logger.LogInfo("Created Plugins Folder", source: "Setup");
+            }
         }
         catch (Exception ex)
         {
-            _ = MessageBox.Show(ex.ToString());
+            _ = MessageBox.Show(ex.ToString(), AppName, MessageBoxButton.OK, MessageBoxImage.Error);
             Logger.Log(ex.Message, "Setup", LogSeverity.Error);
         }
 
