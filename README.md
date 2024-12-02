@@ -7,7 +7,7 @@
 - [Plugin creation guide](https://mod.io/g/desktopmagic/r/plugin-creation-guide)
 - [Licence](https://github.com/Stone-Red-Code/DesktopMagic/blob/main/LICENSE)
 
-## Setup
+## Usage
 
 1. Download & install the latest release
    - Microsoft Store: [Store Page](https://www.microsoft.com/store/productId/9NPV8F9K1CWM?ocid=pdpshare)
@@ -18,8 +18,8 @@
 1. Open the plugin manager to install third-party plugins.
 
 ## Follow the development
-[![Twitter(X)](http://img.shields.io/badge/Twitter-black.svg?&logo=x&style=for-the-badge&logoColor=white)](https://x.com/search?q=from%3A%40StoneRedCode%20%23DesktopMagic)
 
+[![Twitter(X)](http://img.shields.io/badge/Twitter-black.svg?&logo=x&style=for-the-badge&logoColor=white)](https://x.com/search?q=from%3A%40StoneRedCode%20%23DesktopMagic)
 
 ## Preview
 
@@ -27,6 +27,7 @@
 ![Screenshot 2023-12-31 164853](https://github.com/Stone-Red-Code/DesktopMagic/assets/56473591/22de55d2-dde3-43a5-b77b-c773a7697e8c)
 
 ## Third party licenses
+
 - [BusyIndicator](https://github.com/moh3ngolshani/BusyIndicator) - [MIT](https://github.com/Moh3nGolshani/BusyIndicator/blob/master/LICENSE)
 - [Extended.Wpf.Toolkit](https://github.com/xceedsoftware/wpftoolkit) - [XCEED SOFTWARE COMMUNITY LICENSE AGREEMENT](https://github.com/xceedsoftware/wpftoolkit/blob/master/license.md)
 - [Material Design In XAML Toolkit](https://github.com/MaterialDesignInXAML/MaterialDesignInXamlToolkit) - [MIT](https://github.com/MaterialDesignInXAML/MaterialDesignInXamlToolkit/blob/master/LICENSE)
