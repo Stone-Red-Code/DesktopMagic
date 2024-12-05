@@ -15,11 +15,15 @@ public class PluginMetadata
 
     public Uri? IconUri { get; set; }
 
+    public Uri? ProfileUri { get; set; }
+
     public DateTime? Added { get; set; }
 
     public DateTime? Updated { get; set; }
 
     public string? Description { get; set; }
+
+    public string? Summary { get; set; }
 
     public string? Version { get; set; }
 
@@ -29,9 +33,11 @@ public class PluginMetadata
         Id = mod.Id;
         Author = mod.SubmittedBy?.Username;
         IconUri = mod.Logo?.Thumb320x180;
+        ProfileUri = mod.ProfileUrl;
         Added = DateTimeOffset.FromUnixTimeSeconds(mod.DateAdded).DateTime;
         Updated = DateTimeOffset.FromUnixTimeSeconds(mod.DateUpdated).DateTime;
         Description = mod.DescriptionPlaintext;
+        Summary = mod.Summary;
         Version = mod.Modfile?.Version;
     }
 

@@ -1,14 +1,18 @@
-﻿using DesktopMagic.Plugins;
+﻿using DesktopMagic.Helpers;
+using DesktopMagic.Plugins;
+
+using MaterialDesignThemes.Wpf;
 
 using System;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Input;
 
 namespace DesktopMagic.DataContexts;
 
-internal class PluginEntryDataContext(PluginMetadata pluginMetadata, ICommand command, bool installed = false) : INotifyPropertyChanged
+internal class PluginEntryDataContext(PluginMetadata pluginMetadata, ICommand command, string? buttonText = "") : INotifyPropertyChanged
 {
     public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -18,18 +22,26 @@ internal class PluginEntryDataContext(PluginMetadata pluginMetadata, ICommand co
 
     public string? Description => pluginMetadata.Description;
 
+    public string Author => pluginMetadata.Author ?? "Unknown";
+
+    public string? Version => pluginMetadata.Version ?? "Unknown";
+
     public string? Logo => pluginMetadata.IconUri?.ToString();
 
-    public DateTime? FormattedDateAdded => pluginMetadata.Added;
-    public DateTime? FormattedDateUpdated => pluginMetadata.Updated;
+    public DateTime? DateAdded => pluginMetadata.Added;
+    public DateTime? DateUpdated => pluginMetadata.Updated;
 
     public uint Id => pluginMetadata.Id;
 
+    public string? ButtonText => buttonText;
+
     public ICommand Command => command;
 
-    public Visibility InstallButtonVisibility => installed ? Visibility.Collapsed : Visibility.Visible;
+    public ButtonData InstallUninstallButtonData => new(ButtonText ?? "Install", true, Command);
+    public ButtonData OpenModioButtonData => new("modio", true, new CommandHandler(OpenModioPage));
 
-    public Visibility RemoveButtonVisibility => installed ? Visibility.Visible : Visibility.Collapsed;
+
+    public Visibility ButtonVisibility => string.IsNullOrWhiteSpace(buttonText) ? Visibility.Collapsed : Visibility.Visible;
 
     public bool IsVisible
     {
@@ -41,11 +53,25 @@ internal class PluginEntryDataContext(PluginMetadata pluginMetadata, ICommand co
             OnPropertyChanged(nameof(Visibility));
         }
     }
+    public MaterialDesignThemes.Wpf.PackIconKind IconKind => MaterialDesignThemes.Wpf.PackIconKind.Information;
 
     public Visibility Visibility => IsVisible ? Visibility.Visible : Visibility.Collapsed;
+
+    private void OpenModioPage()
+    {
+        ProcessStartInfo psi = new ProcessStartInfo
+        {
+            UseShellExecute = true,
+            FileName = pluginMetadata.ProfileUri?.ToString()
+        };
+
+        _ = Process.Start(psi);
+    }
 
     private void OnPropertyChanged([CallerMemberName] string? propertyName = null)
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
+
+    public record ButtonData(PackIconKind IconKind, string Text, bool IsEnabled, ICommand Command);
 }

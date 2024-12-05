@@ -97,7 +97,7 @@ public partial class PluginManager : Window
 
             if (pluginMetadata is not null)
             {
-                pluginManagerDataContext.InstalledPlugins.Add(new PluginEntryDataContext(pluginMetadata, new CommandHandler(() => Remove(pluginPath, pluginMetadata.Id)), true));
+                pluginManagerDataContext.InstalledPlugins.Add(new PluginEntryDataContext(pluginMetadata, new CommandHandler(() => Remove(pluginPath, pluginMetadata.Id)), "Uninstall"));
                 _ = pluginIds.Add(pluginMetadata.Id);
             }
         }
@@ -112,7 +112,7 @@ public partial class PluginManager : Window
                 continue;
             }
 
-            pluginManagerDataContext.AllPlugins.Add(new PluginEntryDataContext(new(mod), new CommandHandler(async () => await Install(mod))));
+            pluginManagerDataContext.AllPlugins.Add(new PluginEntryDataContext(new(mod), new CommandHandler(async () => await Install(mod)), "Install"));
         }
 
         pluginManagerDataContext.IsLoading = false;
@@ -168,7 +168,7 @@ public partial class PluginManager : Window
             _ = pluginManagerDataContext.AllPlugins.Remove(pluginEntryDataContext);
         }
 
-        pluginManagerDataContext.InstalledPlugins.Add(new PluginEntryDataContext(new PluginMetadata(mod), new CommandHandler(() => Remove(pluginPath, mod.Id)), true));
+        pluginManagerDataContext.InstalledPlugins.Add(new PluginEntryDataContext(new PluginMetadata(mod), new CommandHandler(() => Remove(pluginPath, mod.Id)), "Uninstall"));
 
         pluginManagerDataContext.IsLoading = false;
     }
@@ -228,7 +228,7 @@ public partial class PluginManager : Window
                 continue;
             }
 
-            pluginManagerDataContext.AllPlugins.Add(new PluginEntryDataContext(new(mod), new CommandHandler(async () => await Install(mod))));
+            pluginManagerDataContext.AllPlugins.Add(new PluginEntryDataContext(new(mod), new CommandHandler(async () => await Install(mod)), "Install"));
         }
 
         pluginManagerDataContext.IsSearching = false;
