@@ -98,6 +98,23 @@ public partial class App : Application
         }
     }
 
+    public static ResourceDictionary GetLanguageDictionary()
+    {
+        ResourceDictionary dict = [];
+        string currentCulture = Thread.CurrentThread.CurrentUICulture.ToString();
+
+        if (currentCulture.Contains("de"))
+        {
+            dict.Source = new Uri("..\\Resources\\Strings\\StringResources.de.xaml", UriKind.Relative);
+        }
+        else
+        {
+            dict.Source = new Uri("..\\Resources\\Strings\\StringResources.en.xaml", UriKind.Relative);
+        }
+
+        return dict;
+    }
+
     protected void CloseHandler(object sender, EventArgs e)
     {
         eventWaitHandle.Close();

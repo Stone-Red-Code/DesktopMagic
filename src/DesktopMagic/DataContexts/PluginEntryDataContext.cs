@@ -12,7 +12,7 @@ using System.Windows.Input;
 
 namespace DesktopMagic.DataContexts;
 
-internal class PluginEntryDataContext(PluginMetadata pluginMetadata, ICommand command, string? buttonText = "") : INotifyPropertyChanged
+internal class PluginEntryDataContext(PluginMetadata pluginMetadata, ICommand command, PluginEntryDataContext.Mode mode, string? path = null) : INotifyPropertyChanged
 {
     public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -22,9 +22,9 @@ internal class PluginEntryDataContext(PluginMetadata pluginMetadata, ICommand co
 
     public string? Description => pluginMetadata.Description;
 
-    public string Author => pluginMetadata.Author ?? "Unknown";
+    public string Author => pluginMetadata.Author ?? (string)App.GetLanguageDictionary()["unknown"];
 
-    public string? Version => pluginMetadata.Version ?? "Unknown";
+    public string? Version => pluginMetadata.Version ?? (string)App.GetLanguageDictionary()["unknown"];
 
     public string? Logo => pluginMetadata.IconUri?.ToString();
 
@@ -33,15 +33,24 @@ internal class PluginEntryDataContext(PluginMetadata pluginMetadata, ICommand co
 
     public uint Id => pluginMetadata.Id;
 
-    public string? ButtonText => buttonText;
-
     public ICommand Command => command;
 
-    public ButtonData InstallUninstallButtonData => new(ButtonText ?? "Install", true, Command);
-    public ButtonData OpenModioButtonData => new("modio", true, new CommandHandler(OpenModioPage));
+    public ButtonData InstallUninstallButtonData => new(mode == Mode.Install ? PackIconKind.Download : PackIconKind.Remove, GetInstallUninstallButtonText(), true, Command);
 
-
-    public Visibility ButtonVisibility => string.IsNullOrWhiteSpace(buttonText) ? Visibility.Collapsed : Visibility.Visible;
+    public ButtonData OpenButtonData
+    {
+        get
+        {
+            if (string.IsNullOrWhiteSpace(pluginMetadata.ProfileUri?.ToString()))
+            {
+                return new(PackIconKind.FolderOutline, (string)App.GetLanguageDictionary()["folder"], path is not null, new CommandHandler(() => Process.Start("explorer.exe", path!)));
+            }
+            else
+            {
+                return new(PackIconKind.ExternalLink, "mod.io", true, new CommandHandler(OpenModioPage));
+            }
+        }
+    }
 
     public bool IsVisible
     {
@@ -53,7 +62,6 @@ internal class PluginEntryDataContext(PluginMetadata pluginMetadata, ICommand co
             OnPropertyChanged(nameof(Visibility));
         }
     }
-    public MaterialDesignThemes.Wpf.PackIconKind IconKind => MaterialDesignThemes.Wpf.PackIconKind.Information;
 
     public Visibility Visibility => IsVisible ? Visibility.Visible : Visibility.Collapsed;
 
@@ -62,10 +70,20 @@ internal class PluginEntryDataContext(PluginMetadata pluginMetadata, ICommand co
         ProcessStartInfo psi = new ProcessStartInfo
         {
             UseShellExecute = true,
-            FileName = pluginMetadata.ProfileUri?.ToString()
+            FileName = pluginMetadata.ProfileUri?.ToString() ?? path
         };
 
         _ = Process.Start(psi);
+    }
+
+    private string GetInstallUninstallButtonText()
+    {
+        return mode switch
+        {
+            Mode.Install => (string)App.GetLanguageDictionary()["install"],
+            Mode.Uninstall => (string)App.GetLanguageDictionary()["uninstall"],
+            _ => throw new NotImplementedException()
+        };
     }
 
     private void OnPropertyChanged([CallerMemberName] string? propertyName = null)
@@ -74,4 +92,10 @@ internal class PluginEntryDataContext(PluginMetadata pluginMetadata, ICommand co
     }
 
     public record ButtonData(PackIconKind IconKind, string Text, bool IsEnabled, ICommand Command);
+
+    public enum Mode
+    {
+        Install,
+        Uninstall
+    }
 }

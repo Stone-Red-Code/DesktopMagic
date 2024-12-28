@@ -133,16 +133,46 @@
                         <Rectangle Fill="#FFC5C5C5" Stroke="#FFC5C5C5" Grid.ColumnSpan="3" />
                         <StackPanel Margin="{StaticResource DefaultMargin}" VerticalAlignment="Bottom">
                             <ComboBox x:Name="layoutsComboBox" ItemsSource="{Binding Settings.Layouts}" DisplayMemberPath="Name" SelectedValue="{Binding Settings.CurrentLayoutName}" SelectedValuePath="Name" HorizontalAlignment="Left" Margin="0,0,0,5" Width="170" Height="20" SelectionChanged="LayoutsComboBox_SelectionChanged" />
-                            <Button x:Name="newLayoutButton" Content="{DynamicResource newLayout}" Margin="0,0,0,5" HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="170" Click="NewLayoutButton_Click" FontWeight="Regular" />
-                            <Button x:Name="removeLayoutButton" Content="{DynamicResource deleteLayout}" HorizontalAlignment="Left"  VerticalAlignment="Bottom" Width="170" Click="RemoveLayoutButton_Click" FontWeight="Regular" />
+                            <Button x:Name="newLayoutButton" Margin="0,0,0,5" HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="170" Click="NewLayoutButton_Click" FontWeight="Regular">
+                                <StackPanel Orientation="Horizontal">
+                                    <materialDesign:PackIcon Kind="Add" Margin="0 0 10 0" />
+                                    <TextBlock Text="{DynamicResource newLayout}" />
+                                </StackPanel>
+                            </Button>
+                            <Button x:Name="removeLayoutButton" HorizontalAlignment="Left"  VerticalAlignment="Bottom" Width="170" Click="RemoveLayoutButton_Click" FontWeight="Regular">
+                                <StackPanel Orientation="Horizontal">
+                                    <materialDesign:PackIcon Kind="DeleteOutline" Margin="0 0 10 0" />
+                                    <TextBlock Text="{DynamicResource deleteLayout}" />
+                                </StackPanel>
+                            </Button>
                         </StackPanel>
                         <StackPanel Grid.Column="1" Margin="{StaticResource DefaultMargin}" VerticalAlignment="Bottom">
-                            <Button x:Name="updatePluginsButton" Content="{DynamicResource updatePlugins}" Margin="0,0,0,5" HorizontalAlignment="Center" Width="170" Click="UpdatePluginsButton_Click" FontWeight="Regular" />
-                            <Button x:Name="githubButton" Content="GitHub" HorizontalAlignment="Center" Width="170" Click="GitHubButton_Click"  FontWeight="Regular" Cursor="Hand" />
+                            <Button x:Name="updatePluginsButton" Margin="0,0,0,5" HorizontalAlignment="Center" Width="170" Click="UpdatePluginsButton_Click" FontWeight="Regular">
+                                <StackPanel Orientation="Horizontal">
+                                    <materialDesign:PackIcon Kind="Reload" Margin="0 0 10 0" />
+                                    <TextBlock Text="{DynamicResource updatePlugins}" />
+                                </StackPanel>
+                            </Button>
+                            <Button x:Name="githubButton" HorizontalAlignment="Center" Width="170" Click="GitHubButton_Click"  FontWeight="Regular" Cursor="Hand">
+                                <StackPanel Orientation="Horizontal">
+                                    <materialDesign:PackIcon Kind="Github" Margin="0 0 10 0" />
+                                    <TextBlock Text="GitHub" />
+                                </StackPanel>
+                            </Button>
                         </StackPanel>
                         <StackPanel Grid.Column="2" Margin="{StaticResource DefaultMargin}" VerticalAlignment="Bottom">
-                            <Button x:Name="downloadPluginsButton"  Content="{DynamicResource pluginManager}" Margin="0,0,0,5" HorizontalAlignment="Right" Width="170" Click="PluginManagerButton_Click"  FontWeight="Regular" Cursor="Hand" />
-                            <Button x:Name="openPluginsFolderButton" Content="{DynamicResource openPluginsFolder}" HorizontalAlignment="Right" Width="170" Click="OpenPluginsFolderButton_Click" FontWeight="Regular" />
+                            <Button x:Name="downloadPluginsButton" Margin="0,0,0,5" HorizontalAlignment="Right" Width="170" Click="PluginManagerButton_Click"  FontWeight="Regular" Cursor="Hand">
+                                <StackPanel Orientation="Horizontal">
+                                    <materialDesign:PackIcon Kind="ExtensionOutline" Margin="0 0 10 0" />
+                                    <TextBlock Text="{DynamicResource pluginManager}" />
+                                </StackPanel>
+                            </Button>
+                            <Button x:Name="openPluginsFolderButton" HorizontalAlignment="Right" Width="170" Click="OpenPluginsFolderButton_Click" FontWeight="Regular">
+                                <StackPanel Orientation="Horizontal">
+                                    <materialDesign:PackIcon Kind="FolderOutline" Margin="0 0 10 0" />
+                                    <TextBlock Text="{DynamicResource pluginsFolder}" />
+                                </StackPanel>
+                            </Button>
                         </StackPanel>
                     </Grid>
                 </Grid>

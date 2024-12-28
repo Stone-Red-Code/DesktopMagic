@@ -29,10 +29,10 @@
         </Border>
 
         <StackPanel Grid.Column="1" VerticalAlignment="Center">
-            <Label Content="{Binding Author}" HorizontalAlignment="Center" ContentStringFormat="Author: {0}" />
-            <Label Content="{Binding DateAdded}" HorizontalAlignment="Center" ContentStringFormat="Added: {0}" />
-            <Label Content="{Binding DateUpdated}" HorizontalAlignment="Center" ContentStringFormat="Updated: {0}" />
-            <Label Content="{Binding Version}" HorizontalAlignment="Center" ContentStringFormat="Version: {0}" />
+            <Label Content="{Binding Author}" HorizontalAlignment="Center" ContentStringFormat="{DynamicResource authorFormat}" />
+            <Label Content="{Binding DateAdded}" HorizontalAlignment="Center" ContentStringFormat="{DynamicResource addedFormat}" />
+            <Label Content="{Binding DateUpdated}" HorizontalAlignment="Center" ContentStringFormat="{DynamicResource updatedFormat}" />
+            <Label Content="{Binding Version}" HorizontalAlignment="Center" ContentStringFormat="{DynamicResource versionFormat}" />
         </StackPanel>
 
         <Grid Grid.Row="1" Grid.ColumnSpan="2">
@@ -41,16 +41,16 @@
                 <ColumnDefinition />
             </Grid.ColumnDefinitions>
 
-            <Button Grid.Column="0" Command="{Binding Command}" Visibility="{Binding ButtonVisibility}" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Margin="10 5 5 0">
+            <Button Grid.Column="0" Command="{Binding InstallUninstallButtonData.Command}" IsEnabled="{Binding InstallUninstallButtonData.IsEnabled}" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Margin="10 5 5 0">
                 <StackPanel Orientation="Horizontal">
-                    <materialDesign:PackIcon Kind="{Binding IconKind}" Margin="0 0 10 0"/>
-                    <TextBlock Text="{Binding ButtonText}" />
+                    <materialDesign:PackIcon Kind="{Binding InstallUninstallButtonData.IconKind}" Margin="0 0 10 0" />
+                    <TextBlock Text="{Binding InstallUninstallButtonData.Text}" />
                 </StackPanel>
             </Button>
-            <Button Grid.Column="1" Command="{Binding OpenModioCommand}" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Margin="5 5 10 0">
+            <Button Grid.Column="1" Command="{Binding OpenButtonData.Command}" IsEnabled="{Binding OpenButtonData.IsEnabled}" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Margin="5 5 10 0">
                 <StackPanel Orientation="Horizontal">
-                    <materialDesign:PackIcon Kind="ExternalLink" Margin="0 0 10 0"/>
-                    <TextBlock Text="mod.io" />
+                    <materialDesign:PackIcon Kind="{Binding OpenButtonData.IconKind}" Margin="0 0 10 0" />
+                    <TextBlock Text="{Binding OpenButtonData.Text}" />
                 </StackPanel>
             </Button>
         </Grid>

@@ -26,10 +26,10 @@ namespace DesktopMagic
 
         private readonly Dictionary<PluginMetadata, Type> builtInPlugins = new()
         {
-            {new("Music Visualizer", 1), typeof(MusicVisualizerPlugin)},
-            {new("Time",2), typeof(TimePlugin)},
-            {new("Date",3), typeof(DatePlugin)},
-            {new("Cpu Usage", 4), typeof(CpuMonitorPlugin)}
+            {new((string)App.GetLanguageDictionary()["musicVisualizer"], 1), typeof(MusicVisualizerPlugin)},
+            {new((string)App.GetLanguageDictionary()["time"],2), typeof(TimePlugin)},
+            {new((string)App.GetLanguageDictionary()["date"],3), typeof(DatePlugin)},
+            {new((string)App.GetLanguageDictionary()["cpuUsage"], 4), typeof(CpuMonitorPlugin)}
         };
 
         private bool loaded = false;
@@ -58,17 +58,17 @@ namespace DesktopMagic
                 {
                     Items =
                     {
-                        new System.Windows.Forms.ToolStripMenuItem("Open", null, (s, e) => RestoreWindow()),
-                        new System.Windows.Forms.ToolStripMenuItem("Toggle Edit Mode", null, (s, e) => { EditCheckBox.IsChecked = !EditCheckBox.IsChecked; EditCheckBox_Click(null, null); }),
-                        new System.Windows.Forms.ToolStripMenuItem("Plugin Manager", null, (s, e) => PluginManagerButton_Click(null!, null!)),
+                        new System.Windows.Forms.ToolStripMenuItem((string)App.GetLanguageDictionary()["open"], null, (s, e) => RestoreWindow()),
+                        new System.Windows.Forms.ToolStripMenuItem((string)App.GetLanguageDictionary()["toggleEditMode"], null, (s, e) => { EditCheckBox.IsChecked = !EditCheckBox.IsChecked; EditCheckBox_Click(null, null); }),
+                        new System.Windows.Forms.ToolStripMenuItem((string)App.GetLanguageDictionary()["pluginManager"], null, (s, e) => PluginManagerButton_Click(null!, null!)),
                         new System.Windows.Forms.ToolStripMenuItem("GitHub", null, (s, e) => GitHubButton_Click(null!, null!)),
-                        new System.Windows.Forms.ToolStripMenuItem("Quit", null, (s, e) => Quit()),
+                        new System.Windows.Forms.ToolStripMenuItem((string)App.GetLanguageDictionary()["quit"], null, (s, e) => Quit()),
                     }
                 };
 
                 InitializeComponent();
 
-                SetLanguageDictionary();
+                Resources.MergedDictionaries.Add(App.GetLanguageDictionary());
 
 #if DEBUG
                 Title = $"{App.AppName} - Dev {System.Windows.Forms.Application.ProductVersion}";
@@ -663,22 +663,6 @@ namespace DesktopMagic
             pluginManager.ShowDialog();
             LoadPlugins();
             LoadLayout(Visibility != Visibility.Visible);
-        }
-
-        private void SetLanguageDictionary()
-        {
-            ResourceDictionary dict = [];
-            string currentCulture = Thread.CurrentThread.CurrentUICulture.ToString();
-
-            if (currentCulture.Contains("de"))
-            {
-                dict.Source = new Uri("..\\Resources\\Strings\\StringResources.de.xaml", UriKind.Relative);
-            }
-            else
-            {
-                dict.Source = new Uri("..\\Resources\\Strings\\StringResources.en.xaml", UriKind.Relative);
-            }
-            Resources.MergedDictionaries.Add(dict);
         }
     }
 

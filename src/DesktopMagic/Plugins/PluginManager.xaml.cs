@@ -44,6 +44,8 @@ public partial class PluginManager : Window
     {
         InitializeComponent();
 
+        Resources.MergedDictionaries.Add(App.GetLanguageDictionary());
+
         DataContext = pluginManagerDataContext;
         searchTimer.Tick += async (sender, e) =>
         {
@@ -97,7 +99,7 @@ public partial class PluginManager : Window
 
             if (pluginMetadata is not null)
             {
-                pluginManagerDataContext.InstalledPlugins.Add(new PluginEntryDataContext(pluginMetadata, new CommandHandler(() => Remove(pluginPath, pluginMetadata.Id)), "Uninstall"));
+                pluginManagerDataContext.InstalledPlugins.Add(new PluginEntryDataContext(pluginMetadata, new CommandHandler(() => Remove(pluginPath, pluginMetadata.Id)), PluginEntryDataContext.Mode.Uninstall, pluginPath));
                 _ = pluginIds.Add(pluginMetadata.Id);
             }
         }
@@ -112,7 +114,7 @@ public partial class PluginManager : Window
                 continue;
             }
 
-            pluginManagerDataContext.AllPlugins.Add(new PluginEntryDataContext(new(mod), new CommandHandler(async () => await Install(mod)), "Install"));
+            pluginManagerDataContext.AllPlugins.Add(new PluginEntryDataContext(new(mod), new CommandHandler(async () => await Install(mod)), PluginEntryDataContext.Mode.Install));
         }
 
         pluginManagerDataContext.IsLoading = false;
@@ -168,7 +170,7 @@ public partial class PluginManager : Window
             _ = pluginManagerDataContext.AllPlugins.Remove(pluginEntryDataContext);
         }
 
-        pluginManagerDataContext.InstalledPlugins.Add(new PluginEntryDataContext(new PluginMetadata(mod), new CommandHandler(() => Remove(pluginPath, mod.Id)), "Uninstall"));
+        pluginManagerDataContext.InstalledPlugins.Add(new PluginEntryDataContext(new PluginMetadata(mod), new CommandHandler(() => Remove(pluginPath, mod.Id)), PluginEntryDataContext.Mode.Uninstall));
 
         pluginManagerDataContext.IsLoading = false;
     }
@@ -228,7 +230,7 @@ public partial class PluginManager : Window
                 continue;
             }
 
-            pluginManagerDataContext.AllPlugins.Add(new PluginEntryDataContext(new(mod), new CommandHandler(async () => await Install(mod)), "Install"));
+            pluginManagerDataContext.AllPlugins.Add(new PluginEntryDataContext(new(mod), new CommandHandler(async () => await Install(mod)), PluginEntryDataContext.Mode.Install));
         }
 
         pluginManagerDataContext.IsSearching = false;

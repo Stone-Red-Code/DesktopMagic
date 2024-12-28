@@ -9,7 +9,7 @@
         xmlns:dataContexts="clr-namespace:DesktopMagic.DataContexts"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance Type=dataContexts:PluginManagerDataContext}"
-        Title="Plugin Manager"
+        Title="{DynamicResource pluginManager}"
         Height="450"
         Width="800"
         MinHeight="520"
@@ -31,7 +31,7 @@
                 <ColumnDefinition />
             </Grid.ColumnDefinitions>
 
-            <Label Content="All plugins" FontSize="20" />
+            <Label Content="{DynamicResource allPlugins}" FontSize="20" />
 
             <TextBox Grid.Row="1" Text="{Binding AllPluginsSearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TextChanged="AllPluginsSearchTextBox_TextChanged" materialDesign:HintAssist.Hint="Search..." materialDesign:TextFieldAssist.HasLeadingIcon="True"  materialDesign:TextFieldAssist.LeadingIcon="Search" />
 
@@ -64,7 +64,7 @@
                 </ScrollViewer>
             </busyIndicator:BusyMask>
 
-            <Label Grid.Column="1" Content="Installed plugins" FontSize="20" />
+            <Label Grid.Column="1" Content="{DynamicResource installedPlugins}" FontSize="20" />
 
             <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding InstalledPluginsSearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TextChanged="InstalledPluginsSearchTextBox_TextChanged" materialDesign:HintAssist.Hint="Search..." materialDesign:TextFieldAssist.HasLeadingIcon="True"  materialDesign:TextFieldAssist.LeadingIcon="Search" />
 

@@ -5,9 +5,16 @@
 
     <system:String x:Key="lineMode">Line</system:String>
     <system:String x:Key="mirrorMode">Mirror</system:String>
+    <system:String x:Key="folder">Folder</system:String>
+    <system:String x:Key="unknown">Unknown</system:String>
+    <system:String x:Key="open">Open</system:String>
+    <system:String x:Key="quit">Quit</system:String>
+    <system:String x:Key="toggleEditMode">Toggle Edit Mode</system:String>
+    <system:String x:Key="allPlugins">All Plugins</system:String>
+    <system:String x:Key="installedPlugins">Installed Plugins</system:String>
     <system:String x:Key="updatePlugins">Reload</system:String>
-    <system:String x:Key="openPluginsFolder">Open Plugins Folder</system:String>
-    <system:String x:Key="pluginManager">Plugin Manager</system:String>
+    <system:String x:Key="pluginsFolder">Plugins Folder</system:String>
+    <system:String x:Key="pluginManager">Plugins Manager</system:String>
     <system:String x:Key="color">Color:</system:String>
     <system:String x:Key="default">Default</system:String>
     <system:String x:Key="wantToCloseProgram">Do you really want to close the program?</system:String>
@@ -16,9 +23,7 @@
     <system:String x:Key="time">Time</system:String>
     <system:String x:Key="date">Date</system:String>
     <system:String x:Key="cpuUsage">CPU Usage</system:String>
-    <system:String x:Key="googleCalendar">Google Calendar</system:String>
     <system:String x:Key="musicVisualizer">Music Visualizer</system:String>
-    <system:String x:Key="musicVisualizerOptions">Music Visualizer Options:</system:String>
     <system:String x:Key="amplifier">Signal Amplification:</system:String>
     <system:String x:Key="newLayout">New Layout</system:String>
     <system:String x:Key="deleteLayout">Delete Layout</system:String>
@@ -27,7 +32,12 @@
     <system:String x:Key="enterLayoutName">Enter layout name</system:String>
     <system:String x:Key="layoutAlreadyExists">Layout already exists!</system:String>
     <system:String x:Key="install">Install</system:String>
+    <system:String x:Key="uninstall">Uninstall</system:String>
     <system:String x:Key="remove">Remove</system:String>
+    <system:String x:Key="authorFormat">Author: {0}</system:String>
+    <system:String x:Key="addedFormat">Added: {0}</system:String>
+    <system:String x:Key="updatedFormat">Updated: {0}</system:String>
+    <system:String x:Key="versionFormat">Version: {0}</system:String>
     <col:ArrayList x:Key="musicVisualizerOptionsComboboxItems">
         <system:String>Bottom</system:String>
         <system:String>Middle</system:String>

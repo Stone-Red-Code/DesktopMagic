@@ -1,6 +1,4 @@
-﻿using System;
-using System.Threading;
-using System.Windows;
+﻿using System.Windows;
 
 namespace DesktopMagic.Dialogs;
 
@@ -12,12 +10,14 @@ public partial class InputDialog : Window
         set => textBox.Text = value;
     }
 
-    public InputDialog(string content, string title = "InputDialog")
+    public InputDialog(string content, string title = App.AppName)
     {
         InitializeComponent();
+
+        Resources.MergedDictionaries.Add(App.GetLanguageDictionary());
+
         label.Content = content;
         Title = title;
-        SetLanguageDictionary();
     }
 
     private void OkButton_Click(object sender, RoutedEventArgs e)
@@ -28,21 +28,5 @@ public partial class InputDialog : Window
     private void CancelButton_Click(object sender, RoutedEventArgs e)
     {
         DialogResult = false;
-    }
-
-    private void SetLanguageDictionary()
-    {
-        ResourceDictionary dict = [];
-        string currentCulture = Thread.CurrentThread.CurrentCulture.ToString();
-
-        if (currentCulture.Contains("de"))
-        {
-            dict.Source = new Uri("..\\Resources\\Strings\\StringResources.de.xaml", UriKind.Relative);
-        }
-        else
-        {
-            dict.Source = new Uri("..\\Resources\\Strings\\StringResources.en.xaml", UriKind.Relative);
-        }
-        Resources.MergedDictionaries.Add(dict);
     }
 }
