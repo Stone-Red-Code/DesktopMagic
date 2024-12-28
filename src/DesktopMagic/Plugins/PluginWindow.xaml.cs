@@ -50,9 +50,11 @@ public partial class PluginWindow : Window
             WindowStyle = WindowStyle.ToolWindow,
             ShowInTaskbar = false
         };
-        w.Show();
+
+        WindowInteropHelper helper = new WindowInteropHelper(w);
+        _ = helper.EnsureHandle();
+
         Owner = w;
-        w.Hide();
 
         settings.Theme.PropertyChanged += (e, s) => ThemeChanged();
 

@@ -73,26 +73,24 @@ public partial class App : Application
         // Setup global event handler
         eventWaitHandle = new EventWaitHandle(false, EventResetMode.AutoReset, AppGuid, out bool createdNew);
 
-        //check if creating new was successful
+        // Check if creating new was successful
         if (!createdNew)
         {
             Setup(false);
             Logger.LogWarn("Shutting down because other instance already running.", source: "Setup");
-            //Shutdown Application
+            // Shutdown Application
             _ = eventWaitHandle.Set();
             Current.Shutdown();
         }
         else
         {
-            eventThread = new Thread(
-                () =>
+            eventThread = new Thread(() =>
+            {
+                while (eventWaitHandle.WaitOne())
                 {
-                    while (eventWaitHandle.WaitOne())
-                    {
-                        _ = Current.Dispatcher.BeginInvoke(
-                            () => ((MainWindow)Current.MainWindow).RestoreWindow());
-                    }
-                });
+                    _ = Current.Dispatcher.BeginInvoke(() => ((MainWindow)Current.MainWindow).RestoreWindow());
+                }
+            });
             eventThread.Start();
 
             Setup(true);
@@ -118,22 +116,22 @@ public partial class App : Application
 
         try
         {
-            if (Directory.Exists(PreviousApplicationDataPath))
+            if (Directory.Exists(PreviousApplicationDataPath) && !Directory.Exists(ApplicationDataPath))
             {
                 Directory.Move(PreviousApplicationDataPath, ApplicationDataPath);
-                Logger.LogInfo("Migrated ApplicationData Folder", source: "Setup");
+                Logger.LogInfo("Migrated ApplicationData folder", source: "Setup");
             }
 
             if (!Directory.Exists(ApplicationDataPath))
             {
                 _ = Directory.CreateDirectory(ApplicationDataPath);
-                Logger.LogInfo("Created ApplicationData Folder", source: "Setup");
+                Logger.LogInfo("Created ApplicationData folder", source: "Setup");
             }
 
             if (!Directory.Exists(PluginsPath))
             {
                 _ = Directory.CreateDirectory(PluginsPath);
-                Logger.LogInfo("Created Plugins Folder", source: "Setup");
+                Logger.LogInfo("Created Plugins folder", source: "Setup");
             }
         }
         catch (Exception ex)
