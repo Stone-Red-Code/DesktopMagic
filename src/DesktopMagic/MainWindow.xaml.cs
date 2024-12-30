@@ -26,10 +26,10 @@ namespace DesktopMagic
 
         private readonly Dictionary<PluginMetadata, Type> builtInPlugins = new()
         {
-            {new((string)App.GetLanguageDictionary()["musicVisualizer"], 1), typeof(MusicVisualizerPlugin)},
-            {new((string)App.GetLanguageDictionary()["time"],2), typeof(TimePlugin)},
-            {new((string)App.GetLanguageDictionary()["date"],3), typeof(DatePlugin)},
-            {new((string)App.GetLanguageDictionary()["cpuUsage"], 4), typeof(CpuMonitorPlugin)}
+            {new((string)App.LanguageDictionary["musicVisualizer"], 1), typeof(MusicVisualizerPlugin)},
+            {new((string)App.LanguageDictionary["time"],2), typeof(TimePlugin)},
+            {new((string)App.LanguageDictionary["date"],3), typeof(DatePlugin)},
+            {new((string)App.LanguageDictionary["cpuUsage"], 4), typeof(CpuMonitorPlugin)}
         };
 
         private bool loaded = false;
@@ -58,17 +58,17 @@ namespace DesktopMagic
                 {
                     Items =
                     {
-                        new System.Windows.Forms.ToolStripMenuItem((string)App.GetLanguageDictionary()["open"], null, (s, e) => RestoreWindow()),
-                        new System.Windows.Forms.ToolStripMenuItem((string)App.GetLanguageDictionary()["toggleEditMode"], null, (s, e) => { EditCheckBox.IsChecked = !EditCheckBox.IsChecked; EditCheckBox_Click(null, null); }),
-                        new System.Windows.Forms.ToolStripMenuItem((string)App.GetLanguageDictionary()["pluginManager"], null, (s, e) => PluginManagerButton_Click(null!, null!)),
+                        new System.Windows.Forms.ToolStripMenuItem((string)App.LanguageDictionary["open"], null, (s, e) => RestoreWindow()),
+                        new System.Windows.Forms.ToolStripMenuItem((string)App.LanguageDictionary    ["toggleEditMode"], null, (s, e) => { EditCheckBox.IsChecked = !EditCheckBox.IsChecked; EditCheckBox_Click(null, null); }),
+                        new System.Windows.Forms.ToolStripMenuItem((string)App.LanguageDictionary["pluginManager"], null, (s, e) => PluginManagerButton_Click(null!, null!)),
                         new System.Windows.Forms.ToolStripMenuItem("GitHub", null, (s, e) => GitHubButton_Click(null!, null!)),
-                        new System.Windows.Forms.ToolStripMenuItem((string)App.GetLanguageDictionary()["quit"], null, (s, e) => Quit()),
+                        new System.Windows.Forms.ToolStripMenuItem((string)App.LanguageDictionary["quit"], null, (s, e) => Quit()),
                     }
                 };
 
                 InitializeComponent();
 
-                Resources.MergedDictionaries.Add(App.GetLanguageDictionary());
+                Resources.MergedDictionaries.Add(App.LanguageDictionary);
 
 #if DEBUG
                 Title = $"{App.AppName} - Dev {System.Windows.Forms.Application.ProductVersion}";

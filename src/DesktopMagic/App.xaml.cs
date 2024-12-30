@@ -66,6 +66,26 @@ public partial class App : Application
         }
     };
 
+    public static ResourceDictionary LanguageDictionary
+    {
+        get
+        {
+            ResourceDictionary dict = [];
+            string currentCulture = Thread.CurrentThread.CurrentUICulture.ToString();
+
+            if (currentCulture.Contains("de"))
+            {
+                dict.Source = new Uri("..\\Resources\\Strings\\StringResources.de.xaml", UriKind.Relative);
+            }
+            else
+            {
+                dict.Source = new Uri("..\\Resources\\Strings\\StringResources.en.xaml", UriKind.Relative);
+            }
+
+            return dict;
+        }
+    }
+
     private static string PreviousApplicationDataPath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "StoneRed", PreviousAppName);
 
     public App()
@@ -96,23 +116,6 @@ public partial class App : Application
             Setup(true);
             Exit += CloseHandler;
         }
-    }
-
-    public static ResourceDictionary GetLanguageDictionary()
-    {
-        ResourceDictionary dict = [];
-        string currentCulture = Thread.CurrentThread.CurrentUICulture.ToString();
-
-        if (currentCulture.Contains("de"))
-        {
-            dict.Source = new Uri("..\\Resources\\Strings\\StringResources.de.xaml", UriKind.Relative);
-        }
-        else
-        {
-            dict.Source = new Uri("..\\Resources\\Strings\\StringResources.en.xaml", UriKind.Relative);
-        }
-
-        return dict;
     }
 
     protected void CloseHandler(object sender, EventArgs e)

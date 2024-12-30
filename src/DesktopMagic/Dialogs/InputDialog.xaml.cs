@@ -14,7 +14,7 @@ public partial class InputDialog : Window
     {
         InitializeComponent();
 
-        Resources.MergedDictionaries.Add(App.GetLanguageDictionary());
+        Resources.MergedDictionaries.Add(App.LanguageDictionary);
 
         label.Content = content;
         Title = title;

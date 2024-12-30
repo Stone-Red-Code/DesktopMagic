@@ -44,7 +44,7 @@ public partial class PluginManager : Window
     {
         InitializeComponent();
 
-        Resources.MergedDictionaries.Add(App.GetLanguageDictionary());
+        Resources.MergedDictionaries.Add(App.LanguageDictionary);
 
         DataContext = pluginManagerDataContext;
         searchTimer.Tick += async (sender, e) =>

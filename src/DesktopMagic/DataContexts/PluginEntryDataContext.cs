@@ -22,9 +22,9 @@ internal class PluginEntryDataContext(PluginMetadata pluginMetadata, ICommand co
 
     public string? Description => pluginMetadata.Description;
 
-    public string Author => pluginMetadata.Author ?? (string)App.GetLanguageDictionary()["unknown"];
+    public string Author => pluginMetadata.Author ?? (string)App.LanguageDictionary["unknown"];
 
-    public string? Version => pluginMetadata.Version ?? (string)App.GetLanguageDictionary()["unknown"];
+    public string? Version => pluginMetadata.Version ?? (string)App.LanguageDictionary["unknown"];
 
     public string? Logo => pluginMetadata.IconUri?.ToString();
 
@@ -43,7 +43,7 @@ internal class PluginEntryDataContext(PluginMetadata pluginMetadata, ICommand co
         {
             if (string.IsNullOrWhiteSpace(pluginMetadata.ProfileUri?.ToString()))
             {
-                return new(PackIconKind.FolderOutline, (string)App.GetLanguageDictionary()["folder"], path is not null, new CommandHandler(() => Process.Start("explorer.exe", path!)));
+                return new(PackIconKind.FolderOutline, (string)App.LanguageDictionary["folder"], path is not null, new CommandHandler(() => Process.Start("explorer.exe", path!)));
             }
             else
             {
@@ -80,8 +80,8 @@ internal class PluginEntryDataContext(PluginMetadata pluginMetadata, ICommand co
     {
         return mode switch
         {
-            Mode.Install => (string)App.GetLanguageDictionary()["install"],
-            Mode.Uninstall => (string)App.GetLanguageDictionary()["uninstall"],
+            Mode.Install => (string)App.LanguageDictionary["install"],
+            Mode.Uninstall => (string)App.LanguageDictionary["uninstall"],
             _ => throw new NotImplementedException()
         };
     }
