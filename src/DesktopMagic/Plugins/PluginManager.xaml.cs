@@ -20,6 +20,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
+using System.Xml.Linq;
 
 using File = System.IO.File;
 using Path = System.IO.Path;
@@ -325,7 +326,7 @@ public class {pluginSafeName}Plugin : Plugin
 {{
     public override Bitmap Main()
     {{
-        Bitmap bmp = new Bitmap(1000, 1000);
+        Bitmap bmp = new Bitmap(2000, 1000);
 
         using (Graphics g = Graphics.FromImage(bmp))
         {{
@@ -341,7 +342,57 @@ public class {pluginSafeName}Plugin : Plugin
 }}
 ";
 
+        // Update the .csproj file
+
+        string csprojPath = Path.Combine(pluginProjectPath, $"{pluginSafeName}.csproj");
+
         File.WriteAllText(Path.Combine(pluginProjectPath, $"{pluginSafeName}.cs"), code);
+
+        XDocument doc = XDocument.Load(csprojPath);
+        XElement? propertyGroup = doc.Root?.Element("PropertyGroup");
+
+        if (propertyGroup is not null)
+        {
+            XElement? outputPathElement = propertyGroup.Element("OutputPath");
+
+            if (outputPathElement is not null)
+            {
+                outputPathElement.Value = pluginPath;
+            }
+            else
+            {
+                propertyGroup.Add(new XElement("OutputPath", pluginPath));
+            }
+
+            XElement? appendTargetFrameworkToOutputPathElement = propertyGroup.Element("AppendTargetFrameworkToOutputPath");
+
+            if (appendTargetFrameworkToOutputPathElement is not null)
+            {
+                appendTargetFrameworkToOutputPathElement.Value = "false";
+            }
+            else
+            {
+                propertyGroup.Add(new XElement("AppendTargetFrameworkToOutputPath", "false"));
+            }
+
+            XElement? targetNameElement = propertyGroup.Element("TargetName");
+
+            if (targetNameElement is not null)
+            {
+                targetNameElement.Value = "main";
+            }
+            else
+            {
+                propertyGroup.Add(new XElement("TargetName", "main"));
+            }
+
+            doc.Save(csprojPath);
+        }
+        else
+        {
+            _ = MessageBox.Show("PropertyGroup element not found in .csproj", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            return;
+        }
 
         // Open the project in the default IDE
 
@@ -356,7 +407,7 @@ public class {pluginSafeName}Plugin : Plugin
         ProcessStartInfo psi = new ProcessStartInfo
         {
             FileName = associatedProgram,
-            Arguments = Path.Combine(pluginProjectPath, $"{pluginSafeName}.csproj"),
+            Arguments = csprojPath,
         };
 
         _ = Process.Start(psi);
