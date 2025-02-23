@@ -1,4 +1,5 @@
 ﻿using DesktopMagic.DataContexts;
+using DesktopMagic.Dialogs;
 using DesktopMagic.Helpers;
 
 using Modio;
@@ -9,11 +10,13 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Net.Http;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
@@ -34,6 +37,7 @@ public partial class PluginManager : Window
 
     private readonly PluginManagerDataContext pluginManagerDataContext = new();
     private readonly string pluginsPath = Path.Combine(App.ApplicationDataPath, "Plugins");
+    private readonly string pluginDevelopmentPath = Path.Combine(App.ApplicationDataPath, "PluginDevelopment");
 
     private readonly DispatcherTimer searchTimer = new()
     {
@@ -124,6 +128,9 @@ public partial class PluginManager : Window
     {
         e.Cancel = pluginManagerDataContext.IsLoading;
     }
+
+    [GeneratedRegex(@"[^a-zA-Z0-9]")]
+    private static partial Regex IdentifierNameRegex();
 
     private async Task Install(Mod mod)
     {
@@ -234,5 +241,124 @@ public partial class PluginManager : Window
         }
 
         pluginManagerDataContext.IsSearching = false;
+    }
+
+    private void CreatePluginButton_Click(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            CreateNewPlugin();
+        }
+        catch (Exception ex)
+        {
+            App.Logger.LogError(ex.Message, source: "PluginManager");
+            _ = MessageBox.Show(ex.Message, "Plugin Manager", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+    }
+
+    private void CreateNewPlugin()
+    {
+        if (!FileUtilities.ExistsOnPath("dotnet.exe"))
+        {
+            _ = MessageBox.Show("The .NET SDK is required to create a plugin. Please install it and try again.", "Plugin Manager", MessageBoxButton.OK, MessageBoxImage.Error);
+            return;
+        }
+
+        string pluginGuid = Guid.NewGuid().ToString();
+        string pluginPath = Path.Combine(pluginsPath, pluginGuid);
+        uint pluginId = (uint)Random.Shared.Next(1000, 9999);
+
+        InputDialog inputDialog = new((string)FindResource("enterPluginName"), "Plugin Manager")
+        {
+            Owner = this,
+        };
+
+        if (inputDialog.ShowDialog() is not true)
+        {
+            return;
+        }
+
+        string pluginName = inputDialog.ResponseText;
+        string pluginSafeName = pluginName.ToLower().Replace("_", " ");
+
+        TextInfo info = CultureInfo.CurrentCulture.TextInfo;
+        pluginSafeName = info.ToTitleCase(pluginSafeName);
+        pluginSafeName = IdentifierNameRegex().Replace(pluginSafeName, "");
+
+        if (!Directory.Exists(pluginDevelopmentPath))
+        {
+            _ = Directory.CreateDirectory(pluginDevelopmentPath);
+        }
+
+        string pluginProjectPath = Path.Combine(pluginDevelopmentPath, pluginSafeName);
+
+        if (Directory.Exists(pluginProjectPath))
+        {
+            _ = MessageBox.Show("A plugin with the same name already exists. Please choose a different name.", "Plugin Manager", MessageBoxButton.OK, MessageBoxImage.Error);
+            return;
+        }
+
+        PluginMetadata pluginMetadata = new(pluginName, pluginId);
+
+        _ = Directory.CreateDirectory(pluginPath);
+        _ = Directory.CreateDirectory(pluginProjectPath);
+
+        string pluginMetadataPath = Path.Combine(pluginPath, "metadata.json");
+        File.WriteAllText(pluginMetadataPath, JsonSerializer.Serialize(pluginMetadata));
+
+        string cmd = $"new classlib -n {pluginSafeName} -o {pluginProjectPath} -f net8.0 --target-framework-override net8.0-windows7";
+        Process process = Process.Start("dotnet", cmd);
+        process.WaitForExit();
+
+        // Install the required NuGet packages
+        process = Process.Start("dotnet", $"add {pluginProjectPath} package DesktopMagic.Api");
+        process.WaitForExit();
+
+        File.Move(Path.Combine(pluginProjectPath, "Class1.cs"), Path.Combine(pluginProjectPath, $"{pluginSafeName}.cs"));
+
+        string code = $@"using DesktopMagic.Api;
+using System.Drawing;
+
+namespace {pluginSafeName};
+
+public class {pluginSafeName}Plugin : Plugin
+{{
+    public override Bitmap Main()
+    {{
+        Bitmap bmp = new Bitmap(1000, 1000);
+
+        using (Graphics g = Graphics.FromImage(bmp))
+        {{
+            g.Clear(Application.Theme.PrimaryColor); // Set the background color to the color specified in the DesktopMagic application.
+
+            g.DrawString(""Hello World"", new Font(Application.Theme.Font, 100), Brushes.Black, new PointF(0, 0)); // Draw ""Hello World"" to the image.
+        }}
+
+        bmp.SetResolution(300, 300); // Set DPI to avoid scaling issues.
+
+        return bmp; // Return the image.
+    }}
+}}
+";
+
+        File.WriteAllText(Path.Combine(pluginProjectPath, $"{pluginSafeName}.cs"), code);
+
+        // Open the project in the default IDE
+
+        string? associatedProgram = FileUtilities.GetAssociatedProgram(".csproj");
+
+        if (associatedProgram is null)
+        {
+            _ = Process.Start("explorer.exe", pluginProjectPath);
+            return;
+        }
+
+        ProcessStartInfo psi = new ProcessStartInfo
+        {
+            FileName = associatedProgram,
+            Arguments = Path.Combine(pluginProjectPath, $"{pluginSafeName}.csproj"),
+        };
+
+        _ = Process.Start(psi);
     }
 }

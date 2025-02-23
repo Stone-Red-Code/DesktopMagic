@@ -15,6 +15,8 @@
     <system:String x:Key="updatePlugins">Reload</system:String>
     <system:String x:Key="pluginsFolder">Plugins Folder</system:String>
     <system:String x:Key="pluginManager">Plugins Manager</system:String>
+    <system:String x:Key="createNewPlugin">Create New Plugin</system:String>
+    <system:String x:Key="enterPluginName">Enter plugin name</system:String>
     <system:String x:Key="color">Color:</system:String>
     <system:String x:Key="default">Default</system:String>
     <system:String x:Key="wantToCloseProgram">Do you really want to close the program?</system:String>
