@@ -418,7 +418,11 @@ namespace DesktopMagic
 
         private void ChangePrimaryColorButton_Click(object sender, RoutedEventArgs e)
         {
-            ColorDialog colorDialog = new ColorDialog("Set Primary Color", Settings.CurrentLayout.Theme.PrimaryColor);
+            ColorDialog colorDialog = new ColorDialog("Set Primary Color", Settings.CurrentLayout.Theme.PrimaryColor)
+            {
+                Owner = this
+            };
+
             if (colorDialog.ShowDialog() == true)
             {
                 Settings.CurrentLayout.Theme.PrimaryColor = colorDialog.ResultColor;
@@ -428,7 +432,11 @@ namespace DesktopMagic
 
         private void ChangeSecondaryColorButton_Click(object sender, RoutedEventArgs e)
         {
-            ColorDialog colorDialog = new ColorDialog("Set Secondary Color", Settings.CurrentLayout.Theme.SecondaryColor);
+            ColorDialog colorDialog = new ColorDialog("Set Secondary Color", Settings.CurrentLayout.Theme.SecondaryColor)
+            {
+                Owner = this
+            };
+
             if (colorDialog.ShowDialog() == true)
             {
                 Settings.CurrentLayout.Theme.SecondaryColor = colorDialog.ResultColor;
@@ -438,7 +446,11 @@ namespace DesktopMagic
 
         private void ChangeBackgroundColorButton_Click(object sender, RoutedEventArgs e)
         {
-            ColorDialog colorDialog = new ColorDialog("Set Background Color", Settings.CurrentLayout.Theme.BackgroundColor);
+            ColorDialog colorDialog = new ColorDialog("Set Background Color", Settings.CurrentLayout.Theme.BackgroundColor)
+            {
+                Owner = this
+            };
+
             if (colorDialog.ShowDialog() == true)
             {
                 Settings.CurrentLayout.Theme.BackgroundColor = colorDialog.ResultColor;
@@ -495,7 +507,11 @@ namespace DesktopMagic
 
         private void NewLayoutButton_Click(object sender, RoutedEventArgs e)
         {
-            InputDialog inputDialog = new((string)FindResource("enterLayoutName"));
+            InputDialog inputDialog = new((string)FindResource("enterLayoutName"))
+            {
+                Owner = this
+            };
+
             if (inputDialog.ShowDialog() == true)
             {
                 if (Settings.Layouts.Any(l => l.Name.Trim() == inputDialog.ResponseText.Trim()))
@@ -659,7 +675,11 @@ namespace DesktopMagic
 
         private void PluginManagerButton_Click(object sender, RoutedEventArgs e)
         {
-            PluginManager pluginManager = new PluginManager();
+            PluginManager pluginManager = new PluginManager
+            {
+                Owner = this
+            };
+
             pluginManager.ShowDialog();
             LoadPlugins();
             LoadLayout(Visibility != Visibility.Visible);
