@@ -9,6 +9,10 @@
     <system:String x:Key="unknown">Unknown</system:String>
     <system:String x:Key="open">Open</system:String>
     <system:String x:Key="quit">Quit</system:String>
+    <system:String x:Key="login">Log In</system:String>
+    <system:String x:Key="logout">Log Out</system:String>
+    <system:String x:Key="enterModIoEmail">Enter your mod.io account E-mail</system:String>
+    <system:String x:Key="enterModIoAccessToken">Enter your mod.io security code</system:String>
     <system:String x:Key="toggleEditMode">Toggle Edit Mode</system:String>
     <system:String x:Key="allPlugins">All Plugins</system:String>
     <system:String x:Key="installedPlugins">Installed Plugins</system:String>

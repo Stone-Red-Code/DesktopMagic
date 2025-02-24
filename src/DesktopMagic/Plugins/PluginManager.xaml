@@ -98,7 +98,13 @@
             <Border Grid.Row="3" Grid.ColumnSpan="2" Padding="0 5 0 0" BorderThickness="0 2 0 0" BorderBrush="DarkGray">
                 <DockPanel>
                     <Image Source="{StaticResource ModioLogoBlueDark}" Cursor="Hand" Height="30" MouseUp="Image_MouseUp" HorizontalAlignment="Left" />
-                    <Button HorizontalAlignment="Right" Click="CreatePluginButton_Click">
+                    <Button DockPanel.Dock="Right" HorizontalAlignment="Right" Click="LogInButton_Click">
+                        <StackPanel Orientation="Horizontal">
+                            <materialDesign:PackIcon Kind="Login" Margin="0 0 10 0" />
+                            <TextBlock Text="{Binding LoginButtonText}" />
+                        </StackPanel>
+                    </Button>
+                    <Button DockPanel.Dock="Right" HorizontalAlignment="Right" Margin="0 0 10 0" Click="CreatePluginButton_Click">
                         <StackPanel Orientation="Horizontal">
                             <materialDesign:PackIcon Kind="Add" Margin="0 0 10 0" />
                             <TextBlock Text="{DynamicResource createNewPlugin}" />

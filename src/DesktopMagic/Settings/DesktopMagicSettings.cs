@@ -37,6 +37,8 @@ internal class DesktopMagicSettings : INotifyPropertyChanged
         }
     }
 
+    public string? ModIoAccessToken { get; set; }
+
     protected void OnPropertyChanged([CallerMemberName] string? name = null)
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));

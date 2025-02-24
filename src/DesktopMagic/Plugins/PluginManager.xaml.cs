@@ -32,10 +32,9 @@ namespace DesktopMagic.Plugins;
 /// </summary>
 public partial class PluginManager : Window
 {
-    private const int modIoGameId = 5665;
-    private readonly Client client = new Client(new Credentials("88e6ea774c3a502b06114e7fee0829ac"));
+    private const int ModIoGameId = 5665;
+    private const string ModIoApiKey = "88e6ea774c3a502b06114e7fee0829ac";
     private readonly HttpClient httpClient = new();
-
     private readonly PluginManagerDataContext pluginManagerDataContext = new();
     private readonly string pluginsPath = Path.Combine(App.ApplicationDataPath, "Plugins");
     private readonly string pluginDevelopmentPath = Path.Combine(App.ApplicationDataPath, "PluginDevelopment");
@@ -45,11 +44,25 @@ public partial class PluginManager : Window
         Interval = TimeSpan.FromMilliseconds(300),
     };
 
+    private Client modIoClient;
+
     public PluginManager()
     {
         InitializeComponent();
 
         Resources.MergedDictionaries.Add(App.LanguageDictionary);
+
+        string? modIoAccessToken = MainWindowDataContext.GetSettings().ModIoAccessToken;
+
+        if (modIoAccessToken is null)
+        {
+            modIoClient = new Client(new Credentials(ModIoApiKey));
+        }
+        else
+        {
+            modIoClient = new Client(new Credentials(ModIoApiKey, modIoAccessToken));
+            pluginManagerDataContext.IsAuthenticated = true;
+        }
 
         DataContext = pluginManagerDataContext;
         searchTimer.Tick += async (sender, e) =>
@@ -59,7 +72,7 @@ public partial class PluginManager : Window
         };
     }
 
-    public void Remove(string pluginPath, uint? id)
+    public async Task Remove(string pluginPath, uint id)
     {
         pluginManagerDataContext.IsLoading = true;
 
@@ -83,6 +96,11 @@ public partial class PluginManager : Window
             _ = pluginManagerDataContext.InstalledPlugins.Remove(pluginEntryDataContext);
         }
 
+        if (pluginManagerDataContext.IsAuthenticated)
+        {
+            await modIoClient.Games[ModIoGameId].Mods.Unsubscribe(id);
+        }
+
         pluginManagerDataContext.IsLoading = false;
     }
 
@@ -104,14 +122,14 @@ public partial class PluginManager : Window
 
             if (pluginMetadata is not null)
             {
-                pluginManagerDataContext.InstalledPlugins.Add(new PluginEntryDataContext(pluginMetadata, new CommandHandler(() => Remove(pluginPath, pluginMetadata.Id)), PluginEntryDataContext.Mode.Uninstall, pluginPath));
+                pluginManagerDataContext.InstalledPlugins.Add(new PluginEntryDataContext(pluginMetadata, new CommandHandler(async () => await Remove(pluginPath, pluginMetadata.Id)), PluginEntryDataContext.Mode.Uninstall, pluginPath));
                 _ = pluginIds.Add(pluginMetadata.Id);
             }
         }
 
         Filter filter = ModFilter.Popular.Desc().Limit(100);
 
-        IAsyncEnumerable<Mod> mods = client.Games[modIoGameId].Mods.Search(filter).ToEnumerable();
+        IAsyncEnumerable<Mod> mods = modIoClient.Games[ModIoGameId].Mods.Search(filter).ToEnumerable();
         await foreach (Mod mod in mods)
         {
             if (pluginIds.Contains(mod.Id))
@@ -121,6 +139,8 @@ public partial class PluginManager : Window
 
             pluginManagerDataContext.AllPlugins.Add(new PluginEntryDataContext(new(mod), new CommandHandler(async () => await Install(mod)), PluginEntryDataContext.Mode.Install));
         }
+
+        await SyncPlugins();
 
         pluginManagerDataContext.IsLoading = false;
     }
@@ -165,7 +185,7 @@ public partial class PluginManager : Window
 
         if (!File.Exists(Path.Combine(pluginPath, "main.dll")))
         {
-            Remove(pluginPath, mod.Id);
+            _ = Remove(pluginPath, mod.Id);
             pluginManagerDataContext.IsLoading = false;
             _ = MessageBox.Show("The plugin you are trying to install does not contain a \"main.dll\" file. Please contact the plugin author.", "Plugin Manager", MessageBoxButton.OK, MessageBoxImage.Error);
             return;
@@ -178,7 +198,12 @@ public partial class PluginManager : Window
             _ = pluginManagerDataContext.AllPlugins.Remove(pluginEntryDataContext);
         }
 
-        pluginManagerDataContext.InstalledPlugins.Add(new PluginEntryDataContext(new PluginMetadata(mod), new CommandHandler(() => Remove(pluginPath, mod.Id)), PluginEntryDataContext.Mode.Uninstall));
+        if (pluginManagerDataContext.IsAuthenticated)
+        {
+            await modIoClient.Games[ModIoGameId].Mods.Subscribe(mod.Id);
+        }
+
+        pluginManagerDataContext.InstalledPlugins.Add(new PluginEntryDataContext(new PluginMetadata(mod), new CommandHandler(async () => await Remove(pluginPath, mod.Id)), PluginEntryDataContext.Mode.Uninstall, pluginPath));
 
         pluginManagerDataContext.IsLoading = false;
     }
@@ -230,7 +255,7 @@ public partial class PluginManager : Window
 
         Filter filter = ModFilter.Name.Like($"{searchString}").And(ModFilter.Popular.Desc()).Limit(100);
 
-        IAsyncEnumerable<Mod> mods = client.Games[modIoGameId].Mods.Search(filter).ToEnumerable();
+        IAsyncEnumerable<Mod> mods = modIoClient.Games[ModIoGameId].Mods.Search(filter).ToEnumerable();
         await foreach (Mod mod in mods)
         {
             if (pluginManagerDataContext.InstalledPlugins.Any(p => p.Id == mod.Id))
@@ -274,7 +299,7 @@ public partial class PluginManager : Window
             Owner = this,
         };
 
-        if (inputDialog.ShowDialog() is not true)
+        if (inputDialog.ShowDialog() != true)
         {
             return;
         }
@@ -411,5 +436,113 @@ public class {pluginSafeName}Plugin : Plugin
         };
 
         _ = Process.Start(psi);
+    }
+
+    private async void LogInButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (pluginManagerDataContext.IsAuthenticated)
+        {
+            MainWindowDataContext.GetSettings().ModIoAccessToken = null;
+            pluginManagerDataContext.IsAuthenticated = false;
+            return;
+        }
+
+        try
+        {
+            InputDialog inputDialog = new((string)FindResource("enterModIoEmail"), "Plugin Manager")
+            {
+                Owner = this,
+            };
+
+            if (inputDialog.ShowDialog() != true)
+            {
+                return;
+            }
+
+            await modIoClient.Auth.RequestCode(ModIoApiKey, inputDialog.ResponseText);
+
+            inputDialog = new((string)FindResource("enterModIoAccessToken"), "Plugin Manager")
+            {
+                Owner = this,
+            };
+
+            if (inputDialog.ShowDialog() != true)
+            {
+                return;
+            }
+
+            pluginManagerDataContext.IsLoading = true;
+
+            AccessToken accessToken = await modIoClient.Auth.SecurityCode(ModIoApiKey, inputDialog.ResponseText);
+
+            if (accessToken.Value is not null)
+            {
+                modIoClient = new Client(new Credentials(ModIoApiKey, accessToken.Value));
+            }
+
+            MainWindowDataContext.GetSettings().ModIoAccessToken = accessToken.Value;
+            pluginManagerDataContext.IsAuthenticated = true;
+
+            foreach (PluginEntryDataContext plugin in pluginManagerDataContext.InstalledPlugins)
+            {
+                if (!plugin.IsLocalPlugin)
+                {
+                    try
+                    {
+                        await modIoClient.Games[ModIoGameId].Mods.Subscribe(plugin.Id);
+                    }
+                    catch (Exception ex)
+                    {
+                        App.Logger.LogError(ex.Message, source: "PluginManager");
+                    }
+                }
+            }
+
+            await SyncPlugins();
+        }
+        catch (Exception ex)
+        {
+            App.Logger.LogError(ex.Message, source: "PluginManager");
+            _ = MessageBox.Show(ex.Message, "Plugin Manager", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+
+        pluginManagerDataContext.IsLoading = false;
+    }
+
+    private async Task SyncPlugins()
+    {
+        if (!pluginManagerDataContext.IsAuthenticated)
+        {
+            return;
+        }
+
+        IReadOnlyList<Mod> mods = await modIoClient.User.GetSubscriptions(ModFilter.GameId.Eq(ModIoGameId)).ToList();
+
+        List<PluginEntryDataContext> pluginsToRemove = [];
+
+        foreach (PluginEntryDataContext plugin in pluginManagerDataContext.InstalledPlugins)
+        {
+            if (!plugin.IsLocalPlugin && !mods.Any(m => m.Id == plugin.Id))
+            {
+                pluginsToRemove.Add(plugin);
+            }
+        }
+
+        foreach (PluginEntryDataContext plugin in pluginsToRemove)
+        {
+            if (plugin.Path is null)
+            {
+                continue;
+            }
+
+            await Remove(plugin.Path, plugin.Id);
+        }
+
+        IEnumerable<Mod> notInstalledMods = mods.Where(m => !pluginManagerDataContext.InstalledPlugins.Any(p => p.Id == m.Id));
+
+        foreach (Mod mod in notInstalledMods)
+        {
+            await Install(mod);
+        }
     }
 }
