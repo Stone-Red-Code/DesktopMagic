@@ -50,7 +50,7 @@ internal class PluginEntryDataContext(PluginMetadata pluginMetadata, ICommand co
             }
             else
             {
-                return new(PackIconKind.ExternalLink, "mod.io", true, new CommandHandler(OpenModioPage));
+                return new(PackIconKind.ExternalLink, "mod.io", true, new CommandHandler(OpenModIoPage));
             }
         }
     }
@@ -68,7 +68,7 @@ internal class PluginEntryDataContext(PluginMetadata pluginMetadata, ICommand co
 
     public Visibility Visibility => IsVisible ? Visibility.Visible : Visibility.Collapsed;
 
-    private void OpenModioPage()
+    private void OpenModIoPage()
     {
         ProcessStartInfo psi = new ProcessStartInfo
         {
