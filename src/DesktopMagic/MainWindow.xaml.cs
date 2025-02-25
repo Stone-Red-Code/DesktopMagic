@@ -59,7 +59,7 @@ namespace DesktopMagic
                     Items =
                     {
                         new System.Windows.Forms.ToolStripMenuItem((string)App.LanguageDictionary["open"], null, (s, e) => RestoreWindow()),
-                        new System.Windows.Forms.ToolStripMenuItem((string)App.LanguageDictionary    ["toggleEditMode"], null, (s, e) => { EditCheckBox.IsChecked = !EditCheckBox.IsChecked; EditCheckBox_Click(null, null); }),
+                        new System.Windows.Forms.ToolStripMenuItem((string)App.LanguageDictionary["toggleEditMode"], null, (s, e) => { editCheckBox.IsChecked = !editCheckBox.IsChecked; EditCheckBox_Click(null, null); }),
                         new System.Windows.Forms.ToolStripMenuItem((string)App.LanguageDictionary["pluginManager"], null, (s, e) => PluginManagerButton_Click(null!, null!)),
                         new System.Windows.Forms.ToolStripMenuItem("GitHub", null, (s, e) => GitHubButton_Click(null!, null!)),
                         new System.Windows.Forms.ToolStripMenuItem((string)App.LanguageDictionary["quit"], null, (s, e) => Quit()),
@@ -174,7 +174,7 @@ namespace DesktopMagic
         {
             foreach (PluginWindow window in Windows)
             {
-                window.SetEditMode(EditCheckBox.IsChecked == true);
+                window.SetEditMode(editCheckBox.IsChecked == true);
             }
 
             SaveSettings();
@@ -264,7 +264,7 @@ namespace DesktopMagic
 
             window.ShowInTaskbar = false;
             window.Show();
-            window.SetEditMode(EditCheckBox.IsChecked == true);
+            window.SetEditMode(editCheckBox.IsChecked == true);
             window.ContentRendered += DisplayWindow_ContentRendered;
             window.Closing += DisplayWindow_Closing;
             Windows.Add(window);
@@ -284,9 +284,10 @@ namespace DesktopMagic
             {
                 e.Cancel = true;
 
-                EditCheckBox.IsChecked = false;
+                editCheckBox.IsChecked = false;
                 EditCheckBox_Click(null, null);
                 ShowInTaskbar = false;
+                WindowState = WindowState.Minimized;
                 Visibility = Visibility.Collapsed;
 
                 foreach (Window item in Windows)
@@ -588,7 +589,7 @@ namespace DesktopMagic
                 window.Close();
             }
 
-            EditCheckBox.IsChecked = false;
+            editCheckBox.IsChecked = false;
             EditCheckBox_Click(null, null);
             blockWindowsClosing = true;
             Windows.Clear();

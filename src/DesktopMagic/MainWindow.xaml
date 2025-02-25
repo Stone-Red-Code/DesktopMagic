@@ -38,7 +38,7 @@
                     <DockPanel Margin="0,0,2.5,0">
                         <Grid DockPanel.Dock="Top">
                             <Rectangle Grid.Row="1" Fill="#FFECECEC" Height="24" />
-                            <CheckBox x:Name="EditCheckBox" VerticalAlignment="Center" Grid.Row="1" Content="{DynamicResource edit}" Click="EditCheckBox_Click" Foreground="Black" BorderBrush="#FF323232" Style="{StaticResource MaterialDesignDarkCheckBox}" IsChecked="True" />
+                            <CheckBox x:Name="editCheckBox" VerticalAlignment="Center" Grid.Row="1" Content="{DynamicResource edit}" Click="EditCheckBox_Click" Foreground="Black" BorderBrush="#FF323232" Style="{StaticResource MaterialDesignDarkCheckBox}" IsChecked="True" />
                         </Grid>
                         <ScrollViewer Background="#FFBBBBBB" PreviewMouseWheel="ScrollViewer_PreviewMouseWheel">
                             <ItemsControl ItemsSource="{Binding Settings.CurrentLayout.Plugins}">
