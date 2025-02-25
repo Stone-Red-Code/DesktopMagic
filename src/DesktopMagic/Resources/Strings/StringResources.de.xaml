@@ -6,6 +6,7 @@
     <system:String x:Key="lineMode">Linie</system:String>
     <system:String x:Key="mirrorMode">Spiegeln</system:String>
     <system:String x:Key="folder">Ordner</system:String>
+    <system:String x:Key="autoStart">Starten beim Hochfahren</system:String>
     <system:String x:Key="unknown">Unbekannt</system:String>
     <system:String x:Key="open">Öffnen</system:String>
     <system:String x:Key="quit">Schließen</system:String>

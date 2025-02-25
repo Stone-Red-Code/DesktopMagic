@@ -1,4 +1,5 @@
-﻿using DesktopMagic.Settings;
+﻿using DesktopMagic.Helpers;
+using DesktopMagic.Settings;
 
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
@@ -28,6 +29,23 @@ internal class MainWindowDataContext : INotifyPropertyChanged
         set
         {
             isLoading = value;
+            OnPropertyChanged();
+        }
+    }
+
+    public bool IsAutoStartEnabled
+    {
+        get => StartupManager.IsAutoStartEnabled();
+        set
+        {
+            if (value)
+            {
+                _ = StartupManager.EnableAutoStart();
+            }
+            else
+            {
+                _ = StartupManager.DisableAutoStart();
+            }
             OnPropertyChanged();
         }
     }

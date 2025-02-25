@@ -6,6 +6,7 @@
     <system:String x:Key="lineMode">Line</system:String>
     <system:String x:Key="mirrorMode">Mirror</system:String>
     <system:String x:Key="folder">Folder</system:String>
+    <system:String x:Key="autoStart">Launch on startup</system:String>
     <system:String x:Key="unknown">Unknown</system:String>
     <system:String x:Key="open">Open</system:String>
     <system:String x:Key="quit">Quit</system:String>

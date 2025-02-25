@@ -161,6 +161,7 @@
                             </Button>
                         </StackPanel>
                         <StackPanel Grid.Column="2" Margin="{StaticResource DefaultMargin}" VerticalAlignment="Bottom">
+                            <CheckBox x:Name="autoStartCheckBox" Content="{DynamicResource autoStart}" Foreground="Black" BorderBrush="#FF323232" Margin="0,0,0,5" Width="170" Height="20" Style="{StaticResource MaterialDesignDarkCheckBox}" IsChecked="{Binding IsAutoStartEnabled}" />
                             <Button x:Name="downloadPluginsButton" Margin="0,0,0,5" HorizontalAlignment="Right" Width="170" Click="PluginManagerButton_Click"  FontWeight="Regular" Cursor="Hand">
                                 <StackPanel Orientation="Horizontal">
                                     <materialDesign:PackIcon Kind="ExtensionOutline" Margin="0 0 10 0" />
