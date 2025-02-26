@@ -94,6 +94,7 @@ public partial class PluginWindow : Window
     {
         if (enabled)
         {
+            Topmost = true;
             panel.Visibility = Visibility.Visible;
             imageBorder.BorderThickness = new Thickness(3);
             image.Margin = new(-3);
@@ -103,9 +104,12 @@ public partial class PluginWindow : Window
         }
         else
         {
+            Topmost = false;
             panel.Visibility = Visibility.Collapsed;
             imageBorder.BorderThickness = new Thickness(0);
             image.Margin = new Thickness(0);
+            WindowPos.SendWpfWindowBack(this);
+            WindowPos.SendWpfWindowBack(this);
             WindowPos.SetIsLocked(this, true);
             tileBar.CaptionHeight = 0;
             ResizeMode = ResizeMode.NoResize;

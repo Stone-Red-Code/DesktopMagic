@@ -159,17 +159,6 @@ namespace DesktopMagic
 
         #region Windows
 
-        private static void DisplayWindow_ContentRendered(object? sender, EventArgs e)
-        {
-            if (sender is not Window window)
-            {
-                return;
-            }
-
-            WindowPos.SendWpfWindowBack(window);
-            WindowPos.SendWpfWindowBack(window);
-        }
-
         private void EditCheckBox_Click(object? sender, RoutedEventArgs? e)
         {
             foreach (PluginWindow window in Windows)
@@ -265,7 +254,6 @@ namespace DesktopMagic
             window.ShowInTaskbar = false;
             window.Show();
             window.SetEditMode(editCheckBox.IsChecked == true);
-            window.ContentRendered += DisplayWindow_ContentRendered;
             window.Closing += DisplayWindow_Closing;
             Windows.Add(window);
             WindowNames.Add(window.Title);
@@ -289,12 +277,6 @@ namespace DesktopMagic
                 ShowInTaskbar = false;
                 WindowState = WindowState.Minimized;
                 Visibility = Visibility.Collapsed;
-
-                foreach (Window item in Windows)
-                {
-                    WindowPos.SendWpfWindowBack(item);
-                    WindowPos.SendWpfWindowBack(item);
-                }
             }
         }
 
