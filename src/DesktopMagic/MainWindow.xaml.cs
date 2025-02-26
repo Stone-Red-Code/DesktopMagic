@@ -245,8 +245,14 @@ namespace DesktopMagic
                     window.PluginLoaded -= onPluginLoaded;
                 });
             };
+
             window.OnExit += () =>
             {
+                Windows.Remove(window);
+                WindowNames.Remove(window.Title);
+                blockWindowsClosing = false;
+                window.Close();
+                blockWindowsClosing = true;
                 pluginSettings.Enabled = false;
             };
             window.PluginLoaded += onPluginLoaded;
