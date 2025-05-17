@@ -48,8 +48,6 @@ public partial class PluginManager : Window
 
     public PluginManager()
     {
-        InitializeComponent();
-
         Resources.MergedDictionaries.Add(App.LanguageDictionary);
 
         string? modIoAccessToken = MainWindowDataContext.GetSettings().ModIoAccessToken;
@@ -63,6 +61,8 @@ public partial class PluginManager : Window
             modIoClient = new Client(new Credentials(ModIoApiKey, modIoAccessToken));
             pluginManagerDataContext.IsAuthenticated = true;
         }
+
+        InitializeComponent();
 
         DataContext = pluginManagerDataContext;
         searchTimer.Tick += async (sender, e) =>
