@@ -14,13 +14,17 @@ public partial class App : Application
 {
     public const string AppGuid = "{{61FE5CE9-47C3-4255-A1F4-5BCF4ACA0879}";
 
-    public const string AppName = "Desktop Magic";
+    public const string AppName = "DesktopMagic";
+
+    // This is the previous name of the application, used to migrate the application data folder
+    private const string PreviousAppName = "Desktop Magic";
 
     private static readonly string logFilePath = Path.Combine(ApplicationDataPath, $"{AppName}.log");
-
     private readonly Thread? eventThread;
-
     private readonly EventWaitHandle eventWaitHandle;
+    public static string ApplicationDataPath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "StoneRed", AppName);
+
+    public static string PluginsPath => Path.Combine(ApplicationDataPath, "Plugins");
 
     public static Logger Logger { get; } = new Logger()
     {
@@ -62,33 +66,51 @@ public partial class App : Application
         }
     };
 
-    public static string ApplicationDataPath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "StoneRed", AppName);
+    public static ResourceDictionary LanguageDictionary
+    {
+        get
+        {
+            ResourceDictionary dict = [];
+            string currentCulture = Thread.CurrentThread.CurrentUICulture.ToString();
+
+            if (currentCulture.Contains("de"))
+            {
+                dict.Source = new Uri("..\\Resources\\Strings\\StringResources.de.xaml", UriKind.Relative);
+            }
+            else
+            {
+                dict.Source = new Uri("..\\Resources\\Strings\\StringResources.en.xaml", UriKind.Relative);
+            }
+
+            return dict;
+        }
+    }
+
+    private static string PreviousApplicationDataPath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "StoneRed", PreviousAppName);
 
     public App()
     {
         // Setup global event handler
         eventWaitHandle = new EventWaitHandle(false, EventResetMode.AutoReset, AppGuid, out bool createdNew);
 
-        //check if creating new was successful
+        // Check if creating new was successful
         if (!createdNew)
         {
             Setup(false);
             Logger.LogWarn("Shutting down because other instance already running.", source: "Setup");
-            //Shutdown Application
+            // Shutdown Application
             _ = eventWaitHandle.Set();
             Current.Shutdown();
         }
         else
         {
-            eventThread = new Thread(
-                () =>
+            eventThread = new Thread(() =>
+            {
+                while (eventWaitHandle.WaitOne())
                 {
-                    while (eventWaitHandle.WaitOne())
-                    {
-                        _ = Current.Dispatcher.BeginInvoke(
-                            () => ((MainWindow)Current.MainWindow).RestoreWindow());
-                    }
-                });
+                    _ = Current.Dispatcher.BeginInvoke(() => ((MainWindow)Current.MainWindow).RestoreWindow());
+                }
+            });
             eventThread.Start();
 
             Setup(true);
@@ -102,21 +124,39 @@ public partial class App : Application
         eventThread?.Interrupt();
     }
 
-    private void Setup(bool clearLogFile)
+    private static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
+    {
+        Exception exception = (Exception)e.ExceptionObject;
+        Logger.LogFatal(exception + (e.IsTerminating ? "\t Process terminating!" : ""), source: exception.Source ?? "Unknown");
+    }
+
+    private static void Setup(bool clearLogFile)
     {
         AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
 
         try
         {
+            if (Directory.Exists(PreviousApplicationDataPath) && !Directory.Exists(ApplicationDataPath))
+            {
+                Directory.Move(PreviousApplicationDataPath, ApplicationDataPath);
+                Logger.LogInfo("Migrated ApplicationData folder", source: "Setup");
+            }
+
             if (!Directory.Exists(ApplicationDataPath))
             {
                 _ = Directory.CreateDirectory(ApplicationDataPath);
+                Logger.LogInfo("Created ApplicationData folder", source: "Setup");
             }
-            Logger.LogInfo("Created ApplicationData Folder", source: "Main");
+
+            if (!Directory.Exists(PluginsPath))
+            {
+                _ = Directory.CreateDirectory(PluginsPath);
+                Logger.LogInfo("Created Plugins folder", source: "Setup");
+            }
         }
         catch (Exception ex)
         {
-            _ = MessageBox.Show(ex.ToString());
+            _ = MessageBox.Show(ex.ToString(), AppName, MessageBoxButton.OK, MessageBoxImage.Error);
             Logger.Log(ex.Message, "Setup", LogSeverity.Error);
         }
 
@@ -126,11 +166,5 @@ public partial class App : Application
         }
 
         Logger.LogInfo("Setup complete", source: "Setup");
-    }
-
-    private void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
-    {
-        Exception exception = (Exception)e.ExceptionObject;
-        Logger.LogFatal(exception + (e.IsTerminating ? "\t Process terminating!" : ""), source: exception.Source ?? "Unknown");
     }
 }

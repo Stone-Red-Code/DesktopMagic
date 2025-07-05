@@ -1,7 +1,5 @@
 ﻿using DesktopMagic.Helpers;
 
-using System;
-using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -17,12 +15,14 @@ public partial class ColorDialog : Window
 
     public Brush ResultBrush { get; private set; } = Brushes.Transparent;
 
-    public ColorDialog(string content, System.Drawing.Color defaultColor, string title = "ColorDialog")
+    public ColorDialog(string content, System.Drawing.Color defaultColor, string title = App.AppName)
     {
         InitializeComponent();
+
+        Resources.MergedDictionaries.Add(App.LanguageDictionary);
+
         label.Content = content;
         Title = title;
-        SetLanguageDictionary();
 
         alphaSlider.Value = defaultColor.A;
         redSlider.Value = defaultColor.R;
@@ -97,7 +97,7 @@ public partial class ColorDialog : Window
 
     private void SetColorText()
     {
-        if (alphaSlider.Value == 255)
+        if ((int)alphaSlider.Value == 255)
         {
             colorHexTextBox.Text = "#";
         }
@@ -107,21 +107,5 @@ public partial class ColorDialog : Window
         }
 
         colorHexTextBox.Text += ((int)redSlider.Value).ToString("X2") + ((int)greenSlider.Value).ToString("X2") + ((int)blueSlider.Value).ToString("X2");
-    }
-
-    private void SetLanguageDictionary()
-    {
-        ResourceDictionary dict = [];
-        string currentCulture = Thread.CurrentThread.CurrentCulture.ToString();
-
-        if (currentCulture.Contains("de"))
-        {
-            dict.Source = new Uri("..\\Resources\\Strings\\StringResources.de.xaml", UriKind.Relative);
-        }
-        else
-        {
-            dict.Source = new Uri("..\\Resources\\Strings\\StringResources.en.xaml", UriKind.Relative);
-        }
-        Resources.MergedDictionaries.Add(dict);
     }
 }

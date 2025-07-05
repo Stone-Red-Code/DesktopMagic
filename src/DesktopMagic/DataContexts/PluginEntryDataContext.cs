@@ -1,14 +1,18 @@
-﻿using DesktopMagic.Plugins;
+﻿using DesktopMagic.Helpers;
+using DesktopMagic.Plugins;
+
+using MaterialDesignThemes.Wpf;
 
 using System;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Input;
 
 namespace DesktopMagic.DataContexts;
 
-internal class PluginEntryDataContext(PluginMetadata pluginMetadata, ICommand command, bool installed = false) : INotifyPropertyChanged
+internal class PluginEntryDataContext(PluginMetadata pluginMetadata, ICommand command, PluginEntryDataContext.Mode mode, string? path = null) : INotifyPropertyChanged
 {
     public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -18,18 +22,38 @@ internal class PluginEntryDataContext(PluginMetadata pluginMetadata, ICommand co
 
     public string? Description => pluginMetadata.Description;
 
+    public string Author => pluginMetadata.Author ?? (string)App.LanguageDictionary["unknown"];
+
+    public string? Version => pluginMetadata.Version ?? (string)App.LanguageDictionary["unknown"];
+
     public string? Logo => pluginMetadata.IconUri?.ToString();
 
-    public DateTime? FormattedDateAdded => pluginMetadata.Added;
-    public DateTime? FormattedDateUpdated => pluginMetadata.Updated;
+    public DateTime? DateAdded => pluginMetadata.Added;
+    public DateTime? DateUpdated => pluginMetadata.Updated;
 
     public uint Id => pluginMetadata.Id;
 
+    public string? Path => path;
+
+    public bool IsLocalPlugin => string.IsNullOrWhiteSpace(pluginMetadata.ProfileUri?.ToString());
     public ICommand Command => command;
 
-    public Visibility InstallButtonVisibility => installed ? Visibility.Collapsed : Visibility.Visible;
+    public ButtonData InstallUninstallButtonData => new(mode == Mode.Install ? PackIconKind.Download : PackIconKind.Remove, GetInstallUninstallButtonText(), true, Command);
 
-    public Visibility RemoveButtonVisibility => installed ? Visibility.Visible : Visibility.Collapsed;
+    public ButtonData OpenButtonData
+    {
+        get
+        {
+            if (string.IsNullOrWhiteSpace(pluginMetadata.ProfileUri?.ToString()))
+            {
+                return new(PackIconKind.FolderOutline, (string)App.LanguageDictionary["folder"], path is not null, new CommandHandler(() => Process.Start("explorer.exe", path!)));
+            }
+            else
+            {
+                return new(PackIconKind.ExternalLink, "mod.io", true, new CommandHandler(OpenModIoPage));
+            }
+        }
+    }
 
     public bool IsVisible
     {
@@ -44,8 +68,37 @@ internal class PluginEntryDataContext(PluginMetadata pluginMetadata, ICommand co
 
     public Visibility Visibility => IsVisible ? Visibility.Visible : Visibility.Collapsed;
 
+    private void OpenModIoPage()
+    {
+        ProcessStartInfo psi = new ProcessStartInfo
+        {
+            UseShellExecute = true,
+            FileName = pluginMetadata.ProfileUri?.ToString() ?? path
+        };
+
+        _ = Process.Start(psi);
+    }
+
+    private string GetInstallUninstallButtonText()
+    {
+        return mode switch
+        {
+            Mode.Install => (string)App.LanguageDictionary["install"],
+            Mode.Uninstall => (string)App.LanguageDictionary["uninstall"],
+            _ => throw new NotImplementedException()
+        };
+    }
+
     private void OnPropertyChanged([CallerMemberName] string? propertyName = null)
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
+
+    public record ButtonData(PackIconKind IconKind, string Text, bool IsEnabled, ICommand Command);
+
+    public enum Mode
+    {
+        Install,
+        Uninstall
     }
 }

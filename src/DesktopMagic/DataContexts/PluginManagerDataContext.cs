@@ -12,6 +12,7 @@ internal class PluginManagerDataContext : INotifyPropertyChanged
     private string installedPluginsSearchText = string.Empty;
     private bool isLoading = true;
     private bool isSearching;
+    private bool isAuthenticated = false;
     public ObservableCollection<PluginEntryDataContext> AllPlugins { get; } = [];
     public ObservableCollection<PluginEntryDataContext> InstalledPlugins { get; } = [];
 
@@ -57,6 +58,19 @@ internal class PluginManagerDataContext : INotifyPropertyChanged
             OnPropertyChanged();
         }
     }
+
+    public bool IsAuthenticated
+    {
+        get => isAuthenticated;
+        set
+        {
+            isAuthenticated = value;
+            OnPropertyChanged();
+            OnPropertyChanged(nameof(LoginButtonText));
+        }
+    }
+
+    public string LoginButtonText => isAuthenticated ? (string)App.LanguageDictionary["logout"] : (string)App.LanguageDictionary["login"];
 
     protected void OnPropertyChanged([CallerMemberName] string? name = null)
     {

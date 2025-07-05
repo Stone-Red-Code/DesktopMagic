@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 
-namespace DesktopMagic.BuiltInWindowElements;
+namespace DesktopMagic.BuiltInPlugins;
 
 internal class MusicVisualizerPlugin : Plugin
 {

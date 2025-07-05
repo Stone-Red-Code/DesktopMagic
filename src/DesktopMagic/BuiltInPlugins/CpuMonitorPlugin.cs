@@ -7,7 +7,7 @@ using System.Drawing.Text;
 
 using SettingAttribute = DesktopMagic.Api.Settings.SettingAttribute;
 
-namespace DesktopMagic.BuiltInWindowElements;
+namespace DesktopMagic.BuiltInPlugins;
 
 internal class CpuMonitorPlugin : Plugin
 {

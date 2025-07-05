@@ -6,6 +6,9 @@
 bin/
 obj/
 
+# Project-specific files
+/src/DesktopMagicPluginAPI/DesktopMagicPluginAPI.xml
+
 # User-specific files
 *.rsuser
 *.suo

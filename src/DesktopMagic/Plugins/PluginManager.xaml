@@ -9,7 +9,7 @@
         xmlns:dataContexts="clr-namespace:DesktopMagic.DataContexts"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance Type=dataContexts:PluginManagerDataContext}"
-        Title="PluginManager"
+        Title="{DynamicResource pluginManager}"
         Height="450"
         Width="800"
         MinHeight="520"
@@ -31,7 +31,7 @@
                 <ColumnDefinition />
             </Grid.ColumnDefinitions>
 
-            <Label Content="All plugins" FontSize="20" />
+            <Label Content="{DynamicResource allPlugins}" FontSize="20" />
 
             <TextBox Grid.Row="1" Text="{Binding AllPluginsSearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TextChanged="AllPluginsSearchTextBox_TextChanged" materialDesign:HintAssist.Hint="Search..." materialDesign:TextFieldAssist.HasLeadingIcon="True"  materialDesign:TextFieldAssist.LeadingIcon="Search" />
 
@@ -64,7 +64,7 @@
                 </ScrollViewer>
             </busyIndicator:BusyMask>
 
-            <Label Grid.Column="1" Content="Installed plugins" FontSize="20" />
+            <Label Grid.Column="1" Content="{DynamicResource installedPlugins}" FontSize="20" />
 
             <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding InstalledPluginsSearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TextChanged="InstalledPluginsSearchTextBox_TextChanged" materialDesign:HintAssist.Hint="Search..." materialDesign:TextFieldAssist.HasLeadingIcon="True"  materialDesign:TextFieldAssist.LeadingIcon="Search" />
 
@@ -96,7 +96,21 @@
             </ScrollViewer>
 
             <Border Grid.Row="3" Grid.ColumnSpan="2" Padding="0 5 0 0" BorderThickness="0 2 0 0" BorderBrush="DarkGray">
-                <Image Source="{StaticResource ModioLogoBlueDark}" Cursor="Hand" Height="30" MouseUp="Image_MouseUp" HorizontalAlignment="Left" />
+                <DockPanel>
+                    <Image Source="{StaticResource ModioLogoBlueDark}" Cursor="Hand" Height="30" MouseUp="Image_MouseUp" HorizontalAlignment="Left" />
+                    <Button DockPanel.Dock="Right" HorizontalAlignment="Right" Click="LogInButton_Click">
+                        <StackPanel Orientation="Horizontal">
+                            <materialDesign:PackIcon Kind="Login" Margin="0 0 10 0" />
+                            <TextBlock Text="{Binding LoginButtonText}" />
+                        </StackPanel>
+                    </Button>
+                    <Button DockPanel.Dock="Right" HorizontalAlignment="Right" Margin="0 0 10 0" Click="CreatePluginButton_Click">
+                        <StackPanel Orientation="Horizontal">
+                            <materialDesign:PackIcon Kind="Add" Margin="0 0 10 0" />
+                            <TextBlock Text="{DynamicResource createNewPlugin}" />
+                        </StackPanel>
+                    </Button>
+                </DockPanel>
             </Border>
         </Grid>
     </busyIndicator:BusyMask>

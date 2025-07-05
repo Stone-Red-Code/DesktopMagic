@@ -5,9 +5,23 @@
 
     <system:String x:Key="lineMode">Linie</system:String>
     <system:String x:Key="mirrorMode">Spiegeln</system:String>
+    <system:String x:Key="folder">Ordner</system:String>
+    <system:String x:Key="autoStart">Starten beim Hochfahren</system:String>
+    <system:String x:Key="unknown">Unbekannt</system:String>
+    <system:String x:Key="open">Öffnen</system:String>
+    <system:String x:Key="quit">Schließen</system:String>
+    <system:String x:Key="login">Einloggen</system:String>
+    <system:String x:Key="logout">Ausloggen</system:String>
+    <system:String x:Key="enterModIoEmail">Mod.io Account E-Mail eingeben</system:String>
+    <system:String x:Key="enterModIoAccessToken">Geben Sie Ihren mod.io Sicherheitscode ein</system:String>
+    <system:String x:Key="toggleEditMode">Bearbeitungsmodus umschalten</system:String>
+    <system:String x:Key="allPlugins">Alle Plugins</system:String>
+    <system:String x:Key="installedPlugins">Installierte Plugins</system:String>
     <system:String x:Key="updatePlugins">Neu Laden</system:String>
-    <system:String x:Key="openPluginsFolder">Plugins Ordner Öffnen</system:String>
-    <system:String x:Key="pluginManager">Plugin Manager</system:String>
+    <system:String x:Key="pluginsFolder">Plugins Ordner</system:String>
+    <system:String x:Key="pluginManager">Plugins Manager</system:String>
+    <system:String x:Key="createNewPlugin">Neues Plugin erstellen</system:String>
+    <system:String x:Key="enterPluginName">Pluginnamen eingeben</system:String>
     <system:String x:Key="color">Farbe:</system:String>
     <system:String x:Key="default">Standard</system:String>
     <system:String x:Key="wantToCloseProgram">Wollen sie das Programm wirklich schließen?</system:String>
@@ -16,9 +30,7 @@
     <system:String x:Key="time">Uhrzeit</system:String>
     <system:String x:Key="date">Datum</system:String>
     <system:String x:Key="cpuUsage">CPU Auslastung</system:String>
-    <system:String x:Key="googleCalendar">Google Kalender</system:String>
-    <system:String x:Key="musicVisualizer">Musik Visualizer</system:String>
-    <system:String x:Key="musicVisualizerOptions">Musik Visualizer Einstellungen:</system:String>
+    <system:String x:Key="musicVisualizer">Musik Visualisierer</system:String>
     <system:String x:Key="amplifier">Signalverstärkung:</system:String>
     <system:String x:Key="newLayout">Neues Layout</system:String>
     <system:String x:Key="deleteLayout">Layout Löschen</system:String>
@@ -27,7 +39,12 @@
     <system:String x:Key="enterLayoutName">Layoutnamen eingeben:</system:String>
     <system:String x:Key="layoutAlreadyExists">Layout existiert bereits!</system:String>
     <system:String x:Key="install">Installieren</system:String>
+    <system:String x:Key="uninstall">Deinstallieren</system:String>
     <system:String x:Key="remove">Entfernen</system:String>
+    <system:String x:Key="authorFormat">Author: {0}</system:String>
+    <system:String x:Key="addedFormat">Erstellt: {0}</system:String>
+    <system:String x:Key="updatedFormat">Aktualisiert: {0}</system:String>
+    <system:String x:Key="versionFormat">Version: {0}</system:String>
     <col:ArrayList x:Key="musicVisualizerOptionsComboboxItems">
         <system:String>Unten</system:String>
         <system:String>Mitte</system:String>

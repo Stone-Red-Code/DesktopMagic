@@ -1,4 +1,4 @@
-﻿using DesktopMagic.BuiltInWindowElements;
+﻿using DesktopMagic.BuiltInPlugins;
 using DesktopMagic.DataContexts;
 using DesktopMagic.Dialogs;
 using DesktopMagic.Helpers;
@@ -9,12 +9,9 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.IO.Packaging;
 using System.Linq;
-using System.Reflection;
 using System.Text.Json;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -29,17 +26,16 @@ namespace DesktopMagic
 
         private readonly Dictionary<PluginMetadata, Type> builtInPlugins = new()
         {
-            {new("Music Visualizer", 1), typeof(MusicVisualizerPlugin)},
-            {new("Time",2), typeof(TimePlugin)},
-            {new("Date",3), typeof(DatePlugin)},
-            {new("Cpu Usage", 4), typeof(CpuMonitorPlugin)}
+            {new((string)App.LanguageDictionary["musicVisualizer"], 1), typeof(MusicVisualizerPlugin)},
+            {new((string)App.LanguageDictionary["time"],2), typeof(TimePlugin)},
+            {new((string)App.LanguageDictionary["date"],3), typeof(DatePlugin)},
+            {new((string)App.LanguageDictionary["cpuUsage"], 4), typeof(CpuMonitorPlugin)}
         };
 
         private bool loaded = false;
         private bool blockWindowsClosing = true;
         public static List<PluginWindow> Windows { get; } = [];
         public static List<string> WindowNames { get; } = [];
-        internal static bool EditMode { get; set; } = false;
 
         private DesktopMagicSettings Settings
         {
@@ -54,14 +50,25 @@ namespace DesktopMagic
             try
             {
                 Stream iconStream = Application.GetResourceStream(new Uri("pack://application:,,,/DesktopMagic;component/icon.ico")).Stream;
-                notifyIcon.Click += TaskbarIcon_TrayLeftClick;
+                notifyIcon.MouseClick += NotifyIcon_MouseClick;
                 notifyIcon.Visible = true;
                 notifyIcon.Text = App.AppName;
                 notifyIcon.Icon = new System.Drawing.Icon(iconStream);
+                notifyIcon.ContextMenuStrip = new System.Windows.Forms.ContextMenuStrip()
+                {
+                    Items =
+                    {
+                        new System.Windows.Forms.ToolStripMenuItem((string)App.LanguageDictionary["open"], null, (s, e) => RestoreWindow()),
+                        new System.Windows.Forms.ToolStripMenuItem((string)App.LanguageDictionary["toggleEditMode"], null, (s, e) => { editCheckBox.IsChecked = !editCheckBox.IsChecked; EditCheckBox_Click(null, null); }),
+                        new System.Windows.Forms.ToolStripMenuItem((string)App.LanguageDictionary["pluginManager"], null, (s, e) => PluginManagerButton_Click(null!, null!)),
+                        new System.Windows.Forms.ToolStripMenuItem("GitHub", null, (s, e) => GitHubButton_Click(null!, null!)),
+                        new System.Windows.Forms.ToolStripMenuItem((string)App.LanguageDictionary["quit"], null, (s, e) => Quit()),
+                    }
+                };
 
                 InitializeComponent();
 
-                SetLanguageDictionary();
+                Resources.MergedDictionaries.Add(App.LanguageDictionary);
 
 #if DEBUG
                 Title = $"{App.AppName} - Dev {System.Windows.Forms.Application.ProductVersion}";
@@ -71,7 +78,7 @@ namespace DesktopMagic
             }
             catch (Exception ex)
             {
-                _ = MessageBox.Show(ex.ToString());
+                _ = MessageBox.Show(ex.ToString(), App.AppName, MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -83,12 +90,6 @@ namespace DesktopMagic
         {
             try
             {
-                if (!Directory.Exists(App.ApplicationDataPath + "\\Plugins"))
-                {
-                    _ = Directory.CreateDirectory(App.ApplicationDataPath + "\\Plugins");
-                }
-                App.Logger.LogInfo("Created Plugins Folder", source: "Main");
-
                 //Write To Log File and Load Elements
 
                 App.Logger.LogInfo("Loading Plugin names", source: "Main");
@@ -104,7 +105,7 @@ namespace DesktopMagic
             catch (Exception ex)
             {
                 App.Logger.LogError(ex.Message, source: "Main");
-                _ = MessageBox.Show(ex.ToString());
+                _ = MessageBox.Show(ex.ToString(), App.AppName, MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -118,9 +119,7 @@ namespace DesktopMagic
                 plugins.Add(buildInPlugin.Id, new(buildInPlugin, string.Empty));
             }
 
-            string pluginsPath = App.ApplicationDataPath + "\\Plugins";
-
-            foreach (string directory in Directory.GetDirectories(pluginsPath))
+            foreach (string directory in Directory.GetDirectories(App.PluginsPath))
             {
                 string? pluginDllPath = Directory.GetFiles(directory, "main.dll").FirstOrDefault();
                 string? pluginMetadataPath = Directory.GetFiles(directory, "metadata.json").FirstOrDefault();
@@ -162,7 +161,11 @@ namespace DesktopMagic
 
         private void EditCheckBox_Click(object? sender, RoutedEventArgs? e)
         {
-            EditMode = EditCheckBox.IsChecked == true;
+            foreach (PluginWindow window in Windows)
+            {
+                window.SetEditMode(editCheckBox.IsChecked == true);
+            }
+
             SaveSettings();
         }
 
@@ -242,29 +245,24 @@ namespace DesktopMagic
                     window.PluginLoaded -= onPluginLoaded;
                 });
             };
+
             window.OnExit += () =>
             {
+                Windows.Remove(window);
+                WindowNames.Remove(window.Title);
+                blockWindowsClosing = false;
+                window.Close();
+                blockWindowsClosing = true;
                 pluginSettings.Enabled = false;
             };
             window.PluginLoaded += onPluginLoaded;
 
             window.ShowInTaskbar = false;
             window.Show();
-            window.ContentRendered += DisplayWindow_ContentRendered;
+            window.SetEditMode(editCheckBox.IsChecked == true);
             window.Closing += DisplayWindow_Closing;
             Windows.Add(window);
             WindowNames.Add(window.Title);
-        }
-
-        private void DisplayWindow_ContentRendered(object? sender, EventArgs e)
-        {
-            if (sender is not Window window)
-            {
-                return;
-            }
-
-            WindowPos.SendWpfWindowBack(window);
-            WindowPos.SendWpfWindowBack(window);
         }
 
         private void DisplayWindow_Closing(object? sender, System.ComponentModel.CancelEventArgs e)
@@ -274,9 +272,18 @@ namespace DesktopMagic
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            MessageBoxResult msbRes = MessageBox.Show((string)FindResource("wantToCloseProgram"), App.AppName, MessageBoxButton.YesNo);
-            e.Cancel = msbRes != MessageBoxResult.Yes;
             SaveSettings();
+
+            if (blockWindowsClosing)
+            {
+                e.Cancel = true;
+
+                editCheckBox.IsChecked = false;
+                EditCheckBox_Click(null, null);
+                ShowInTaskbar = false;
+                WindowState = WindowState.Minimized;
+                Visibility = Visibility.Collapsed;
+            }
         }
 
         private void Window_Closed(object sender, EventArgs e)
@@ -288,22 +295,6 @@ namespace DesktopMagic
                 window.Hide();
             }
             Environment.Exit(0);
-        }
-
-        private void Window_StateChanged(object? sender, EventArgs? e)
-        {
-            if (WindowState == WindowState.Minimized)
-            {
-                EditCheckBox.IsChecked = false;
-                EditCheckBox_Click(null, null);
-                ShowInTaskbar = false;
-                Visibility = Visibility.Collapsed;
-                foreach (Window item in Windows)
-                {
-                    WindowPos.SendWpfWindowBack(item);
-                    WindowPos.SendWpfWindowBack(item);
-                }
-            }
         }
 
         #endregion Windows
@@ -372,6 +363,24 @@ namespace DesktopMagic
             }
         }
 
+        private void Quit()
+        {
+            blockWindowsClosing = false;
+            Close();
+        }
+
+        private void OpenPluginsFolderButton_Click(object sender, RoutedEventArgs e)
+        {
+            _ = Process.Start("explorer.exe", App.PluginsPath);
+        }
+
+        private void ScrollViewer_PreviewMouseWheel(object sender, System.Windows.Input.MouseWheelEventArgs e)
+        {
+            ScrollViewer scv = (ScrollViewer)sender;
+            scv.ScrollToVerticalOffset(scv.VerticalOffset - e.Delta);
+            e.Handled = true;
+        }
+
         private void TextBlock_Loaded(object sender, RoutedEventArgs e)
         {
             int index = 0;
@@ -398,7 +407,11 @@ namespace DesktopMagic
 
         private void ChangePrimaryColorButton_Click(object sender, RoutedEventArgs e)
         {
-            ColorDialog colorDialog = new ColorDialog("Set Primary Color", Settings.CurrentLayout.Theme.PrimaryColor);
+            ColorDialog colorDialog = new ColorDialog("Set Primary Color", Settings.CurrentLayout.Theme.PrimaryColor)
+            {
+                Owner = this
+            };
+
             if (colorDialog.ShowDialog() == true)
             {
                 Settings.CurrentLayout.Theme.PrimaryColor = colorDialog.ResultColor;
@@ -408,7 +421,11 @@ namespace DesktopMagic
 
         private void ChangeSecondaryColorButton_Click(object sender, RoutedEventArgs e)
         {
-            ColorDialog colorDialog = new ColorDialog("Set Secondary Color", Settings.CurrentLayout.Theme.SecondaryColor);
+            ColorDialog colorDialog = new ColorDialog("Set Secondary Color", Settings.CurrentLayout.Theme.SecondaryColor)
+            {
+                Owner = this
+            };
+
             if (colorDialog.ShowDialog() == true)
             {
                 Settings.CurrentLayout.Theme.SecondaryColor = colorDialog.ResultColor;
@@ -418,7 +435,11 @@ namespace DesktopMagic
 
         private void ChangeBackgroundColorButton_Click(object sender, RoutedEventArgs e)
         {
-            ColorDialog colorDialog = new ColorDialog("Set Background Color", Settings.CurrentLayout.Theme.BackgroundColor);
+            ColorDialog colorDialog = new ColorDialog("Set Background Color", Settings.CurrentLayout.Theme.BackgroundColor)
+            {
+                Owner = this
+            };
+
             if (colorDialog.ShowDialog() == true)
             {
                 Settings.CurrentLayout.Theme.BackgroundColor = colorDialog.ResultColor;
@@ -475,12 +496,16 @@ namespace DesktopMagic
 
         private void NewLayoutButton_Click(object sender, RoutedEventArgs e)
         {
-            InputDialog inputDialog = new((string)FindResource("enterLayoutName"));
+            InputDialog inputDialog = new((string)FindResource("enterLayoutName"))
+            {
+                Owner = this
+            };
+
             if (inputDialog.ShowDialog() == true)
             {
                 if (Settings.Layouts.Any(l => l.Name.Trim() == inputDialog.ResponseText.Trim()))
                 {
-                    _ = MessageBox.Show((string)FindResource("layoutAlreadyExists"));
+                    _ = MessageBox.Show((string)FindResource("layoutAlreadyExists"), App.AppName, MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
 
@@ -552,8 +577,8 @@ namespace DesktopMagic
                 window.Close();
             }
 
-            EditCheckBox.IsChecked = false;
-            EditMode = false;
+            editCheckBox.IsChecked = false;
+            EditCheckBox_Click(null, null);
             blockWindowsClosing = true;
             Windows.Clear();
             WindowNames.Clear();
@@ -600,14 +625,13 @@ namespace DesktopMagic
 
             if (!showWindow && minimize)
             {
-                WindowState = WindowState.Minimized;
-                Window_StateChanged(null, null);
+                Close();
             }
             else
             {
-                WindowState = WindowState.Normal;
-                Window_StateChanged(null, null);
+                RestoreWindow();
             }
+
             mainWindowDataContext.IsLoading = false;
         }
 
@@ -619,21 +643,12 @@ namespace DesktopMagic
             LoadLayout(false);
         }
 
-        private void OpenPluginsFolderButton_Click(object sender, RoutedEventArgs e)
+        private void NotifyIcon_MouseClick(object? sender, System.Windows.Forms.MouseEventArgs e)
         {
-            _ = Process.Start("explorer.exe", App.ApplicationDataPath + "\\Plugins");
-        }
-
-        private void ScrollViewer_PreviewMouseWheel(object sender, System.Windows.Input.MouseWheelEventArgs e)
-        {
-            ScrollViewer scv = (ScrollViewer)sender;
-            scv.ScrollToVerticalOffset(scv.VerticalOffset - e.Delta);
-            e.Handled = true;
-        }
-
-        private void TaskbarIcon_TrayLeftClick(object? sender, EventArgs e)
-        {
-            RestoreWindow();
+            if (e.Button == System.Windows.Forms.MouseButtons.Left)
+            {
+                RestoreWindow();
+            }
         }
 
         private void GitHubButton_Click(object sender, RoutedEventArgs e)
@@ -649,26 +664,14 @@ namespace DesktopMagic
 
         private void PluginManagerButton_Click(object sender, RoutedEventArgs e)
         {
-            PluginManager pluginManager = new PluginManager();
+            PluginManager pluginManager = new PluginManager
+            {
+                Owner = this
+            };
+
             pluginManager.ShowDialog();
             LoadPlugins();
-            LoadLayout(false);
-        }
-
-        private void SetLanguageDictionary()
-        {
-            ResourceDictionary dict = [];
-            string currentCulture = Thread.CurrentThread.CurrentUICulture.ToString();
-
-            if (currentCulture.Contains("de"))
-            {
-                dict.Source = new Uri("..\\Resources\\Strings\\StringResources.de.xaml", UriKind.Relative);
-            }
-            else
-            {
-                dict.Source = new Uri("..\\Resources\\Strings\\StringResources.en.xaml", UriKind.Relative);
-            }
-            Resources.MergedDictionaries.Add(dict);
+            LoadLayout(Visibility != Visibility.Visible);
         }
     }
 

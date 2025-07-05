@@ -5,22 +5,22 @@ using System;
 using System.Drawing;
 using System.Drawing.Text;
 
-namespace DesktopMagic.BuiltInWindowElements;
+namespace DesktopMagic.BuiltInPlugins;
 
 internal class DatePlugin : Plugin
 {
     [Setting("short-date", "Short date")]
-    private readonly CheckBox shortDatecheckBox = new CheckBox(true);
+    private readonly CheckBox shortDateCheckBox = new CheckBox(true);
 
     private DateTime oldDateTime = DateTime.MinValue;
     private Color oldColor = Color.White;
     private string oldFont = string.Empty;
-    private bool oldShortDatecheckBoxValue;
+    private bool oldShortDateCheckBoxValue;
     public override int UpdateInterval => 1000;
 
     public override Bitmap? Main()
     {
-        if (oldDateTime.Date == DateTime.Now.Date && oldColor == Application.Theme.PrimaryColor && oldFont == Application.Theme.Font && oldShortDatecheckBoxValue == shortDatecheckBox.Value)
+        if (oldDateTime.Date == DateTime.Now.Date && oldColor == Application.Theme.PrimaryColor && oldFont == Application.Theme.Font && oldShortDateCheckBoxValue == shortDateCheckBox.Value)
         {
             return null;
         }
@@ -28,9 +28,9 @@ internal class DatePlugin : Plugin
         oldDateTime = DateTime.Now;
         oldColor = Application.Theme.PrimaryColor;
         oldFont = Application.Theme.Font;
-        oldShortDatecheckBoxValue = shortDatecheckBox.Value;
+        oldShortDateCheckBoxValue = shortDateCheckBox.Value;
 
-        string date = shortDatecheckBox.Value ? DateTime.Now.ToShortDateString() : DateTime.Now.ToLongDateString();
+        string date = shortDateCheckBox.Value ? DateTime.Now.ToShortDateString() : DateTime.Now.ToLongDateString();
 
         Font font = new Font(Application.Theme.Font, 200);
 

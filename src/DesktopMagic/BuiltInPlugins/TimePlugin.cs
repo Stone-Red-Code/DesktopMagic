@@ -5,18 +5,32 @@ using System;
 using System.Drawing;
 using System.Drawing.Text;
 
-namespace DesktopMagic.BuiltInWindowElements;
+namespace DesktopMagic.BuiltInPlugins;
 
 internal class TimePlugin : Plugin
 {
-    [Setting("display-seconds", "Display Seconds")]
+    [Setting("display-seconds", "Show Seconds")]
     private readonly CheckBox displaySecondsCheckBox = new CheckBox(true);
 
+    private string oldTime = string.Empty;
+    private Color oldColor = Color.White;
+    private string oldFont = string.Empty;
+    private bool oldDisplaySecondsCheckBoxValue;
     public override int UpdateInterval => 1000;
 
-    public override Bitmap Main()
+    public override Bitmap? Main()
     {
         string time = displaySecondsCheckBox.Value ? DateTime.Now.ToLongTimeString() : DateTime.Now.ToShortTimeString();
+
+        if (oldTime == time && oldColor == Application.Theme.PrimaryColor && oldFont == Application.Theme.Font && oldDisplaySecondsCheckBoxValue == displaySecondsCheckBox.Value)
+        {
+            return null;
+        }
+
+        oldTime = time;
+        oldColor = Application.Theme.PrimaryColor;
+        oldFont = Application.Theme.Font;
+        oldDisplaySecondsCheckBoxValue = displaySecondsCheckBox.Value;
 
         Font font = new Font(Application.Theme.Font, 200);
 
