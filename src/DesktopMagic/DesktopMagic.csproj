@@ -7,12 +7,13 @@
         <ApplicationIcon>icon.ico</ApplicationIcon>
         <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
         <Authors>Stone_Red</Authors>
-        <Version>1.0.2.0</Version>
+        <Version>1.1.0.0</Version>
         <PackageProjectUrl>https://github.com/Stone-Red-Code/DesktopMagic</PackageProjectUrl>
         <RepositoryUrl>https://github.com/Stone-Red-Code/DesktopMagic</RepositoryUrl>
-        <AssemblyVersion>1.0.2.0</AssemblyVersion>
-        <FileVersion>1.0.2.0</FileVersion>
+        <AssemblyVersion>1.1.0.0</AssemblyVersion>
+        <FileVersion>1.1.0.0</FileVersion>
         <TargetFramework>net8.0-windows7.0</TargetFramework>
+        <RuntimeIdentifier>win-x64</RuntimeIdentifier>
         <Nullable>enable</Nullable>
         <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
         <Platforms>AnyCPU;x64</Platforms>
@@ -35,18 +36,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <COMReference Include="IWshRuntimeLibrary">
-        <WrapperTool>tlbimp</WrapperTool>
-        <VersionMinor>0</VersionMinor>
-        <VersionMajor>1</VersionMajor>
-        <Guid>f935dc20-1cf0-11d0-adb9-00c04fd58a0b</Guid>
-        <Lcid>0</Lcid>
-        <Isolated>false</Isolated>
-        <EmbedInteropTypes>true</EmbedInteropTypes>
-      </COMReference>
-    </ItemGroup>
-
-    <ItemGroup>
         <Resource Include="Resources\Images\modio-cog-blue.png">
             <CopyToOutputDirectory>Never</CopyToOutputDirectory>
         </Resource>
@@ -55,6 +44,7 @@
     <ItemGroup>
         <PackageReference Include="BusyIndicators" Version="2.1.2" />
         <PackageReference Include="CuteUtils" Version="1.0.0" />
+        <PackageReference Include="Interop.IWshRuntimeLibrary" Version="1.0.1" />
         <PackageReference Include="MaterialDesignThemes" Version="5.1.0" />
         <PackageReference Include="Modio" Version="1.0.0" />
         <PackageReference Include="NAudio" Version="2.2.1" />

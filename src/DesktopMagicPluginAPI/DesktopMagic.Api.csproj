@@ -12,13 +12,22 @@
     <PackageProjectUrl></PackageProjectUrl>
     <FileVersion>0.0.0.5</FileVersion>
     <Nullable>enable</Nullable>
+    <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DocumentationFile>$([System.IO.Path]::Combine($(MSBuildProjectDirectory), "DesktopMagicPluginAPI.xml"))</DocumentationFile>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <DocumentationFile>$([System.IO.Path]::Combine($(MSBuildProjectDirectory), "DesktopMagicPluginAPI.xml"))</DocumentationFile>
+  </PropertyGroup>
+
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DocumentationFile>$([System.IO.Path]::Combine($(MSBuildProjectDirectory), "DesktopMagicPluginAPI.xml"))</DocumentationFile>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <DocumentationFile>$([System.IO.Path]::Combine($(MSBuildProjectDirectory), "DesktopMagicPluginAPI.xml"))</DocumentationFile>
   </PropertyGroup>
 

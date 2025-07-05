@@ -9,7 +9,7 @@
   <Identity
     Name="StoneRed.DesktopMagic"
     Publisher="CN=6D1FD759-1951-428A-9B03-964461C7DBF5"
-    Version="1.0.1.0" />
+    Version="1.1.0.0" />
 
   <Properties>
     <DisplayName>Desktop Magic</DisplayName>
