@@ -12,8 +12,8 @@
 1. Download & install the latest release
    - Microsoft Store: [Store Page](https://www.microsoft.com/store/productId/9NPV8F9K1CWM?ocid=pdpshare)
    - GitHub: [Releases](https://github.com/Stone-Red-Code/DesktopMagic/releases)
-1. (Optional) Put a shortcut to the `DesktopMagic.exe` file in the installation directory into the `shell:startup` directory.
 1. Start the app and select the widgets you want to see on your desktop.
+1. (Optional) Check "Launch on startup" so DesktopMagic automatically starts when you log in.
 1. Check the "Edit" Checkbox to move the widgets.
 1. Open the plugin manager to install third-party plugins.
 
