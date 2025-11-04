@@ -26,7 +26,7 @@
     <system:String x:Key="default">Standard</system:String>
     <system:String x:Key="wantToCloseProgram">Wollen sie das Programm wirklich schließen?</system:String>
     <system:String x:Key="noOptions">Keine Optionen!</system:String>
-    <system:String x:Key="edit">Bearbeiten</system:String>
+    <system:String x:Key="editLayout">Layout Bearbeiten</system:String>
     <system:String x:Key="time">Uhrzeit</system:String>
     <system:String x:Key="date">Datum</system:String>
     <system:String x:Key="cpuUsage">CPU Auslastung</system:String>
@@ -34,6 +34,9 @@
     <system:String x:Key="amplifier">Signalverstärkung:</system:String>
     <system:String x:Key="newLayout">Neues Layout</system:String>
     <system:String x:Key="deleteLayout">Layout Löschen</system:String>
+    <system:String x:Key="newTheme">Neues Theme</system:String>
+    <system:String x:Key="deleteTheme">Theme Löschen</system:String>
+    <system:String x:Key="changeTheme">Theme Ändern</system:String>
     <system:String x:Key="ok">Ok</system:String>
     <system:String x:Key="cancel">Abbrechen</system:String>
     <system:String x:Key="enterLayoutName">Layoutnamen eingeben:</system:String>

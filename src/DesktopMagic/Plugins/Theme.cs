@@ -11,16 +11,26 @@ using Color = System.Drawing.Color;
 
 namespace DesktopMagic.Plugins;
 
-public class Theme : ITheme, INotifyPropertyChanged
+public class Theme(string name) : ITheme, INotifyPropertyChanged
 {
     public event PropertyChangedEventHandler? PropertyChanged;
 
     private Color primaryColor = Color.White;
-    private Color secondaryColor = Color.White;
+    private Color secondaryColor = Color.LightGray;
     private Color backgroundColor = Color.Transparent;
     private string font = "Segoe UI";
     private int cornerRadius;
     private int margin;
+
+    public string Name
+    {
+        get => name;
+        set
+        {
+            name = value;
+            OnPropertyChanged();
+        }
+    }
 
     public Color PrimaryColor
     {

@@ -1,0 +1,76 @@
+﻿<Window x:Class="DesktopMagic.Dialogs.ThemeDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        xmlns:local="clr-namespace:DesktopMagic.Dialogs"
+        mc:Ignorable="d"
+        ResizeMode="NoResize"
+        Title="ThemeDialog"
+        WindowStartupLocation="CenterOwner"
+        SizeToContent="WidthAndHeight">
+    <Grid>
+        <StackPanel Margin="15">
+            <Label x:Name="label" Content="Label" HorizontalAlignment="Left" VerticalAlignment="Top" />
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Grid Grid.Column="0" Margin="{StaticResource DefaultMargin}" HorizontalAlignment="Stretch">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <TextBlock Text="Display Font: " Grid.Column="0" Grid.Row="0" VerticalAlignment="Center" Loaded="TextBlock_Loaded"/>
+                    <ComboBox x:Name="fontComboBox" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Top" SelectionChanged="FontComboBox_SelectionChanged" Margin="0,0,0,5" />
+
+                    <TextBlock Text="Corner Radius: " Grid.Column="0" Grid.Row="1" VerticalAlignment="Center"></TextBlock>
+                    <TextBox x:Name="cornerRadiusTextBox" Grid.Column="1" Grid.Row="1" TextChanged="CornerRadiusTextBox_TextChanged" materialDesign:HintAssist.Hint="Enter a number">
+                        <materialDesign:TextFieldAssist.CharacterCounterStyle>
+                            <Style TargetType="TextBlock" />
+                        </materialDesign:TextFieldAssist.CharacterCounterStyle>
+                    </TextBox>
+
+                    <TextBlock Text="Margin: " Grid.Column="0" Grid.Row="3" VerticalAlignment="Center"></TextBlock>
+                    <TextBox x:Name="marginTextBox" Grid.Column="1" Grid.Row="3" TextChanged="MarginTextBox_TextChanged" materialDesign:HintAssist.Hint="Enter a number">
+                        <materialDesign:TextFieldAssist.CharacterCounterStyle>
+                            <Style TargetType="TextBlock" />
+                        </materialDesign:TextFieldAssist.CharacterCounterStyle>
+                    </TextBox>
+                </Grid>
+                <StackPanel Grid.Column="1" Margin="{StaticResource DefaultMargin}" HorizontalAlignment="Stretch">
+                    <DockPanel Margin="0,0,0,5">
+                        <Border CornerRadius="1" BorderThickness="1.5" BorderBrush="Gray" Height="23" Width="23"  Margin="0,0,5,0">
+                            <Rectangle x:Name="primaryColorRechtangle" Fill="White" />
+                        </Border>
+                        <Button Content="Change Primary Color" Height="23" FontSize="12" FontWeight="Regular" Click="ChangePrimaryColorButton_Click" />
+                    </DockPanel>
+                    <DockPanel Margin="0,0,0,5">
+                        <Border CornerRadius="1" BorderThickness="1.5" BorderBrush="Gray" Height="23" Width="23"  Margin="0,0,5,0">
+                            <Rectangle x:Name="secondaryColorRechtangle" Fill="White" />
+                        </Border>
+                        <Button Content="Change Secondary Color" Height="23" FontSize="12" FontWeight="Regular" Click="ChangeSecondaryColorButton_Click" />
+                    </DockPanel>
+                    <DockPanel>
+                        <Border CornerRadius="1" BorderThickness="1.5" BorderBrush="Gray" Height="23" Width="23"  Margin="0,0,5,0">
+                            <Rectangle x:Name="backgroundColorRechtangle" Fill="White" />
+                        </Border>
+                        <Button Content="Change Background Color" Height="23" FontSize="12" FontWeight="Regular" Click="ChangeBackgroundColorButton_Click" />
+                    </DockPanel>
+                </StackPanel>
+            </Grid>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,10,0,0">
+                <Button x:Name="okButton" Content="{DynamicResource ok }" HorizontalAlignment="Left" Margin="0,0,10,0" VerticalAlignment="Top" Width="100" Click="OkButton_Click" Cursor="Hand" />
+                <Button x:Name="cancelButton" Content="{DynamicResource cancel }" HorizontalAlignment="Left" Margin="0,0,0,0" VerticalAlignment="Top" Width="100" Click="CancelButton_Click" />
+            </StackPanel>
+        </StackPanel>
+    </Grid>
+</Window>

@@ -1,4 +1,6 @@
-﻿using System.Collections.ObjectModel;
+﻿using DesktopMagic.Plugins;
+
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -11,7 +13,18 @@ internal class DesktopMagicSettings : INotifyPropertyChanged
     public event PropertyChangedEventHandler? PropertyChanged;
 
     private ObservableCollection<Layout> layouts = [];
+    private ObservableCollection<Theme> themes = [];
     private string? currentLayoutName;
+
+    public ObservableCollection<Theme> Themes
+    {
+        get => themes;
+        set
+        {
+            themes = value;
+            OnPropertyChanged();
+        }
+    }
 
     public ObservableCollection<Layout> Layouts
     {
