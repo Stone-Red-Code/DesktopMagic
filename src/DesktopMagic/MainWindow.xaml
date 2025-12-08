@@ -24,7 +24,7 @@
 
     <busyIndicator:BusyMask x:Name="BusyIndicator" IsBusy="{Binding IsLoading}"  IndicatorType="Cogs"  BusyContent="Please wait..."  BusyContentMargin="0,20,0,0"  IsBusyAtStartup="False">
         <Grid>
-            <TextBlock TextWrapping="Wrap" Text="0" VerticalAlignment="Top" FontFamily="Comic Sans MS" Loaded="TextBlock_Loaded" Foreground="Transparent" />
+            <TextBlock TextWrapping="Wrap" Text="0" VerticalAlignment="Top" FontFamily="Comic Sans MS" Foreground="Transparent" />
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="*" />
@@ -38,7 +38,7 @@
                     <DockPanel Margin="0,0,2.5,0">
                         <Grid DockPanel.Dock="Top">
                             <Rectangle Grid.Row="1" Fill="#FFECECEC" Height="24" />
-                            <CheckBox x:Name="editCheckBox" VerticalAlignment="Center" Grid.Row="1" Content="{DynamicResource edit}" Click="EditCheckBox_Click" Foreground="Black" BorderBrush="#FF323232" Style="{StaticResource MaterialDesignDarkCheckBox}" IsChecked="True" />
+                            <CheckBox x:Name="editCheckBox" VerticalAlignment="Center" Grid.Row="1" Content="{DynamicResource editLayout}" Click="EditCheckBox_Click" Foreground="Black" BorderBrush="#FF323232" Style="{StaticResource MaterialDesignDarkCheckBox}" IsChecked="True" />
                         </Grid>
                         <ScrollViewer Background="#FFBBBBBB" PreviewMouseWheel="ScrollViewer_PreviewMouseWheel">
                             <ItemsControl ItemsSource="{Binding Settings.CurrentLayout.Plugins}">
@@ -75,53 +75,26 @@
                         <ColumnDefinition />
                         <ColumnDefinition />
                     </Grid.ColumnDefinitions>
-                    <Grid Grid.Column="0" Margin="{StaticResource DefaultMargin}" HorizontalAlignment="Stretch">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                        </Grid.RowDefinitions>
-
-                        <TextBlock Text="Display Font: " Grid.Column="0" Grid.Row="0" VerticalAlignment="Center"></TextBlock>
-                        <ComboBox x:Name="fontComboBox" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Top" SelectionChanged="FontComboBox_SelectionChanged" Margin="0,0,0,5" />
-
-                        <TextBlock Text="Corner Radius: " Grid.Column="0" Grid.Row="1" VerticalAlignment="Center"></TextBlock>
-                        <TextBox x:Name="cornerRadiusTextBox" Grid.Column="1" Grid.Row="1" TextChanged="CornerRadiusTextBox_TextChanged" materialDesign:HintAssist.Hint="Enter a number">
-                            <materialDesign:TextFieldAssist.CharacterCounterStyle>
-                                <Style TargetType="TextBlock" />
-                            </materialDesign:TextFieldAssist.CharacterCounterStyle>
-                        </TextBox>
-
-                        <TextBlock Text="Margin: " Grid.Column="0" Grid.Row="3" VerticalAlignment="Center"></TextBlock>
-                        <TextBox x:Name="marginTextBox" Grid.Column="1" Grid.Row="3" TextChanged="MarginTextBox_TextChanged" materialDesign:HintAssist.Hint="Enter a number">
-                            <materialDesign:TextFieldAssist.CharacterCounterStyle>
-                                <Style TargetType="TextBlock" />
-                            </materialDesign:TextFieldAssist.CharacterCounterStyle>
-                        </TextBox>
-                    </Grid>
-                    <StackPanel Grid.Column="1" Margin="{StaticResource DefaultMargin}" HorizontalAlignment="Stretch">
-                        <DockPanel Margin="0,0,0,5">
-                            <Border CornerRadius="1" BorderThickness="1.5" BorderBrush="Gray" Height="23" Width="23"  Margin="0,0,5,0">
-                                <Rectangle x:Name="primaryColorRechtangle" Fill="White" />
-                            </Border>
-                            <Button Content="Change Primary Color" Height="23" FontSize="12" FontWeight="Regular" Click="ChangePrimaryColorButton_Click" />
-                        </DockPanel>
-                        <DockPanel Margin="0,0,0,5">
-                            <Border CornerRadius="1" BorderThickness="1.5" BorderBrush="Gray" Height="23" Width="23"  Margin="0,0,5,0">
-                                <Rectangle x:Name="secondaryColorRechtangle" Fill="White" />
-                            </Border>
-                            <Button Content="Change Secondary Color" Height="23" FontSize="12" FontWeight="Regular" Click="ChangeSecondaryColorButton_Click" />
-                        </DockPanel>
-                        <DockPanel>
-                            <Border CornerRadius="1" BorderThickness="1.5" BorderBrush="Gray" Height="23" Width="23"  Margin="0,0,5,0">
-                                <Rectangle x:Name="backgroundColorRechtangle" Fill="White" />
-                            </Border>
-                            <Button Content="Change Background Color" Height="23" FontSize="12" FontWeight="Regular" Click="ChangeBackgroundColorButton_Click" />
-                        </DockPanel>
+                    <ListBox x:Name="themesListBox" Grid.Row="0" Grid.ColumnSpan="1" Margin="{StaticResource DefaultMargin}" ItemsSource="{Binding Settings.Themes}" DisplayMemberPath="Name" SelectedValue="{Binding Settings.CurrentLayout.CurrentThemeName}" SelectedValuePath="Name" />
+                    <StackPanel Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" Margin="{StaticResource DefaultMargin}">
+                        <Button x:Name="addThemeButton" Margin="0,0,0,5" HorizontalAlignment="Stretch" Click="AddThemeButton_Click" FontWeight="Regular">
+                            <StackPanel Orientation="Horizontal">
+                                <materialDesign:PackIcon Kind="Add" Margin="0 0 10 0" />
+                                <TextBlock Text="{DynamicResource newTheme}" />
+                            </StackPanel>
+                        </Button>
+                        <Button x:Name="deleteThemeButton" Margin="0,0,0,5" HorizontalAlignment="Stretch" Click="DeleteThemeButton_Click" FontWeight="Regular">
+                            <StackPanel Orientation="Horizontal">
+                                <materialDesign:PackIcon Kind="DeleteOutline" Margin="0 0 10 0" />
+                                <TextBlock Text="{DynamicResource deleteTheme}" />
+                            </StackPanel>
+                        </Button>
+                        <Button x:Name="changeThemeButton" Margin="0,0,0,5" HorizontalAlignment="Stretch" Click="ChangeThemeButton_Click" FontWeight="Regular">
+                            <StackPanel Orientation="Horizontal">
+                                <materialDesign:PackIcon Kind="PaletteOutline" Margin="0 0 10 0" />
+                                <TextBlock Text="{DynamicResource changeTheme}" />
+                            </StackPanel>
+                        </Button>
                     </StackPanel>
                     <Grid Grid.Row="1" Grid.ColumnSpan="2" VerticalAlignment="Bottom">
                         <Grid.ColumnDefinitions>

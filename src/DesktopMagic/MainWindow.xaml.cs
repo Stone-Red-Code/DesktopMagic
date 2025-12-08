@@ -11,10 +11,8 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
-using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Media;
 
 namespace DesktopMagic
 {
@@ -301,9 +299,49 @@ namespace DesktopMagic
 
         #region Options
 
-        private void FontComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void AddThemeButton_Click(object sender, RoutedEventArgs e)
         {
-            Settings.CurrentLayout.Theme.Font = fontComboBox.SelectedValue.ToString()!.Replace("System.Windows.Controls.ComboBoxItem: ", "");
+            InputDialog inputDialog = new((string)FindResource("enterThemeName"))
+            {
+                Owner = this
+            };
+
+            if (inputDialog.ShowDialog() == true)
+            {
+                if (Settings.Themes.Any(l => l.Name.Trim() == inputDialog.ResponseText.Trim()))
+                {
+                    _ = MessageBox.Show((string)FindResource("themeAlreadyExists"), App.AppName, MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                Settings.Themes.Add(new Theme(inputDialog.ResponseText.Trim()));
+                Settings.CurrentLayout.CurrentThemeName = inputDialog.ResponseText.Trim();
+                SaveSettings();
+            }
+        }
+
+        private void DeleteThemeButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (Settings.Themes.Count <= 1)
+            {
+                _ = MessageBox.Show((string)FindResource("cannotDeleteLastTheme"), App.AppName, MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            Settings.Themes.Remove((Theme)themesListBox.SelectedItem);
+            SaveSettings();
+        }
+
+        private void ChangeThemeButton_Click(object sender, RoutedEventArgs e)
+        {
+            Theme theme = themesListBox.SelectedItem as Theme ?? Settings.CurrentLayout.Theme;
+
+            ThemeDialog themeDialog = new(theme.Name, theme, App.AppName)
+            {
+                Owner = this
+            };
+
+            themeDialog.ShowDialog();
         }
 
         private void OptionsComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -381,100 +419,6 @@ namespace DesktopMagic
             e.Handled = true;
         }
 
-        private void TextBlock_Loaded(object sender, RoutedEventArgs e)
-        {
-            int index = 0;
-            foreach (FontFamily ff in Fonts.SystemFontFamilies)
-            {
-                ComboBoxItem comboBoxItem = new()
-                {
-                    FontFamily = ff,
-                    Content = ff.ToString()
-                };
-                _ = fontComboBox.Items.Add(comboBoxItem);
-
-                if (ff.ToString() == Settings.CurrentLayout.Theme.Font)
-                {
-                    fontComboBox.SelectedIndex = index;
-                }
-                index++;
-            }
-            if (fontComboBox.SelectedIndex == -1)
-            {
-                fontComboBox.SelectedIndex = 0;
-            }
-        }
-
-        private void ChangePrimaryColorButton_Click(object sender, RoutedEventArgs e)
-        {
-            ColorDialog colorDialog = new ColorDialog("Set Primary Color", Settings.CurrentLayout.Theme.PrimaryColor)
-            {
-                Owner = this
-            };
-
-            if (colorDialog.ShowDialog() == true)
-            {
-                Settings.CurrentLayout.Theme.PrimaryColor = colorDialog.ResultColor;
-                primaryColorRechtangle.Fill = colorDialog.ResultBrush;
-            }
-        }
-
-        private void ChangeSecondaryColorButton_Click(object sender, RoutedEventArgs e)
-        {
-            ColorDialog colorDialog = new ColorDialog("Set Secondary Color", Settings.CurrentLayout.Theme.SecondaryColor)
-            {
-                Owner = this
-            };
-
-            if (colorDialog.ShowDialog() == true)
-            {
-                Settings.CurrentLayout.Theme.SecondaryColor = colorDialog.ResultColor;
-                secondaryColorRechtangle.Fill = colorDialog.ResultBrush;
-            }
-        }
-
-        private void ChangeBackgroundColorButton_Click(object sender, RoutedEventArgs e)
-        {
-            ColorDialog colorDialog = new ColorDialog("Set Background Color", Settings.CurrentLayout.Theme.BackgroundColor)
-            {
-                Owner = this
-            };
-
-            if (colorDialog.ShowDialog() == true)
-            {
-                Settings.CurrentLayout.Theme.BackgroundColor = colorDialog.ResultColor;
-                backgroundColorRechtangle.Fill = colorDialog.ResultBrush;
-            }
-        }
-
-        private void CornerRadiusTextBox_TextChanged(object? sender, TextChangedEventArgs? e)
-        {
-            bool success = int.TryParse(cornerRadiusTextBox.Text, out int cornerRadius);
-            if (success)
-            {
-                cornerRadiusTextBox.Foreground = Brushes.Black;
-                Settings.CurrentLayout.Theme.CornerRadius = cornerRadius;
-            }
-            else
-            {
-                cornerRadiusTextBox.Foreground = Brushes.Red;
-            }
-        }
-
-        private void MarginTextBox_TextChanged(object? sender, TextChangedEventArgs? e)
-        {
-            bool success = int.TryParse(marginTextBox.Text, out int margin);
-            if (success)
-            {
-                marginTextBox.Foreground = Brushes.Black;
-                Settings.CurrentLayout.Theme.Margin = margin;
-            }
-            else
-            {
-                marginTextBox.Foreground = Brushes.Red;
-            }
-        }
-
         #region Layout
 
         private readonly JsonSerializerOptions jsonSettingsOptions = new()
@@ -517,6 +461,12 @@ namespace DesktopMagic
 
         private void RemoveLayoutButton_Click(object sender, RoutedEventArgs e)
         {
+            if (Settings.Layouts.Count <= 1)
+            {
+                _ = MessageBox.Show((string)FindResource("cannotDeleteLastLayout"), App.AppName, MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
             Settings.Layouts.Remove(Settings.CurrentLayout);
             SaveSettings();
         }
@@ -536,41 +486,33 @@ namespace DesktopMagic
         {
             if (!File.Exists(Path.Combine(App.ApplicationDataPath, "settings.json")))
             {
-                Settings = new DesktopMagicSettings()
-                {
-                    Layouts =
-                    [
-                        new Layout((string)FindResource("default"))
-                    ]
-                };
+                Settings = new DesktopMagicSettings();
+
+                Settings.Layouts.Add(new Layout((string)FindResource("default")));
+                Settings.Themes.Add(new Theme((string)FindResource("default")));
 
                 return;
             }
 
             string json = File.ReadAllText(Path.Combine(App.ApplicationDataPath, "settings.json"));
 
-            Settings = JsonSerializer.Deserialize<DesktopMagicSettings>(json, jsonSettingsOptions) ?? new DesktopMagicSettings()
+            Settings = JsonSerializer.Deserialize<DesktopMagicSettings>(json, jsonSettingsOptions) ?? new DesktopMagicSettings();
+
+            if(Settings.Layouts.Count == 0)
             {
-                Layouts =
-                [
-                    new Layout((string)FindResource("default"))
-                ]
-            };
+                Settings.Layouts.Add(new Layout((string)FindResource("default")));
+            }
+
+            if (Settings.Themes.Count == 0)
+            {
+                Settings.Themes.Add(new Theme((string)FindResource("default")));
+            }
         }
 
         private void LoadLayout(bool minimize = true)
         {
             mainWindowDataContext.IsLoading = true;
-            cornerRadiusTextBox.Text = Settings.CurrentLayout.Theme.CornerRadius.ToString();
-            marginTextBox.Text = Settings.CurrentLayout.Theme.Margin.ToString();
             blockWindowsClosing = false;
-
-            primaryColorRechtangle.Fill = new SolidColorBrush(MultiColorConverter.ConvertToMediaColor(Settings.CurrentLayout.Theme.PrimaryColor));
-            secondaryColorRechtangle.Fill = new SolidColorBrush(MultiColorConverter.ConvertToMediaColor(Settings.CurrentLayout.Theme.SecondaryColor));
-            backgroundColorRechtangle.Fill = new SolidColorBrush(MultiColorConverter.ConvertToMediaColor(Settings.CurrentLayout.Theme.BackgroundColor));
-
-            CornerRadiusTextBox_TextChanged(null, null);
-            MarginTextBox_TextChanged(null, null);
 
             foreach (Window window in Windows)
             {

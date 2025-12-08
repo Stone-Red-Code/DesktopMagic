@@ -17,6 +17,9 @@ public abstract class Plugin
     [Setting("desktopmagic-vertical-alignment", "Vertical Alignment", -998)]
     internal ComboBox verticalAlignment = new ComboBox("Center", "Top", "Bottom");
 
+    [Setting("theme-override", "Theme Override", -997)]
+    internal ComboBox themeOverride = new ComboBox("<None>");
+
     private IPluginData application = null!;
 
     /// <summary>

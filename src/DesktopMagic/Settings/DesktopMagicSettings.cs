@@ -1,4 +1,6 @@
-﻿using System.Collections.ObjectModel;
+﻿using DesktopMagic.Plugins;
+
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -11,7 +13,19 @@ internal class DesktopMagicSettings : INotifyPropertyChanged
     public event PropertyChangedEventHandler? PropertyChanged;
 
     private ObservableCollection<Layout> layouts = [];
+    private ObservableCollection<Theme> themes = [];
     private string? currentLayoutName;
+
+    public ObservableCollection<Theme> Themes
+    {
+        get => themes;
+        init
+        {
+            themes = value;
+            themes.CollectionChanged += (s, e) => CurrentLayout.UpdateTheme();
+            OnPropertyChanged();
+        }
+    }
 
     public ObservableCollection<Layout> Layouts
     {
@@ -19,6 +33,8 @@ internal class DesktopMagicSettings : INotifyPropertyChanged
         set
         {
             layouts = value;
+            layouts.CollectionChanged += (s, e) => OnPropertyChanged(nameof(CurrentLayout));
+            layouts.CollectionChanged += (s, e) => OnPropertyChanged(nameof(CurrentLayoutName));
             OnPropertyChanged();
         }
     }
@@ -38,6 +54,14 @@ internal class DesktopMagicSettings : INotifyPropertyChanged
     }
 
     public string? ModIoAccessToken { get; set; }
+
+    public DesktopMagicSettings()
+    {
+        themes.CollectionChanged += (s, e) => CurrentLayout.UpdateTheme();
+
+        layouts.CollectionChanged += (s, e) => OnPropertyChanged(nameof(CurrentLayout));
+        layouts.CollectionChanged += (s, e) => OnPropertyChanged(nameof(CurrentLayoutName));
+    }
 
     protected void OnPropertyChanged([CallerMemberName] string? name = null)
     {

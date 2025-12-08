@@ -206,7 +206,8 @@ internal class SettingElementGenerator(ComboBox optionsComboBox)
             {
                 try
                 {
-                    eComboBox.Value = comboBox.SelectedItem.ToString() ?? string.Empty;
+                    comboBox.SelectedItem ??= eComboBox.Value;
+                    eComboBox.Value = comboBox.SelectedItem?.ToString() ?? eComboBox.Value;
                 }
                 catch (Exception ex)
                 {

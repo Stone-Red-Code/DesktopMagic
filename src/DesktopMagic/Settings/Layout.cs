@@ -1,9 +1,11 @@
-﻿using DesktopMagic.Plugins;
+﻿using DesktopMagic.DataContexts;
+using DesktopMagic.Plugins;
 
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Text.Json.Serialization;
 
 namespace DesktopMagic.Settings;
 
@@ -12,16 +14,29 @@ internal class Layout(string name) : INotifyPropertyChanged
     public event PropertyChangedEventHandler? PropertyChanged;
 
     private string name = name;
-    private Theme theme = new Theme();
+    private string? currentThemeName = null;
     private Dictionary<uint, PluginSettings> plugins = [];
 
+    [JsonIgnore]
     public Theme Theme
     {
-        get => theme;
+        get
+        {
+            DesktopMagicSettings settings = MainWindowDataContext.GetSettings();
+            return settings.Themes.FirstOrDefault(theme => theme.Name == currentThemeName) ?? settings.Themes.FirstOrDefault() ?? new Theme("ERROR");
+        }
+    }
+
+    public string? CurrentThemeName
+    {
+        get => Theme.Name;
         set
         {
-            theme = value;
-            OnPropertyChanged();
+            if (currentThemeName != value)
+            {
+                currentThemeName = value;
+                UpdateTheme();
+            }
         }
     }
 
@@ -47,7 +62,19 @@ internal class Layout(string name) : INotifyPropertyChanged
 
     public void UpdatePlugins()
     {
-        Plugins = Plugins.ToDictionary();
+        plugins = plugins.ToDictionary();
+        OnPropertyChanged(nameof(Plugins));
+    }
+
+    public void UpdateTheme()
+    {
+        OnPropertyChanged(nameof(Theme));
+        OnPropertyChanged(nameof(CurrentThemeName));
+
+        foreach (PluginSettings pluginSettings in plugins.Values)
+        {
+            pluginSettings.UpdateTheme();
+        }
     }
 
     protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)

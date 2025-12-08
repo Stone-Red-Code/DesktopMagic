@@ -9,7 +9,7 @@ internal class PluginData(PluginWindow window, PluginSettings pluginSettings) : 
 {
     private readonly PluginWindow window = window;
 
-    public ITheme Theme { get; } = pluginSettings.Theme;
+    public ITheme Theme => pluginSettings.Theme;
 
     public Size WindowSize => new Size((int)window.ActualWidth, (int)window.ActualHeight);
 
