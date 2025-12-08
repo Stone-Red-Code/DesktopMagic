@@ -77,13 +77,13 @@
                     </Grid.ColumnDefinitions>
                     <ListBox x:Name="themesListBox" Grid.Row="0" Grid.ColumnSpan="1" Margin="{StaticResource DefaultMargin}" ItemsSource="{Binding Settings.Themes}" DisplayMemberPath="Name" SelectedValue="{Binding Settings.CurrentLayout.CurrentThemeName}" SelectedValuePath="Name" />
                     <StackPanel Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" Margin="{StaticResource DefaultMargin}">
-                        <Button x:Name="addThemeButton" Margin="0,0,0,5" HorizontalAlignment="Stretch" FontWeight="Regular">
+                        <Button x:Name="addThemeButton" Margin="0,0,0,5" HorizontalAlignment="Stretch" Click="AddThemeButton_Click" FontWeight="Regular">
                             <StackPanel Orientation="Horizontal">
                                 <materialDesign:PackIcon Kind="Add" Margin="0 0 10 0" />
                                 <TextBlock Text="{DynamicResource newTheme}" />
                             </StackPanel>
                         </Button>
-                        <Button x:Name="deleteThemeButton" Margin="0,0,0,5" HorizontalAlignment="Stretch" FontWeight="Regular">
+                        <Button x:Name="deleteThemeButton" Margin="0,0,0,5" HorizontalAlignment="Stretch" Click="DeleteThemeButton_Click" FontWeight="Regular">
                             <StackPanel Orientation="Horizontal">
                                 <materialDesign:PackIcon Kind="DeleteOutline" Margin="0 0 10 0" />
                                 <TextBlock Text="{DynamicResource deleteTheme}" />

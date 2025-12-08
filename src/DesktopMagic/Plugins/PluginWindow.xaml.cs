@@ -56,7 +56,17 @@ public partial class PluginWindow : Window
 
         Owner = w;
 
-        settings.Theme.PropertyChanged += (e, s) => ThemeChanged();
+        settings.PropertyChanged += (e, s) =>
+        {
+            if (s.PropertyName == nameof(PluginSettings.CurrentThemeName))
+            {
+                settings.Theme.PropertyChanged += (se, ev) =>
+                {
+                    ThemeChanged();
+                };
+                ThemeChanged();
+            }
+        };
 
         PluginMetadata = pluginMetadata;
         this.settings = settings;

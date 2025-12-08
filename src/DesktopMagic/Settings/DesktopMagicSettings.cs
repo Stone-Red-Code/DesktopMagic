@@ -19,9 +19,10 @@ internal class DesktopMagicSettings : INotifyPropertyChanged
     public ObservableCollection<Theme> Themes
     {
         get => themes;
-        set
+        init
         {
             themes = value;
+            themes.CollectionChanged += (s, e) => CurrentLayout.UpdateTheme();
             OnPropertyChanged();
         }
     }
@@ -32,6 +33,8 @@ internal class DesktopMagicSettings : INotifyPropertyChanged
         set
         {
             layouts = value;
+            layouts.CollectionChanged += (s, e) => OnPropertyChanged(nameof(CurrentLayout));
+            layouts.CollectionChanged += (s, e) => OnPropertyChanged(nameof(CurrentLayoutName));
             OnPropertyChanged();
         }
     }
@@ -51,6 +54,14 @@ internal class DesktopMagicSettings : INotifyPropertyChanged
     }
 
     public string? ModIoAccessToken { get; set; }
+
+    public DesktopMagicSettings()
+    {
+        themes.CollectionChanged += (s, e) => CurrentLayout.UpdateTheme();
+
+        layouts.CollectionChanged += (s, e) => OnPropertyChanged(nameof(CurrentLayout));
+        layouts.CollectionChanged += (s, e) => OnPropertyChanged(nameof(CurrentLayoutName));
+    }
 
     protected void OnPropertyChanged([CallerMemberName] string? name = null)
     {

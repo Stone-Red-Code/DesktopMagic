@@ -299,6 +299,39 @@ namespace DesktopMagic
 
         #region Options
 
+        private void AddThemeButton_Click(object sender, RoutedEventArgs e)
+        {
+            InputDialog inputDialog = new((string)FindResource("enterThemeName"))
+            {
+                Owner = this
+            };
+
+            if (inputDialog.ShowDialog() == true)
+            {
+                if (Settings.Themes.Any(l => l.Name.Trim() == inputDialog.ResponseText.Trim()))
+                {
+                    _ = MessageBox.Show((string)FindResource("themeAlreadyExists"), App.AppName, MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                Settings.Themes.Add(new Theme(inputDialog.ResponseText.Trim()));
+                Settings.CurrentLayout.CurrentThemeName = inputDialog.ResponseText.Trim();
+                SaveSettings();
+            }
+        }
+
+        private void DeleteThemeButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (Settings.Themes.Count <= 1)
+            {
+                _ = MessageBox.Show((string)FindResource("cannotDeleteLastTheme"), App.AppName, MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            Settings.Themes.Remove((Theme)themesListBox.SelectedItem);
+            SaveSettings();
+        }
+
         private void ChangeThemeButton_Click(object sender, RoutedEventArgs e)
         {
             Theme theme = themesListBox.SelectedItem as Theme ?? Settings.CurrentLayout.Theme;
@@ -428,6 +461,12 @@ namespace DesktopMagic
 
         private void RemoveLayoutButton_Click(object sender, RoutedEventArgs e)
         {
+            if (Settings.Layouts.Count <= 1)
+            {
+                _ = MessageBox.Show((string)FindResource("cannotDeleteLastLayout"), App.AppName, MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
             Settings.Layouts.Remove(Settings.CurrentLayout);
             SaveSettings();
         }
@@ -447,30 +486,27 @@ namespace DesktopMagic
         {
             if (!File.Exists(Path.Combine(App.ApplicationDataPath, "settings.json")))
             {
-                Settings = new DesktopMagicSettings()
-                {
-                    Layouts = [
-                        new Layout((string)FindResource("default"))
-                    ],
-                    Themes = [
-                        new Theme((string)FindResource("default"))
-                    ]
-                };
+                Settings = new DesktopMagicSettings();
+
+                Settings.Layouts.Add(new Layout((string)FindResource("default")));
+                Settings.Themes.Add(new Theme((string)FindResource("default")));
 
                 return;
             }
 
             string json = File.ReadAllText(Path.Combine(App.ApplicationDataPath, "settings.json"));
 
-            Settings = JsonSerializer.Deserialize<DesktopMagicSettings>(json, jsonSettingsOptions) ?? new DesktopMagicSettings()
+            Settings = JsonSerializer.Deserialize<DesktopMagicSettings>(json, jsonSettingsOptions) ?? new DesktopMagicSettings();
+
+            if(Settings.Layouts.Count == 0)
             {
-                Layouts = [
-                    new Layout((string)FindResource("default"))
-                ],
-                Themes = [
-                    new Theme((string)FindResource("default"))
-                ]
-            };
+                Settings.Layouts.Add(new Layout((string)FindResource("default")));
+            }
+
+            if (Settings.Themes.Count == 0)
+            {
+                Settings.Themes.Add(new Theme((string)FindResource("default")));
+            }
         }
 
         private void LoadLayout(bool minimize = true)

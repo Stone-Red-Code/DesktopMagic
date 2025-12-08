@@ -100,6 +100,12 @@ public class PluginSettings : INotifyPropertyChanged
         }
     }
 
+    public void UpdateTheme()
+    {
+        OnPropertyChanged(nameof(Theme));
+        OnPropertyChanged(nameof(CurrentThemeName));
+    }
+
     protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));

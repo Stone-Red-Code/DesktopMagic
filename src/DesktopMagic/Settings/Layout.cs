@@ -29,14 +29,13 @@ internal class Layout(string name) : INotifyPropertyChanged
 
     public string? CurrentThemeName
     {
-        get => currentThemeName;
+        get => Theme.Name;
         set
         {
             if (currentThemeName != value)
             {
                 currentThemeName = value;
-                OnPropertyChanged();
-                OnPropertyChanged(nameof(Theme));
+                UpdateTheme();
             }
         }
     }
@@ -65,6 +64,17 @@ internal class Layout(string name) : INotifyPropertyChanged
     {
         plugins = plugins.ToDictionary();
         OnPropertyChanged(nameof(Plugins));
+    }
+
+    public void UpdateTheme()
+    {
+        OnPropertyChanged(nameof(Theme));
+        OnPropertyChanged(nameof(CurrentThemeName));
+
+        foreach (PluginSettings pluginSettings in plugins.Values)
+        {
+            pluginSettings.UpdateTheme();
+        }
     }
 
     protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)

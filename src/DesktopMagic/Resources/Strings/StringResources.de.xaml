@@ -41,6 +41,8 @@
     <system:String x:Key="cancel">Abbrechen</system:String>
     <system:String x:Key="enterLayoutName">Layoutnamen eingeben:</system:String>
     <system:String x:Key="layoutAlreadyExists">Layout existiert bereits!</system:String>
+    <system:String x:Key="enterThemeName">Themenamen eingeben:</system:String>
+    <system:String x:Key="themeAlreadyExists">Theme existiert bereits!</system:String>
     <system:String x:Key="install">Installieren</system:String>
     <system:String x:Key="uninstall">Deinstallieren</system:String>
     <system:String x:Key="remove">Entfernen</system:String>
