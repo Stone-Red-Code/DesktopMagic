@@ -1,6 +1,7 @@
 ﻿using DesktopMagic.Api;
 using DesktopMagic.Api.Drawing;
 using DesktopMagic.Api.Settings;
+using DesktopMagic.DataContexts;
 using DesktopMagic.Helpers;
 using DesktopMagic.Plugins;
 using DesktopMagic.Settings;
@@ -250,9 +251,15 @@ public partial class PluginWindow : Window
         {
             SetHorizontalAlignment();
             SetVerticalAlignment();
+            SetThemeOverride();
+            SetThemeOverrideItems();
 
             pluginClassInstance.horizontalAlignment.OnValueChanged += SetHorizontalAlignment;
             pluginClassInstance.verticalAlignment.OnValueChanged += SetVerticalAlignment;
+            pluginClassInstance.themeOverride.OnValueChanged += SetThemeOverride;
+
+            DesktopMagicSettings desktopMagicSettings = MainWindowDataContext.GetSettings();
+            desktopMagicSettings.Themes.CollectionChanged += (s, e) => SetThemeOverrideItems();
         });
 
         void SetVerticalAlignment()
@@ -281,6 +288,31 @@ public partial class PluginWindow : Window
 
             viewBox.HorizontalAlignment = horizontalAlignment;
             border.HorizontalAlignment = horizontalAlignment;
+        }
+
+        void SetThemeOverride()
+        {
+            if (pluginClassInstance.themeOverride.Value == "<None>")
+            {
+                settings.CurrentThemeName = null;
+            }
+            else
+            {
+                settings.CurrentThemeName = pluginClassInstance.themeOverride.Value;
+            }
+        }
+
+        void SetThemeOverrideItems()
+        {
+            DesktopMagicSettings desktopMagicSettings = MainWindowDataContext.GetSettings();
+
+            pluginClassInstance.themeOverride.Items.Clear();
+            pluginClassInstance.themeOverride.Items.Add("<None>");
+
+            foreach (Theme theme in desktopMagicSettings.Themes)
+            {
+                pluginClassInstance.themeOverride.Items.Add(theme.Name);
+            }
         }
     }
 
