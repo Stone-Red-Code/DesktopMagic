@@ -428,7 +428,15 @@ public partial class PluginWindow : Window
     {
         App.Logger.LogInfo($"\"{PluginMetadata.Name}\" - Stopping plugin", source: "Plugin");
         IsRunning = false;
-        pluginClassInstance?.Stop();
+
+        try
+        {
+            pluginClassInstance?.Stop();
+        }
+        catch (Exception ex)
+        {
+            App.Logger.LogError($"\"{PluginMetadata.Name}\" - {ex}", source: "Plugin");
+        }
     }
 
     #region Window Events
