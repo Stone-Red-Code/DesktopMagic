@@ -13,6 +13,7 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Loader;
 using System.Threading;
 using System.Timers;
 using System.Windows;
@@ -32,6 +33,7 @@ public partial class PluginWindow : Window
     private Thread? pluginThread;
     private System.Timers.Timer? updateTimer;
     private Plugin? pluginClassInstance;
+    private readonly AssemblyLoadContext assemblyLoadContext;
 
     public bool IsRunning { get; private set; } = true;
     public PluginMetadata PluginMetadata { get; private set; }
@@ -78,6 +80,21 @@ public partial class PluginWindow : Window
         Height = settings.Size.Y;
 
         PluginFolderPath = pluginFolderPath;
+
+        assemblyLoadContext = new AssemblyLoadContext(pluginMetadata.Name, isCollectible: true);
+        assemblyLoadContext.Resolving += (context, assemblyName) =>
+        {
+            string assemblyPath = Path.Combine(PluginFolderPath, assemblyName.Name + ".dll");
+            if (File.Exists(assemblyPath))
+            {
+                return context.LoadFromAssemblyPath(assemblyPath);
+            }
+            else
+            {
+                _ = assemblyLoadContext.LoadFromAssemblyName(assemblyName);
+            }
+            return null;
+        };
     }
 
     public PluginWindow(Plugin pluginClassInstance, PluginMetadata pluginMetadata, PluginSettings settings) : this(pluginMetadata, settings, string.Empty)
@@ -199,7 +216,11 @@ public partial class PluginWindow : Window
         object? instance = pluginClassInstance;
         if (instance is null)
         {
-            Assembly dll = Assembly.LoadFrom($"{PluginFolderPath}\\main.dll");
+            byte[] assemblyData = File.ReadAllBytes($"{PluginFolderPath}\\main.dll");
+            using MemoryStream assemblyStream = new(assemblyData);
+
+            Assembly dll = assemblyLoadContext.LoadFromStream(assemblyStream);
+
             Type? instanceType = Array.Find(dll.GetTypes(), type => type.GetTypeInfo().BaseType == typeof(Plugin));
 
             if (instanceType is null)
@@ -216,7 +237,7 @@ public partial class PluginWindow : Window
         if (instance is Plugin plugin)
         {
             pluginClassInstance = plugin;
-            pluginClassInstance.Application = new Plugins.PluginData(this, settings);
+            pluginClassInstance.Application = new PluginData(this, settings);
         }
         else
         {
@@ -437,6 +458,8 @@ public partial class PluginWindow : Window
         {
             App.Logger.LogError($"\"{PluginMetadata.Name}\" - {ex}", source: "Plugin");
         }
+
+        assemblyLoadContext.Unload();
     }
 
     #region Window Events
