@@ -27,7 +27,8 @@ namespace DesktopMagic
             {new((string)App.LanguageDictionary["musicVisualizer"], 1), typeof(MusicVisualizerPlugin)},
             {new((string)App.LanguageDictionary["time"],2), typeof(TimePlugin)},
             {new((string)App.LanguageDictionary["date"],3), typeof(DatePlugin)},
-            {new((string)App.LanguageDictionary["cpuUsage"], 4), typeof(CpuMonitorPlugin)}
+            {new((string)App.LanguageDictionary["cpuUsage"], 4), typeof(CpuMonitorPlugin)},
+            {new("Weather", 5), typeof(WeatherPlugin)},
         };
 
         private bool loaded = false;
@@ -376,7 +377,7 @@ namespace DesktopMagic
 
                 TextBlock textBlock = new()
                 {
-                    Text = $"{settingElement.Name}:",
+                    Text = string.IsNullOrWhiteSpace(settingElement.Name) ? string.Empty : $"{settingElement.Name}:",
                     Padding = new Thickness(0, 0, 3, 0),
                     VerticalAlignment = VerticalAlignment.Center
                 };
