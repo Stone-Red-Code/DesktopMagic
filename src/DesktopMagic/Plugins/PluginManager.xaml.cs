@@ -55,11 +55,13 @@ public partial class PluginManager : Window
         if (modIoAccessToken is null)
         {
             modIoClient = new Client(new Credentials(ModIoApiKey));
+            App.Logger.LogInfo("Initialized mod.io client without authentication", source: "PluginManager");
         }
         else
         {
             modIoClient = new Client(new Credentials(ModIoApiKey, modIoAccessToken));
             pluginManagerDataContext.IsAuthenticated = true;
+            App.Logger.LogInfo("Initialized mod.io client with authentication", source: "PluginManager");
         }
 
         InitializeComponent();
@@ -74,6 +76,7 @@ public partial class PluginManager : Window
 
     public async Task Remove(string pluginPath, uint id)
     {
+        App.Logger.LogInfo($"Removing plugin with ID {id} from path: {pluginPath}", source: "PluginManager");
         pluginManagerDataContext.IsLoading = true;
 
         PluginEntryDataContext? pluginEntryDataContext = pluginManagerDataContext.InstalledPlugins.FirstOrDefault(p => p.Id == id);
@@ -83,6 +86,7 @@ public partial class PluginManager : Window
             try
             {
                 Directory.Delete(pluginPath, true);
+                App.Logger.LogInfo($"Successfully deleted plugin directory: {pluginPath}", source: "PluginManager");
             }
             catch (Exception ex)
             {
@@ -94,11 +98,20 @@ public partial class PluginManager : Window
         if (pluginEntryDataContext is not null)
         {
             _ = pluginManagerDataContext.InstalledPlugins.Remove(pluginEntryDataContext);
+            App.Logger.LogInfo($"Removed plugin {id} from installed plugins list", source: "PluginManager");
         }
 
         if (pluginManagerDataContext.IsAuthenticated)
         {
-            await modIoClient.Games[ModIoGameId].Mods.Unsubscribe(id);
+            try
+            {
+                await modIoClient.Games[ModIoGameId].Mods.Unsubscribe(id);
+                App.Logger.LogInfo($"Unsubscribed from plugin {id} on mod.io", source: "PluginManager");
+            }
+            catch (Exception ex)
+            {
+                App.Logger.LogError($"Failed to unsubscribe from plugin {id}: {ex.Message}", source: "PluginManager");
+            }
         }
 
         pluginManagerDataContext.IsLoading = false;
@@ -108,6 +121,7 @@ public partial class PluginManager : Window
     {
         base.OnInitialized(e);
 
+        App.Logger.LogInfo("Initializing Plugin Manager", source: "PluginManager");
         HashSet<uint> pluginIds = [];
 
         foreach (string pluginPath in Directory.GetDirectories(pluginsPath))
@@ -116,6 +130,7 @@ public partial class PluginManager : Window
 
             if (!File.Exists(pluginMetadataPath))
             {
+                App.Logger.LogWarn($"Plugin metadata not found at: {pluginMetadataPath}", source: "PluginManager");
                 continue;
             }
 
@@ -123,9 +138,11 @@ public partial class PluginManager : Window
 
             if (pluginMetadata is null)
             {
+                App.Logger.LogWarn($"Failed to deserialize plugin metadata from: {pluginMetadataPath}", source: "PluginManager");
                 continue;
             }
 
+            App.Logger.LogInfo($"Loaded plugin: {pluginMetadata.Name} (ID: {pluginMetadata.Id})", source: "PluginManager");
             pluginManagerDataContext.InstalledPlugins.Add(new PluginEntryDataContext(pluginMetadata, new CommandHandler(async () => await Remove(pluginPath, pluginMetadata.Id)), PluginEntryDataContext.Mode.Uninstall, pluginPath));
             _ = pluginIds.Add(pluginMetadata.Id);
 
@@ -134,32 +151,50 @@ public partial class PluginManager : Window
                 continue;
             }
 
-            Mod mod = await modIoClient.Games[ModIoGameId].Mods[pluginMetadata.Id].Get();
-
-            if (DateTimeOffset.FromUnixTimeSeconds(mod.DateUpdated).DateTime > pluginMetadata.Updated && pluginMetadata.SupportsUnloading)
+            try
             {
-                await Remove(pluginPath, pluginMetadata.Id);
-                await Install(mod);
-                pluginManagerDataContext.IsLoading = true;
+                Mod mod = await modIoClient.Games[ModIoGameId].Mods[pluginMetadata.Id].Get();
+
+                if (DateTimeOffset.FromUnixTimeSeconds(mod.DateUpdated).DateTime > pluginMetadata.Updated && pluginMetadata.SupportsUnloading)
+                {
+                    App.Logger.LogInfo($"Plugin {pluginMetadata.Id} has an update available, reinstalling", source: "PluginManager");
+                    await Remove(pluginPath, pluginMetadata.Id);
+                    await Install(mod);
+                    pluginManagerDataContext.IsLoading = true;
+                }
+            }
+            catch (Exception ex)
+            {
+                App.Logger.LogError($"Failed to check for plugin {pluginMetadata.Id} updates: {ex.Message}", source: "PluginManager");
             }
         }
 
         Filter filter = ModFilter.Popular.Desc().Limit(100);
 
-        IAsyncEnumerable<Mod> mods = modIoClient.Games[ModIoGameId].Mods.Search(filter).ToEnumerable();
-        await foreach (Mod mod in mods)
+        try
         {
-            if (pluginIds.Contains(mod.Id))
+            App.Logger.LogInfo("Fetching popular plugins from mod.io", source: "PluginManager");
+            IAsyncEnumerable<Mod> mods = modIoClient.Games[ModIoGameId].Mods.Search(filter).ToEnumerable();
+            await foreach (Mod mod in mods)
             {
-                continue;
-            }
+                if (pluginIds.Contains(mod.Id))
+                {
+                    continue;
+                }
 
-            pluginManagerDataContext.AllPlugins.Add(new PluginEntryDataContext(new(mod), new CommandHandler(async () => await Install(mod)), PluginEntryDataContext.Mode.Install));
+                pluginManagerDataContext.AllPlugins.Add(new PluginEntryDataContext(new(mod), new CommandHandler(async () => await Install(mod)), PluginEntryDataContext.Mode.Install));
+            }
+            App.Logger.LogInfo($"Loaded {pluginManagerDataContext.AllPlugins.Count} available plugins", source: "PluginManager");
+        }
+        catch (Exception ex)
+        {
+            App.Logger.LogError($"Failed to fetch plugins from mod.io: {ex.Message}", source: "PluginManager");
         }
 
         await SyncPlugins();
 
         pluginManagerDataContext.IsLoading = false;
+        App.Logger.LogInfo("Plugin Manager initialization complete", source: "PluginManager");
     }
 
     protected override void OnClosing(CancelEventArgs e)
@@ -172,10 +207,12 @@ public partial class PluginManager : Window
 
     private async Task Install(Mod mod)
     {
+        App.Logger.LogInfo($"Installing plugin: {mod.Name} (ID: {mod.Id})", source: "PluginManager");
         pluginManagerDataContext.IsLoading = true;
 
         if (mod.Modfile?.Download?.BinaryUrl is null)
         {
+            App.Logger.LogWarn($"Plugin {mod.Id} has no download URL", source: "PluginManager");
             return;
         }
 
@@ -183,44 +220,64 @@ public partial class PluginManager : Window
         string pluginPath = Path.Combine(pluginsPath, pluginGuid);
         string zipFilePath = Path.Combine(pluginsPath, pluginGuid + ".zip");
 
-        using (Stream fileStream = await httpClient.GetStreamAsync(mod.Modfile.Download.BinaryUrl))
+        try
         {
-            using FileStream outputFileStream = new FileStream(zipFilePath, FileMode.Create);
+            App.Logger.LogInfo($"Downloading plugin from: {mod.Modfile.Download.BinaryUrl}", source: "PluginManager");
+            using (Stream fileStream = await httpClient.GetStreamAsync(mod.Modfile.Download.BinaryUrl))
+            {
+                using FileStream outputFileStream = new FileStream(zipFilePath, FileMode.Create);
+                await fileStream.CopyToAsync(outputFileStream);
+            }
+            App.Logger.LogInfo($"Plugin downloaded to: {zipFilePath}", source: "PluginManager");
 
-            await fileStream.CopyToAsync(outputFileStream);
+            using (ZipArchive zipArchive = ZipFile.OpenRead(zipFilePath))
+            {
+                zipArchive.ExtractToDirectory(pluginPath);
+            }
+            App.Logger.LogInfo($"Plugin extracted to: {pluginPath}", source: "PluginManager");
+
+            string pluginMetadataPath = Path.Combine(pluginPath, "metadata.json");
+            await File.WriteAllTextAsync(pluginMetadataPath, JsonSerializer.Serialize(new PluginMetadata(mod)));
+
+            File.Delete(zipFilePath);
+
+            if (!File.Exists(Path.Combine(pluginPath, "main.dll")))
+            {
+                App.Logger.LogError($"Plugin {mod.Id} does not contain main.dll", source: "PluginManager");
+                _ = Remove(pluginPath, mod.Id);
+                pluginManagerDataContext.IsLoading = false;
+                _ = MessageBox.Show("The plugin you are trying to install does not contain a \"main.dll\" file. Please contact the plugin author.", "Plugin Manager", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            PluginEntryDataContext? pluginEntryDataContext = pluginManagerDataContext.AllPlugins.FirstOrDefault(p => p.Id == mod.Id);
+
+            if (pluginEntryDataContext is not null)
+            {
+                _ = pluginManagerDataContext.AllPlugins.Remove(pluginEntryDataContext);
+            }
+
+            if (pluginManagerDataContext.IsAuthenticated)
+            {
+                try
+                {
+                    await modIoClient.Games[ModIoGameId].Mods.Subscribe(mod.Id);
+                    App.Logger.LogInfo($"Subscribed to plugin {mod.Id} on mod.io", source: "PluginManager");
+                }
+                catch (Exception ex)
+                {
+                    App.Logger.LogError($"Failed to subscribe to plugin {mod.Id}: {ex.Message}", source: "PluginManager");
+                }
+            }
+
+            pluginManagerDataContext.InstalledPlugins.Add(new PluginEntryDataContext(new PluginMetadata(mod), new CommandHandler(async () => await Remove(pluginPath, mod.Id)), PluginEntryDataContext.Mode.Uninstall, pluginPath));
+            App.Logger.LogInfo($"Successfully installed plugin: {mod.Name} (ID: {mod.Id})", source: "PluginManager");
         }
-
-        using (ZipArchive zipArchive = ZipFile.OpenRead(zipFilePath))
+        catch (Exception ex)
         {
-            zipArchive.ExtractToDirectory(pluginPath);
+            App.Logger.LogError($"Failed to install plugin {mod.Id}: {ex.Message}", source: "PluginManager");
+            _ = MessageBox.Show($"Failed to install plugin: {ex.Message}", "Plugin Manager", MessageBoxButton.OK, MessageBoxImage.Error);
         }
-
-        string pluginMetadataPath = Path.Combine(pluginPath, "metadata.json");
-        await File.WriteAllTextAsync(pluginMetadataPath, JsonSerializer.Serialize(new PluginMetadata(mod)));
-
-        File.Delete(zipFilePath);
-
-        if (!File.Exists(Path.Combine(pluginPath, "main.dll")))
-        {
-            _ = Remove(pluginPath, mod.Id);
-            pluginManagerDataContext.IsLoading = false;
-            _ = MessageBox.Show("The plugin you are trying to install does not contain a \"main.dll\" file. Please contact the plugin author.", "Plugin Manager", MessageBoxButton.OK, MessageBoxImage.Error);
-            return;
-        }
-
-        PluginEntryDataContext? pluginEntryDataContext = pluginManagerDataContext.AllPlugins.FirstOrDefault(p => p.Id == mod.Id);
-
-        if (pluginEntryDataContext is not null)
-        {
-            _ = pluginManagerDataContext.AllPlugins.Remove(pluginEntryDataContext);
-        }
-
-        if (pluginManagerDataContext.IsAuthenticated)
-        {
-            await modIoClient.Games[ModIoGameId].Mods.Subscribe(mod.Id);
-        }
-
-        pluginManagerDataContext.InstalledPlugins.Add(new PluginEntryDataContext(new PluginMetadata(mod), new CommandHandler(async () => await Remove(pluginPath, mod.Id)), PluginEntryDataContext.Mode.Uninstall, pluginPath));
 
         pluginManagerDataContext.IsLoading = false;
     }
@@ -234,6 +291,7 @@ public partial class PluginManager : Window
             FileName = uri
         };
         _ = Process.Start(psi);
+        App.Logger.LogInfo($"Opened mod.io page: {uri}", source: "PluginManager");
     }
 
     private void AllPluginsSearchTextBox_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
@@ -263,6 +321,7 @@ public partial class PluginManager : Window
 
     private async Task SearchAllPlugins(string searchString)
     {
+        App.Logger.LogInfo($"Searching plugins with query: {searchString}", source: "PluginManager");
         pluginManagerDataContext.AllPlugins.Clear();
 
         if (!searchString.Contains('*'))
@@ -272,15 +331,23 @@ public partial class PluginManager : Window
 
         Filter filter = ModFilter.Name.Like($"{searchString}").And(ModFilter.Popular.Desc()).Limit(100);
 
-        IAsyncEnumerable<Mod> mods = modIoClient.Games[ModIoGameId].Mods.Search(filter).ToEnumerable();
-        await foreach (Mod mod in mods)
+        try
         {
-            if (pluginManagerDataContext.InstalledPlugins.Any(p => p.Id == mod.Id))
+            IAsyncEnumerable<Mod> mods = modIoClient.Games[ModIoGameId].Mods.Search(filter).ToEnumerable();
+            await foreach (Mod mod in mods)
             {
-                continue;
-            }
+                if (pluginManagerDataContext.InstalledPlugins.Any(p => p.Id == mod.Id))
+                {
+                    continue;
+                }
 
-            pluginManagerDataContext.AllPlugins.Add(new PluginEntryDataContext(new(mod), new CommandHandler(async () => await Install(mod)), PluginEntryDataContext.Mode.Install));
+                pluginManagerDataContext.AllPlugins.Add(new PluginEntryDataContext(new(mod), new CommandHandler(async () => await Install(mod)), PluginEntryDataContext.Mode.Install));
+            }
+            App.Logger.LogInfo($"Search completed: {pluginManagerDataContext.AllPlugins.Count} plugins found", source: "PluginManager");
+        }
+        catch (Exception ex)
+        {
+            App.Logger.LogError($"Plugin search failed: {ex.Message}", source: "PluginManager");
         }
 
         pluginManagerDataContext.IsSearching = false;
@@ -301,8 +368,11 @@ public partial class PluginManager : Window
 
     private void CreateNewPlugin()
     {
+        App.Logger.LogInfo("Creating new plugin", source: "PluginManager");
+
         if (!FileUtilities.ExistsOnPath("dotnet.exe"))
         {
+            App.Logger.LogError(".NET SDK not found on PATH", source: "PluginManager");
             _ = MessageBox.Show("The .NET SDK is required to create a plugin. Please install it and try again.", "Plugin Manager", MessageBoxButton.OK, MessageBoxImage.Error);
             return;
         }
@@ -318,6 +388,7 @@ public partial class PluginManager : Window
 
         if (inputDialog.ShowDialog() != true)
         {
+            App.Logger.LogInfo("Plugin creation cancelled by user", source: "PluginManager");
             return;
         }
 
@@ -328,6 +399,8 @@ public partial class PluginManager : Window
         pluginSafeName = info.ToTitleCase(pluginSafeName);
         pluginSafeName = IdentifierNameRegex().Replace(pluginSafeName, "");
 
+        App.Logger.LogInfo($"Creating plugin with name: {pluginName} (safe name: {pluginSafeName})", source: "PluginManager");
+
         if (!Directory.Exists(pluginDevelopmentPath))
         {
             _ = Directory.CreateDirectory(pluginDevelopmentPath);
@@ -337,6 +410,7 @@ public partial class PluginManager : Window
 
         if (Directory.Exists(pluginProjectPath))
         {
+            App.Logger.LogWarn($"Plugin project already exists: {pluginProjectPath}", source: "PluginManager");
             _ = MessageBox.Show("A plugin with the same name already exists. Please choose a different name.", "Plugin Manager", MessageBoxButton.OK, MessageBoxImage.Error);
             return;
         }
@@ -349,11 +423,12 @@ public partial class PluginManager : Window
         string pluginMetadataPath = Path.Combine(pluginPath, "metadata.json");
         File.WriteAllText(pluginMetadataPath, JsonSerializer.Serialize(pluginMetadata));
 
+        App.Logger.LogInfo($"Creating .NET project at: {pluginProjectPath}", source: "PluginManager");
         string cmd = $"new classlib -n {pluginSafeName} -o {pluginProjectPath} -f net8.0 --target-framework-override net8.0-windows7";
         Process process = Process.Start("dotnet", cmd);
         process.WaitForExit();
 
-        // Install the required NuGet packages
+        App.Logger.LogInfo("Installing NuGet package: DesktopMagic.Api", source: "PluginManager");
         process = Process.Start("dotnet", $"add {pluginProjectPath} package DesktopMagic.Api");
         process.WaitForExit();
 
@@ -383,8 +458,6 @@ public class {pluginSafeName}Plugin : Plugin
     }}
 }}
 ";
-
-        // Update the .csproj file
 
         string csprojPath = Path.Combine(pluginProjectPath, $"{pluginSafeName}.csproj");
 
@@ -429,23 +502,25 @@ public class {pluginSafeName}Plugin : Plugin
             }
 
             doc.Save(csprojPath);
+            App.Logger.LogInfo("Updated .csproj file with custom build settings", source: "PluginManager");
         }
         else
         {
+            App.Logger.LogError("PropertyGroup element not found in .csproj", source: "PluginManager");
             _ = MessageBox.Show("PropertyGroup element not found in .csproj", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             return;
         }
-
-        // Open the project in the default IDE
 
         string? associatedProgram = FileUtilities.GetAssociatedProgram(".csproj");
 
         if (associatedProgram is null)
         {
+            App.Logger.LogInfo($"Opening plugin project in Explorer: {pluginProjectPath}", source: "PluginManager");
             _ = Process.Start("explorer.exe", pluginProjectPath);
             return;
         }
 
+        App.Logger.LogInfo($"Opening plugin project in IDE: {associatedProgram}", source: "PluginManager");
         ProcessStartInfo psi = new ProcessStartInfo
         {
             FileName = associatedProgram,
@@ -453,16 +528,20 @@ public class {pluginSafeName}Plugin : Plugin
         };
 
         _ = Process.Start(psi);
+        App.Logger.LogInfo($"Successfully created plugin: {pluginName}", source: "PluginManager");
     }
 
     private async void LogInButton_Click(object sender, RoutedEventArgs e)
     {
         if (pluginManagerDataContext.IsAuthenticated)
         {
+            App.Logger.LogInfo("Logging out from mod.io", source: "PluginManager");
             MainWindowDataContext.GetSettings().ModIoAccessToken = null;
             pluginManagerDataContext.IsAuthenticated = false;
             return;
         }
+
+        App.Logger.LogInfo("Starting mod.io authentication", source: "PluginManager");
 
         try
         {
@@ -473,9 +552,11 @@ public class {pluginSafeName}Plugin : Plugin
 
             if (inputDialog.ShowDialog() != true)
             {
+                App.Logger.LogInfo("Authentication cancelled by user", source: "PluginManager");
                 return;
             }
 
+            App.Logger.LogInfo($"Requesting authentication code for email: {inputDialog.ResponseText}", source: "PluginManager");
             await modIoClient.Auth.RequestCode(ModIoApiKey, inputDialog.ResponseText);
 
             inputDialog = new((string)FindResource("enterModIoAccessToken"), "Plugin Manager")
@@ -485,6 +566,7 @@ public class {pluginSafeName}Plugin : Plugin
 
             if (inputDialog.ShowDialog() != true)
             {
+                App.Logger.LogInfo("Authentication cancelled by user", source: "PluginManager");
                 return;
             }
 
@@ -495,11 +577,13 @@ public class {pluginSafeName}Plugin : Plugin
             if (accessToken.Value is not null)
             {
                 modIoClient = new Client(new Credentials(ModIoApiKey, accessToken.Value));
+                App.Logger.LogInfo("Successfully authenticated with mod.io", source: "PluginManager");
             }
 
             MainWindowDataContext.GetSettings().ModIoAccessToken = accessToken.Value;
             pluginManagerDataContext.IsAuthenticated = true;
 
+            App.Logger.LogInfo("Subscribing to installed plugins on mod.io", source: "PluginManager");
             foreach (PluginEntryDataContext plugin in pluginManagerDataContext.InstalledPlugins)
             {
                 if (!plugin.IsLocalPlugin)
@@ -507,10 +591,11 @@ public class {pluginSafeName}Plugin : Plugin
                     try
                     {
                         await modIoClient.Games[ModIoGameId].Mods.Subscribe(plugin.Id);
+                        App.Logger.LogInfo($"Subscribed to plugin {plugin.Id}", source: "PluginManager");
                     }
                     catch (Exception ex)
                     {
-                        App.Logger.LogError(ex.Message, source: "PluginManager");
+                        App.Logger.LogError($"Failed to subscribe to plugin {plugin.Id}: {ex.Message}", source: "PluginManager");
                     }
                 }
             }
@@ -519,7 +604,7 @@ public class {pluginSafeName}Plugin : Plugin
         }
         catch (Exception ex)
         {
-            App.Logger.LogError(ex.Message, source: "PluginManager");
+            App.Logger.LogError($"Authentication failed: {ex.Message}", source: "PluginManager");
             _ = MessageBox.Show(ex.Message, "Plugin Manager", MessageBoxButton.OK, MessageBoxImage.Error);
         }
 
@@ -533,33 +618,47 @@ public class {pluginSafeName}Plugin : Plugin
             return;
         }
 
-        IReadOnlyList<Mod> mods = await modIoClient.User.GetSubscriptions(ModFilter.GameId.Eq(ModIoGameId)).ToList();
+        App.Logger.LogInfo("Syncing plugins with mod.io subscriptions", source: "PluginManager");
 
-        List<PluginEntryDataContext> pluginsToRemove = [];
-
-        foreach (PluginEntryDataContext plugin in pluginManagerDataContext.InstalledPlugins)
+        try
         {
-            if (!plugin.IsLocalPlugin && !mods.Any(m => m.Id == plugin.Id))
+            IReadOnlyList<Mod> mods = await modIoClient.User.GetSubscriptions(ModFilter.GameId.Eq(ModIoGameId)).ToList();
+            App.Logger.LogInfo($"Found {mods.Count} subscribed plugins on mod.io", source: "PluginManager");
+
+            List<PluginEntryDataContext> pluginsToRemove = [];
+
+            foreach (PluginEntryDataContext plugin in pluginManagerDataContext.InstalledPlugins)
             {
-                pluginsToRemove.Add(plugin);
+                if (!plugin.IsLocalPlugin && !mods.Any(m => m.Id == plugin.Id))
+                {
+                    App.Logger.LogInfo($"Plugin {plugin.Id} is no longer subscribed, marking for removal", source: "PluginManager");
+                    pluginsToRemove.Add(plugin);
+                }
             }
-        }
 
-        foreach (PluginEntryDataContext plugin in pluginsToRemove)
-        {
-            if (plugin.Path is null)
+            foreach (PluginEntryDataContext plugin in pluginsToRemove)
             {
-                continue;
+                if (plugin.Path is null)
+                {
+                    continue;
+                }
+
+                await Remove(plugin.Path, plugin.Id);
             }
 
-            await Remove(plugin.Path, plugin.Id);
+            IEnumerable<Mod> notInstalledMods = mods.Where(m => !pluginManagerDataContext.InstalledPlugins.Any(p => p.Id == m.Id));
+
+            foreach (Mod mod in notInstalledMods)
+            {
+                App.Logger.LogInfo($"Installing subscribed plugin: {mod.Name} (ID: {mod.Id})", source: "PluginManager");
+                await Install(mod);
+            }
+
+            App.Logger.LogInfo("Plugin sync completed", source: "PluginManager");
         }
-
-        IEnumerable<Mod> notInstalledMods = mods.Where(m => !pluginManagerDataContext.InstalledPlugins.Any(p => p.Id == m.Id));
-
-        foreach (Mod mod in notInstalledMods)
+        catch (Exception ex)
         {
-            await Install(mod);
+            App.Logger.LogError($"Plugin sync failed: {ex.Message}", source: "PluginManager");
         }
     }
 }
