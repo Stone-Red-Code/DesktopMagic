@@ -31,6 +31,7 @@
     <system:String x:Key="date">Date</system:String>
     <system:String x:Key="cpuUsage">CPU Usage</system:String>
     <system:String x:Key="musicVisualizer">Music Visualizer</system:String>
+    <system:String x:Key="weather">Weather</system:String>
     <system:String x:Key="amplifier">Signal Amplification:</system:String>
     <system:String x:Key="newLayout">New Layout</system:String>
     <system:String x:Key="deleteLayout">Delete Layout</system:String>
@@ -39,6 +40,8 @@
     <system:String x:Key="changeTheme">Change Theme</system:String>
     <system:String x:Key="ok">Ok</system:String>
     <system:String x:Key="cancel">Cancel</system:String>
+    <system:String x:Key="confirmDeleteLayout">Do you really want to delete this layout?</system:String>
+    <system:String x:Key="confirmDeleteTheme">Do you really want to delete this theme?</system:String>
     <system:String x:Key="enterLayoutName">Enter layout name</system:String>
     <system:String x:Key="layoutAlreadyExists">Layout already exists!</system:String>
     <system:String x:Key="cannotDeleteLastLayout">Can't delete last layout!</system:String>

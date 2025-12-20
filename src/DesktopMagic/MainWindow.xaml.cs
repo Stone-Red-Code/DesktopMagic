@@ -28,7 +28,7 @@ namespace DesktopMagic
             {new((string)App.LanguageDictionary["time"],2), typeof(TimePlugin)},
             {new((string)App.LanguageDictionary["date"],3), typeof(DatePlugin)},
             {new((string)App.LanguageDictionary["cpuUsage"], 4), typeof(CpuMonitorPlugin)},
-            {new("Weather", 5), typeof(WeatherPlugin)},
+            {new((string)App.LanguageDictionary["weather"], 5), typeof(WeatherPlugin)},
         };
 
         private bool loaded = false;
@@ -329,6 +329,12 @@ namespace DesktopMagic
                 return;
             }
 
+            MessageBoxResult result = MessageBox.Show((string)FindResource("confirmDeleteTheme"), App.AppName, MessageBoxButton.YesNo, MessageBoxImage.Question);
+            if (result != MessageBoxResult.Yes)
+            {
+                return;
+            }
+
             Settings.Themes.Remove((Theme)themesListBox.SelectedItem);
             SaveSettings();
         }
@@ -465,6 +471,12 @@ namespace DesktopMagic
             if (Settings.Layouts.Count <= 1)
             {
                 _ = MessageBox.Show((string)FindResource("cannotDeleteLastLayout"), App.AppName, MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            MessageBoxResult result = MessageBox.Show((string)FindResource("confirmDeleteLayout"), App.AppName, MessageBoxButton.YesNo, MessageBoxImage.Question);
+            if (result != MessageBoxResult.Yes)
+            {
                 return;
             }
 
