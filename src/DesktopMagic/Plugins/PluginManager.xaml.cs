@@ -113,6 +113,7 @@ public partial class PluginManager : Window
         foreach (string pluginPath in Directory.GetDirectories(pluginsPath))
         {
             string pluginMetadataPath = Path.Combine(pluginPath, "metadata.json");
+
             if (!File.Exists(pluginMetadataPath))
             {
                 continue;
@@ -128,17 +129,18 @@ public partial class PluginManager : Window
             pluginManagerDataContext.InstalledPlugins.Add(new PluginEntryDataContext(pluginMetadata, new CommandHandler(async () => await Remove(pluginPath, pluginMetadata.Id)), PluginEntryDataContext.Mode.Uninstall, pluginPath));
             _ = pluginIds.Add(pluginMetadata.Id);
 
-            if (string.IsNullOrEmpty(pluginMetadata.ProfileUri?.ToString()))
+            if (pluginMetadata.IsLocalPlugin)
             {
                 continue;
             }
 
             Mod mod = await modIoClient.Games[ModIoGameId].Mods[pluginMetadata.Id].Get();
 
-            if (DateTimeOffset.FromUnixTimeSeconds(mod.DateUpdated).DateTime > pluginMetadata.Updated && !pluginMetadata.Tags.Contains("Does Not Support Unloading"))
+            if (DateTimeOffset.FromUnixTimeSeconds(mod.DateUpdated).DateTime > pluginMetadata.Updated && pluginMetadata.SupportsUnloading)
             {
                 await Remove(pluginPath, pluginMetadata.Id);
                 await Install(mod);
+                pluginManagerDataContext.IsLoading = true;
             }
         }
 

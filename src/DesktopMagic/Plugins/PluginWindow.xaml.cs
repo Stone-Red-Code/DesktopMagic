@@ -218,16 +218,16 @@ public partial class PluginWindow : Window
         {
             Assembly dll;
 
-            if (PluginMetadata.Tags.Contains("Does Not Support Unloading"))
-            {
-                dll = Assembly.LoadFrom($"{PluginFolderPath}\\main.dll");
-            }
-            else
+            if (PluginMetadata.SupportsUnloading)
             {
                 byte[] assemblyData = File.ReadAllBytes($"{PluginFolderPath}\\main.dll");
                 using MemoryStream assemblyStream = new(assemblyData);
 
                 dll = assemblyLoadContext.LoadFromStream(assemblyStream);
+            }
+            else
+            {
+                dll = Assembly.LoadFrom($"{PluginFolderPath}\\main.dll");
             }
 
             Type? instanceType = Array.Find(dll.GetTypes(), type => type.GetTypeInfo().BaseType == typeof(Plugin));

@@ -35,7 +35,8 @@ internal class PluginEntryDataContext(PluginMetadata pluginMetadata, ICommand co
 
     public string? Path => path;
 
-    public bool IsLocalPlugin => string.IsNullOrWhiteSpace(pluginMetadata.ProfileUri?.ToString());
+    public bool IsLocalPlugin => pluginMetadata.IsLocalPlugin;
+
     public ICommand Command => command;
 
     public ButtonData InstallUninstallButtonData => new(mode == Mode.Install ? PackIconKind.Download : PackIconKind.Remove, GetInstallUninstallButtonText(), true, Command);

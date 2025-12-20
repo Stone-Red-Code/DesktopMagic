@@ -31,6 +31,12 @@ public class PluginMetadata
 
     public List<string> Tags { get; set; } = [];
 
+    [JsonIgnore]
+    public bool SupportsUnloading => !Tags.Contains("Does Not Support Unloading");
+
+    [JsonIgnore]
+    public bool IsLocalPlugin => string.IsNullOrWhiteSpace(ProfileUri?.ToString());
+
     public PluginMetadata(Mod mod)
     {
         Name = mod.Name ?? mod.Id.ToString();
