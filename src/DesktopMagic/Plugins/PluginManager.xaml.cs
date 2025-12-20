@@ -120,10 +120,25 @@ public partial class PluginManager : Window
 
             PluginMetadata? pluginMetadata = JsonSerializer.Deserialize<PluginMetadata>(await File.ReadAllTextAsync(pluginMetadataPath));
 
-            if (pluginMetadata is not null)
+            if (pluginMetadata is null)
             {
-                pluginManagerDataContext.InstalledPlugins.Add(new PluginEntryDataContext(pluginMetadata, new CommandHandler(async () => await Remove(pluginPath, pluginMetadata.Id)), PluginEntryDataContext.Mode.Uninstall, pluginPath));
-                _ = pluginIds.Add(pluginMetadata.Id);
+                continue;
+            }
+
+            pluginManagerDataContext.InstalledPlugins.Add(new PluginEntryDataContext(pluginMetadata, new CommandHandler(async () => await Remove(pluginPath, pluginMetadata.Id)), PluginEntryDataContext.Mode.Uninstall, pluginPath));
+            _ = pluginIds.Add(pluginMetadata.Id);
+
+            if (string.IsNullOrEmpty(pluginMetadata.ProfileUri?.ToString()))
+            {
+                continue;
+            }
+
+            Mod mod = await modIoClient.Games[ModIoGameId].Mods[pluginMetadata.Id].Get();
+
+            if (DateTimeOffset.FromUnixTimeSeconds(mod.DateUpdated).DateTime > pluginMetadata.Updated && !pluginMetadata.Tags.Contains("Does Not Support Unloading"))
+            {
+                await Remove(pluginPath, pluginMetadata.Id);
+                await Install(mod);
             }
         }
 
