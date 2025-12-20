@@ -56,7 +56,7 @@ internal class CpuMonitorPlugin : Plugin
         }
         else
         {
-            gr.DrawString(cpuUsageString, font, new SolidBrush(Application.Theme.PrimaryColor), 0, (size.Width / 2) - size.Height);
+            gr.DrawString(cpuUsageString, font, new SolidBrush(Application.Theme.PrimaryColor), 0, 0);
         }
 
         return bmp;
