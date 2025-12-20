@@ -13,7 +13,7 @@ namespace DesktopMagic.BuiltInPlugins;
 
 public class WeatherPlugin : Plugin
 {
-    [Setting("city-name", "City Name:")]
+    [Setting("city-name", "City Name")]
     private readonly TextBox cityInput = new TextBox("Berlin");
 
     [Setting("search-btn")]
