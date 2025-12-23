@@ -23,7 +23,7 @@ using System.Windows.Media.Imaging;
 
 namespace DesktopMagic;
 
-public partial class PluginWindow : Window
+public partial class PluginWindow : Window, IPluginWindow
 {
     public event Action? PluginLoaded;
 
@@ -177,13 +177,6 @@ public partial class PluginWindow : Window
         pluginThread.Start();
     }
 
-    private void ThemeChanged()
-    {
-        viewBox.Margin = new Thickness(settings.Theme.Margin);
-        border.Background = new SolidColorBrush(MultiColorConverter.ConvertToMediaColor(settings.Theme.BackgroundColor));
-        border.CornerRadius = new CornerRadius(settings.Theme.CornerRadius);
-    }
-
     private void LoadPlugin()
     {
         App.Logger.LogInfo($"\"{PluginMetadata.Name}\" - Loading plugin", source: "Plugin");
@@ -209,6 +202,13 @@ public partial class PluginWindow : Window
             return;
         }
         PluginLoaded?.Invoke();
+    }
+
+    private void ThemeChanged()
+    {
+        viewBox.Margin = new Thickness(settings.Theme.Margin);
+        border.Background = new SolidColorBrush(MultiColorConverter.ConvertToMediaColor(settings.Theme.BackgroundColor));
+        border.CornerRadius = new CornerRadius(settings.Theme.CornerRadius);
     }
 
     private void ExecuteSource()

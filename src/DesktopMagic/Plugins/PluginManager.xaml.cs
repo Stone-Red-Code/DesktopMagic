@@ -241,12 +241,12 @@ public partial class PluginManager : Window
 
             File.Delete(zipFilePath);
 
-            if (!File.Exists(Path.Combine(pluginPath, "main.dll")))
+            if (!File.Exists(Path.Combine(pluginPath, "main.dll")) && !File.Exists(Path.Combine(pluginPath, "main.html")))
             {
-                App.Logger.LogError($"Plugin {mod.Id} does not contain main.dll", source: "PluginManager");
+                App.Logger.LogError($"Plugin {mod.Id} does not contain main.dll or main.html", source: "PluginManager");
                 _ = Remove(pluginPath, mod.Id);
                 pluginManagerDataContext.IsLoading = false;
-                _ = MessageBox.Show("The plugin you are trying to install does not contain a \"main.dll\" file. Please contact the plugin author.", "Plugin Manager", MessageBoxButton.OK, MessageBoxImage.Error);
+                _ = MessageBox.Show("The plugin you are trying to install does not contain a \"main.dll\" or \"main.html\" file. Please contact the plugin author.", "Plugin Manager", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 

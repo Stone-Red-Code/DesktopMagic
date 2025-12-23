@@ -230,7 +230,10 @@ internal class SettingElementGenerator(ComboBox optionsComboBox)
         _ = MessageBox.Show("File execution error:\n" + message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
         int index = MainWindow.WindowNames.IndexOf(optionsComboBox.SelectedItem.ToString() ?? string.Empty);
 
-        PluginWindow window = MainWindow.Windows[index];
-        window?.Exit();
+        if (index >= 0 && index < MainWindow.Windows.Count)
+        {
+            IPluginWindow window = MainWindow.Windows[index];
+            window?.Exit();
+        }
     }
 }

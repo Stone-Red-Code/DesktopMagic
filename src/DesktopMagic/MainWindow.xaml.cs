@@ -33,7 +33,7 @@ namespace DesktopMagic
 
         private bool loaded = false;
         private bool blockWindowsClosing = true;
-        public static List<PluginWindow> Windows { get; } = [];
+        public static List<IPluginWindow> Windows { get; } = [];
         public static List<string> WindowNames { get; } = [];
 
         private DesktopMagicSettings Settings
@@ -115,17 +115,18 @@ namespace DesktopMagic
 
             foreach (var buildInPlugin in builtInPlugins.Keys)
             {
-                plugins.Add(buildInPlugin.Id, new(buildInPlugin, string.Empty));
+                plugins.Add(buildInPlugin.Id, new(buildInPlugin, PluginType.DotNet, string.Empty));
             }
 
             foreach (string directory in Directory.GetDirectories(App.PluginsPath))
             {
                 string? pluginDllPath = Directory.GetFiles(directory, "main.dll").FirstOrDefault();
+                string? pluginHtmlPath = Directory.GetFiles(directory, "main.html").FirstOrDefault();
                 string? pluginMetadataPath = Directory.GetFiles(directory, "metadata.json").FirstOrDefault();
 
-                if (pluginDllPath is null)
+                if (pluginDllPath is null && pluginHtmlPath is null)
                 {
-                    App.Logger.LogError($"Plugin \"{directory}\" has no \"main.dll\"", source: "Main");
+                    App.Logger.LogError($"Plugin \"{directory}\" has no \"main.dll\" or \"main.html\"", source: "Main");
                     continue;
                 }
 
@@ -149,7 +150,14 @@ namespace DesktopMagic
                     continue;
                 }
 
-                plugins.Add(pluginMetadata.Id, new(pluginMetadata, directory));
+                PluginType pluginType = PluginType.DotNet;
+
+                if (pluginHtmlPath is not null)
+                {
+                    pluginType = PluginType.Web;
+                }
+
+                plugins.Add(pluginMetadata.Id, new(pluginMetadata, pluginType, directory));
             }
             mainWindowDataContext.IsLoading = false;
         }
@@ -160,7 +168,7 @@ namespace DesktopMagic
 
         private void EditCheckBox_Click(object? sender, RoutedEventArgs? e)
         {
-            foreach (PluginWindow window in Windows)
+            foreach (IPluginWindow window in Windows)
             {
                 window.SetEditMode(editCheckBox.IsChecked == true);
             }
@@ -213,11 +221,18 @@ namespace DesktopMagic
                 return;
             }
 
-            PluginWindow window;
+            IPluginWindow window;
 
             if (builtInPlugins.TryGetValue(internalPluginData.Metadata, out Type? pluginType))
             {
                 window = new PluginWindow((Api.Plugin)Activator.CreateInstance(pluginType)!, internalPluginData.Metadata, pluginSettings)
+                {
+                    Title = internalPluginData.Metadata.Id.ToString()
+                };
+            }
+            else if (internalPluginData.Type == PluginType.Web)
+            {
+                window = new WebPluginWindow(internalPluginData.Metadata, pluginSettings, internalPluginData.DirectoryPath)
                 {
                     Title = internalPluginData.Metadata.Id.ToString()
                 };
@@ -241,11 +256,12 @@ namespace DesktopMagic
                     }
                     optionsComboBox.SelectedIndex = -1;
                     optionsComboBox.SelectedIndex = optionsComboBox.Items.IndexOf(internalPluginData.Metadata);
+
                     window.PluginLoaded -= onPluginLoaded;
                 });
             };
 
-            window.OnExit += () =>
+            Action onExit = () =>
             {
                 Windows.Remove(window);
                 WindowNames.Remove(window.Title);
@@ -254,11 +270,13 @@ namespace DesktopMagic
                 blockWindowsClosing = true;
                 pluginSettings.Enabled = false;
             };
-            window.PluginLoaded += onPluginLoaded;
 
-            window.ShowInTaskbar = false;
+            window.PluginLoaded += onPluginLoaded;
+            window.OnExit += onExit;
+
             window.Show();
             window.SetEditMode(editCheckBox.IsChecked == true);
+
             window.Closing += DisplayWindow_Closing;
             Windows.Add(window);
             WindowNames.Add(window.Title);
@@ -289,7 +307,7 @@ namespace DesktopMagic
         {
             Visibility = Visibility.Collapsed;
             UpdateLayout();
-            foreach (Window window in Windows)
+            foreach (IPluginWindow window in Windows)
             {
                 window.Hide();
             }
@@ -511,7 +529,7 @@ namespace DesktopMagic
 
             Settings = JsonSerializer.Deserialize<DesktopMagicSettings>(json, jsonSettingsOptions) ?? new DesktopMagicSettings();
 
-            if(Settings.Layouts.Count == 0)
+            if (Settings.Layouts.Count == 0)
             {
                 Settings.Layouts.Add(new Layout((string)FindResource("default")));
             }
@@ -527,7 +545,7 @@ namespace DesktopMagic
             mainWindowDataContext.IsLoading = true;
             blockWindowsClosing = false;
 
-            foreach (Window window in Windows)
+            foreach (IPluginWindow window in Windows)
             {
                 window.Close();
             }
@@ -630,9 +648,16 @@ namespace DesktopMagic
         }
     }
 
-    internal class InternalPluginData(PluginMetadata pluginMetadata, string directoryPath)
+    internal class InternalPluginData(PluginMetadata pluginMetadata, PluginType pluginType, string directoryPath)
     {
         public PluginMetadata Metadata { get; set; } = pluginMetadata;
+        public PluginType Type { get; set; } = pluginType;
         public string DirectoryPath { get; set; } = directoryPath;
+
+    }
+    internal enum PluginType
+    {
+        DotNet,
+        Web
     }
 }

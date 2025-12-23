@@ -46,6 +46,7 @@
         <PackageReference Include="CuteUtils" Version="1.0.0" />
         <PackageReference Include="Interop.IWshRuntimeLibrary" Version="1.0.1" />
         <PackageReference Include="MaterialDesignThemes" Version="5.1.0" />
+        <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2592.51" />
         <PackageReference Include="Modio" Version="1.0.0" />
         <PackageReference Include="NAudio" Version="2.2.1" />
         <PackageReference Include="System.Management" Version="8.0.0" />
