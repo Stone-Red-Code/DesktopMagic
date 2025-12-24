@@ -129,8 +129,35 @@ public partial class WebPluginWindow : Window, IPluginWindow
 
     private void ThemeChanged()
     {
+        webView.Margin = new Thickness(settings.Theme.Margin);
         border.Background = new SolidColorBrush(MultiColorConverter.ConvertToMediaColor(settings.Theme.BackgroundColor));
         border.CornerRadius = new CornerRadius(settings.Theme.CornerRadius);
+
+        string cssVariables = $@"
+                :root {{
+                    --background-color: {MultiColorConverter.ConvertToHexRgba(settings.Theme.BackgroundColor)};
+                    --primary-color: {MultiColorConverter.ConvertToHexRgba(settings.Theme.PrimaryColor)};
+                    --secondary-color: {MultiColorConverter.ConvertToHexRgba(settings.Theme.SecondaryColor)};
+                    --font-family: {settings.Theme.Font};
+
+                    font-family: {settings.Theme.Font};
+                    color: {MultiColorConverter.ConvertToHexRgba(settings.Theme.PrimaryColor)};
+                }}
+            ";
+
+        string script = $@"
+                (function() {{
+                    let style = document.getElementById('desktop-magic-theme');
+                    if (!style) {{
+                        style = document.createElement('style');
+                        style.id = 'desktop-magic-theme';
+                        document.head.appendChild(style);
+                    }}
+                    style.textContent = `{cssVariables}`;
+                }})();
+            ";
+
+        _ = webView.ExecuteScriptAsync(script);
     }
 
     private async System.Threading.Tasks.Task InitializeWebView()
@@ -201,5 +228,10 @@ public partial class WebPluginWindow : Window, IPluginWindow
         settings.Size = new System.Windows.Point(Width, Height);
 
         tileBar.CaptionHeight = ActualHeight - 10;
+    }
+
+    private void webView_CoreWebView2InitializationCompleted(object sender, CoreWebView2InitializationCompletedEventArgs e)
+    {
+        webView.CoreWebView2.DOMContentLoaded += (_, _) => ThemeChanged();
     }
 }

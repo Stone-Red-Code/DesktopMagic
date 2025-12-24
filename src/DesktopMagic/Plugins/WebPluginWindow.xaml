@@ -21,7 +21,7 @@
 
         <Border x:Name="border" Background="Transparent" CornerRadius="10">
             <Grid>
-                <wv2:WebView2 x:Name="webView" DefaultBackgroundColor="Transparent" />
+                <wv2:WebView2 x:Name="webView" DefaultBackgroundColor="Transparent" CoreWebView2InitializationCompleted="webView_CoreWebView2InitializationCompleted" />
                 <Rectangle Fill="Transparent"  IsHitTestVisible="True" />
             </Grid>
         </Border>
