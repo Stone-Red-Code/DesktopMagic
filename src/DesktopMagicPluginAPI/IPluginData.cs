@@ -1,4 +1,5 @@
-﻿using System.Drawing;
+﻿using System;
+using System.Drawing;
 
 namespace DesktopMagic.Api;
 
@@ -7,6 +8,14 @@ namespace DesktopMagic.Api;
 /// </summary>
 public interface IPluginData
 {
+    /// <summary>
+    /// Occurs when the application's theme has changed.
+    /// </summary>
+    /// <remarks>Subscribe to this event to be notified when the theme changes, allowing UI elements or
+    /// components to update their appearance accordingly. The event is raised after the theme change has been
+    /// applied.</remarks>
+    event EventHandler? ThemeChanged;
+
     /// <summary>
     /// Gets the current theme setting of the main application.
     /// </summary>

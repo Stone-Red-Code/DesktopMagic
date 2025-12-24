@@ -104,7 +104,6 @@ public partial class PluginWindow : Window, IPluginWindow
 
     public void UpdatePluginWindow()
     {
-        Dispatcher.Invoke(ThemeChanged);
         UpdateTimer_Elapsed(updateTimer, null);
     }
 
@@ -209,6 +208,8 @@ public partial class PluginWindow : Window, IPluginWindow
         viewBox.Margin = new Thickness(settings.Theme.Margin);
         border.Background = new SolidColorBrush(MultiColorConverter.ConvertToMediaColor(settings.Theme.BackgroundColor));
         border.CornerRadius = new CornerRadius(settings.Theme.CornerRadius);
+
+        (pluginClassInstance?.Application as PluginData)?.NotifyThemeChanged();
     }
 
     private void ExecuteSource()
@@ -267,6 +268,7 @@ public partial class PluginWindow : Window, IPluginWindow
 
         pluginClassInstance.Start();
         UpdatePluginWindow();
+        Dispatcher.Invoke(ThemeChanged);
 
         if (pluginClassInstance.UpdateInterval > 0)
         {

@@ -1,6 +1,7 @@
 ﻿using DesktopMagic.Api;
 using DesktopMagic.Settings;
 
+using System;
 using System.Drawing;
 
 namespace DesktopMagic.Plugins;
@@ -8,6 +9,8 @@ namespace DesktopMagic.Plugins;
 internal class PluginData(PluginWindow window, PluginSettings pluginSettings) : IPluginData
 {
     private readonly PluginWindow window = window;
+
+    public event EventHandler? ThemeChanged;
 
     public ITheme Theme => pluginSettings.Theme;
 
@@ -22,5 +25,10 @@ internal class PluginData(PluginWindow window, PluginSettings pluginSettings) : 
     public void UpdateWindow()
     {
         window.UpdatePluginWindow();
+    }
+
+    internal void NotifyThemeChanged()
+    {
+        ThemeChanged?.Invoke(this, EventArgs.Empty);
     }
 }

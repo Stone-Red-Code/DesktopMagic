@@ -13,22 +13,28 @@ internal class DatePlugin : Plugin
     private readonly CheckBox shortDateCheckBox = new CheckBox(true);
 
     private DateTime oldDateTime = DateTime.MinValue;
-    private Color oldColor = Color.White;
-    private string oldFont = string.Empty;
-    private bool oldShortDateCheckBoxValue;
+    private bool themeChanged = false;
+
     public override int UpdateInterval => 1000;
+
+    public override void Start()
+    {
+        Application.ThemeChanged += (_, _) =>
+        {
+            themeChanged = true;
+            Application.UpdateWindow();
+            themeChanged = false;
+        };
+    }
 
     public override Bitmap? Main()
     {
-        if (oldDateTime.Date == DateTime.Now.Date && oldColor == Application.Theme.PrimaryColor && oldFont == Application.Theme.Font && oldShortDateCheckBoxValue == shortDateCheckBox.Value)
+        if (oldDateTime.Date == DateTime.Now.Date && !themeChanged)
         {
             return null;
         }
 
         oldDateTime = DateTime.Now;
-        oldColor = Application.Theme.PrimaryColor;
-        oldFont = Application.Theme.Font;
-        oldShortDateCheckBoxValue = shortDateCheckBox.Value;
 
         string date = shortDateCheckBox.Value ? DateTime.Now.ToShortDateString() : DateTime.Now.ToLongDateString();
 

@@ -13,24 +13,32 @@ internal class TimePlugin : Plugin
     private readonly CheckBox displaySecondsCheckBox = new CheckBox(true);
 
     private string oldTime = string.Empty;
-    private Color oldColor = Color.White;
-    private string oldFont = string.Empty;
-    private bool oldDisplaySecondsCheckBoxValue;
+    private bool themeChanged;
     public override int UpdateInterval => 1000;
+
+    public override void Start()
+    {
+        Application.ThemeChanged += (_, _) => ThemeChanged();
+        displaySecondsCheckBox.OnValueChanged += ThemeChanged;
+
+        void ThemeChanged()
+        {
+            themeChanged = true;
+            Application.UpdateWindow();
+            themeChanged = false;
+        }
+    }
 
     public override Bitmap? Main()
     {
         string time = displaySecondsCheckBox.Value ? DateTime.Now.ToLongTimeString() : DateTime.Now.ToShortTimeString();
 
-        if (oldTime == time && oldColor == Application.Theme.PrimaryColor && oldFont == Application.Theme.Font && oldDisplaySecondsCheckBoxValue == displaySecondsCheckBox.Value)
+        if (oldTime == time && !themeChanged)
         {
             return null;
         }
 
         oldTime = time;
-        oldColor = Application.Theme.PrimaryColor;
-        oldFont = Application.Theme.Font;
-        oldDisplaySecondsCheckBoxValue = displaySecondsCheckBox.Value;
 
         Font font = new Font(Application.Theme.Font, 200);
 
