@@ -14,7 +14,7 @@ namespace DesktopMagic.BuiltInPlugins;
 public class WeatherPlugin : AsyncPlugin
 {
     [Setting("city-name", "City Name")]
-    private readonly TextBox cityInput = new TextBox("Berlin");
+    private readonly TextBox cityInput = new TextBox("Tokyo");
 
     [Setting("search-btn")]
     private readonly Button searchButton = new Button("Update Location");
