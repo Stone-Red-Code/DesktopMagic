@@ -5,14 +5,14 @@ using System.Threading.Tasks;
 namespace DesktopMagic.Api;
 
 /// <summary>
-/// Provides an abstract base class for plugins that execute asynchronously. Derive from this class to implement plugins
-/// whose main logic runs in a non-blocking manner using asynchronous operations.
+/// Provides an abstract base class for creating asynchronous plugins that can be integrated into the application, supporting periodic updates,
+/// rendering, and user interaction.
 /// </summary>
-/// <remarks>AsyncPlugin is intended for scenarios where plugin execution should not block the calling thread.
-/// Override the MainAsync method to implement asynchronous plugin behavior. The synchronous Main method is sealed and
-/// obsolete; it cannot be used for execution and will always throw an exception. Use MainAsync for all plugin logic.
-/// The MainAsync method is typically invoked when the UpdateInterval elapses, allowing periodic asynchronous
-/// execution.</remarks>
+/// <remarks>Derive from this class to implement custom plugin functionality. The class defines lifecycle methods
+/// such as <see cref="Plugin.Start"/>, <see cref="Plugin.Stop"/>, and <see cref="Main"/> for activation, deactivation, and periodic
+/// execution. It also provides event handlers for mouse and theme interactions, as well as access to application data
+/// and rendering configuration. Implementations should override relevant methods to respond to user input, update
+/// intervals, and configuration changes as needed.</remarks>
 public abstract class AsyncPlugin : Plugin
 {
     /// <summary>
