@@ -22,7 +22,10 @@
         <Border x:Name="border" Background="Transparent" CornerRadius="10">
             <Grid>
                 <wv2:WebView2 x:Name="webView" DefaultBackgroundColor="Transparent" CoreWebView2InitializationCompleted="WebView_CoreWebView2InitializationCompleted" />
-                <!-- WORKAROUND: This rectangle exists to allow interaction with the WebView2 when the window is transparent -->
+                <!-- 
+                    WORKAROUND: This rectangle exists to allow interaction with the WebView2 when the window is transparent 
+                    https://github.com/MicrosoftEdge/WebView2Feedback/issues/997
+                -->
                 <Rectangle Fill="#01000000" />
             </Grid>
         </Border>
