@@ -14,20 +14,8 @@ internal class TimePlugin : Plugin
 
     private string oldTime = string.Empty;
     private bool themeChanged;
+
     public override int UpdateInterval => 1000;
-
-    public override void Start()
-    {
-        Application.ThemeChanged += (_, _) => ThemeChanged();
-        displaySecondsCheckBox.OnValueChanged += ThemeChanged;
-
-        void ThemeChanged()
-        {
-            themeChanged = true;
-            Application.UpdateWindow();
-            themeChanged = false;
-        }
-    }
 
     public override Bitmap? Main()
     {
@@ -39,8 +27,9 @@ internal class TimePlugin : Plugin
         }
 
         oldTime = time;
+        themeChanged = false;
 
-        Font font = new Font(Application.Theme.Font, 200);
+        using Font font = new Font(Application.Theme.Font, 200);
 
         Bitmap bmp = new Bitmap(1, 1);
         bmp.SetResolution(100, 100);
@@ -53,10 +42,21 @@ internal class TimePlugin : Plugin
         bmp.SetResolution(100, 100);
 
         using Graphics gr = Graphics.FromImage(bmp);
+        using SolidBrush brush = new SolidBrush(Application.Theme.PrimaryColor);
 
         gr.TextRenderingHint = TextRenderingHint.AntiAlias;
-        gr.DrawString(time, font, new SolidBrush(Application.Theme.PrimaryColor), 0, 0);
+        gr.DrawString(time, font, brush, 0, 0);
 
         return bmp;
+    }
+
+    public override void OnThemeChanged()
+    {
+        themeChanged = true;
+    }
+
+    public override void OnSettingsChanged()
+    {
+        themeChanged = true;
     }
 }

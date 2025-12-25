@@ -1,7 +1,8 @@
-﻿using DesktopMagic.Api;
+﻿using CuteUtils.Logging;
+
+using DesktopMagic.Api;
 using DesktopMagic.Settings;
 
-using System;
 using System.Drawing;
 
 namespace DesktopMagic.Plugins;
@@ -9,8 +10,6 @@ namespace DesktopMagic.Plugins;
 internal class PluginData(PluginWindow window, PluginSettings pluginSettings) : IPluginData
 {
     private readonly PluginWindow window = window;
-
-    public event EventHandler? ThemeChanged;
 
     public ITheme Theme => pluginSettings.Theme;
 
@@ -22,13 +21,29 @@ internal class PluginData(PluginWindow window, PluginSettings pluginSettings) : 
 
     public string PluginPath => window.PluginFolderPath;
 
+    public void Log(string message, LogLevel level = LogLevel.Info)
+    {
+        LogSeverity severity = level switch
+        {
+            LogLevel.Info => LogSeverity.Info,
+            LogLevel.Warning => LogSeverity.Warn,
+            LogLevel.Error => LogSeverity.Error,
+            _ => LogSeverity.Info,
+        };
+
+        App.Logger.Log($"\"{PluginName}\" - Stopping plugin", "Plugin", severity);
+    }
+
+    public void ShowMessage(string message, string title)
+    {
+        window.Dispatcher.Invoke(() =>
+        {
+            _ = System.Windows.MessageBox.Show(window, message, title);
+        });
+    }
+
     public void UpdateWindow()
     {
         window.UpdatePluginWindow();
-    }
-
-    internal void NotifyThemeChanged()
-    {
-        ThemeChanged?.Invoke(this, EventArgs.Empty);
     }
 }

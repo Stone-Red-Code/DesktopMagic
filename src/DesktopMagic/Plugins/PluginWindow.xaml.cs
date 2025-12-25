@@ -209,7 +209,8 @@ public partial class PluginWindow : Window, IPluginWindow
         border.Background = new SolidColorBrush(MultiColorConverter.ConvertToMediaColor(settings.Theme.BackgroundColor));
         border.CornerRadius = new CornerRadius(settings.Theme.CornerRadius);
 
-        (pluginClassInstance?.Application as PluginData)?.NotifyThemeChanged();
+        pluginClassInstance?.OnThemeChanged();
+        pluginClassInstance?.Application.UpdateWindow();
     }
 
     private void ExecuteSource()
@@ -375,6 +376,12 @@ public partial class PluginWindow : Window, IPluginWindow
                                 SettingElement settingsSettingElement = settings.Settings.First(e => e.Id == elementAttribute.Id);
                                 settingElement.JsonValue = settingsSettingElement.JsonValue;
                             }
+
+                            element.OnValueChanged += () =>
+                            {
+                                pluginClassInstance?.OnSettingsChanged();
+                                pluginClassInstance?.Application.UpdateWindow();
+                            };
 
                             settingElements.Add(settingElement);
                             break;

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Drawing;
+﻿using System.Drawing;
 
 namespace DesktopMagic.Api;
 
@@ -8,14 +7,6 @@ namespace DesktopMagic.Api;
 /// </summary>
 public interface IPluginData
 {
-    /// <summary>
-    /// Occurs when the application's theme has changed.
-    /// </summary>
-    /// <remarks>Subscribe to this event to be notified when the theme changes, allowing UI elements or
-    /// components to update their appearance accordingly. The event is raised after the theme change has been
-    /// applied.</remarks>
-    event EventHandler? ThemeChanged;
-
     /// <summary>
     /// Gets the current theme setting of the main application.
     /// </summary>
@@ -45,4 +36,18 @@ public interface IPluginData
     /// Updates the plugin window.
     /// </summary>
     void UpdateWindow();
+
+    /// <summary>
+    /// Logs a message to the application log.
+    /// </summary>
+    /// <param name="message">The message to log.</param>
+    /// <param name="level">The log level (Info, Warning, Error).</param>
+    void Log(string message, LogLevel level = LogLevel.Info);
+
+    /// <summary>
+    /// Shows a message box to the user.
+    /// </summary>
+    /// <param name="message">The message to display.</param>
+    /// <param name="title">The title of the message box.</param>
+    void ShowMessage(string message, string title);
 }
