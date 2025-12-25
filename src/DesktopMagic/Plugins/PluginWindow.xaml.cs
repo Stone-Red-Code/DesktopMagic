@@ -401,13 +401,22 @@ public partial class PluginWindow : Window, IPluginWindow
         }
     }
 
-    private void UpdateTimer_Elapsed(object? sender, ElapsedEventArgs? e)
+    private async void UpdateTimer_Elapsed(object? sender, ElapsedEventArgs? e)
     {
         try
         {
             if (IsRunning && pluginClassInstance is not null)
             {
-                Bitmap? result = pluginClassInstance.Main();
+                Bitmap? result;
+
+                if (pluginClassInstance is AsyncPlugin asyncPlugin)
+                {
+                    result = await asyncPlugin.MainAsync();
+                }
+                else
+                {
+                    result = pluginClassInstance.Main();
+                }
 
                 if (pluginClassInstance.UpdateInterval > 0)
                 {

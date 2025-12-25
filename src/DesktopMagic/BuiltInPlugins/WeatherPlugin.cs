@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace DesktopMagic.BuiltInPlugins;
 
-public class WeatherPlugin : Plugin
+public class WeatherPlugin : AsyncPlugin
 {
     [Setting("city-name", "City Name")]
     private readonly TextBox cityInput = new TextBox("Berlin");
@@ -74,12 +74,12 @@ public class WeatherPlugin : Plugin
         };
     }
 
-    public override Bitmap Main()
+    public override async Task<Bitmap?> MainAsync()
     {
         // Periodic background update
         if (!isLoading && cachedLat != null && cachedLon != null)
         {
-            _ = UpdateWeatherOnly(cachedLat, cachedLon);
+            await UpdateWeatherOnly(cachedLat, cachedLon);
         }
 
         Bitmap bmp = new Bitmap(1200, 800);
