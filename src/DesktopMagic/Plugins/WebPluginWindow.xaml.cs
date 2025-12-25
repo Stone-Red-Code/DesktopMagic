@@ -230,7 +230,7 @@ public partial class WebPluginWindow : Window, IPluginWindow
         tileBar.CaptionHeight = ActualHeight - 10;
     }
 
-    private void webView_CoreWebView2InitializationCompleted(object sender, CoreWebView2InitializationCompletedEventArgs e)
+    private void WebView_CoreWebView2InitializationCompleted(object sender, CoreWebView2InitializationCompletedEventArgs e)
     {
         webView.CoreWebView2.DOMContentLoaded += (_, _) => ThemeChanged();
     }
