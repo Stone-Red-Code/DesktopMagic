@@ -49,7 +49,7 @@ public interface IPluginData
     /// </summary>
     /// <param name="message">The message to display.</param>
     /// <param name="title">The title of the message box.</param>
-    void ShowMessage(string message, string title);
+    void ShowMessage(string message, string? title = null);
 
     /// <summary>
     /// Saves the current state of fields and properties marked with <see cref="PersistStateAttribute"/>

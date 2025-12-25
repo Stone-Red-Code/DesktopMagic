@@ -31,14 +31,29 @@ internal class PluginData(PluginWindow window, PluginSettings pluginSettings) : 
             _ => LogSeverity.Info,
         };
 
-        App.Logger.Log($"\"{PluginName}\" - Stopping plugin", "Plugin", severity);
+        App.Logger.Log($"\"{PluginName}\" - {message}", "Plugin", severity);
     }
 
-    public void ShowMessage(string message, string title)
+    public void ShowMessage(string message, string? title = null)
     {
+        title ??= PluginName;
+
         window.Dispatcher.Invoke(() =>
         {
-            _ = System.Windows.MessageBox.Show(window, message, title);
+            System.Windows.Window temporaryOwner = new()
+            {
+                AllowsTransparency = true,
+                ShowInTaskbar = false,
+                WindowStyle = System.Windows.WindowStyle.None,
+                Background = System.Windows.Media.Brushes.Transparent,
+                Topmost = true,
+            };
+
+            temporaryOwner.Show();
+
+            _ = System.Windows.MessageBox.Show(temporaryOwner, message, $"{App.AppName} - {title}");
+
+            temporaryOwner.Close();
         });
     }
 
