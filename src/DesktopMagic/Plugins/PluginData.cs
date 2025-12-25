@@ -46,4 +46,9 @@ internal class PluginData(PluginWindow window, PluginSettings pluginSettings) : 
     {
         window.UpdatePluginWindow();
     }
+
+    public void SaveState()
+    {
+        window.SavePluginState();
+    }
 }

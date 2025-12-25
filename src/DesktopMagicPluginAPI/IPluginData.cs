@@ -50,4 +50,13 @@ public interface IPluginData
     /// <param name="message">The message to display.</param>
     /// <param name="title">The title of the message box.</param>
     void ShowMessage(string message, string title);
+
+    /// <summary>
+    /// Saves the current state of fields and properties marked with <see cref="PersistStateAttribute"/>
+    /// </summary>
+    /// <remarks>
+    /// State is automatically saved when the plugin stops, but this method can be called
+    /// to save state at any time, such as after important user interactions.
+    /// </remarks>
+    void SaveState();
 }

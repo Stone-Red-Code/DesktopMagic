@@ -14,6 +14,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Loader;
+using System.Text.Json;
 using System.Threading;
 using System.Timers;
 using System.Windows;
@@ -105,6 +106,14 @@ public partial class PluginWindow : Window, IPluginWindow
     public void UpdatePluginWindow()
     {
         UpdateTimer_Elapsed(updateTimer, null);
+    }
+
+    public void SavePluginState()
+    {
+        if (pluginClassInstance is not null)
+        {
+            SaveState(pluginClassInstance);
+        }
     }
 
     public void Exit()
@@ -258,6 +267,7 @@ public partial class PluginWindow : Window, IPluginWindow
             return;
         }
 
+        LoadState(pluginClassInstance);
         LoadOptions(pluginClassInstance);
         BindDefaultSettings(pluginClassInstance);
 
@@ -401,6 +411,140 @@ public partial class PluginWindow : Window, IPluginWindow
         }
     }
 
+    private void LoadState(object instance)
+    {
+        App.Logger.LogInfo($"\"{PluginMetadata.Name}\" - Loading plugin state", source: "Plugin");
+
+        try
+        {
+            if (settings.State.Count == 0)
+            {
+                App.Logger.LogInfo($"\"{PluginMetadata.Name}\" - No state found, using defaults", source: "Plugin");
+                return;
+            }
+
+#pragma warning disable S3011 // Reflection should not be used to increase accessibility of classes, methods, or fields
+            FieldInfo[] fields = instance.GetType().GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+            PropertyInfo[] properties = instance.GetType().GetProperties(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+#pragma warning restore S3011
+
+            // Load fields
+            foreach (FieldInfo field in fields)
+            {
+                PersistStateAttribute? persistAttribute = field.GetCustomAttribute<PersistStateAttribute>();
+                if (persistAttribute is null)
+                {
+                    continue;
+                }
+
+                if (settings.State.TryGetValue(field.Name, out JsonElement jsonElement))
+                {
+                    try
+                    {
+                        object? value = jsonElement.Deserialize(field.FieldType);
+                        field.SetValue(instance, value);
+                        App.Logger.LogInfo($"\"{PluginMetadata.Name}\" - Restored state field: {field.Name}", source: "Plugin");
+                    }
+                    catch (Exception ex)
+                    {
+                        App.Logger.LogWarn($"\"{PluginMetadata.Name}\" - Failed to restore field {field.Name}: {ex.Message}", source: "Plugin");
+                    }
+                }
+            }
+
+            // Load properties
+            foreach (PropertyInfo property in properties)
+            {
+                PersistStateAttribute? persistAttribute = property.GetCustomAttribute<PersistStateAttribute>();
+                if (persistAttribute is null || !property.CanWrite)
+                {
+                    continue;
+                }
+
+                if (settings.State.TryGetValue(property.Name, out JsonElement jsonElement))
+                {
+                    try
+                    {
+                        object? value = jsonElement.Deserialize(property.PropertyType);
+                        property.SetValue(instance, value);
+                        App.Logger.LogInfo($"\"{PluginMetadata.Name}\" - Restored state property: {property.Name}", source: "Plugin");
+                    }
+                    catch (Exception ex)
+                    {
+                        App.Logger.LogWarn($"\"{PluginMetadata.Name}\" - Failed to restore property {property.Name}: {ex.Message}", source: "Plugin");
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            App.Logger.LogError($"\"{PluginMetadata.Name}\" - Error loading state: {ex.Message}", source: "Plugin");
+        }
+    }
+
+    private void SaveState(object instance)
+    {
+        App.Logger.LogInfo($"\"{PluginMetadata.Name}\" - Saving plugin state", source: "Plugin");
+
+        try
+        {
+#pragma warning disable S3011 // Reflection should not be used to increase accessibility of classes, methods, or fields
+            FieldInfo[] fields = instance.GetType().GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+            PropertyInfo[] properties = instance.GetType().GetProperties(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+#pragma warning restore S3011
+
+            // Save fields
+            foreach (FieldInfo field in fields)
+            {
+                PersistStateAttribute? persistAttribute = field.GetCustomAttribute<PersistStateAttribute>();
+                if (persistAttribute is null)
+                {
+                    continue;
+                }
+
+                try
+                {
+                    object? value = field.GetValue(instance);
+                    JsonElement jsonElement = JsonSerializer.SerializeToElement(value, field.FieldType);
+                    settings.State[field.Name] = jsonElement;
+                    App.Logger.LogInfo($"\"{PluginMetadata.Name}\" - Saved state field: {field.Name}", source: "Plugin");
+                }
+                catch (Exception ex)
+                {
+                    App.Logger.LogWarn($"\"{PluginMetadata.Name}\" - Failed to save field {field.Name}: {ex.Message}", source: "Plugin");
+                }
+            }
+
+            // Save properties
+            foreach (PropertyInfo property in properties)
+            {
+                PersistStateAttribute? persistAttribute = property.GetCustomAttribute<PersistStateAttribute>();
+                if (persistAttribute is null || !property.CanRead)
+                {
+                    continue;
+                }
+
+                try
+                {
+                    object? value = property.GetValue(instance);
+                    JsonElement jsonElement = JsonSerializer.SerializeToElement(value, property.PropertyType);
+                    settings.State[property.Name] = jsonElement;
+                    App.Logger.LogInfo($"\"{PluginMetadata.Name}\" - Saved state property: {property.Name}", source: "Plugin");
+                }
+                catch (Exception ex)
+                {
+                    App.Logger.LogWarn($"\"{PluginMetadata.Name}\" - Failed to save property {property.Name}: {ex.Message}", source: "Plugin");
+                }
+            }
+
+            App.Logger.LogInfo($"\"{PluginMetadata.Name}\" - State saved successfully ({settings.State.Count} items)", source: "Plugin");
+        }
+        catch (Exception ex)
+        {
+            App.Logger.LogError($"\"{PluginMetadata.Name}\" - Error saving state: {ex.Message}", source: "Plugin");
+        }
+    }
+
     private async void UpdateTimer_Elapsed(object? sender, ElapsedEventArgs? e)
     {
         try
@@ -479,7 +623,11 @@ public partial class PluginWindow : Window, IPluginWindow
 
         try
         {
-            pluginClassInstance?.Stop();
+            if (pluginClassInstance is not null)
+            {
+                SaveState(pluginClassInstance);
+                pluginClassInstance.Stop();
+            }
         }
         catch (Exception ex)
         {
