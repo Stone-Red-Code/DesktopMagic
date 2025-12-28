@@ -175,6 +175,8 @@ public partial class PluginWindow : Window, IPluginWindow
             bitmapData.Scan0, bitmapData.Stride * bitmapData.Height, bitmapData.Stride);
 
         bitmap.UnlockBits(bitmapData);
+
+        bitmapSource.Freeze();
         return bitmapSource;
     }
 
@@ -221,7 +223,11 @@ public partial class PluginWindow : Window, IPluginWindow
         border.CornerRadius = new CornerRadius(settings.Theme.CornerRadius);
 
         pluginClassInstance?.OnThemeChanged();
-        pluginClassInstance?.Application.UpdateWindow();
+
+        if (pluginClassInstance?.UpdateInterval is 0 or > 500)
+        {
+            pluginClassInstance.Application.UpdateWindow();
+        }
     }
 
     private void ExecuteSource()
@@ -392,7 +398,11 @@ public partial class PluginWindow : Window, IPluginWindow
                             element.OnValueChanged += () =>
                             {
                                 pluginClassInstance?.OnSettingsChanged();
-                                pluginClassInstance?.Application.UpdateWindow();
+
+                                if (pluginClassInstance?.UpdateInterval is 0 or > 500)
+                                {
+                                    pluginClassInstance.Application.UpdateWindow();
+                                }
                             };
 
                             settingElements.Add(settingElement);
@@ -583,11 +593,13 @@ public partial class PluginWindow : Window, IPluginWindow
                         _ => BitmapScalingMode.Unspecified
                     };
 
-                    //Update Image
-                    Dispatcher.Invoke(() =>
+                    // Update Image
+                    BitmapSource frozenSource = BitmapToImageSource(result);
+
+                    _ = Dispatcher.BeginInvoke(() =>
                     {
                         RenderOptions.SetBitmapScalingMode(image, renderOptions);
-                        image.Source = BitmapToImageSource(result);
+                        image.Source = frozenSource;
                     });
                 }
             }
