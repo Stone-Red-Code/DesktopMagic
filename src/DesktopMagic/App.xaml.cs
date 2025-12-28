@@ -5,6 +5,8 @@ using System.IO;
 using System.Threading;
 using System.Windows;
 
+using Wpf.Ui;
+
 namespace DesktopMagic;
 
 /// <summary>
@@ -25,6 +27,8 @@ public partial class App : Application
     public static string ApplicationDataPath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "StoneRed", AppName);
 
     public static string PluginsPath => Path.Combine(ApplicationDataPath, "Plugins");
+
+    public static IContentDialogService DialogService { get; } = new ContentDialogService();
 
     public static Logger Logger { get; } = new Logger()
     {

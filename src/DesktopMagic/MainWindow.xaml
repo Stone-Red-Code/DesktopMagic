@@ -102,5 +102,6 @@
                 </Grid>
             </Border>
         </Grid>
+        <ContentPresenter x:Name="rootContentDialog" Grid.Row="1" Grid.RowSpan="2" />
     </Grid>
 </ui:FluentWindow>

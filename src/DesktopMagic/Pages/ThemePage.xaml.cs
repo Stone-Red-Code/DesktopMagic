@@ -89,9 +89,12 @@ public partial class ThemePage : Page
         }
     }
 
-    private void ChangeThemeButton_Click(object sender, RoutedEventArgs e)
+    private void EditThemeButton_Click(object sender, RoutedEventArgs e)
     {
-        Theme theme = themesListBox.SelectedItem as Theme ?? _manager.Settings.CurrentLayout.Theme;
+        if (sender is not Button button || button.Tag is not Theme theme)
+        {
+            return;
+        }
 
         ThemeDialog themeDialog = new(theme.Name, theme, App.AppName)
         {

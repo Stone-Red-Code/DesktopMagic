@@ -11,6 +11,7 @@ internal class MainWindowDataContext : INotifyPropertyChanged
     public event PropertyChangedEventHandler? PropertyChanged;
 
     private static DesktopMagicSettings settings = new();
+
     private bool isLoading = true;
 
     public string Title =>

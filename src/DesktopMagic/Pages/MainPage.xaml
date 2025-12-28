@@ -72,7 +72,6 @@
                     <ColumnDefinition Width="0.5*" />
                 </Grid.ColumnDefinitions>
 
-
                 <ComboBox x:Name="layoutsComboBox" ItemsSource="{Binding Settings.Layouts}" DisplayMemberPath="Name" SelectedValue="{Binding Settings.CurrentLayoutName}" SelectedValuePath="Name" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Padding="4" SelectionChanged="LayoutsComboBox_SelectionChanged" />
                 <Button x:Name="newLayoutButton" Grid.Column="2" HorizontalAlignment="Stretch" Click="NewLayoutButton_Click" FontWeight="Regular">
                     <StackPanel Orientation="Horizontal">

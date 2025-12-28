@@ -15,7 +15,7 @@
         Title="{DynamicResource pluginManager}">
 
     <busyIndicator:BusyMask x:Name="BusyIndicator" IsBusy="{Binding IsLoading}" IndicatorType="Cogs" BusyContent="Please wait..." BusyContentMargin="0,20,0,0" IsBusyAtStartup="False" Foreground="{DynamicResource TextFillColorPrimaryBrush}" Background="{DynamicResource ControlStrokeColorDefaultBrush}">
-        <Grid Margin="5">
+        <Grid Margin="{StaticResource DefaultMargin}">
             <Grid.RowDefinitions>
                 <RowDefinition Height="auto" />
                 <RowDefinition Height="auto" />
@@ -32,7 +32,7 @@
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition />
-                        <ColumnDefinition Width="5" />
+                        <ColumnDefinition Width="10" />
                         <ColumnDefinition />
                     </Grid.ColumnDefinitions>
 
@@ -101,7 +101,7 @@
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="10" />
+                        <ColumnDefinition Width="15" />
                         <ColumnDefinition Width="0.5*" />
                         <ColumnDefinition Width="5" />
                         <ColumnDefinition Width="0.5*" />

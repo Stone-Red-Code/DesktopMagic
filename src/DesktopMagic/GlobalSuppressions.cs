@@ -9,6 +9,7 @@ using System.Diagnostics.CodeAnalysis;
 [assembly: SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "No need to")]
 [assembly: SuppressMessage("Minor Code Smell", "S1075:URIs should not be hardcoded", Justification = "<Pending>")]
 [assembly: SuppressMessage("Critical Code Smell", "S2696:Instance members should not write to \"static\" fields", Justification = "<Pending>", Scope = "member", Target = "~P:DesktopMagic.DataContexts.MainWindowDataContext.Settings")]
+[assembly: SuppressMessage("Critical Code Smell", "S2696:Instance members should not write to \"static\" fields", Justification = "<Pending>", Scope = "member", Target = "~P:DesktopMagic.DataContexts.MainWindowDataContext.DialogService")]
 [assembly: SuppressMessage("Major Code Smell", "S3885:\"Assembly.Load\" should be used", Justification = "Assembly.Load does not load dependencies", Scope = "member", Target = "~M:DesktopMagic.PluginWindow.ExecuteSource")]
 [assembly: SuppressMessage("Minor Code Smell", "S2325:Methods and properties that don't access instance data should be static", Justification = "<Pending>", Scope = "member", Target = "~M:DesktopMagic.MainWindow.OpenPluginsFolderButton_Click(System.Object,System.Windows.RoutedEventArgs)")]
 [assembly: SuppressMessage("Minor Code Smell", "S2325:Methods and properties that don't access instance data should be static", Justification = "<Pending>", Scope = "member", Target = "~M:DesktopMagic.MainWindow.ScrollViewer_PreviewMouseWheel(System.Object,System.Windows.Input.MouseWheelEventArgs)")]

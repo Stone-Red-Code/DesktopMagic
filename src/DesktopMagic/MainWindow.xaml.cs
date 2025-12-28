@@ -25,6 +25,7 @@ public partial class MainWindow : FluentWindow
         _mainWindowDataContext.Settings = _manager.Settings;
 
         Resources.MergedDictionaries.Add(App.LanguageDictionary);
+        App.DialogService.SetDialogHost(rootContentDialog);
     }
 
     private void Window_Loaded(object sender, RoutedEventArgs e)

@@ -42,7 +42,7 @@
     <system:String x:Key="deleteLayout">Layout Löschen</system:String>
     <system:String x:Key="newTheme">Neues Theme</system:String>
     <system:String x:Key="deleteTheme">Theme Löschen</system:String>
-    <system:String x:Key="changeTheme">Theme Ändern</system:String>
+    <system:String x:Key="editTheme">Theme Bearbeiten</system:String>
     <system:String x:Key="themes">Themes</system:String>
     <system:String x:Key="ok">Ok</system:String>
     <system:String x:Key="cancel">Abbrechen</system:String>

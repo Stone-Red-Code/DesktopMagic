@@ -10,7 +10,7 @@ namespace DesktopMagic.Dialogs;
 /// <summary>
 /// Interaction logic for ColorDialog.xaml
 /// </summary>
-public partial class ThemeDialog : Window
+public partial class ThemeDialog : Wpf.Ui.Controls.FluentWindow
 {
     private readonly Theme theme;
 
@@ -22,8 +22,8 @@ public partial class ThemeDialog : Window
 
         Resources.MergedDictionaries.Add(App.LanguageDictionary);
 
-        cornerRadiusTextBox.Text = theme.CornerRadius.ToString();
-        marginTextBox.Text = theme.Margin.ToString();
+        cornerRadiusTextBox.Value = theme.CornerRadius;
+        marginTextBox.Value = theme.Margin;
         primaryColorRechtangle.Fill = new SolidColorBrush(MultiColorConverter.ConvertToMediaColor(theme.PrimaryColor));
         secondaryColorRechtangle.Fill = new SolidColorBrush(MultiColorConverter.ConvertToMediaColor(theme.SecondaryColor));
         backgroundColorRechtangle.Fill = new SolidColorBrush(MultiColorConverter.ConvertToMediaColor(theme.BackgroundColor));
@@ -113,31 +113,19 @@ public partial class ThemeDialog : Window
         }
     }
 
-    private void CornerRadiusTextBox_TextChanged(object? sender, TextChangedEventArgs? e)
+    private void MarginTextBox_ValueChanged(object sender, Wpf.Ui.Controls.NumberBoxValueChangedEventArgs args)
     {
-        bool success = int.TryParse(cornerRadiusTextBox.Text, out int cornerRadius);
-        if (success)
+        if (args.NewValue != null)
         {
-            cornerRadiusTextBox.Foreground = Brushes.Black;
-            theme.CornerRadius = cornerRadius;
-        }
-        else
-        {
-            cornerRadiusTextBox.Foreground = Brushes.Red;
+            theme.Margin = (int)args.NewValue;
         }
     }
 
-    private void MarginTextBox_TextChanged(object? sender, TextChangedEventArgs? e)
+    private void CornerRadiusTextBox_ValueChanged(object sender, Wpf.Ui.Controls.NumberBoxValueChangedEventArgs args)
     {
-        bool success = int.TryParse(marginTextBox.Text, out int margin);
-        if (success)
+        if (args.NewValue != null)
         {
-            marginTextBox.Foreground = Brushes.Black;
-            theme.Margin = margin;
-        }
-        else
-        {
-            marginTextBox.Foreground = Brushes.Red;
+            theme.Margin = (int)args.NewValue;
         }
     }
 }

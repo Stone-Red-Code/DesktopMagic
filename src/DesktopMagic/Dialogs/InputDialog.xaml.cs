@@ -2,7 +2,7 @@
 
 namespace DesktopMagic.Dialogs;
 
-public partial class InputDialog : Window
+public partial class InputDialog : Wpf.Ui.Controls.FluentWindow
 {
     public string ResponseText
     {
