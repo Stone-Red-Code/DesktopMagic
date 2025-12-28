@@ -47,7 +47,7 @@ public partial class ThemePage : Page
         });
     }
 
-    private void AddThemeButton_Click(object sender, RoutedEventArgs e)
+    private async void AddThemeButton_Click(object sender, RoutedEventArgs e)
     {
         InputDialog inputDialog = new((string)FindResource("enterThemeName"))
         {
@@ -58,7 +58,13 @@ public partial class ThemePage : Page
         {
             if (_manager.Settings.Themes.Any(l => l.Name.Trim() == inputDialog.ResponseText.Trim()))
             {
-                _ = System.Windows.MessageBox.Show((string)FindResource("themeAlreadyExists"), App.AppName, MessageBoxButton.OK, MessageBoxImage.Warning);
+                Wpf.Ui.Controls.MessageBox messageBox = new Wpf.Ui.Controls.MessageBox
+                {
+                    Title = App.AppName,
+                    Content = (string)FindResource("themeAlreadyExists"),
+                    CloseButtonText = "Ok"
+                };
+                _ = await messageBox.ShowDialogAsync();
                 return;
             }
 
@@ -68,16 +74,30 @@ public partial class ThemePage : Page
         }
     }
 
-    private void DeleteThemeButton_Click(object sender, RoutedEventArgs e)
+    private async void DeleteThemeButton_Click(object sender, RoutedEventArgs e)
     {
         if (_manager.Settings.Themes.Count <= 1)
         {
-            _ = System.Windows.MessageBox.Show((string)FindResource("cannotDeleteLastTheme"), App.AppName, MessageBoxButton.OK, MessageBoxImage.Warning);
+            Wpf.Ui.Controls.MessageBox cannotDeleteMessageBox = new Wpf.Ui.Controls.MessageBox
+            {
+                Title = App.AppName,
+                Content = (string)FindResource("cannotDeleteLastTheme"),
+                CloseButtonText = "Ok"
+            };
+            _ = await cannotDeleteMessageBox.ShowDialogAsync();
             return;
         }
 
-        MessageBoxResult result = System.Windows.MessageBox.Show((string)FindResource("confirmDeleteTheme"), App.AppName, MessageBoxButton.YesNo, MessageBoxImage.Question);
-        if (result != MessageBoxResult.Yes)
+        var messageBox = new Wpf.Ui.Controls.MessageBox
+        {
+            Title = App.AppName,
+            Content = (string)FindResource("confirmDeleteTheme"),
+            PrimaryButtonText = "Yes",
+            SecondaryButtonText = "No",
+            IsCloseButtonEnabled = false
+        };
+        Wpf.Ui.Controls.MessageBoxResult result = await messageBox.ShowDialogAsync();
+        if (result != Wpf.Ui.Controls.MessageBoxResult.Primary) // Primary is "Yes"
         {
             return;
         }
@@ -91,7 +111,7 @@ public partial class ThemePage : Page
 
     private void EditThemeButton_Click(object sender, RoutedEventArgs e)
     {
-        if (sender is not Button button || button.Tag is not Theme theme)
+        if (sender is not System.Windows.Controls.Button button || button.Tag is not Theme theme)
         {
             return;
         }

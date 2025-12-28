@@ -5,6 +5,8 @@ using DesktopMagic.Settings;
 
 using System.Drawing;
 
+using Wpf.Ui.Controls;
+
 namespace DesktopMagic.Plugins;
 
 internal class PluginData(PluginWindow window, PluginSettings pluginSettings) : IPluginData
@@ -38,7 +40,7 @@ internal class PluginData(PluginWindow window, PluginSettings pluginSettings) : 
     {
         title ??= PluginName;
 
-        window.Dispatcher.Invoke(() =>
+        _ = window.Dispatcher.Invoke(async () =>
         {
             System.Windows.Window temporaryOwner = new()
             {
@@ -51,7 +53,14 @@ internal class PluginData(PluginWindow window, PluginSettings pluginSettings) : 
 
             temporaryOwner.Show();
 
-            _ = System.Windows.MessageBox.Show(temporaryOwner, message, $"{App.AppName} - {title}");
+            MessageBox messageBox = new Wpf.Ui.Controls.MessageBox
+            {
+                Owner = temporaryOwner,
+                Title = $"{App.AppName} - {title}",
+                Content = message,
+                CloseButtonText = "Ok"
+            };
+            _ = await messageBox.ShowDialogAsync();
 
             temporaryOwner.Close();
         });

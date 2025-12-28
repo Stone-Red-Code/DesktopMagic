@@ -219,10 +219,16 @@ internal class SettingElementGenerator(uint pluginId)
         return null;
     }
 
-    private void DisplayException(string message)
+    private async void DisplayException(string message)
     {
         App.Logger.LogInfo(message, source: "PluginInput");
-        _ = System.Windows.MessageBox.Show("File execution error:\n" + message, "Error", System.Windows.MessageBoxButton.OK, MessageBoxImage.Error);
+        Wpf.Ui.Controls.MessageBox messageBox = new Wpf.Ui.Controls.MessageBox
+        {
+            Title = "Error",
+            Content = "File execution error:\n" + message,
+            CloseButtonText = "Ok"
+        };
+        _ = await messageBox.ShowDialogAsync();
         int index = Manager.Instance.PluginWindows.FindIndex(p => p.PluginMetadata.Id == pluginId);
 
         if (index >= 0 && index < Manager.Instance.PluginWindows.Count)

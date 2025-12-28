@@ -134,7 +134,7 @@ public partial class App : Application
         Logger.LogFatal(exception + (e.IsTerminating ? "\t Process terminating!" : ""), source: exception.Source ?? "Unknown");
     }
 
-    private static void Setup(bool clearLogFile)
+    private static async void Setup(bool clearLogFile)
     {
         AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
 
@@ -160,7 +160,13 @@ public partial class App : Application
         }
         catch (Exception ex)
         {
-            _ = MessageBox.Show(ex.ToString(), AppName, MessageBoxButton.OK, MessageBoxImage.Error);
+            Wpf.Ui.Controls.MessageBox messageBox = new Wpf.Ui.Controls.MessageBox
+            {
+                Title = AppName,
+                Content = ex.ToString(),
+                CloseButtonText = "Ok"
+            };
+            _ = await messageBox.ShowDialogAsync();
             Logger.Log(ex.Message, "Setup", LogSeverity.Error);
         }
 

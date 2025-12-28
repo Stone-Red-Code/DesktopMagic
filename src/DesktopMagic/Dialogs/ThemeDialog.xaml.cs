@@ -115,7 +115,7 @@ public partial class ThemeDialog : Wpf.Ui.Controls.FluentWindow
 
     private void MarginTextBox_ValueChanged(object sender, Wpf.Ui.Controls.NumberBoxValueChangedEventArgs args)
     {
-        if (args.NewValue != null)
+        if (args.NewValue is >= 0)
         {
             theme.Margin = (int)args.NewValue;
         }
@@ -123,9 +123,9 @@ public partial class ThemeDialog : Wpf.Ui.Controls.FluentWindow
 
     private void CornerRadiusTextBox_ValueChanged(object sender, Wpf.Ui.Controls.NumberBoxValueChangedEventArgs args)
     {
-        if (args.NewValue != null)
+        if (args.NewValue is >= 0)
         {
-            theme.Margin = (int)args.NewValue;
+            theme.CornerRadius = (int)args.NewValue;
         }
     }
 }

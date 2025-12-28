@@ -22,13 +22,12 @@ public partial class MainWindow : FluentWindow
         InitializeComponent();
 
         DataContext = _mainWindowDataContext;
-        _mainWindowDataContext.Settings = _manager.Settings;
 
         Resources.MergedDictionaries.Add(App.LanguageDictionary);
         App.DialogService.SetDialogHost(rootContentDialog);
     }
 
-    private void Window_Loaded(object sender, RoutedEventArgs e)
+    private async void Window_Loaded(object sender, RoutedEventArgs e)
     {
         try
         {
@@ -37,8 +36,9 @@ public partial class MainWindow : FluentWindow
             _mainWindowDataContext.IsLoading = true;
 
             // Load plugins and settings through manager
-            _manager.LoadPlugins();
             _manager.LoadSettings();
+            _mainWindowDataContext.Settings = _manager.Settings;
+            _manager.LoadPlugins();
             _manager.LoadLayout();
 
             _manager.IsLoaded = true;
@@ -49,7 +49,13 @@ public partial class MainWindow : FluentWindow
         catch (Exception ex)
         {
             App.Logger.LogError(ex.Message, source: "MainWindow");
-            _ = System.Windows.MessageBox.Show(ex.ToString(), App.AppName, System.Windows.MessageBoxButton.OK, System.Windows.MessageBoxImage.Error);
+            Wpf.Ui.Controls.MessageBox messageBox = new Wpf.Ui.Controls.MessageBox
+            {
+                Title = App.AppName,
+                Content = ex.ToString(),
+                CloseButtonText = "Ok"
+            };
+            _ = await messageBox.ShowDialogAsync();
         }
     }
 

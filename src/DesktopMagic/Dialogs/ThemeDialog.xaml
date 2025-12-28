@@ -56,10 +56,10 @@
                     <ComboBox x:Name="fontComboBox" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Top" SelectionChanged="FontComboBox_SelectionChanged" Margin="0,0,0,5" />
 
                     <TextBlock Text="Corner Radius: " Grid.Column="0" Grid.Row="1" VerticalAlignment="Center"></TextBlock>
-                    <ui:NumberBox x:Name="cornerRadiusTextBox" Grid.Column="1" Grid.Row="1" ValueChanged="CornerRadiusTextBox_ValueChanged" PlaceholderText="Enter a number" Margin="0,0,0,5" />
+                    <ui:NumberBox x:Name="cornerRadiusTextBox" Minimum="0" Grid.Column="1" Grid.Row="1" ValueChanged="CornerRadiusTextBox_ValueChanged" PlaceholderText="Enter a number" Margin="0,0,0,5" />
 
                     <TextBlock Text="Margin: " Grid.Column="0" Grid.Row="3" VerticalAlignment="Center"></TextBlock>
-                    <ui:NumberBox x:Name="marginTextBox" Grid.Column="1" Grid.Row="3" ValueChanged="MarginTextBox_ValueChanged" PlaceholderText="Enter a number"/>
+                    <ui:NumberBox x:Name="marginTextBox" Minimum="0" Grid.Column="1" Grid.Row="3" ValueChanged="MarginTextBox_ValueChanged" PlaceholderText="Enter a number"/>
                 </Grid>
                 <Grid Grid.Column="1" Margin="{StaticResource DefaultMargin}" HorizontalAlignment="Stretch">
 

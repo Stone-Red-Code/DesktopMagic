@@ -16,6 +16,7 @@ using System.Reflection;
 using System.Runtime.Loader;
 using System.Text.Json;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Timers;
 using System.Windows;
 using System.Windows.Interop;
@@ -70,6 +71,11 @@ public partial class PluginWindow : Window, IPluginWindow
                 };
                 ThemeChanged();
             }
+        };
+
+        settings.Theme.PropertyChanged += (se, ev) =>
+        {
+            ThemeChanged();
         };
 
         PluginMetadata = pluginMetadata;
@@ -183,18 +189,24 @@ public partial class PluginWindow : Window, IPluginWindow
     private void Window_ContentRendered(object? sender, EventArgs e)
     {
         App.Logger.LogInfo($"\"{PluginMetadata.Name}\" - Starting plugin thread", source: "Plugin");
-        pluginThread = new Thread(LoadPlugin);
+        pluginThread = new Thread(async () => await LoadPlugin());
         pluginThread.Start();
     }
 
-    private void LoadPlugin()
+    private async Task LoadPlugin()
     {
         App.Logger.LogInfo($"\"{PluginMetadata.Name}\" - Loading plugin", source: "Plugin");
 
         if (pluginClassInstance is null && !File.Exists($"{PluginFolderPath}\\main.dll"))
         {
             App.Logger.LogError($"\"{PluginMetadata.Name}\" - File \"main.dll\" does not exist", source: "Plugin");
-            _ = MessageBox.Show("File \"main.dll\" does not exist!", $"Error \"{PluginMetadata.Name}\"", MessageBoxButton.OK, MessageBoxImage.Error);
+            Wpf.Ui.Controls.MessageBox messageBox = new Wpf.Ui.Controls.MessageBox
+            {
+                Title = $"Error \"{PluginMetadata.Name}\"",
+                Content = "File \"main.dll\" does not exist!",
+                CloseButtonText = "Ok"
+            };
+            _ = await messageBox.ShowDialogAsync();
 
             Exit();
             return;
@@ -202,18 +214,24 @@ public partial class PluginWindow : Window, IPluginWindow
 
         try
         {
-            ExecuteSource();
+            await ExecuteSource();
         }
         catch (Exception ex)
         {
             App.Logger.LogError($"\"{PluginMetadata.Name}\" - {ex}", source: "Plugin");
-            _ = MessageBox.Show("File execution error:\n" + ex, $"Error \"{PluginMetadata.Name}\"", MessageBoxButton.OK, MessageBoxImage.Error);
+            Wpf.Ui.Controls.MessageBox messageBox = new Wpf.Ui.Controls.MessageBox
+            {
+                Title = $"Error \"{PluginMetadata.Name}\"",
+                Content = "File execution error:\n" + ex,
+                CloseButtonText = "Ok"
+            };
+            _ = await messageBox.ShowDialogAsync();
             Exit();
             return;
         }
         PluginLoaded?.Invoke();
 
-        _ = Dispatcher.Invoke(() => busyMask.IsBusy = false);
+        _ = await Dispatcher.InvokeAsync(() => busyMask.IsBusy = false);
     }
 
     private void ThemeChanged()
@@ -230,7 +248,7 @@ public partial class PluginWindow : Window, IPluginWindow
         }
     }
 
-    private void ExecuteSource()
+    private async Task ExecuteSource()
     {
         object? instance = pluginClassInstance;
         if (instance is null)
@@ -239,7 +257,7 @@ public partial class PluginWindow : Window, IPluginWindow
 
             if (PluginMetadata.SupportsUnloading)
             {
-                byte[] assemblyData = File.ReadAllBytes($"{PluginFolderPath}\\main.dll");
+                byte[] assemblyData = await File.ReadAllBytesAsync($"{PluginFolderPath}\\main.dll");
                 using MemoryStream assemblyStream = new(assemblyData);
 
                 dll = assemblyLoadContext.LoadFromStream(assemblyStream);
@@ -254,8 +272,13 @@ public partial class PluginWindow : Window, IPluginWindow
             if (instanceType is null)
             {
                 App.Logger.LogError($"\"{PluginMetadata.Name}\" - The \"Plugin\" class could not be found! It has to inherit from \"{typeof(Plugin).FullName}\"", source: "Plugin");
-                _ = MessageBox.Show($"The \"Plugin\" class could not be found! It has to inherit from \"{typeof(Plugin).FullName}\"", $"Error \"{PluginMetadata.Name}\"", MessageBoxButton.OK, MessageBoxImage.Error);
-
+                Wpf.Ui.Controls.MessageBox messageBox = new Wpf.Ui.Controls.MessageBox
+                {
+                    Title = $"Error \"{PluginMetadata.Name}\"",
+                    Content = $"The \"Plugin\" class could not be found! It has to inherit from \"{typeof(Plugin).FullName}\"",
+                    CloseButtonText = "Ok"
+                };
+                _ = await messageBox.ShowDialogAsync();
                 Exit();
                 return;
             }
@@ -270,13 +293,19 @@ public partial class PluginWindow : Window, IPluginWindow
         else
         {
             App.Logger.LogError($"\"{PluginMetadata.Name}\" - The \"Plugin\" class could not be found! It has to inherit from \"{typeof(Plugin).FullName}\"", source: "Plugin");
-            _ = MessageBox.Show($"The \"Plugin\" class has to inherit from \"{typeof(Plugin).FullName}\"", $"Error \"{PluginMetadata.Name}\"", MessageBoxButton.OK, MessageBoxImage.Error);
+            Wpf.Ui.Controls.MessageBox messageBox = new Wpf.Ui.Controls.MessageBox
+            {
+                Title = $"Error \"{PluginMetadata.Name}\"",
+                Content = $"The \"Plugin\" class has to inherit from \"{typeof(Plugin).FullName}\"",
+                CloseButtonText = "Ok"
+            };
+            _ = await messageBox.ShowDialogAsync();
             Exit();
             return;
         }
 
         LoadState(pluginClassInstance);
-        LoadOptions(pluginClassInstance);
+        await LoadOptions(pluginClassInstance);
         BindDefaultSettings(pluginClassInstance);
 
         updateTimer = new System.Timers.Timer
@@ -287,7 +316,7 @@ public partial class PluginWindow : Window, IPluginWindow
 
         pluginClassInstance.Start();
         UpdatePluginWindow();
-        Dispatcher.Invoke(ThemeChanged);
+        await Dispatcher.InvokeAsync(ThemeChanged);
 
         if (pluginClassInstance.UpdateInterval > 0)
         {
@@ -367,7 +396,7 @@ public partial class PluginWindow : Window, IPluginWindow
         }
     }
 
-    private void LoadOptions(object instance)
+    private async Task LoadOptions(object instance)
     {
         App.Logger.LogInfo($"\"{PluginMetadata.Name}\" - Loading plugin options", source: "Plugin");
 
@@ -418,7 +447,13 @@ public partial class PluginWindow : Window, IPluginWindow
         {
             IsRunning = false;
             App.Logger.LogError($"\"{PluginMetadata.Name}\" - {ex}", source: "Plugin");
-            _ = MessageBox.Show("File execution error:\n" + ex, $"Error \"{PluginMetadata.Name}\"", MessageBoxButton.OK, MessageBoxImage.Error);
+            Wpf.Ui.Controls.MessageBox messageBox = new Wpf.Ui.Controls.MessageBox
+            {
+                Title = $"Error \"{PluginMetadata.Name}\"",
+                Content = "File execution error:\n" + ex,
+                CloseButtonText = "Ok"
+            };
+            _ = await messageBox.ShowDialogAsync();
             Exit();
         }
     }
@@ -608,7 +643,13 @@ public partial class PluginWindow : Window, IPluginWindow
         {
             IsRunning = false;
             App.Logger.LogError($"\"{PluginMetadata.Name}\" - {ex}", source: "Plugin");
-            _ = MessageBox.Show("File execution error:\n" + ex, $"Error \"{PluginMetadata.Name}\"", MessageBoxButton.OK, MessageBoxImage.Error);
+            Wpf.Ui.Controls.MessageBox messageBox = new Wpf.Ui.Controls.MessageBox
+            {
+                Title = $"Error \"{PluginMetadata.Name}\"",
+                Content = "File execution error:\n" + ex,
+                CloseButtonText = "Ok"
+            };
+            _ = await messageBox.ShowDialogAsync();
             Exit();
             return;
         }

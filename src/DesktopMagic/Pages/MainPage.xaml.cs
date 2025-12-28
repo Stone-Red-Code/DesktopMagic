@@ -139,7 +139,7 @@ public partial class MainPage : Page
         }
     }
 
-    private void NewLayoutButton_Click(object sender, RoutedEventArgs e)
+    private async void NewLayoutButton_Click(object sender, RoutedEventArgs e)
     {
         InputDialog inputDialog = new((string)FindResource("enterLayoutName"))
         {
@@ -150,7 +150,13 @@ public partial class MainPage : Page
         {
             if (_manager.Settings.Layouts.Any(l => l.Name.Trim() == inputDialog.ResponseText.Trim()))
             {
-                _ = System.Windows.MessageBox.Show((string)FindResource("layoutAlreadyExists"), App.AppName, MessageBoxButton.OK, MessageBoxImage.Warning);
+                Wpf.Ui.Controls.MessageBox messageBox = new Wpf.Ui.Controls.MessageBox
+                {
+                    Title = App.AppName,
+                    Content = (string)FindResource("layoutAlreadyExists"),
+                    CloseButtonText = "Ok"
+                };
+                _ = await messageBox.ShowDialogAsync();
                 return;
             }
 
@@ -168,16 +174,30 @@ public partial class MainPage : Page
         }
     }
 
-    private void RemoveLayoutButton_Click(object sender, RoutedEventArgs e)
+    private async void RemoveLayoutButton_Click(object sender, RoutedEventArgs e)
     {
         if (_manager.Settings.Layouts.Count <= 1)
         {
-            _ = System.Windows.MessageBox.Show((string)FindResource("cannotDeleteLastLayout"), App.AppName, MessageBoxButton.OK, MessageBoxImage.Warning);
+            Wpf.Ui.Controls.MessageBox cannotDeleteMessageBox = new Wpf.Ui.Controls.MessageBox
+            {
+                Title = App.AppName,
+                Content = (string)FindResource("cannotDeleteLastLayout"),
+                CloseButtonText = "Ok"
+            };
+            _ = await cannotDeleteMessageBox.ShowDialogAsync();
             return;
         }
 
-        MessageBoxResult result = System.Windows.MessageBox.Show((string)FindResource("confirmDeleteLayout"), App.AppName, MessageBoxButton.YesNo, MessageBoxImage.Question);
-        if (result != MessageBoxResult.Yes)
+        var messageBox = new Wpf.Ui.Controls.MessageBox
+        {
+            Title = App.AppName,
+            Content = (string)FindResource("confirmDeleteLayout"),
+            PrimaryButtonText = "Yes",
+            SecondaryButtonText = "No",
+            IsCloseButtonEnabled = false
+        };
+        Wpf.Ui.Controls.MessageBoxResult result = await messageBox.ShowDialogAsync();
+        if (result != Wpf.Ui.Controls.MessageBoxResult.Primary) // Primary is "Yes"
         {
             return;
         }
@@ -217,7 +237,7 @@ public partial class MainPage : Page
         // s.Input being null means the plugins has not been loaded yet but the settings are present in the saved configuration.
         if (pluginSettings is null || pluginSettings.Settings.Count == 0 || pluginSettings.Settings.All(s => s.Input is null))
         {
-            _ = optionsPanel.Children.Add(new TextBlock()
+            _ = optionsPanel.Children.Add(new System.Windows.Controls.TextBlock()
             {
                 Text = (string)FindResource(pluginSettings?.Enabled == true ? "noOptions" : "enablePluginToConfigure")
             });
@@ -235,7 +255,7 @@ public partial class MainPage : Page
                 Padding = new Thickness(5)
             };
 
-            TextBlock textBlock = new()
+            System.Windows.Controls.TextBlock textBlock = new()
             {
                 Text = string.IsNullOrWhiteSpace(settingElement.Name) ? string.Empty : settingElement.Name,
                 Padding = new Thickness(0, 0, 3, 0),

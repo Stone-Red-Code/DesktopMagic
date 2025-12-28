@@ -191,7 +191,13 @@ public partial class PluginManager : Page
             }
             catch (Exception ex)
             {
-                _ = MessageBox.Show(ex.Message, "Plugin Manager", MessageBoxButton.OK, MessageBoxImage.Error);
+                Wpf.Ui.Controls.MessageBox messageBox = new Wpf.Ui.Controls.MessageBox
+                {
+                    Title = "Plugin Manager",
+                    Content = ex.Message,
+                    CloseButtonText = "Ok"
+                };
+                _ = await messageBox.ShowDialogAsync();
                 App.Logger.LogError(ex.Message, source: "PluginManager");
             }
         }
@@ -261,9 +267,15 @@ public partial class PluginManager : Page
             if (!File.Exists(Path.Combine(pluginPath, "main.dll")) && !File.Exists(Path.Combine(pluginPath, "main.html")))
             {
                 App.Logger.LogError($"Plugin {mod.Id} does not contain main.dll or main.html", source: "PluginManager");
-                _ = Remove(pluginPath, mod.Id);
+                await Remove(pluginPath, mod.Id);
                 pluginManagerDataContext.IsLoading = false;
-                _ = MessageBox.Show("The plugin you are trying to install does not contain a \"main.dll\" or \"main.html\" file. Please contact the plugin author.", "Plugin Manager", MessageBoxButton.OK, MessageBoxImage.Error);
+                Wpf.Ui.Controls.MessageBox messageBox = new Wpf.Ui.Controls.MessageBox
+                {
+                    Title = "Plugin Manager",
+                    Content = "The plugin you are trying to install does not contain a \"main.dll\" or \"main.html\" file. Please contact the plugin author.",
+                    CloseButtonText = "Ok"
+                };
+                _ = await messageBox.ShowDialogAsync();
                 return;
             }
 
@@ -293,7 +305,13 @@ public partial class PluginManager : Page
         catch (Exception ex)
         {
             App.Logger.LogError($"Failed to install plugin {mod.Id}: {ex.Message}", source: "PluginManager");
-            _ = MessageBox.Show($"Failed to install plugin: {ex.Message}", "Plugin Manager", MessageBoxButton.OK, MessageBoxImage.Error);
+            Wpf.Ui.Controls.MessageBox messageBox = new Wpf.Ui.Controls.MessageBox
+            {
+                Title = "Plugin Manager",
+                Content = $"Failed to install plugin: {ex.Message}",
+                CloseButtonText = "Ok"
+            };
+            _ = await messageBox.ShowDialogAsync();
         }
 
         pluginManagerDataContext.IsLoading = false;
@@ -370,27 +388,39 @@ public partial class PluginManager : Page
         pluginManagerDataContext.IsSearching = false;
     }
 
-    private void CreatePluginButton_Click(object sender, RoutedEventArgs e)
+    private async void CreatePluginButton_Click(object sender, RoutedEventArgs e)
     {
         try
         {
-            CreateNewPlugin();
+            await CreateNewPlugin();
         }
         catch (Exception ex)
         {
             App.Logger.LogError(ex.Message, source: "PluginManager");
-            _ = MessageBox.Show(ex.Message, "Plugin Manager", MessageBoxButton.OK, MessageBoxImage.Error);
+            Wpf.Ui.Controls.MessageBox messageBox = new Wpf.Ui.Controls.MessageBox
+            {
+                Title = "Plugin Manager",
+                Content = ex.Message,
+                CloseButtonText = "Ok"
+            };
+            _ = await messageBox.ShowDialogAsync();
         }
     }
 
-    private void CreateNewPlugin()
+    private async Task CreateNewPlugin()
     {
         App.Logger.LogInfo("Creating new plugin", source: "PluginManager");
 
         if (!FileUtilities.ExistsOnPath("dotnet.exe"))
         {
             App.Logger.LogError(".NET SDK not found on PATH", source: "PluginManager");
-            _ = MessageBox.Show("The .NET SDK is required to create a plugin. Please install it and try again.", "Plugin Manager", MessageBoxButton.OK, MessageBoxImage.Error);
+            Wpf.Ui.Controls.MessageBox messageBox = new Wpf.Ui.Controls.MessageBox
+            {
+                Title = "Plugin Manager",
+                Content = "The .NET SDK is required to create a plugin. Please install it and try again.",
+                CloseButtonText = "Ok"
+            };
+            _ = await messageBox.ShowDialogAsync();
             return;
         }
 
@@ -428,7 +458,13 @@ public partial class PluginManager : Page
         if (Directory.Exists(pluginProjectPath))
         {
             App.Logger.LogWarn($"Plugin project already exists: {pluginProjectPath}", source: "PluginManager");
-            _ = MessageBox.Show("A plugin with the same name already exists. Please choose a different name.", "Plugin Manager", MessageBoxButton.OK, MessageBoxImage.Error);
+            Wpf.Ui.Controls.MessageBox messageBox = new Wpf.Ui.Controls.MessageBox
+            {
+                Title = "Plugin Manager",
+                Content = "A plugin with the same name already exists. Please choose a different name.",
+                CloseButtonText = "Ok"
+            };
+            _ = await messageBox.ShowDialogAsync();
             return;
         }
 
@@ -524,7 +560,13 @@ public class {pluginSafeName}Plugin : Plugin
         else
         {
             App.Logger.LogError("PropertyGroup element not found in .csproj", source: "PluginManager");
-            _ = MessageBox.Show("PropertyGroup element not found in .csproj", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            Wpf.Ui.Controls.MessageBox messageBox = new Wpf.Ui.Controls.MessageBox
+            {
+                Title = "Error",
+                Content = "PropertyGroup element not found in .csproj",
+                CloseButtonText = "Ok"
+            };
+            _ = await messageBox.ShowDialogAsync();
             return;
         }
 
@@ -622,7 +664,13 @@ public class {pluginSafeName}Plugin : Plugin
         catch (Exception ex)
         {
             App.Logger.LogError($"Authentication failed: {ex.Message}", source: "PluginManager");
-            _ = MessageBox.Show(ex.Message, "Plugin Manager", MessageBoxButton.OK, MessageBoxImage.Error);
+            Wpf.Ui.Controls.MessageBox messageBox = new Wpf.Ui.Controls.MessageBox
+            {
+                Title = "Plugin Manager",
+                Content = ex.Message,
+                CloseButtonText = "Ok"
+            };
+            _ = await messageBox.ShowDialogAsync();
         }
 
         pluginManagerDataContext.IsLoading = false;

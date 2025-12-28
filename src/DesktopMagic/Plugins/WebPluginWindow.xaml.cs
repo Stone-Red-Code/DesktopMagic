@@ -57,6 +57,11 @@ public partial class WebPluginWindow : Window, IPluginWindow
             }
         };
 
+        settings.Theme.PropertyChanged += (se, ev) =>
+        {
+            ThemeChanged();
+        };
+
         PluginMetadata = pluginMetadata;
         this.settings = settings;
 
@@ -122,7 +127,13 @@ public partial class WebPluginWindow : Window, IPluginWindow
         catch (Exception ex)
         {
             App.Logger.LogError($"\"{PluginMetadata.Name}\" - {ex}", source: "WebPlugin");
-            _ = MessageBox.Show("WebView2 initialization error:\n" + ex, $"Error \"{PluginMetadata.Name}\"", MessageBoxButton.OK, MessageBoxImage.Error);
+            Wpf.Ui.Controls.MessageBox messageBox = new Wpf.Ui.Controls.MessageBox
+            {
+                Title = $"Error \"{PluginMetadata.Name}\"",
+                Content = "WebView2 initialization error:\n" + ex,
+                CloseButtonText = "Ok"
+            };
+            _ = await messageBox.ShowDialogAsync();
             Exit();
         }
     }
@@ -169,7 +180,13 @@ public partial class WebPluginWindow : Window, IPluginWindow
         if (!File.Exists(htmlPath))
         {
             App.Logger.LogError($"\"{PluginMetadata.Name}\" - File \"main.html\" does not exist", source: "WebPlugin");
-            _ = MessageBox.Show("File \"main.html\" does not exist!", $"Error \"{PluginMetadata.Name}\"", MessageBoxButton.OK, MessageBoxImage.Error);
+            Wpf.Ui.Controls.MessageBox messageBox = new Wpf.Ui.Controls.MessageBox
+            {
+                Title = $"Error \"{PluginMetadata.Name}\"",
+                Content = "File \"main.html\" does not exist!",
+                CloseButtonText = "Ok"
+            };
+            _ = await messageBox.ShowDialogAsync();
             Exit();
             return;
         }

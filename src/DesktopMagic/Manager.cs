@@ -86,7 +86,7 @@ public sealed class Manager
         _plugins.Clear();
 
         // Load built-in plugins
-        foreach (var builtInPlugin in _builtInPlugins.Keys)
+        foreach (PluginMetadata builtInPlugin in _builtInPlugins.Keys)
         {
             _plugins.Add(builtInPlugin.Id, new(builtInPlugin, PluginType.DotNet, string.Empty));
         }
@@ -318,7 +318,7 @@ public sealed class Manager
         }
 
         // Remove plugins that are not loaded anymore
-        var pluginIdsToRemove = Settings.CurrentLayout.Plugins.Keys.Where(id => !_plugins.ContainsKey(id)).ToList();
+        List<uint> pluginIdsToRemove = Settings.CurrentLayout.Plugins.Keys.Where(id => !_plugins.ContainsKey(id)).ToList();
         foreach (uint pluginId in pluginIdsToRemove)
         {
             Settings.CurrentLayout.Plugins.Remove(pluginId);
