@@ -210,6 +210,8 @@ public partial class PluginWindow : Window, IPluginWindow
             return;
         }
         PluginLoaded?.Invoke();
+
+        _ = Dispatcher.Invoke(() => busyMask.IsBusy = false);
     }
 
     private void ThemeChanged()

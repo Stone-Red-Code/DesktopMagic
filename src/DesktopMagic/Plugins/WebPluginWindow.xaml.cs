@@ -192,6 +192,8 @@ public partial class WebPluginWindow : Window, IPluginWindow
 
             App.Logger.LogInfo($"\"{PluginMetadata.Name}\" - WebView2 initialized successfully", source: "WebPlugin");
             PluginLoaded?.Invoke();
+
+            busyMask.IsBusy = false;
         }
         catch (Exception ex)
         {

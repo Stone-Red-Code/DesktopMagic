@@ -9,7 +9,7 @@ using System.Text.Json.Serialization;
 
 namespace DesktopMagic.Settings;
 
-internal class Layout(string name) : INotifyPropertyChanged
+public class Layout(string name) : INotifyPropertyChanged
 {
     public event PropertyChangedEventHandler? PropertyChanged;
 

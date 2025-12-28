@@ -8,7 +8,7 @@ using System.Text.Json.Serialization;
 
 namespace DesktopMagic.Settings;
 
-internal class DesktopMagicSettings : INotifyPropertyChanged
+public class DesktopMagicSettings : INotifyPropertyChanged
 {
     public event PropertyChangedEventHandler? PropertyChanged;
 

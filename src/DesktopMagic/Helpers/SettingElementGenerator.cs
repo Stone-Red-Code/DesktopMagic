@@ -6,14 +6,10 @@ using System.Windows.Controls;
 
 namespace DesktopMagic.Helpers;
 
-internal class SettingElementGenerator(ComboBox optionsComboBox)
+internal class SettingElementGenerator(uint pluginId)
 {
-    private readonly ComboBox optionsComboBox = optionsComboBox;
-
-    public void Generate(SettingElement settingElement, DockPanel dockPanel, TextBlock textBlock)
+    public Control? Generate(SettingElement settingElement, System.Windows.Controls.TextBlock textBlock)
     {
-        dockPanel.UpdateLayout();
-        textBlock.UpdateLayout();
         if (settingElement.Input is DesktopMagic.Api.Settings.Label eLabel)
         {
             textBlock.Text = eLabel.Value;
@@ -32,16 +28,13 @@ internal class SettingElementGenerator(ComboBox optionsComboBox)
                     textBlock.Text = eLabel.Value;
                 });
             };
+            return null;
         }
         else if (settingElement.Input is DesktopMagic.Api.Settings.Button eButton)
         {
-            Button button = new()
+            Wpf.Ui.Controls.Button button = new()
             {
                 Content = eButton.Value,
-                FontSize = 10,
-                Height = 20,
-                Margin = new Thickness(0, 10, 0, 10),
-                Padding = new Thickness(0),
                 VerticalAlignment = VerticalAlignment.Center,
                 HorizontalAlignment = HorizontalAlignment.Stretch
             };
@@ -64,16 +57,18 @@ internal class SettingElementGenerator(ComboBox optionsComboBox)
                 });
             };
 
-            _ = dockPanel.Children.Add(button);
+            return button;
         }
         else if (settingElement.Input is DesktopMagic.Api.Settings.CheckBox eCheckBox)
         {
-            CheckBox checkBox = new()
+            Wpf.Ui.Controls.ToggleSwitch checkBox = new()
             {
                 IsChecked = eCheckBox.Value,
-                Style = (Style)dockPanel.FindResource("MaterialDesignDarkCheckBox"),
                 VerticalAlignment = VerticalAlignment.Center,
-                HorizontalAlignment = HorizontalAlignment.Stretch
+                HorizontalAlignment = HorizontalAlignment.Stretch,
+                HorizontalContentAlignment = HorizontalAlignment.Right,
+                Height = 30,
+                Style = Application.Current.FindResource("ToggleSwitchContentLeftStyle") as Style
             };
             checkBox.Click += (_s, _e) =>
             {
@@ -94,11 +89,11 @@ internal class SettingElementGenerator(ComboBox optionsComboBox)
                 });
             };
 
-            _ = dockPanel.Children.Add(checkBox);
+            return checkBox;
         }
         else if (settingElement.Input is DesktopMagic.Api.Settings.TextBox eTextBox)
         {
-            TextBox textBox = new()
+            Wpf.Ui.Controls.TextBox textBox = new()
             {
                 Text = eTextBox.Value,
                 TextWrapping = TextWrapping.Wrap,
@@ -123,26 +118,23 @@ internal class SettingElementGenerator(ComboBox optionsComboBox)
                     textBox.Text = eTextBox.Value;
                 });
             };
-            _ = dockPanel.Children.Add(textBox);
+            return textBox;
         }
         else if (settingElement.Input is DesktopMagic.Api.Settings.IntegerUpDown eIntegerUpDown)
         {
-            MaterialDesignThemes.Wpf.NumericUpDown numericUpDown = new()
+            Wpf.Ui.Controls.NumberBox numberBox = new()
             {
                 Value = eIntegerUpDown.Value,
                 Minimum = eIntegerUpDown.Minimum,
                 Maximum = eIntegerUpDown.Maximum,
-                IncreaseContent = new Label() { Content = "+" },
-                DecreaseContent = new Label() { Content = "–" },
                 VerticalAlignment = VerticalAlignment.Center,
-                HorizontalAlignment = HorizontalAlignment.Stretch,
-                AllowChangeOnScroll = true
+                HorizontalAlignment = HorizontalAlignment.Stretch
             };
-            numericUpDown.ValueChanged += (_s, _e) =>
+            numberBox.ValueChanged += (_s, _e) =>
             {
                 try
                 {
-                    eIntegerUpDown.Value = numericUpDown.Value;
+                    eIntegerUpDown.Value = (int)numberBox.Value;
                 }
                 catch (Exception ex)
                 {
@@ -151,12 +143,12 @@ internal class SettingElementGenerator(ComboBox optionsComboBox)
             };
             eIntegerUpDown.OnValueChanged += () =>
             {
-                numericUpDown.Dispatcher.Invoke(() =>
+                numberBox.Dispatcher.Invoke(() =>
                 {
-                    numericUpDown.Value = eIntegerUpDown.Value;
+                    numberBox.Value = eIntegerUpDown.Value;
                 });
             };
-            _ = dockPanel.Children.Add(numericUpDown);
+            return numberBox;
         }
         else if (settingElement.Input is DesktopMagic.Api.Settings.Slider eSlider)
         {
@@ -168,7 +160,8 @@ internal class SettingElementGenerator(ComboBox optionsComboBox)
                 TickFrequency = 1,
                 IsSnapToTickEnabled = true,
                 VerticalAlignment = VerticalAlignment.Center,
-                HorizontalAlignment = HorizontalAlignment.Stretch
+                HorizontalAlignment = HorizontalAlignment.Stretch,
+                Margin = new Thickness(0, 5, 0, 5)
             };
             slider.ValueChanged += (_s, _e) =>
             {
@@ -189,7 +182,7 @@ internal class SettingElementGenerator(ComboBox optionsComboBox)
                 });
             };
 
-            _ = dockPanel.Children.Add(slider);
+            return slider;
         }
         else if (settingElement.Input is DesktopMagic.Api.Settings.ComboBox eComboBox)
         {
@@ -220,19 +213,21 @@ internal class SettingElementGenerator(ComboBox optionsComboBox)
                 comboBox.SelectedItem = eComboBox.Value;
             };
 
-            _ = dockPanel.Children.Add(comboBox);
+            return comboBox;
         }
+
+        return null;
     }
 
     private void DisplayException(string message)
     {
         App.Logger.LogInfo(message, source: "PluginInput");
-        _ = MessageBox.Show("File execution error:\n" + message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-        int index = MainWindow.WindowNames.IndexOf(optionsComboBox.SelectedItem.ToString() ?? string.Empty);
+        _ = System.Windows.MessageBox.Show("File execution error:\n" + message, "Error", System.Windows.MessageBoxButton.OK, MessageBoxImage.Error);
+        int index = Manager.Instance.PluginWindows.FindIndex(p => p.PluginMetadata.Id == pluginId);
 
-        if (index >= 0 && index < MainWindow.Windows.Count)
+        if (index >= 0 && index < Manager.Instance.PluginWindows.Count)
         {
-            IPluginWindow window = MainWindow.Windows[index];
+            IPluginWindow window = Manager.Instance.PluginWindows[index];
             window?.Exit();
         }
     }

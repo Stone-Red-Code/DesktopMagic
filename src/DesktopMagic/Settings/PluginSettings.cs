@@ -24,7 +24,7 @@ public class PluginSettings : INotifyPropertyChanged
 
     // Only for internal use to show the name of the plugin in the main window
     [JsonIgnore]
-    public string Name { get; set; } = string.Empty;
+    public PluginMetadata Metadata { get; set; } = new();
 
     [JsonIgnore]
     public Theme Theme

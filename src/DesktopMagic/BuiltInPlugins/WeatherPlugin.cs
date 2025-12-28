@@ -16,7 +16,7 @@ public class WeatherPlugin : AsyncPlugin
     [Setting("city-name", "City Name")]
     private readonly TextBox cityInput = new TextBox("Tokyo");
 
-    [Setting("search-btn")]
+    [Setting("search-btn", "Update Location")]
     private readonly Button searchButton = new Button("Update Location");
 
     [Setting("show-city", "Show City Name")]

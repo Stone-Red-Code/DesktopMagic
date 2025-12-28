@@ -8,7 +8,6 @@ using Modio.Models;
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
@@ -19,6 +18,7 @@ using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Threading;
 using System.Xml.Linq;
 
@@ -30,7 +30,7 @@ namespace DesktopMagic.Plugins;
 /// <summary>
 /// Interaction logic for PluginManager.xaml
 /// </summary>
-public partial class PluginManager : Window
+public partial class PluginManager : Page
 {
     private const int ModIoGameId = 5665;
     private const string ModIoApiKey = "88e6ea774c3a502b06114e7fee0829ac";
@@ -38,6 +38,9 @@ public partial class PluginManager : Window
     private readonly PluginManagerDataContext pluginManagerDataContext = new();
     private readonly string pluginsPath = Path.Combine(App.ApplicationDataPath, "Plugins");
     private readonly string pluginDevelopmentPath = Path.Combine(App.ApplicationDataPath, "PluginDevelopment");
+    private readonly Manager _manager = Manager.Instance;
+
+    private bool changed = false;
 
     private readonly DispatcherTimer searchTimer = new()
     {
@@ -72,55 +75,29 @@ public partial class PluginManager : Window
             searchTimer.Stop();
             await SearchAllPlugins(pluginManagerDataContext.AllPluginsSearchText);
         };
+
+        Loaded += PluginManager_Loaded;
+        Unloaded += PluginManager_Unloaded;
     }
 
-    public async Task Remove(string pluginPath, uint id)
+    private async void PluginManager_Loaded(object sender, RoutedEventArgs e)
     {
-        App.Logger.LogInfo($"Removing plugin with ID {id} from path: {pluginPath}", source: "PluginManager");
-        pluginManagerDataContext.IsLoading = true;
-
-        PluginEntryDataContext? pluginEntryDataContext = pluginManagerDataContext.InstalledPlugins.FirstOrDefault(p => p.Id == id);
-
-        if (Directory.Exists(pluginPath))
-        {
-            try
-            {
-                Directory.Delete(pluginPath, true);
-                App.Logger.LogInfo($"Successfully deleted plugin directory: {pluginPath}", source: "PluginManager");
-            }
-            catch (Exception ex)
-            {
-                _ = MessageBox.Show(ex.Message, "Plugin Manager", MessageBoxButton.OK, MessageBoxImage.Error);
-                App.Logger.LogError(ex.Message, source: "PluginManager");
-            }
-        }
-
-        if (pluginEntryDataContext is not null)
-        {
-            _ = pluginManagerDataContext.InstalledPlugins.Remove(pluginEntryDataContext);
-            App.Logger.LogInfo($"Removed plugin {id} from installed plugins list", source: "PluginManager");
-        }
-
-        if (pluginManagerDataContext.IsAuthenticated)
-        {
-            try
-            {
-                await modIoClient.Games[ModIoGameId].Mods.Unsubscribe(id);
-                App.Logger.LogInfo($"Unsubscribed from plugin {id} on mod.io", source: "PluginManager");
-            }
-            catch (Exception ex)
-            {
-                App.Logger.LogError($"Failed to unsubscribe from plugin {id}: {ex.Message}", source: "PluginManager");
-            }
-        }
-
-        pluginManagerDataContext.IsLoading = false;
+        await InitializePluginManager();
     }
 
-    protected override async void OnInitialized(EventArgs e)
+    private void PluginManager_Unloaded(object sender, RoutedEventArgs e)
     {
-        base.OnInitialized(e);
+        searchTimer.Stop();
 
+        if (changed)
+        {
+            _manager.LoadPlugins();
+            _manager.LoadLayout(Application.Current.MainWindow.Visibility != System.Windows.Visibility.Visible);
+        }
+    }
+
+    private async Task InitializePluginManager()
+    {
         App.Logger.LogInfo("Initializing Plugin Manager", source: "PluginManager");
         HashSet<uint> pluginIds = [];
 
@@ -197,9 +174,48 @@ public partial class PluginManager : Window
         App.Logger.LogInfo("Plugin Manager initialization complete", source: "PluginManager");
     }
 
-    protected override void OnClosing(CancelEventArgs e)
+    public async Task Remove(string pluginPath, uint id)
     {
-        e.Cancel = pluginManagerDataContext.IsLoading;
+        App.Logger.LogInfo($"Removing plugin with ID {id} from path: {pluginPath}", source: "PluginManager");
+        pluginManagerDataContext.IsLoading = true;
+        changed = true;
+
+        PluginEntryDataContext? pluginEntryDataContext = pluginManagerDataContext.InstalledPlugins.FirstOrDefault(p => p.Id == id);
+
+        if (Directory.Exists(pluginPath))
+        {
+            try
+            {
+                Directory.Delete(pluginPath, true);
+                App.Logger.LogInfo($"Successfully deleted plugin directory: {pluginPath}", source: "PluginManager");
+            }
+            catch (Exception ex)
+            {
+                _ = MessageBox.Show(ex.Message, "Plugin Manager", MessageBoxButton.OK, MessageBoxImage.Error);
+                App.Logger.LogError(ex.Message, source: "PluginManager");
+            }
+        }
+
+        if (pluginEntryDataContext is not null)
+        {
+            _ = pluginManagerDataContext.InstalledPlugins.Remove(pluginEntryDataContext);
+            App.Logger.LogInfo($"Removed plugin {id} from installed plugins list", source: "PluginManager");
+        }
+
+        if (pluginManagerDataContext.IsAuthenticated)
+        {
+            try
+            {
+                await modIoClient.Games[ModIoGameId].Mods.Unsubscribe(id);
+                App.Logger.LogInfo($"Unsubscribed from plugin {id} on mod.io", source: "PluginManager");
+            }
+            catch (Exception ex)
+            {
+                App.Logger.LogError($"Failed to unsubscribe from plugin {id}: {ex.Message}", source: "PluginManager");
+            }
+        }
+
+        pluginManagerDataContext.IsLoading = false;
     }
 
     [GeneratedRegex(@"[^a-zA-Z0-9]")]
@@ -209,6 +225,7 @@ public partial class PluginManager : Window
     {
         App.Logger.LogInfo($"Installing plugin: {mod.Name} (ID: {mod.Id})", source: "PluginManager");
         pluginManagerDataContext.IsLoading = true;
+        changed = true;
 
         if (mod.Modfile?.Download?.BinaryUrl is null)
         {
@@ -383,7 +400,7 @@ public partial class PluginManager : Window
 
         InputDialog inputDialog = new((string)FindResource("enterPluginName"), "Plugin Manager")
         {
-            Owner = this,
+            Owner = Window.GetWindow(this),
         };
 
         if (inputDialog.ShowDialog() != true)
@@ -547,7 +564,7 @@ public class {pluginSafeName}Plugin : Plugin
         {
             InputDialog inputDialog = new((string)FindResource("enterModIoEmail"), "Plugin Manager")
             {
-                Owner = this,
+                Owner = Window.GetWindow(this),
             };
 
             if (inputDialog.ShowDialog() != true)
@@ -561,7 +578,7 @@ public class {pluginSafeName}Plugin : Plugin
 
             inputDialog = new((string)FindResource("enterModIoAccessToken"), "Plugin Manager")
             {
-                Owner = this,
+                Owner = Window.GetWindow(this),
             };
 
             if (inputDialog.ShowDialog() != true)

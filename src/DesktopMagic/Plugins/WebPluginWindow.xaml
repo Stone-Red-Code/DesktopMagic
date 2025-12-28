@@ -1,6 +1,7 @@
 <Window x:Class="DesktopMagic.WebPluginWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:busyIndicator="https://github.com/moh3ngolshani/BusyIndicator"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:DesktopMagic"
@@ -16,20 +17,23 @@
         Closing="Window_Closing"
         ContentRendered="Window_ContentRendered"
         x:Name="window">
-    <Grid>
-        <Rectangle x:Name="panel" Fill="#4CBAFFEF" Stroke="White" Margin="0,0,0,0" Visibility="Collapsed" />
 
-        <Border x:Name="border" Background="Transparent" CornerRadius="10">
-            <Grid>
-                <wv2:WebView2 x:Name="webView" DefaultBackgroundColor="Transparent" CoreWebView2InitializationCompleted="WebView_CoreWebView2InitializationCompleted" />
-                <!-- 
+    <busyIndicator:BusyMask x:Name="busyMask" IsBusyAtStartup="True" Background="Transparent" BusyContent="" BusyContentMargin="-5" IndicatorType="Cogs">
+        <Grid>
+            <Rectangle x:Name="panel" Fill="#4CBAFFEF" Stroke="White" Margin="0,0,0,0" Visibility="Collapsed" />
+
+            <Border x:Name="border" Background="Transparent" CornerRadius="10">
+                <Grid>
+                    <wv2:WebView2 x:Name="webView" DefaultBackgroundColor="Transparent" CoreWebView2InitializationCompleted="WebView_CoreWebView2InitializationCompleted" />
+                    <!-- 
                     WORKAROUND: This rectangle exists to allow interaction with the WebView2 when the window is transparent 
                     https://github.com/MicrosoftEdge/WebView2Feedback/issues/997
                 -->
-                <Rectangle Fill="#01000000" />
-            </Grid>
-        </Border>
-    </Grid>
+                    <Rectangle Fill="#01000000" />
+                </Grid>
+            </Border>
+        </Grid>
+    </busyIndicator:BusyMask>
     <WindowChrome.WindowChrome>
         <WindowChrome x:Name="tileBar" CaptionHeight="30" ResizeBorderThickness="{x:Static SystemParameters.WindowResizeBorderThickness}" />
     </WindowChrome.WindowChrome>

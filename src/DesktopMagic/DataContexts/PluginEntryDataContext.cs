@@ -1,8 +1,6 @@
 ﻿using DesktopMagic.Helpers;
 using DesktopMagic.Plugins;
 
-using MaterialDesignThemes.Wpf;
-
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -39,7 +37,7 @@ internal class PluginEntryDataContext(PluginMetadata pluginMetadata, ICommand co
 
     public ICommand Command => command;
 
-    public ButtonData InstallUninstallButtonData => new(mode == Mode.Install ? PackIconKind.Download : PackIconKind.Remove, GetInstallUninstallButtonText(), true, Command);
+    public ButtonData InstallUninstallButtonData => new(mode == Mode.Install ? "Download24" : "Delete24", GetInstallUninstallButtonText(), true, Command);
 
     public ButtonData OpenButtonData
     {
@@ -47,11 +45,11 @@ internal class PluginEntryDataContext(PluginMetadata pluginMetadata, ICommand co
         {
             if (string.IsNullOrWhiteSpace(pluginMetadata.ProfileUri?.ToString()))
             {
-                return new(PackIconKind.FolderOutline, (string)App.LanguageDictionary["folder"], path is not null, new CommandHandler(() => Process.Start("explorer.exe", path!)));
+                return new("Folder24", (string)App.LanguageDictionary["folder"], path is not null, new CommandHandler(() => Process.Start("explorer.exe", path!)));
             }
             else
             {
-                return new(PackIconKind.ExternalLink, "mod.io", true, new CommandHandler(OpenModIoPage));
+                return new("Open24", "mod.io", true, new CommandHandler(OpenModIoPage));
             }
         }
     }
@@ -95,7 +93,7 @@ internal class PluginEntryDataContext(PluginMetadata pluginMetadata, ICommand co
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 
-    public record ButtonData(PackIconKind IconKind, string Text, bool IsEnabled, ICommand Command);
+    public record ButtonData(string Icon, string Text, bool IsEnabled, ICommand Command);
 
     public enum Mode
     {

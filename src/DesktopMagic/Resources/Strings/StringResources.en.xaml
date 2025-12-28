@@ -3,6 +3,9 @@
                     xmlns:col="clr-namespace:System.Collections;assembly=mscorlib"
                     xmlns:system="clr-namespace:System;assembly=mscorlib">
 
+    <system:String x:Key="developedBy">Developed by Stone_Red</system:String>
+    <system:String x:Key="reportBug">Report Bug</system:String>
+    <system:String x:Key="requestFeature">Request Feature</system:String>
     <system:String x:Key="lineMode">Line</system:String>
     <system:String x:Key="mirrorMode">Mirror</system:String>
     <system:String x:Key="folder">Folder</system:String>
@@ -15,13 +18,15 @@
     <system:String x:Key="enterModIoEmail">Enter your mod.io account E-mail</system:String>
     <system:String x:Key="enterModIoAccessToken">Enter your mod.io security code</system:String>
     <system:String x:Key="toggleEditMode">Toggle Edit Mode</system:String>
-    <system:String x:Key="allPlugins">All Plugins</system:String>
-    <system:String x:Key="installedPlugins">Installed Plugins</system:String>
-    <system:String x:Key="updatePlugins">Reload</system:String>
+    <system:String x:Key="searchAllPlugins">Search All Plugins...</system:String>
+    <system:String x:Key="searchInstalledPlugins">Search Installed Plugins...</system:String>
+    <system:String x:Key="reloadPlugins">Reload Plugins</system:String>
     <system:String x:Key="pluginsFolder">Plugins Folder</system:String>
     <system:String x:Key="pluginManager">Plugins Manager</system:String>
     <system:String x:Key="createNewPlugin">Create New Plugin</system:String>
     <system:String x:Key="enterPluginName">Enter plugin name</system:String>
+    <system:String x:Key="plugins">Plugins</system:String>
+    <system:String x:Key="enablePluginToConfigure">Enable the plugin to configure its settings.</system:String>
     <system:String x:Key="color">Color:</system:String>
     <system:String x:Key="default">Default</system:String>
     <system:String x:Key="wantToCloseProgram">Do you really want to close the program?</system:String>
@@ -38,6 +43,7 @@
     <system:String x:Key="newTheme">New Theme</system:String>
     <system:String x:Key="deleteTheme">Delete Theme</system:String>
     <system:String x:Key="changeTheme">Change Theme</system:String>
+    <system:String x:Key="themes">Themes</system:String>
     <system:String x:Key="ok">Ok</system:String>
     <system:String x:Key="cancel">Cancel</system:String>
     <system:String x:Key="confirmDeleteLayout">Do you really want to delete this layout?</system:String>
