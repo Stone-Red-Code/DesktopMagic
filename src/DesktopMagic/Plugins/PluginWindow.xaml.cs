@@ -221,13 +221,16 @@ public partial class PluginWindow : Window, IPluginWindow
         catch (Exception ex)
         {
             App.Logger.LogError($"\"{PluginMetadata.Name}\" - {ex}", source: "Plugin");
-            Wpf.Ui.Controls.MessageBox messageBox = new Wpf.Ui.Controls.MessageBox
+            _ = await Dispatcher.InvokeAsync(async () =>
             {
-                Title = $"Error \"{PluginMetadata.Name}\"",
-                Content = "File execution error:\n" + ex,
-                CloseButtonText = "Ok"
-            };
-            _ = await messageBox.ShowDialogAsync();
+                Wpf.Ui.Controls.MessageBox messageBox = new Wpf.Ui.Controls.MessageBox
+                {
+                    Title = $"Error \"{PluginMetadata.Name}\"",
+                    Content = "File execution error:\n" + ex,
+                    CloseButtonText = "Ok"
+                };
+                _ = await messageBox.ShowDialogAsync();
+            });
             Exit();
             return;
         }
