@@ -7,6 +7,7 @@ using System.Drawing;
 using System.Globalization;
 using System.Net.Http;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace DesktopMagic.BuiltInPlugins;
@@ -46,7 +47,7 @@ public class WeatherPlugin : AsyncPlugin
     private string lastUpdated = "";
     private bool isLoading = false;
 
-    public override async void Start()
+    public override async Task StartAsync(CancellationToken cancellationToken)
     {
         httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (DesktopMagic)");
 
@@ -74,7 +75,7 @@ public class WeatherPlugin : AsyncPlugin
         };
     }
 
-    public override async Task<Bitmap?> MainAsync()
+    public override async Task<Bitmap?> MainAsync(CancellationToken cancellationToken)
     {
         // Periodic background update
         if (!isLoading && cachedLat != null && cachedLon != null)

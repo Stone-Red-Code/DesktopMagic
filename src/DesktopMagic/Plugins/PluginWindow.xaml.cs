@@ -37,6 +37,8 @@ public partial class PluginWindow : Window, IPluginWindow
     private Plugin? pluginClassInstance;
     private readonly AssemblyLoadContext assemblyLoadContext;
 
+    private CancellationTokenSource? pluginCancellationTokenSource;
+
     public bool IsRunning { get; private set; } = true;
     public PluginMetadata PluginMetadata { get; private set; }
     public string PluginFolderPath { get; private set; }
@@ -315,6 +317,12 @@ public partial class PluginWindow : Window, IPluginWindow
         updateTimer.Elapsed += UpdateTimer_Elapsed;
 
         pluginClassInstance.Start();
+        if (pluginClassInstance is AsyncPlugin asyncPluginStart)
+        {
+            pluginCancellationTokenSource?.Dispose();
+            pluginCancellationTokenSource = new CancellationTokenSource();
+            await asyncPluginStart.StartAsync(pluginCancellationTokenSource.Token);
+        }
         UpdatePluginWindow();
         await Dispatcher.InvokeAsync(ThemeChanged);
 
@@ -602,7 +610,8 @@ public partial class PluginWindow : Window, IPluginWindow
 
                 if (pluginClassInstance is AsyncPlugin asyncPlugin)
                 {
-                    result = await asyncPlugin.MainAsync();
+                    CancellationToken token = pluginCancellationTokenSource?.Token ?? CancellationToken.None;
+                    result = await asyncPlugin.MainAsync(token);
                 }
                 else
                 {
@@ -678,6 +687,20 @@ public partial class PluginWindow : Window, IPluginWindow
 
         try
         {
+            pluginCancellationTokenSource?.Cancel();
+
+            if (pluginClassInstance is AsyncPlugin asyncPluginStop)
+            {
+                try
+                {
+                    _ = asyncPluginStop.StopAsync(pluginCancellationTokenSource?.Token ?? CancellationToken.None);
+                }
+                catch (Exception ex)
+                {
+                    App.Logger.LogError($"\"{PluginMetadata.Name}\" - {ex}", source: "Plugin");
+                }
+            }
+
             if (pluginClassInstance is not null)
             {
                 SaveState(pluginClassInstance);
@@ -690,6 +713,9 @@ public partial class PluginWindow : Window, IPluginWindow
         }
 
         assemblyLoadContext.Unload();
+
+        pluginCancellationTokenSource?.Dispose();
+        pluginCancellationTokenSource = null;
     }
 
     #region Window Events

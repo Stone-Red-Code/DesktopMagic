@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Drawing;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace DesktopMagic.Api;
@@ -16,10 +17,22 @@ namespace DesktopMagic.Api;
 public abstract class AsyncPlugin : Plugin
 {
     /// <summary>
+    /// Occurs once when the plugin gets activated. Override for async initialization.
+    /// </summary>
+    /// <param name="cancellationToken">Token signaled when the host requests cancellation.</param>
+    public virtual Task StartAsync(CancellationToken cancellationToken) => Task.CompletedTask;
+
+    /// <summary>
+    /// Occurs once when the plugin gets deactivated. Override for async cleanup.
+    /// </summary>
+    /// <param name="cancellationToken">Token signaled when the host requests cancellation.</param>
+    public virtual Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
+
+    /// <summary>
     /// Occurs when the <see cref="Plugin.UpdateInterval"/> elapses.
     /// </summary>
     /// <returns></returns>
-    public abstract Task<Bitmap?> MainAsync();
+    public abstract Task<Bitmap?> MainAsync(CancellationToken cancellationToken);
 
     /// <summary>
     /// This method should not be called directly! Override and use <see cref="MainAsync"/> for asynchronous plugin operations.
