@@ -202,13 +202,16 @@ public partial class PluginWindow : Window, IPluginWindow
         if (pluginClassInstance is null && !File.Exists($"{PluginFolderPath}\\main.dll"))
         {
             App.Logger.LogError($"\"{PluginMetadata.Name}\" - File \"main.dll\" does not exist", source: "Plugin");
-            Wpf.Ui.Controls.MessageBox messageBox = new Wpf.Ui.Controls.MessageBox
+            _ = await Dispatcher.InvokeAsync(async () =>
             {
-                Title = $"Error \"{PluginMetadata.Name}\"",
-                Content = "File \"main.dll\" does not exist!",
-                CloseButtonText = "Ok"
-            };
-            _ = await messageBox.ShowDialogAsync();
+                Wpf.Ui.Controls.MessageBox messageBox = new Wpf.Ui.Controls.MessageBox
+                {
+                    Title = $"Error \"{PluginMetadata.Name}\"",
+                    Content = "File \"main.dll\" does not exist!",
+                    CloseButtonText = "Ok"
+                };
+                _ = await messageBox.ShowDialogAsync();
+            });
 
             Exit();
             return;
@@ -277,13 +280,16 @@ public partial class PluginWindow : Window, IPluginWindow
             if (instanceType is null)
             {
                 App.Logger.LogError($"\"{PluginMetadata.Name}\" - The \"Plugin\" class could not be found! It has to inherit from \"{typeof(Plugin).FullName}\"", source: "Plugin");
-                Wpf.Ui.Controls.MessageBox messageBox = new Wpf.Ui.Controls.MessageBox
+                _ = await Dispatcher.InvokeAsync(async () =>
                 {
-                    Title = $"Error \"{PluginMetadata.Name}\"",
-                    Content = $"The \"Plugin\" class could not be found! It has to inherit from \"{typeof(Plugin).FullName}\"",
-                    CloseButtonText = "Ok"
-                };
-                _ = await messageBox.ShowDialogAsync();
+                    Wpf.Ui.Controls.MessageBox messageBox = new Wpf.Ui.Controls.MessageBox
+                    {
+                        Title = $"Error \"{PluginMetadata.Name}\"",
+                        Content = $"The \"Plugin\" class could not be found! It has to inherit from \"{typeof(Plugin).FullName}\"",
+                        CloseButtonText = "Ok"
+                    };
+                    _ = await messageBox.ShowDialogAsync();
+                });
                 Exit();
                 return;
             }
@@ -298,13 +304,16 @@ public partial class PluginWindow : Window, IPluginWindow
         else
         {
             App.Logger.LogError($"\"{PluginMetadata.Name}\" - The \"Plugin\" class could not be found! It has to inherit from \"{typeof(Plugin).FullName}\"", source: "Plugin");
-            Wpf.Ui.Controls.MessageBox messageBox = new Wpf.Ui.Controls.MessageBox
+            _ = await Dispatcher.InvokeAsync(async () =>
             {
-                Title = $"Error \"{PluginMetadata.Name}\"",
-                Content = $"The \"Plugin\" class has to inherit from \"{typeof(Plugin).FullName}\"",
-                CloseButtonText = "Ok"
-            };
-            _ = await messageBox.ShowDialogAsync();
+                Wpf.Ui.Controls.MessageBox messageBox = new Wpf.Ui.Controls.MessageBox
+                {
+                    Title = $"Error \"{PluginMetadata.Name}\"",
+                    Content = $"The \"Plugin\" class has to inherit from \"{typeof(Plugin).FullName}\"",
+                    CloseButtonText = "Ok"
+                };
+                _ = await messageBox.ShowDialogAsync();
+            });
             Exit();
             return;
         }
@@ -413,10 +422,7 @@ public partial class PluginWindow : Window, IPluginWindow
 
         try
         {
-#pragma warning disable S3011 // Reflection should not be used to increase accessibility of classes, methods, or fields
             FieldInfo[] props = instance.GetType().GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.GetField);
-#pragma warning restore S3011 // Reflection should not be used to increase accessibility of classes, methods, or fields
-
             List<SettingElement> settingElements = [];
             foreach (FieldInfo prop in props)
             {
@@ -458,13 +464,16 @@ public partial class PluginWindow : Window, IPluginWindow
         {
             IsRunning = false;
             App.Logger.LogError($"\"{PluginMetadata.Name}\" - {ex}", source: "Plugin");
-            Wpf.Ui.Controls.MessageBox messageBox = new Wpf.Ui.Controls.MessageBox
+            _ = await Dispatcher.InvokeAsync(async () =>
             {
-                Title = $"Error \"{PluginMetadata.Name}\"",
-                Content = "File execution error:\n" + ex,
-                CloseButtonText = "Ok"
-            };
-            _ = await messageBox.ShowDialogAsync();
+                Wpf.Ui.Controls.MessageBox messageBox = new Wpf.Ui.Controls.MessageBox
+                {
+                    Title = $"Error \"{PluginMetadata.Name}\"",
+                    Content = "File execution error:\n" + ex,
+                    CloseButtonText = "Ok"
+                };
+                _ = await messageBox.ShowDialogAsync();
+            });
             Exit();
         }
     }
@@ -481,10 +490,8 @@ public partial class PluginWindow : Window, IPluginWindow
                 return;
             }
 
-#pragma warning disable S3011 // Reflection should not be used to increase accessibility of classes, methods, or fields
             FieldInfo[] fields = instance.GetType().GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
             PropertyInfo[] properties = instance.GetType().GetProperties(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
-#pragma warning restore S3011
 
             // Load fields
             foreach (FieldInfo field in fields)
@@ -546,10 +553,8 @@ public partial class PluginWindow : Window, IPluginWindow
 
         try
         {
-#pragma warning disable S3011 // Reflection should not be used to increase accessibility of classes, methods, or fields
             FieldInfo[] fields = instance.GetType().GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
             PropertyInfo[] properties = instance.GetType().GetProperties(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
-#pragma warning restore S3011
 
             // Save fields
             foreach (FieldInfo field in fields)
@@ -655,13 +660,16 @@ public partial class PluginWindow : Window, IPluginWindow
         {
             IsRunning = false;
             App.Logger.LogError($"\"{PluginMetadata.Name}\" - {ex}", source: "Plugin");
-            Wpf.Ui.Controls.MessageBox messageBox = new Wpf.Ui.Controls.MessageBox
+            _ = await Dispatcher.InvokeAsync(async () =>
             {
-                Title = $"Error \"{PluginMetadata.Name}\"",
-                Content = "File execution error:\n" + ex,
-                CloseButtonText = "Ok"
-            };
-            _ = await messageBox.ShowDialogAsync();
+                Wpf.Ui.Controls.MessageBox messageBox = new Wpf.Ui.Controls.MessageBox
+                {
+                    Title = $"Error \"{PluginMetadata.Name}\"",
+                    Content = "File execution error:\n" + ex,
+                    CloseButtonText = "Ok"
+                };
+                _ = await messageBox.ShowDialogAsync();
+            });
             Exit();
             return;
         }
