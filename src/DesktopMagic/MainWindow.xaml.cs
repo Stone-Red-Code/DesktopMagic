@@ -11,7 +11,6 @@ namespace DesktopMagic;
 
 public partial class MainWindow : FluentWindow
 {
-    private readonly System.Windows.Forms.NotifyIcon _notifyIcon = new();
     private readonly Manager _manager = Manager.Instance;
     private readonly MainWindowDataContext _mainWindowDataContext = new();
 
@@ -83,7 +82,6 @@ public partial class MainWindow : FluentWindow
         Visibility = Visibility.Collapsed;
         UpdateLayout();
         _manager.CloseAllPluginWindows();
-        _notifyIcon.Dispose();
         Environment.Exit(0);
     }
 
