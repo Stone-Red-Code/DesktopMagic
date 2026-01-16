@@ -107,7 +107,7 @@
                         <ColumnDefinition Width="0.5*" />
                     </Grid.ColumnDefinitions>
 
-                    <Image Source="{StaticResource ModioLogoBlueDark}" Cursor="Hand" Height="30" MouseUp="Image_MouseUp" HorizontalAlignment="Left" />
+                    <Image Source="{Binding ModIoIcon}" Cursor="Hand" Height="30" MouseUp="Image_MouseUp" HorizontalAlignment="Left" />
                     <Button Grid.Column="2" HorizontalAlignment="Stretch" Click="CreatePluginButton_Click">
                         <StackPanel Orientation="Horizontal">
                             <ui:SymbolIcon Symbol="Add24" Margin="0 0 10 0" />

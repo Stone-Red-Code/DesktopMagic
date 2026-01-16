@@ -33,6 +33,7 @@
         <None Remove="icon_Dark.ico" />
         <None Remove="Resources\Images\modio-cog-blue.png" />
         <None Remove="Resources\Images\modio-logo-bluedark.png" />
+        <None Remove="Resources\Images\modio-logo-bluelight.png" />
     </ItemGroup>
 
     <ItemGroup>
@@ -66,6 +67,7 @@
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </Resource>
         <Resource Include="Resources\Images\modio-logo-bluedark.png" />
+        <Resource Include="Resources\Images\modio-logo-bluelight.png" />
     </ItemGroup>
 
     <ItemGroup>

@@ -1,6 +1,10 @@
 ﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Windows;
+using System.Windows.Media.Imaging;
+
+using Wpf.Ui.Appearance;
 
 namespace DesktopMagic.DataContexts;
 
@@ -67,6 +71,23 @@ internal class PluginManagerDataContext : INotifyPropertyChanged
             isAuthenticated = value;
             OnPropertyChanged();
             OnPropertyChanged(nameof(LoginButtonText));
+        }
+    }
+
+    public BitmapImage ModIoIcon
+    {
+        get
+        {
+            ApplicationTheme theme = ApplicationThemeManager.GetAppTheme();
+
+            if (theme == ApplicationTheme.Light)
+            {
+                return Application.Current.Resources["ModioLogoBlueDark"] as BitmapImage ?? new BitmapImage();
+            }
+            else
+            {
+                return Application.Current.Resources["ModioLogoBlueLight"] as BitmapImage ?? new BitmapImage();
+            }
         }
     }
 
