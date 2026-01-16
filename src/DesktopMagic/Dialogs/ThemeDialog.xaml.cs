@@ -24,9 +24,9 @@ public partial class ThemeDialog : Wpf.Ui.Controls.FluentWindow
 
         cornerRadiusTextBox.Value = theme.CornerRadius;
         marginTextBox.Value = theme.Margin;
-        primaryColorRechtangle.Fill = new SolidColorBrush(MultiColorConverter.ConvertToMediaColor(theme.PrimaryColor));
-        secondaryColorRechtangle.Fill = new SolidColorBrush(MultiColorConverter.ConvertToMediaColor(theme.SecondaryColor));
-        backgroundColorRechtangle.Fill = new SolidColorBrush(MultiColorConverter.ConvertToMediaColor(theme.BackgroundColor));
+        primaryColorRechtangle.Background = new SolidColorBrush(MultiColorConverter.ConvertToMediaColor(theme.PrimaryColor));
+        secondaryColorRechtangle.Background = new SolidColorBrush(MultiColorConverter.ConvertToMediaColor(theme.SecondaryColor));
+        backgroundColorRechtangle.Background = new SolidColorBrush(MultiColorConverter.ConvertToMediaColor(theme.BackgroundColor));
 
         label.Content = content;
         Title = title;
@@ -81,7 +81,7 @@ public partial class ThemeDialog : Wpf.Ui.Controls.FluentWindow
         if (colorDialog.ShowDialog() == true)
         {
             theme.PrimaryColor = colorDialog.ResultColor;
-            primaryColorRechtangle.Fill = colorDialog.ResultBrush;
+            primaryColorRechtangle.Background = colorDialog.ResultBrush;
         }
     }
 
@@ -95,7 +95,7 @@ public partial class ThemeDialog : Wpf.Ui.Controls.FluentWindow
         if (colorDialog.ShowDialog() == true)
         {
             theme.SecondaryColor = colorDialog.ResultColor;
-            secondaryColorRechtangle.Fill = colorDialog.ResultBrush;
+            secondaryColorRechtangle.Background = colorDialog.ResultBrush;
         }
     }
 
@@ -109,7 +109,7 @@ public partial class ThemeDialog : Wpf.Ui.Controls.FluentWindow
         if (colorDialog.ShowDialog() == true)
         {
             theme.BackgroundColor = colorDialog.ResultColor;
-            backgroundColorRechtangle.Fill = colorDialog.ResultBrush;
+            backgroundColorRechtangle.Background = colorDialog.ResultBrush;
         }
     }
 

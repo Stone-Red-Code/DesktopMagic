@@ -70,21 +70,15 @@
                     </Grid.RowDefinitions>
 
                     <DockPanel Grid.Row="0">
-                        <Border CornerRadius="1" BorderThickness="1.5" BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}" Background="White" Height="30" Width="30" Margin="0,0,5,0">
-                            <Rectangle x:Name="primaryColorRechtangle" Fill="White" />
-                        </Border>
+                        <Border x:Name="primaryColorRechtangle" CornerRadius="4" BorderThickness="1" BorderBrush="{DynamicResource ControlElevationBorderBrush}" Background="White" Height="30" Width="30" Margin="0,0,10,0" />
                         <Button Content="Change Primary Color" FontWeight="Regular" Click="ChangePrimaryColorButton_Click" HorizontalAlignment="Stretch" />
                     </DockPanel>
                     <DockPanel Grid.Row="1">
-                        <Border CornerRadius="1" BorderThickness="1.5" BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}" Background="White" Height="30" Width="30" Margin="0,0,5,0">
-                            <Rectangle x:Name="secondaryColorRechtangle" Fill="White" />
-                        </Border>
+                        <Border x:Name="secondaryColorRechtangle" CornerRadius="4" BorderThickness="1" BorderBrush="{DynamicResource ControlElevationBorderBrush}" Background="White" Height="30" Width="30" Margin="0,0,10,0" />
                         <Button Content="Change Secondary Color" FontWeight="Regular" Click="ChangeSecondaryColorButton_Click" HorizontalAlignment="Stretch" />
                     </DockPanel>
                     <DockPanel Grid.Row="2">
-                        <Border CornerRadius="1" BorderThickness="1.5" BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}" Background="White" Height="30" Width="30" Margin="0,0,5,0">
-                            <Rectangle x:Name="backgroundColorRechtangle" Fill="White" />
-                        </Border>
+                        <Border x:Name="backgroundColorRechtangle" CornerRadius="4" BorderThickness="1" BorderBrush="{DynamicResource ControlElevationBorderBrush}" Background="White" Height="30" Width="30" Margin="0,0,10,0" />
                         <Button Content="Change Background Color" FontWeight="Regular" Click="ChangeBackgroundColorButton_Click" HorizontalAlignment="Stretch" />
                     </DockPanel>
                 </Grid>

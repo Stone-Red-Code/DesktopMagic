@@ -88,7 +88,7 @@ public partial class ColorDialog : FluentWindow
 
             ResultBrush = brush;
             ResultColor = systemColor;
-            colorRechtangle.Fill = brush;
+            colorRechtangle.Background = brush;
             colorHexTextBox.Foreground = FindResource("TextFillColorPrimaryBrush") as Brush;
         }
         else
