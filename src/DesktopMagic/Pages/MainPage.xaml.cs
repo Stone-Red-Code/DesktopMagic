@@ -267,7 +267,7 @@ public partial class MainPage : Page
 
             _ = optionsPanel.Children.Add(card);
 
-            Control? control = settingElementGenerator.Generate(settingElement, textBlock);
+            FrameworkElement? control = settingElementGenerator.Generate(settingElement, textBlock);
 
             if (control is not null)
             {
