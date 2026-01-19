@@ -23,7 +23,7 @@
             <ui:ToggleSwitch x:Name="editCheckBox" Height="30" VerticalAlignment="Center" Margin="5 0 0 0" Content="{DynamicResource editLayout}" Click="EditCheckBox_Click" />
         </ui:Card>
 
-        <ui:Card Grid.Row="1" Margin="0,0,2.5,0" Padding="0 5" VerticalAlignment="Stretch" VerticalContentAlignment="Top">
+        <ui:Card Grid.Row="1" Padding="0 5" VerticalAlignment="Stretch" VerticalContentAlignment="Top">
             <ScrollViewer Background="#FFBBBBBB" PreviewMouseWheel="ScrollViewer_PreviewMouseWheel">
                 <ItemsControl ItemsSource="{Binding Settings.CurrentLayout.Plugins}">
                     <ItemsControl.ItemTemplate>
