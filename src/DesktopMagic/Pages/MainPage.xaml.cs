@@ -166,6 +166,7 @@ public partial class MainPage : Page
                 _manager.Settings.Layouts.Add(new Layout(inputDialog.ResponseText.Trim()));
                 _manager.Settings.CurrentLayoutName = inputDialog.ResponseText.Trim();
                 _manager.SaveSettings();
+                _manager.LoadLayout(false);
             }
             finally
             {
@@ -188,7 +189,7 @@ public partial class MainPage : Page
             return;
         }
 
-        var messageBox = new Wpf.Ui.Controls.MessageBox
+        Wpf.Ui.Controls.MessageBox messageBox = new Wpf.Ui.Controls.MessageBox
         {
             Title = App.AppName,
             Content = (string)FindResource("confirmDeleteLayout"),
