@@ -24,10 +24,8 @@
                 <ColumnDefinition Width="auto" />
                 <ColumnDefinition />
             </Grid.ColumnDefinitions>
-
-            <ui:Card HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Width="100" Padding="5" Height="100" BorderThickness="1" BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}">
-                <Image Source="{Binding Logo, FallbackValue={StaticResource ModioCogBlue}, TargetNullValue={StaticResource ModioCogBlue}}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
-            </ui:Card>
+            
+            <Image Width="100" Height="100" Margin="5" Source="{Binding Logo, FallbackValue={StaticResource ModioCogBlue}, TargetNullValue={StaticResource ModioCogBlue}}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
 
             <StackPanel Grid.Column="1" VerticalAlignment="Center">
                 <Label Content="{Binding Author, Converter={StaticResource UnderscoreEscapingConverter}}" HorizontalAlignment="Center" ContentStringFormat="{DynamicResource authorFormat}" />
