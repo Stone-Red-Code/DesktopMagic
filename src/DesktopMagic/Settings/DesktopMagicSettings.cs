@@ -44,7 +44,16 @@ public class DesktopMagicSettings : INotifyPropertyChanged
 
     public string? CurrentLayoutName
     {
-        get => currentLayoutName ?? Layouts.FirstOrDefault()?.Name;
+        get
+        {
+            if (!Layouts.Any(l => l.Name == currentLayoutName))
+            {
+                currentLayoutName = null;
+            }
+
+            return currentLayoutName ?? Layouts.FirstOrDefault()?.Name;
+        }
+
         set
         {
             currentLayoutName = value;
