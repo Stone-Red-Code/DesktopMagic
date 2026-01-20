@@ -42,40 +42,11 @@
             </ui:Card>
 
             <busyIndicator:BusyMask Grid.Row="2" IsBusy="{Binding IsSearching}" IndicatorType="Ring" BusyContent="Searching..." BusyContentMargin="0,50,0,0" IsBusyAtStartup="False" Foreground="{DynamicResource TextFillColorPrimaryBrush}" Background="{DynamicResource ControlStrokeColorDefaultBrush}">
-                <ui:Card VerticalAlignment="Stretch" Padding="0" VerticalContentAlignment="Top">
-                    <ScrollViewer VerticalScrollBarVisibility="Auto">
-                        <ItemsControl ItemsSource="{Binding AllPlugins}" Margin="5">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <local:ModEntry Margin="0 0 0 5" />
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                            <ItemsControl.Style>
-                                <Style TargetType="ItemsControl">
-                                    <Style.Triggers>
-                                        <Trigger Property="HasItems" Value="false">
-                                            <Setter Property="Template">
-                                                <Setter.Value>
-                                                    <ControlTemplate>
-                                                        <TextBlock Text="No plugins found!" FontSize="20" VerticalAlignment="Center" HorizontalAlignment="Center" />
-                                                    </ControlTemplate>
-                                                </Setter.Value>
-                                            </Setter>
-                                        </Trigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </ItemsControl.Style>
-                        </ItemsControl>
-                    </ScrollViewer>
-                </ui:Card>
-            </busyIndicator:BusyMask>
-
-            <ui:Card Grid.Row="2" Grid.Column="2" VerticalAlignment="Stretch" Padding="0" VerticalContentAlignment="Top">
-                <ScrollViewer VerticalScrollBarVisibility="Auto">
-                    <ItemsControl  ItemsSource="{Binding InstalledPlugins}" Margin="5">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" VerticalAlignment="Stretch" Padding="0" VerticalContentAlignment="Top" Margin="0 0 2.5 0">
+                    <ItemsControl ItemsSource="{Binding AllPlugins}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <local:ModEntry Margin="0 0 0 5"/>
+                                <local:ModEntry Margin="0 0 0 5" />
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                         <ItemsControl.Style>
@@ -95,7 +66,32 @@
                         </ItemsControl.Style>
                     </ItemsControl>
                 </ScrollViewer>
-            </ui:Card>
+            </busyIndicator:BusyMask>
+
+            <ScrollViewer VerticalScrollBarVisibility="Auto" Grid.Row="2" Grid.Column="2" VerticalAlignment="Stretch" Padding="0" VerticalContentAlignment="Top">
+                <ItemsControl  ItemsSource="{Binding InstalledPlugins}" Margin="2.5 0 0 0">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <local:ModEntry Margin="0 0 0 5"/>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                    <ItemsControl.Style>
+                        <Style TargetType="ItemsControl">
+                            <Style.Triggers>
+                                <Trigger Property="HasItems" Value="false">
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate>
+                                                <TextBlock Text="No plugins found!" FontSize="20" VerticalAlignment="Center" HorizontalAlignment="Center" />
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ItemsControl.Style>
+                </ItemsControl>
+            </ScrollViewer>
 
             <ui:Card Grid.Row="3" Grid.ColumnSpan="3" Padding="5" Margin="0 5 0 0">
                 <Grid>

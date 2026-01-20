@@ -18,7 +18,7 @@ internal class PluginEntryDataContext(PluginMetadata pluginMetadata, ICommand co
 
     public string Name => pluginMetadata.Name;
 
-    public string? Description => pluginMetadata.Description;
+    public string? Description => pluginMetadata.Description?.Trim();
 
     public string Author => pluginMetadata.Author ?? (string)App.LanguageDictionary["unknown"];
 

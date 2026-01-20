@@ -17,7 +17,7 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="2*" />
                 <RowDefinition Height="auto" />
-                <RowDefinition Height="3*" />
+                <RowDefinition Height="auto" />
             </Grid.RowDefinitions>
 
             <Grid.ColumnDefinitions>
@@ -25,7 +25,7 @@
                 <ColumnDefinition />
             </Grid.ColumnDefinitions>
 
-            <ui:Card HorizontalAlignment="Center" Width="100" Padding="5" Height="100" BorderThickness="1" BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}">
+            <ui:Card HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Width="100" Padding="5" Height="100" BorderThickness="1" BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}">
                 <Image Source="{Binding Logo, FallbackValue={StaticResource ModioCogBlue}, TargetNullValue={StaticResource ModioCogBlue}}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
             </ui:Card>
 
@@ -36,7 +36,7 @@
                 <Label Content="{Binding Version}" HorizontalAlignment="Center" ContentStringFormat="{DynamicResource versionFormat}" />
             </StackPanel>
 
-            <Grid Grid.Row="1" Grid.ColumnSpan="2">
+            <Grid Grid.Row="1" Grid.ColumnSpan="2" Margin="0 5">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition />
                     <ColumnDefinition />
@@ -48,7 +48,7 @@
                         <TextBlock Text="{Binding InstallUninstallButtonData.Text}" />
                     </StackPanel>
                 </Button>
-                <Button Grid.Column="1" Command="{Binding OpenButtonData.Command}" IsEnabled="{Binding OpenButtonData.IsEnabled}" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Margin="5 5 10 0">
+                <Button Grid.Column="1" Command="{Binding OpenButtonData.Command}" IsEnabled="{Binding OpenButtonData.IsEnabled}" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Margin="5 0 5 0">
                     <StackPanel Orientation="Horizontal">
                         <ui:SymbolIcon Symbol="{Binding OpenButtonData.Icon}" Margin="0 0 10 0" />
                         <TextBlock Text="{Binding OpenButtonData.Text}" />
@@ -56,9 +56,9 @@
                 </Button>
             </Grid>
 
-            <StackPanel Grid.Row="2" Grid.ColumnSpan="2" Margin="0 5">
-                <Label Content="{Binding Name, Converter={StaticResource UnderscoreEscapingConverter}}" FontSize="20" Padding="0" />
-                <TextBlock Text="{Binding Description}" TextWrapping="Wrap" />
+            <StackPanel Grid.Row="2" Grid.ColumnSpan="2" Margin="5">
+                <ui:TextBlock Text="{Binding Name, Converter={StaticResource UnderscoreEscapingConverter}}" FontTypography="Title" Padding="0" Margin="0 0 0 5" />
+                <TextBlock Text="{Binding Description}" TextWrapping="Wrap" Margin="0" />
             </StackPanel>
         </Grid>
     </ui:Card>
