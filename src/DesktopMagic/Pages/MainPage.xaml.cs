@@ -208,6 +208,7 @@ public partial class MainPage : Page
             _isLoadingLayout = true;
             _ = _manager.Settings.Layouts.Remove(_manager.Settings.CurrentLayout);
             _manager.SaveSettings();
+            _manager.LoadLayout(false);
         }
         finally
         {
