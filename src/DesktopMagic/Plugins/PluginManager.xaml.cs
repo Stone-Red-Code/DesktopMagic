@@ -505,15 +505,12 @@ public class {pluginSafeName}Plugin : Plugin
     public override Bitmap Main()
     {{
         Bitmap bmp = new Bitmap(2000, 1000);
+        bmp.SetResolution(100, 100); // Set DPI to avoid scaling issues.
 
         using (Graphics g = Graphics.FromImage(bmp))
         {{
-            g.Clear(Application.Theme.PrimaryColor); // Set the background color to the color specified in the DesktopMagic application.
-
-            g.DrawString(""Hello World"", new Font(Application.Theme.Font, 100), Brushes.Black, new PointF(0, 0)); // Draw ""Hello World"" to the image.
+            g.DrawString(""Hello World!"", new Font(Application.Theme.Font, 100), new SolidBrush(Application.Theme.PrimaryColor), new PointF(0, 0)); // Draw ""Hello World"" to the image.
         }}
-
-        bmp.SetResolution(300, 300); // Set DPI to avoid scaling issues.
 
         return bmp; // Return the image.
     }}
