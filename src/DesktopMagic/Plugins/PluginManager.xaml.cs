@@ -476,6 +476,8 @@ public partial class PluginManager : Page
             return;
         }
 
+        pluginManagerDataContext.IsLoading = true;
+
         PluginMetadata pluginMetadata = new(pluginName, pluginId);
 
         _ = Directory.CreateDirectory(pluginPath);
@@ -588,18 +590,22 @@ public class {pluginSafeName}Plugin : Plugin
         {
             App.Logger.LogInfo($"Opening plugin project in Explorer: {pluginProjectPath}", source: "PluginManager");
             _ = Process.Start("explorer.exe", pluginProjectPath);
-            return;
+        }
+        else
+        {
+            App.Logger.LogInfo($"Opening plugin project in IDE: {associatedProgram}", source: "PluginManager");
+            ProcessStartInfo psi = new ProcessStartInfo
+            {
+                FileName = associatedProgram,
+                Arguments = csprojPath,
+            };
+
+            _ = Process.Start(psi);
         }
 
-        App.Logger.LogInfo($"Opening plugin project in IDE: {associatedProgram}", source: "PluginManager");
-        ProcessStartInfo psi = new ProcessStartInfo
-        {
-            FileName = associatedProgram,
-            Arguments = csprojPath,
-        };
-
-        _ = Process.Start(psi);
         App.Logger.LogInfo($"Successfully created plugin: {pluginName}", source: "PluginManager");
+
+        pluginManagerDataContext.IsLoading = false;
     }
 
     private async void LogInButton_Click(object sender, RoutedEventArgs e)
