@@ -35,9 +35,12 @@ public partial class PluginWindow : Window, IPluginWindow
     private Thread? pluginThread;
     private System.Timers.Timer? updateTimer;
     private Plugin? pluginClassInstance;
-    private readonly AssemblyLoadContext assemblyLoadContext;
+    private AssemblyLoadContext assemblyLoadContext;
 
     private CancellationTokenSource? pluginCancellationTokenSource;
+    private FileSystemWatcher? pluginFileWatcher;
+    private System.Timers.Timer? reloadDebounceTimer;
+    private bool isReloading = false;
 
     public bool IsRunning { get; private set; } = true;
     public PluginMetadata PluginMetadata { get; private set; }
@@ -90,25 +93,189 @@ public partial class PluginWindow : Window, IPluginWindow
 
         PluginFolderPath = pluginFolderPath;
 
-        assemblyLoadContext = new AssemblyLoadContext(pluginMetadata.Name, isCollectible: true);
-        assemblyLoadContext.Resolving += (context, assemblyName) =>
+        assemblyLoadContext = CreateAssemblyLoadContext();
+
+        // Initialize hot reload watcher if plugin supports unloading and is external
+        if (pluginMetadata.SupportsUnloading && !string.IsNullOrEmpty(pluginFolderPath))
         {
-            string assemblyPath = Path.Combine(PluginFolderPath, assemblyName.Name + ".dll");
-            if (File.Exists(assemblyPath))
-            {
-                return context.LoadFromAssemblyPath(assemblyPath);
-            }
-            else
-            {
-                _ = assemblyLoadContext.LoadFromAssemblyName(assemblyName);
-            }
-            return null;
-        };
+            InitializeHotReload();
+        }
     }
 
     public PluginWindow(Plugin pluginClassInstance, PluginMetadata pluginMetadata, PluginSettings settings) : this(pluginMetadata, settings, string.Empty)
     {
         this.pluginClassInstance = pluginClassInstance;
+    }
+
+    private AssemblyLoadContext CreateAssemblyLoadContext()
+    {
+        AssemblyLoadContext context = new(PluginMetadata.Name, isCollectible: true);
+        context.Resolving += (ctx, assemblyName) =>
+        {
+            string assemblyPath = Path.Combine(PluginFolderPath, assemblyName.Name + ".dll");
+            if (File.Exists(assemblyPath))
+            {
+                return ctx.LoadFromAssemblyPath(assemblyPath);
+            }
+            else
+            {
+                _ = ctx.LoadFromAssemblyName(assemblyName);
+            }
+            return null;
+        };
+        return context;
+    }
+
+    private void InitializeHotReload()
+    {
+        try
+        {
+            pluginFileWatcher = new FileSystemWatcher(PluginFolderPath)
+            {
+                Filter = "main.dll",
+                NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.Size,
+                EnableRaisingEvents = false
+            };
+
+            pluginFileWatcher.Changed += OnPluginFileChanged;
+
+            reloadDebounceTimer = new System.Timers.Timer(500); // 500ms debounce
+            reloadDebounceTimer.Elapsed += async (s, e) =>
+            {
+                reloadDebounceTimer!.Stop();
+                await ReloadPlugin();
+            };
+
+            App.Logger.LogInfo($"\"{PluginMetadata.Name}\" - Hot reload enabled", source: "Plugin");
+        }
+        catch (Exception ex)
+        {
+            App.Logger.LogWarn($"\"{PluginMetadata.Name}\" - Failed to initialize hot reload: {ex.Message}", source: "Plugin");
+        }
+    }
+
+    private void OnPluginFileChanged(object sender, FileSystemEventArgs e)
+    {
+        if (isReloading)
+        {
+            return;
+        }
+
+        App.Logger.LogInfo($"\"{PluginMetadata.Name}\" - Plugin file changed, scheduling reload", source: "Plugin");
+
+        // Debounce multiple file change events
+        reloadDebounceTimer?.Stop();
+        reloadDebounceTimer?.Start();
+    }
+
+    private async Task StopPlugin(bool unloadAssembly = true)
+    {
+        App.Logger.LogInfo($"\"{PluginMetadata.Name}\" - Stopping plugin", source: "Plugin");
+
+        try
+        {
+            pluginCancellationTokenSource?.Cancel();
+
+            if (pluginClassInstance is AsyncPlugin asyncPluginStop)
+            {
+                try
+                {
+                    await asyncPluginStop.StopAsync(pluginCancellationTokenSource?.Token ?? CancellationToken.None);
+                }
+                catch (Exception ex)
+                {
+                    App.Logger.LogError($"\"{PluginMetadata.Name}\" - Error stopping async plugin: {ex.Message}", source: "Plugin");
+                }
+            }
+
+            if (pluginClassInstance is not null)
+            {
+                SaveState(pluginClassInstance);
+                pluginClassInstance.Stop();
+            }
+        }
+        catch (Exception ex)
+        {
+            App.Logger.LogError($"\"{PluginMetadata.Name}\" - Error stopping plugin: {ex}", source: "Plugin");
+        }
+
+        if (unloadAssembly)
+        {
+            assemblyLoadContext.Unload();
+        }
+
+        pluginCancellationTokenSource?.Dispose();
+        pluginCancellationTokenSource = null;
+    }
+
+    private async Task ReloadPlugin()
+    {
+        if (isReloading || !IsRunning)
+        {
+            return;
+        }
+
+        isReloading = true;
+
+        try
+        {
+            App.Logger.LogInfo($"\"{PluginMetadata.Name}\" - Reloading plugin", source: "Plugin");
+
+            // Stop the file watcher during reload
+            if (pluginFileWatcher != null)
+            {
+                pluginFileWatcher.EnableRaisingEvents = false;
+            }
+
+            updateTimer?.Stop();
+
+            await StopPlugin(unloadAssembly: true);
+
+            // Wait for file to be fully written and released
+            await Task.Delay(200);
+
+            // Clear the current instance
+            pluginClassInstance = null;
+
+            // Create a new AssemblyLoadContext since the old one was unloaded
+            assemblyLoadContext = CreateAssemblyLoadContext();
+
+            // Show busy indicator
+            await Dispatcher.InvokeAsync(() => busyMask.IsBusy = true);
+
+            // Reload the plugin
+            await ExecuteSource();
+
+            // Hide busy indicator
+            await Dispatcher.InvokeAsync(() => busyMask.IsBusy = false);
+
+            App.Logger.LogInfo($"\"{PluginMetadata.Name}\" - Plugin reloaded successfully", source: "Plugin");
+        }
+        catch (Exception ex)
+        {
+            App.Logger.LogError($"\"{PluginMetadata.Name}\" - Failed to reload plugin: {ex}", source: "Plugin");
+            
+            await Dispatcher.InvokeAsync(async () =>
+            {
+                Wpf.Ui.Controls.MessageBox messageBox = new Wpf.Ui.Controls.MessageBox
+                {
+                    Title = $"Reload Error \"{PluginMetadata.Name}\"",
+                    Content = $"Failed to reload plugin:\n{ex.Message}",
+                    CloseButtonText = "Ok"
+                };
+                _ = await messageBox.ShowDialogAsync();
+            });
+        }
+        finally
+        {
+            isReloading = false;
+
+            // Re-enable file watcher
+            if (pluginFileWatcher != null && IsRunning)
+            {
+                pluginFileWatcher.EnableRaisingEvents = true;
+            }
+        }
     }
 
     public void UpdatePluginWindow()
@@ -240,6 +407,13 @@ public partial class PluginWindow : Window, IPluginWindow
         PluginLoaded?.Invoke();
 
         _ = await Dispatcher.InvokeAsync(() => busyMask.IsBusy = false);
+
+        // Enable hot reload after initial load
+        if (pluginFileWatcher != null)
+        {
+            pluginFileWatcher.EnableRaisingEvents = true;
+            App.Logger.LogInfo($"\"{PluginMetadata.Name}\" - Hot reload monitoring started", source: "Plugin");
+        }
     }
 
     private void ThemeChanged()
@@ -693,40 +867,23 @@ public partial class PluginWindow : Window, IPluginWindow
 
     private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
     {
-        App.Logger.LogInfo($"\"{PluginMetadata.Name}\" - Stopping plugin", source: "Plugin");
         IsRunning = false;
 
-        try
+        // Cleanup hot reload resources
+        if (pluginFileWatcher != null)
         {
-            pluginCancellationTokenSource?.Cancel();
-
-            if (pluginClassInstance is AsyncPlugin asyncPluginStop)
-            {
-                try
-                {
-                    _ = asyncPluginStop.StopAsync(pluginCancellationTokenSource?.Token ?? CancellationToken.None);
-                }
-                catch (Exception ex)
-                {
-                    App.Logger.LogError($"\"{PluginMetadata.Name}\" - {ex}", source: "Plugin");
-                }
-            }
-
-            if (pluginClassInstance is not null)
-            {
-                SaveState(pluginClassInstance);
-                pluginClassInstance.Stop();
-            }
-        }
-        catch (Exception ex)
-        {
-            App.Logger.LogError($"\"{PluginMetadata.Name}\" - {ex}", source: "Plugin");
+            pluginFileWatcher.EnableRaisingEvents = false;
+            pluginFileWatcher.Changed -= OnPluginFileChanged;
+            pluginFileWatcher.Dispose();
+            pluginFileWatcher = null;
         }
 
-        assemblyLoadContext.Unload();
+        reloadDebounceTimer?.Stop();
+        reloadDebounceTimer?.Dispose();
+        reloadDebounceTimer = null;
 
-        pluginCancellationTokenSource?.Dispose();
-        pluginCancellationTokenSource = null;
+        // Stop plugin using the shared method (no need to await in synchronous event handler)
+        _ = StopPlugin(unloadAssembly: true);
     }
 
     #region Window Events
