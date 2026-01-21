@@ -29,6 +29,6 @@
 ## Third party licenses
 
 - [BusyIndicator](https://github.com/moh3ngolshani/BusyIndicator) - [MIT](https://github.com/Moh3nGolshani/BusyIndicator/blob/master/LICENSE)
-- [Material Design In XAML Toolkit](https://github.com/MaterialDesignInXAML/MaterialDesignInXamlToolkit) - [MIT](https://github.com/MaterialDesignInXAML/MaterialDesignInXamlToolkit/blob/master/LICENSE)
+- [WPF UI](https://github.com/lepoco/wpfui) - [MIT](https://github.com/lepoco/wpfui/blob/main/LICENSE.md)
 - [Modio.NET](https://github.com/nickelc/modio.net) - [Apache-2.0](https://github.com/nickelc/modio.net/blob/master/LICENSE-APACHE), [MIT](https://github.com/nickelc/modio.net/blob/master/LICENSE-MIT)
 - [NAudio](https://github.com/naudio/NAudio) - [MIT](https://github.com/naudio/NAudio/blob/master/license.txt)
