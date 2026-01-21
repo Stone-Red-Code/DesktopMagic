@@ -10,7 +10,7 @@ namespace DesktopMagic.Dialogs;
 /// <summary>
 /// Interaction logic for ColorDialog.xaml
 /// </summary>
-public partial class ThemeDialog : Window
+public partial class ThemeDialog : Wpf.Ui.Controls.FluentWindow
 {
     private readonly Theme theme;
 
@@ -22,11 +22,11 @@ public partial class ThemeDialog : Window
 
         Resources.MergedDictionaries.Add(App.LanguageDictionary);
 
-        cornerRadiusTextBox.Text = theme.CornerRadius.ToString();
-        marginTextBox.Text = theme.Margin.ToString();
-        primaryColorRechtangle.Fill = new SolidColorBrush(MultiColorConverter.ConvertToMediaColor(theme.PrimaryColor));
-        secondaryColorRechtangle.Fill = new SolidColorBrush(MultiColorConverter.ConvertToMediaColor(theme.SecondaryColor));
-        backgroundColorRechtangle.Fill = new SolidColorBrush(MultiColorConverter.ConvertToMediaColor(theme.BackgroundColor));
+        cornerRadiusTextBox.Value = theme.CornerRadius;
+        marginTextBox.Value = theme.Margin;
+        primaryColorRechtangle.Background = new SolidColorBrush(MultiColorConverter.ConvertToMediaColor(theme.PrimaryColor));
+        secondaryColorRechtangle.Background = new SolidColorBrush(MultiColorConverter.ConvertToMediaColor(theme.SecondaryColor));
+        backgroundColorRechtangle.Background = new SolidColorBrush(MultiColorConverter.ConvertToMediaColor(theme.BackgroundColor));
 
         label.Content = content;
         Title = title;
@@ -81,7 +81,7 @@ public partial class ThemeDialog : Window
         if (colorDialog.ShowDialog() == true)
         {
             theme.PrimaryColor = colorDialog.ResultColor;
-            primaryColorRechtangle.Fill = colorDialog.ResultBrush;
+            primaryColorRechtangle.Background = colorDialog.ResultBrush;
         }
     }
 
@@ -95,7 +95,7 @@ public partial class ThemeDialog : Window
         if (colorDialog.ShowDialog() == true)
         {
             theme.SecondaryColor = colorDialog.ResultColor;
-            secondaryColorRechtangle.Fill = colorDialog.ResultBrush;
+            secondaryColorRechtangle.Background = colorDialog.ResultBrush;
         }
     }
 
@@ -109,35 +109,23 @@ public partial class ThemeDialog : Window
         if (colorDialog.ShowDialog() == true)
         {
             theme.BackgroundColor = colorDialog.ResultColor;
-            backgroundColorRechtangle.Fill = colorDialog.ResultBrush;
+            backgroundColorRechtangle.Background = colorDialog.ResultBrush;
         }
     }
 
-    private void CornerRadiusTextBox_TextChanged(object? sender, TextChangedEventArgs? e)
+    private void MarginTextBox_ValueChanged(object sender, Wpf.Ui.Controls.NumberBoxValueChangedEventArgs args)
     {
-        bool success = int.TryParse(cornerRadiusTextBox.Text, out int cornerRadius);
-        if (success)
+        if (args.NewValue is >= 0)
         {
-            cornerRadiusTextBox.Foreground = Brushes.Black;
-            theme.CornerRadius = cornerRadius;
-        }
-        else
-        {
-            cornerRadiusTextBox.Foreground = Brushes.Red;
+            theme.Margin = (int)args.NewValue;
         }
     }
 
-    private void MarginTextBox_TextChanged(object? sender, TextChangedEventArgs? e)
+    private void CornerRadiusTextBox_ValueChanged(object sender, Wpf.Ui.Controls.NumberBoxValueChangedEventArgs args)
     {
-        bool success = int.TryParse(marginTextBox.Text, out int margin);
-        if (success)
+        if (args.NewValue is >= 0)
         {
-            marginTextBox.Foreground = Brushes.Black;
-            theme.Margin = margin;
-        }
-        else
-        {
-            marginTextBox.Foreground = Brushes.Red;
+            theme.CornerRadius = (int)args.NewValue;
         }
     }
 }

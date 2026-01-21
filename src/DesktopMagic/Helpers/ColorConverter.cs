@@ -6,14 +6,24 @@ namespace DesktopMagic.Helpers;
 
 internal static partial class MultiColorConverter
 {
-    public static string ConvertToHex(System.Drawing.Color color)
+    public static string ConvertToHexArgb(System.Drawing.Color color)
     {
         return $"#{color.A:X2}{color.R:X2}{color.G:X2}{color.B:X2}";
     }
 
-    public static string ConvertToHex(System.Windows.Media.Color color)
+    public static string ConvertToHexArgb(System.Windows.Media.Color color)
     {
         return $"#{color.A:X2}{color.R:X2}{color.G:X2}{color.B:X2}";
+    }
+
+    public static string ConvertToHexRgba(System.Drawing.Color color)
+    {
+        return $"#{color.R:X2}{color.G:X2}{color.B:X2}{color.A:X2}";
+    }
+
+    public static string ConvertToHexRgba(System.Windows.Media.Color color)
+    {
+        return $"#{color.R:X2}{color.G:X2}{color.B:X2}{color.A:X2}";
     }
 
     public static bool TryConvertToSystemColor(string hex, out System.Drawing.Color color)

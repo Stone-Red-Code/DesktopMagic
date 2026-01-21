@@ -1,6 +1,8 @@
 ﻿using Modio.Models;
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text.Json.Serialization;
 
 namespace DesktopMagic.Plugins;
@@ -27,6 +29,14 @@ public class PluginMetadata
 
     public string? Version { get; set; }
 
+    public List<string> Tags { get; set; } = [];
+
+    [JsonIgnore]
+    public bool SupportsUnloading => !Tags.Contains("Does Not Support Unloading");
+
+    [JsonIgnore]
+    public bool IsLocalPlugin => string.IsNullOrWhiteSpace(ProfileUri?.ToString());
+
     public PluginMetadata(Mod mod)
     {
         Name = mod.Name ?? mod.Id.ToString();
@@ -39,6 +49,7 @@ public class PluginMetadata
         Description = mod.DescriptionPlaintext;
         Summary = mod.Summary;
         Version = mod.Modfile?.Version;
+        Tags = mod.Tags.Select(t => t.Name).Where(t => t is not null).ToList()!;
     }
 
     public PluginMetadata(string name, uint id)

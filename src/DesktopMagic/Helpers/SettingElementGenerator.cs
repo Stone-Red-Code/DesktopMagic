@@ -1,19 +1,19 @@
-﻿using DesktopMagic.Plugins;
+﻿using DesktopMagic.Dialogs;
+using DesktopMagic.Plugins;
+
+using Microsoft.Win32;
 
 using System;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 
 namespace DesktopMagic.Helpers;
 
-internal class SettingElementGenerator(ComboBox optionsComboBox)
+internal class SettingElementGenerator(uint pluginId)
 {
-    private readonly ComboBox optionsComboBox = optionsComboBox;
-
-    public void Generate(SettingElement settingElement, DockPanel dockPanel, TextBlock textBlock)
+    public FrameworkElement? Generate(SettingElement settingElement, System.Windows.Controls.TextBlock textBlock)
     {
-        dockPanel.UpdateLayout();
-        textBlock.UpdateLayout();
         if (settingElement.Input is DesktopMagic.Api.Settings.Label eLabel)
         {
             textBlock.Text = eLabel.Value;
@@ -32,16 +32,13 @@ internal class SettingElementGenerator(ComboBox optionsComboBox)
                     textBlock.Text = eLabel.Value;
                 });
             };
+            return null;
         }
         else if (settingElement.Input is DesktopMagic.Api.Settings.Button eButton)
         {
-            Button button = new()
+            Wpf.Ui.Controls.Button button = new()
             {
                 Content = eButton.Value,
-                FontSize = 10,
-                Height = 20,
-                Margin = new Thickness(0, 10, 0, 10),
-                Padding = new Thickness(0),
                 VerticalAlignment = VerticalAlignment.Center,
                 HorizontalAlignment = HorizontalAlignment.Stretch
             };
@@ -64,16 +61,18 @@ internal class SettingElementGenerator(ComboBox optionsComboBox)
                 });
             };
 
-            _ = dockPanel.Children.Add(button);
+            return button;
         }
         else if (settingElement.Input is DesktopMagic.Api.Settings.CheckBox eCheckBox)
         {
-            CheckBox checkBox = new()
+            Wpf.Ui.Controls.ToggleSwitch checkBox = new()
             {
                 IsChecked = eCheckBox.Value,
-                Style = (Style)dockPanel.FindResource("MaterialDesignDarkCheckBox"),
                 VerticalAlignment = VerticalAlignment.Center,
-                HorizontalAlignment = HorizontalAlignment.Stretch
+                HorizontalAlignment = HorizontalAlignment.Stretch,
+                HorizontalContentAlignment = HorizontalAlignment.Right,
+                Height = 30,
+                Style = Application.Current.FindResource("ToggleSwitchContentLeftStyle") as Style
             };
             checkBox.Click += (_s, _e) =>
             {
@@ -94,11 +93,11 @@ internal class SettingElementGenerator(ComboBox optionsComboBox)
                 });
             };
 
-            _ = dockPanel.Children.Add(checkBox);
+            return checkBox;
         }
         else if (settingElement.Input is DesktopMagic.Api.Settings.TextBox eTextBox)
         {
-            TextBox textBox = new()
+            Wpf.Ui.Controls.TextBox textBox = new()
             {
                 Text = eTextBox.Value,
                 TextWrapping = TextWrapping.Wrap,
@@ -123,26 +122,23 @@ internal class SettingElementGenerator(ComboBox optionsComboBox)
                     textBox.Text = eTextBox.Value;
                 });
             };
-            _ = dockPanel.Children.Add(textBox);
+            return textBox;
         }
         else if (settingElement.Input is DesktopMagic.Api.Settings.IntegerUpDown eIntegerUpDown)
         {
-            MaterialDesignThemes.Wpf.NumericUpDown numericUpDown = new()
+            Wpf.Ui.Controls.NumberBox numberBox = new()
             {
                 Value = eIntegerUpDown.Value,
                 Minimum = eIntegerUpDown.Minimum,
                 Maximum = eIntegerUpDown.Maximum,
-                IncreaseContent = new Label() { Content = "+" },
-                DecreaseContent = new Label() { Content = "–" },
                 VerticalAlignment = VerticalAlignment.Center,
-                HorizontalAlignment = HorizontalAlignment.Stretch,
-                AllowChangeOnScroll = true
+                HorizontalAlignment = HorizontalAlignment.Stretch
             };
-            numericUpDown.ValueChanged += (_s, _e) =>
+            numberBox.ValueChanged += (_s, _e) =>
             {
                 try
                 {
-                    eIntegerUpDown.Value = numericUpDown.Value;
+                    eIntegerUpDown.Value = (int)numberBox.Value;
                 }
                 catch (Exception ex)
                 {
@@ -151,12 +147,12 @@ internal class SettingElementGenerator(ComboBox optionsComboBox)
             };
             eIntegerUpDown.OnValueChanged += () =>
             {
-                numericUpDown.Dispatcher.Invoke(() =>
+                numberBox.Dispatcher.Invoke(() =>
                 {
-                    numericUpDown.Value = eIntegerUpDown.Value;
+                    numberBox.Value = eIntegerUpDown.Value;
                 });
             };
-            _ = dockPanel.Children.Add(numericUpDown);
+            return numberBox;
         }
         else if (settingElement.Input is DesktopMagic.Api.Settings.Slider eSlider)
         {
@@ -168,7 +164,8 @@ internal class SettingElementGenerator(ComboBox optionsComboBox)
                 TickFrequency = 1,
                 IsSnapToTickEnabled = true,
                 VerticalAlignment = VerticalAlignment.Center,
-                HorizontalAlignment = HorizontalAlignment.Stretch
+                HorizontalAlignment = HorizontalAlignment.Stretch,
+                Margin = new Thickness(0, 5, 0, 5)
             };
             slider.ValueChanged += (_s, _e) =>
             {
@@ -189,7 +186,7 @@ internal class SettingElementGenerator(ComboBox optionsComboBox)
                 });
             };
 
-            _ = dockPanel.Children.Add(slider);
+            return slider;
         }
         else if (settingElement.Input is DesktopMagic.Api.Settings.ComboBox eComboBox)
         {
@@ -220,17 +217,170 @@ internal class SettingElementGenerator(ComboBox optionsComboBox)
                 comboBox.SelectedItem = eComboBox.Value;
             };
 
-            _ = dockPanel.Children.Add(comboBox);
+            return comboBox;
         }
+        else if (settingElement.Input is DesktopMagic.Api.Settings.ColorPicker eColorPicker)
+        {
+            Grid panel = new()
+            {
+                HorizontalAlignment = HorizontalAlignment.Stretch
+            };
+            panel.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+            panel.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+
+            Border colorPreview = new()
+            {
+                Width = 30,
+                Height = 30,
+                CornerRadius = new CornerRadius(4),
+                Background = new SolidColorBrush(Color.FromArgb(eColorPicker.Value.A, eColorPicker.Value.R, eColorPicker.Value.G, eColorPicker.Value.B)),
+                Margin = new Thickness(0, 0, 10, 0),
+                BorderBrush = Application.Current.FindResource("ControlElevationBorderBrush") as Brush,
+                BorderThickness = new Thickness(1)
+            };
+            Grid.SetColumn(colorPreview, 0);
+
+            Wpf.Ui.Controls.Button browseButton = new()
+            {
+                Content = "Select Color",
+                VerticalAlignment = VerticalAlignment.Center,
+                HorizontalAlignment = HorizontalAlignment.Stretch
+            };
+            Grid.SetColumn(browseButton, 1);
+
+            browseButton.Click += (_s, _e) =>
+            {
+                try
+                {
+                    ColorDialog colorDialog = new("Select a color", eColorPicker.Value)
+                    {
+                        Owner = Application.Current.MainWindow
+                    };
+
+                    if (colorDialog.ShowDialog() == true)
+                    {
+                        eColorPicker.Value = colorDialog.ResultColor;
+                        colorPreview.Background = new SolidColorBrush(Color.FromArgb(eColorPicker.Value.A, eColorPicker.Value.R, eColorPicker.Value.G, eColorPicker.Value.B));
+                    }
+                }
+                catch (Exception ex)
+                {
+                    DisplayException(ex.Message);
+                }
+            };
+
+            eColorPicker.OnValueChanged += () =>
+            {
+                colorPreview.Dispatcher.Invoke(() =>
+                {
+                    colorPreview.Background = new SolidColorBrush(Color.FromArgb(eColorPicker.Value.A, eColorPicker.Value.R, eColorPicker.Value.G, eColorPicker.Value.B));
+                });
+            };
+
+            _ = panel.Children.Add(colorPreview);
+            _ = panel.Children.Add(browseButton);
+
+            return panel;
+        }
+        else if (settingElement.Input is DesktopMagic.Api.Settings.FileSelector eFileSelector)
+        {
+            Grid grid = new()
+            {
+                HorizontalAlignment = HorizontalAlignment.Stretch
+            };
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+
+            Wpf.Ui.Controls.TextBox pathTextBox = new()
+            {
+                Text = eFileSelector.Value,
+                IsReadOnly = true,
+                VerticalAlignment = VerticalAlignment.Center,
+                HorizontalAlignment = HorizontalAlignment.Stretch,
+                Margin = new Thickness(0, 0, 5, 0)
+            };
+            Grid.SetColumn(pathTextBox, 0);
+
+            Wpf.Ui.Controls.Button browseButton = new()
+            {
+                Content = "Browse",
+                VerticalAlignment = VerticalAlignment.Center
+            };
+            Grid.SetColumn(browseButton, 1);
+
+            browseButton.Click += (_s, _e) =>
+            {
+                try
+                {
+                    if (eFileSelector.SelectFolder)
+                    {
+                        OpenFolderDialog folderDialog = new()
+                        {
+                            Title = eFileSelector.Title,
+                            InitialDirectory = string.IsNullOrEmpty(eFileSelector.Value) ? Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) : System.IO.Path.GetDirectoryName(eFileSelector.Value)
+                        };
+
+                        if (folderDialog.ShowDialog() == true)
+                        {
+                            eFileSelector.Value = folderDialog.FolderName;
+                            pathTextBox.Text = eFileSelector.Value;
+                        }
+                    }
+                    else
+                    {
+                        OpenFileDialog fileDialog = new()
+                        {
+                            Title = eFileSelector.Title,
+                            Filter = eFileSelector.Filter,
+                            InitialDirectory = string.IsNullOrEmpty(eFileSelector.Value) ? Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) : System.IO.Path.GetDirectoryName(eFileSelector.Value)
+                        };
+
+                        if (fileDialog.ShowDialog() == true)
+                        {
+                            eFileSelector.Value = fileDialog.FileName;
+                            pathTextBox.Text = eFileSelector.Value;
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    DisplayException(ex.Message);
+                }
+            };
+
+            eFileSelector.OnValueChanged += () =>
+            {
+                pathTextBox.Dispatcher.Invoke(() =>
+                {
+                    pathTextBox.Text = eFileSelector.Value;
+                });
+            };
+
+            _ = grid.Children.Add(pathTextBox);
+            _ = grid.Children.Add(browseButton);
+
+            return grid;
+        }
+
+        return null;
     }
 
-    private void DisplayException(string message)
+    private async void DisplayException(string message)
     {
         App.Logger.LogInfo(message, source: "PluginInput");
-        _ = MessageBox.Show("File execution error:\n" + message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-        int index = MainWindow.WindowNames.IndexOf(optionsComboBox.SelectedItem.ToString() ?? string.Empty);
+        Wpf.Ui.Controls.MessageBox messageBox = new Wpf.Ui.Controls.MessageBox
+        {
+            Title = "Error",
+            Content = "File execution error:\n" + message,
+            CloseButtonText = "Ok"
+        };
+        _ = await messageBox.ShowDialogAsync();
+        int index = Manager.Instance.PluginWindows.FindIndex(p => p.PluginMetadata.Id == pluginId);
 
-        PluginWindow window = MainWindow.Windows[index];
-        window?.Exit();
+        if (index >= 0 && index < Manager.Instance.PluginWindows.Count)
+        {
+            IPluginWindow window = Manager.Instance.PluginWindows[index];
+            window?.Exit();
+        }
     }
 }

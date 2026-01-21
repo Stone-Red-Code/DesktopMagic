@@ -1,0 +1,65 @@
+﻿<Page x:Class="DesktopMagic.Pages.ThemePage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:DesktopMagic.Pages"
+      mc:Ignorable="d" 
+      d:DesignHeight="450" d:DesignWidth="800"
+      Title="ThemePage">
+
+    <Grid Margin="{StaticResource DefaultMargin}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="auto" />
+        </Grid.RowDefinitions>
+        
+        <ui:ListView x:Name="themesListBox" Grid.Row="0" Grid.ColumnSpan="1" ItemsSource="{Binding Settings.Themes}" SelectedValue="{Binding Settings.CurrentLayout.CurrentThemeName}" SelectedValuePath="Name" SelectedIndex="2" SelectionMode="Single">
+            <ui:ListView.ItemTemplate>
+                <DataTemplate>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Margin="8" VerticalAlignment="Center" FontWeight="SemiBold" Text="{Binding Name, Mode=OneWay}" />
+                        <StackPanel Grid.Column="1" VerticalAlignment="Center" Orientation="Horizontal" Margin="{StaticResource DefaultMargin}">
+                            <Button x:Name="editThemeButton" HorizontalAlignment="Stretch" Click="EditThemeButton_Click" FontWeight="Regular" Tag="{Binding}">
+                                <StackPanel Orientation="Horizontal">
+                                    <ui:SymbolIcon Symbol="Color24" Margin="0 0 10 0" />
+                                    <TextBlock Text="{DynamicResource editTheme}" />
+                                </StackPanel>
+                            </Button>
+                        </StackPanel>
+                    </Grid>
+                </DataTemplate>
+            </ui:ListView.ItemTemplate>
+        </ui:ListView>
+        
+        <ui:Card Grid.Row="1" Grid.ColumnSpan="2" Margin="0 5 0 0" Padding="5">
+            <Grid  >
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1*" />
+                    <ColumnDefinition Width="5" />
+                    <ColumnDefinition Width="0.5*" />
+                    <ColumnDefinition Width="5" />
+                    <ColumnDefinition Width="0.5*" />
+                </Grid.ColumnDefinitions>
+
+                <Button x:Name="newThemeButton" Grid.Column="2" HorizontalAlignment="Stretch" Click="AddThemeButton_Click" FontWeight="Regular">
+                    <StackPanel Orientation="Horizontal">
+                        <ui:SymbolIcon Symbol="Add24" Margin="0 0 10 0" />
+                        <TextBlock Text="{DynamicResource newTheme}" />
+                    </StackPanel>
+                </Button>
+                <Button x:Name="deleteThemeButton" Grid.Column="4"  HorizontalAlignment="Stretch" Click="DeleteThemeButton_Click" FontWeight="Regular">
+                    <StackPanel Orientation="Horizontal">
+                        <ui:SymbolIcon Symbol="Delete24" Margin="0 0 10 0" />
+                        <TextBlock Text="{DynamicResource deleteTheme}" />
+                    </StackPanel>
+                </Button>
+            </Grid>
+        </ui:Card>
+    </Grid>
+</Page>

@@ -1,156 +1,107 @@
-﻿<Window x:Class="DesktopMagic.MainWindow"
+﻿<ui:FluentWindow x:Class="DesktopMagic.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
-        xmlns:busyIndicator="https://github.com/moh3ngolshani/BusyIndicator"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+        xmlns:tray="http://schemas.lepo.co/wpfui/2022/xaml/tray"
+        xmlns:pages="clr-namespace:DesktopMagic.Pages"
+        xmlns:plugins="clr-namespace:DesktopMagic.Plugins"
         mc:Ignorable="d"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:local="clr-namespace:DesktopMagic"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:dataContext="clr-namespace:DesktopMagic.DataContexts"
         d:DataContext="{d:DesignInstance Type=dataContext:MainWindowDataContext}"
+        ui:Design.Background="{DynamicResource ApplicationBackgroundBrush}"
+        ui:Design.Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+        Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+        WindowCornerPreference="Round"
+        WindowBackdropType="Tabbed"    
         Closing="Window_Closing"
         Closed="Window_Closed"
-        ShowInTaskbar="True"
-        Icon="{StaticResource Icon}"
-        Background="{DynamicResource MaterialDesignPaper}"
-        FontFamily="{DynamicResource MaterialDesignFont}"
-        Height="520"
-        Width="570"
-        MinHeight="520"
-        MinWidth="570"
+        Height="560"
+        Width="900"
+        MinHeight="600"
+        MinWidth="940"
+        ExtendsContentIntoTitleBar="True"
         WindowState="Minimized"
         Loaded="Window_Loaded">
 
-    <busyIndicator:BusyMask x:Name="BusyIndicator" IsBusy="{Binding IsLoading}"  IndicatorType="Cogs"  BusyContent="Please wait..."  BusyContentMargin="0,20,0,0"  IsBusyAtStartup="False">
-        <Grid>
-            <TextBlock TextWrapping="Wrap" Text="0" VerticalAlignment="Top" FontFamily="Comic Sans MS" Foreground="Transparent" />
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="*" />
-                    <RowDefinition Height="1*" />
-                </Grid.RowDefinitions>
-                <Grid Margin="{StaticResource DefaultMargin}">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="1*" />
-                        <ColumnDefinition Width="1*" />
-                    </Grid.ColumnDefinitions>
-                    <DockPanel Margin="0,0,2.5,0">
-                        <Grid DockPanel.Dock="Top">
-                            <Rectangle Grid.Row="1" Fill="#FFECECEC" Height="24" />
-                            <CheckBox x:Name="editCheckBox" VerticalAlignment="Center" Grid.Row="1" Content="{DynamicResource editLayout}" Click="EditCheckBox_Click" Foreground="Black" BorderBrush="#FF323232" Style="{StaticResource MaterialDesignDarkCheckBox}" IsChecked="True" />
-                        </Grid>
-                        <ScrollViewer Background="#FFBBBBBB" PreviewMouseWheel="ScrollViewer_PreviewMouseWheel">
-                            <ItemsControl ItemsSource="{Binding Settings.CurrentLayout.Plugins}">
-                                <ItemsControl.ItemsPanel>
-                                    <ItemsPanelTemplate>
-                                        <StackPanel />
-                                    </ItemsPanelTemplate>
-                                </ItemsControl.ItemsPanel>
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate>
-                                        <CheckBox Click="PluginCheckBox_Click" Content="{Binding Value.Name}" Tag="{Binding Key}" IsChecked="{Binding Value.Enabled}"  Style="{StaticResource MaterialDesignDarkCheckBox}" />
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-                        </ScrollViewer>
-                    </DockPanel>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
 
-                    <DockPanel Grid.Column="1"  Margin="2.5,0,0,0">
-                        <ComboBox x:Name="optionsComboBox" DisplayMemberPath="Name" DockPanel.Dock="Top" Height="24" SelectedIndex="0" SelectionChanged="OptionsComboBox_SelectionChanged" Background="#FFECECEC" Padding="4" VerticalAlignment="Center" />
-                        <ScrollViewer Background="#FFBBBBBB">
-                            <Grid>
-                                <StackPanel x:Name="optionsPanel" Margin="3,3,3,0" HorizontalAlignment="Stretch" Visibility="Collapsed">
-                                </StackPanel>
-                            </Grid>
-                        </ScrollViewer>
-                    </DockPanel>
-                </Grid>
-                <Grid Grid.Row="1">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="*" />
-                        <RowDefinition Height="110" />
-                    </Grid.RowDefinitions>
+        <ui:TitleBar x:Name="TitleBar" Title="{Binding Title}">
+            <ui:TitleBar.Icon>
+                <ui:ImageIcon Source="{StaticResource Icon}" />
+            </ui:TitleBar.Icon>
+        </ui:TitleBar>
+
+        <tray:NotifyIcon Grid.Row="0" FocusOnLeftClick="True" MenuOnRightClick="True" TooltipText="{Binding AppName}" Icon="{StaticResource Icon}" LeftClick="NotifyIcon_LeftClick">
+            <tray:NotifyIcon.Menu>
+                <ContextMenu>
+                    <MenuItem Header="Settings" Click="SettingsMenuItem_Click" />
+                    <MenuItem Header="Edit Layout" Click="EditLayoutMenuItem_Click" />
+                    <MenuItem Header="Quit" Click="QuitMenuItem_Click" />
+                </ContextMenu>
+            </tray:NotifyIcon.Menu>
+        </tray:NotifyIcon>
+
+        <Grid Grid.Row="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <ui:NavigationView x:Name="NavigationView" Grid.Row="0" IsBackButtonVisible="Collapsed" IsPaneToggleVisible="True" OpenPaneLength="200"  Loaded="NavigationView_Loaded">
+                <ui:NavigationView.MenuItems>
+                    <ui:NavigationViewItem Content="{DynamicResource plugins}" TargetPageType="{x:Type pages:MainPage}">
+                        <ui:NavigationViewItem.Icon>
+                            <ui:SymbolIcon Symbol="Apps24" />
+                        </ui:NavigationViewItem.Icon>
+                    </ui:NavigationViewItem>
+                    <ui:NavigationViewItem Content="{DynamicResource themes}" TargetPageType="{x:Type pages:ThemePage}">
+                        <ui:NavigationViewItem.Icon>
+                            <ui:SymbolIcon Symbol="Color24" />
+                        </ui:NavigationViewItem.Icon>
+                    </ui:NavigationViewItem>
+                    <ui:NavigationViewItem Content="{DynamicResource pluginManager}" TargetPageType="{x:Type plugins:PluginManager}">
+                        <ui:NavigationViewItem.Icon>
+                            <ui:SymbolIcon Symbol="AppsAddIn24" />
+                        </ui:NavigationViewItem.Icon>
+                    </ui:NavigationViewItem>
+                </ui:NavigationView.MenuItems>
+
+                <ui:NavigationView.FooterMenuItems>
+                    <ui:NavigationViewItem Content="{DynamicResource requestFeature}" Click="ReportBugNavigationViewItem_Click">
+                        <ui:NavigationViewItem.Icon>
+                            <ui:SymbolIcon Symbol="ChatHelp24"/>
+                        </ui:NavigationViewItem.Icon>
+                    </ui:NavigationViewItem>
+                    <ui:NavigationViewItem Content="{DynamicResource reportBug}" Click="ReportBugNavigationViewItem_Click">
+                        <ui:NavigationViewItem.Icon>
+                            <ui:SymbolIcon Symbol="Bug24"/>
+                        </ui:NavigationViewItem.Icon>
+                    </ui:NavigationViewItem>
+                </ui:NavigationView.FooterMenuItems>
+            </ui:NavigationView>
+
+            <Border Grid.Row="1" Background="{DynamicResource ControlFillColorDefaultBrush}" BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}" BorderThickness="0,1,0,0" Padding="5 2 5 5">
+                <Grid>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition />
-                        <ColumnDefinition />
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    <ListBox x:Name="themesListBox" Grid.Row="0" Grid.ColumnSpan="1" Margin="{StaticResource DefaultMargin}" ItemsSource="{Binding Settings.Themes}" DisplayMemberPath="Name" SelectedValue="{Binding Settings.CurrentLayout.CurrentThemeName}" SelectedValuePath="Name" />
-                    <StackPanel Grid.Row="0" Grid.Column="1" VerticalAlignment="Center" Margin="{StaticResource DefaultMargin}">
-                        <Button x:Name="addThemeButton" Margin="0,0,0,5" HorizontalAlignment="Stretch" Click="AddThemeButton_Click" FontWeight="Regular">
-                            <StackPanel Orientation="Horizontal">
-                                <materialDesign:PackIcon Kind="Add" Margin="0 0 10 0" />
-                                <TextBlock Text="{DynamicResource newTheme}" />
-                            </StackPanel>
-                        </Button>
-                        <Button x:Name="deleteThemeButton" Margin="0,0,0,5" HorizontalAlignment="Stretch" Click="DeleteThemeButton_Click" FontWeight="Regular">
-                            <StackPanel Orientation="Horizontal">
-                                <materialDesign:PackIcon Kind="DeleteOutline" Margin="0 0 10 0" />
-                                <TextBlock Text="{DynamicResource deleteTheme}" />
-                            </StackPanel>
-                        </Button>
-                        <Button x:Name="changeThemeButton" Margin="0,0,0,5" HorizontalAlignment="Stretch" Click="ChangeThemeButton_Click" FontWeight="Regular">
-                            <StackPanel Orientation="Horizontal">
-                                <materialDesign:PackIcon Kind="PaletteOutline" Margin="0 0 10 0" />
-                                <TextBlock Text="{DynamicResource changeTheme}" />
-                            </StackPanel>
-                        </Button>
+
+                    <StackPanel Orientation="Horizontal" Grid.Column="0">
+                        <ui:HyperlinkButton FontWeight="Bold" Content="{DynamicResource developedBy}" NavigateUri="https://me.stone-red.net"/>
                     </StackPanel>
-                    <Grid Grid.Row="1" Grid.ColumnSpan="2" VerticalAlignment="Bottom">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition />
-                            <ColumnDefinition />
-                            <ColumnDefinition />
-                        </Grid.ColumnDefinitions>
 
-                        <Rectangle Fill="#FFC5C5C5" Stroke="#FFC5C5C5" Grid.ColumnSpan="3" />
-                        <StackPanel Margin="{StaticResource DefaultMargin}" VerticalAlignment="Bottom">
-                            <ComboBox x:Name="layoutsComboBox" ItemsSource="{Binding Settings.Layouts}" DisplayMemberPath="Name" SelectedValue="{Binding Settings.CurrentLayoutName}" SelectedValuePath="Name" HorizontalAlignment="Left" Margin="0,0,0,5" Width="170" Height="20" SelectionChanged="LayoutsComboBox_SelectionChanged" />
-                            <Button x:Name="newLayoutButton" Margin="0,0,0,5" HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="170" Click="NewLayoutButton_Click" FontWeight="Regular">
-                                <StackPanel Orientation="Horizontal">
-                                    <materialDesign:PackIcon Kind="Add" Margin="0 0 10 0" />
-                                    <TextBlock Text="{DynamicResource newLayout}" />
-                                </StackPanel>
-                            </Button>
-                            <Button x:Name="removeLayoutButton" HorizontalAlignment="Left"  VerticalAlignment="Bottom" Width="170" Click="RemoveLayoutButton_Click" FontWeight="Regular">
-                                <StackPanel Orientation="Horizontal">
-                                    <materialDesign:PackIcon Kind="DeleteOutline" Margin="0 0 10 0" />
-                                    <TextBlock Text="{DynamicResource deleteLayout}" />
-                                </StackPanel>
-                            </Button>
-                        </StackPanel>
-                        <StackPanel Grid.Column="1" Margin="{StaticResource DefaultMargin}" VerticalAlignment="Bottom">
-                            <Button x:Name="updatePluginsButton" Margin="0,0,0,5" HorizontalAlignment="Center" Width="170" Click="UpdatePluginsButton_Click" FontWeight="Regular">
-                                <StackPanel Orientation="Horizontal">
-                                    <materialDesign:PackIcon Kind="Reload" Margin="0 0 10 0" />
-                                    <TextBlock Text="{DynamicResource updatePlugins}" />
-                                </StackPanel>
-                            </Button>
-                            <Button x:Name="githubButton" HorizontalAlignment="Center" Width="170" Click="GitHubButton_Click"  FontWeight="Regular" Cursor="Hand">
-                                <StackPanel Orientation="Horizontal">
-                                    <materialDesign:PackIcon Kind="Github" Margin="0 0 10 0" />
-                                    <TextBlock Text="GitHub" />
-                                </StackPanel>
-                            </Button>
-                        </StackPanel>
-                        <StackPanel Grid.Column="2" Margin="{StaticResource DefaultMargin}" VerticalAlignment="Bottom">
-                            <CheckBox x:Name="autoStartCheckBox" Content="{DynamicResource autoStart}" Foreground="Black" BorderBrush="#FF323232" Margin="0,0,0,5" Width="170" Height="20" Style="{StaticResource MaterialDesignDarkCheckBox}" IsChecked="{Binding IsAutoStartEnabled}" />
-                            <Button x:Name="downloadPluginsButton" Margin="0,0,0,5" HorizontalAlignment="Right" Width="170" Click="PluginManagerButton_Click"  FontWeight="Regular" Cursor="Hand">
-                                <StackPanel Orientation="Horizontal">
-                                    <materialDesign:PackIcon Kind="ExtensionOutline" Margin="0 0 10 0" />
-                                    <TextBlock Text="{DynamicResource pluginManager}" />
-                                </StackPanel>
-                            </Button>
-                            <Button x:Name="openPluginsFolderButton" HorizontalAlignment="Right" Width="170" Click="OpenPluginsFolderButton_Click" FontWeight="Regular">
-                                <StackPanel Orientation="Horizontal">
-                                    <materialDesign:PackIcon Kind="FolderOutline" Margin="0 0 10 0" />
-                                    <TextBlock Text="{DynamicResource pluginsFolder}" />
-                                </StackPanel>
-                            </Button>
-                        </StackPanel>
-                    </Grid>
+                    <ui:ToggleSwitch x:Name="autoStartCheckBox" Style="{StaticResource ToggleSwitchContentLeftStyle}" Grid.Column="2" Margin="0 0 5 0" Content="{DynamicResource autoStart}" IsChecked="{Binding IsAutoStartEnabled}" VerticalAlignment="Center"/>
                 </Grid>
-            </Grid>
+            </Border>
         </Grid>
-    </busyIndicator:BusyMask>
-</Window>
+        <ContentPresenter x:Name="rootContentDialog" Grid.Row="1" Grid.RowSpan="2" />
+    </Grid>
+</ui:FluentWindow>

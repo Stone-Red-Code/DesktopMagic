@@ -5,6 +5,8 @@ using System.IO;
 using System.Threading;
 using System.Windows;
 
+using Wpf.Ui;
+
 namespace DesktopMagic;
 
 /// <summary>
@@ -25,6 +27,8 @@ public partial class App : Application
     public static string ApplicationDataPath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "StoneRed", AppName);
 
     public static string PluginsPath => Path.Combine(ApplicationDataPath, "Plugins");
+
+    public static IContentDialogService DialogService { get; } = new ContentDialogService();
 
     public static Logger Logger { get; } = new Logger()
     {
@@ -130,7 +134,7 @@ public partial class App : Application
         Logger.LogFatal(exception + (e.IsTerminating ? "\t Process terminating!" : ""), source: exception.Source ?? "Unknown");
     }
 
-    private static void Setup(bool clearLogFile)
+    private static async void Setup(bool clearLogFile)
     {
         AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
 
@@ -156,7 +160,13 @@ public partial class App : Application
         }
         catch (Exception ex)
         {
-            _ = MessageBox.Show(ex.ToString(), AppName, MessageBoxButton.OK, MessageBoxImage.Error);
+            Wpf.Ui.Controls.MessageBox messageBox = new Wpf.Ui.Controls.MessageBox
+            {
+                Title = AppName,
+                Content = ex.ToString(),
+                CloseButtonText = "Ok"
+            };
+            _ = await messageBox.ShowDialogAsync();
             Logger.Log(ex.Message, "Setup", LogSeverity.Error);
         }
 

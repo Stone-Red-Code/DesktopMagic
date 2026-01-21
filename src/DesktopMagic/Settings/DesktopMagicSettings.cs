@@ -8,7 +8,7 @@ using System.Text.Json.Serialization;
 
 namespace DesktopMagic.Settings;
 
-internal class DesktopMagicSettings : INotifyPropertyChanged
+public class DesktopMagicSettings : INotifyPropertyChanged
 {
     public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -44,7 +44,16 @@ internal class DesktopMagicSettings : INotifyPropertyChanged
 
     public string? CurrentLayoutName
     {
-        get => currentLayoutName ?? Layouts.FirstOrDefault()?.Name;
+        get
+        {
+            if (!Layouts.Any(l => l.Name == currentLayoutName))
+            {
+                currentLayoutName = null;
+            }
+
+            return currentLayoutName ?? Layouts.FirstOrDefault()?.Name;
+        }
+
         set
         {
             currentLayoutName = value;

@@ -3,4 +3,5 @@
     <BitmapImage x:Key="Icon" UriSource="/icon.ico" />
     <BitmapImage x:Key="ModioCogBlue" UriSource="modio-cog-blue.png" />
     <BitmapImage x:Key="ModioLogoBlueDark" UriSource="modio-logo-bluedark.png" />
+    <BitmapImage x:Key="ModioLogoBlueLight" UriSource="modio-logo-bluelight.png" />
 </ResourceDictionary>

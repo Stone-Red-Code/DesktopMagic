@@ -13,7 +13,10 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Loader;
+using System.Text.Json;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Timers;
 using System.Windows;
 using System.Windows.Interop;
@@ -22,7 +25,7 @@ using System.Windows.Media.Imaging;
 
 namespace DesktopMagic;
 
-public partial class PluginWindow : Window
+public partial class PluginWindow : Window, IPluginWindow
 {
     public event Action? PluginLoaded;
 
@@ -32,6 +35,12 @@ public partial class PluginWindow : Window
     private Thread? pluginThread;
     private System.Timers.Timer? updateTimer;
     private Plugin? pluginClassInstance;
+    private AssemblyLoadContext assemblyLoadContext;
+
+    private CancellationTokenSource? pluginCancellationTokenSource;
+    private FileSystemWatcher? pluginFileWatcher;
+    private System.Timers.Timer? reloadDebounceTimer;
+    private bool isReloading = false;
 
     public bool IsRunning { get; private set; } = true;
     public PluginMetadata PluginMetadata { get; private set; }
@@ -69,6 +78,11 @@ public partial class PluginWindow : Window
             }
         };
 
+        settings.Theme.PropertyChanged += (se, ev) =>
+        {
+            ThemeChanged();
+        };
+
         PluginMetadata = pluginMetadata;
         this.settings = settings;
 
@@ -78,6 +92,14 @@ public partial class PluginWindow : Window
         Height = settings.Size.Y;
 
         PluginFolderPath = pluginFolderPath;
+
+        assemblyLoadContext = CreateAssemblyLoadContext();
+
+        // Initialize hot reload watcher if plugin supports unloading and is external
+        if (pluginMetadata.SupportsUnloading && !string.IsNullOrEmpty(pluginFolderPath))
+        {
+            InitializeHotReload();
+        }
     }
 
     public PluginWindow(Plugin pluginClassInstance, PluginMetadata pluginMetadata, PluginSettings settings) : this(pluginMetadata, settings, string.Empty)
@@ -85,10 +107,188 @@ public partial class PluginWindow : Window
         this.pluginClassInstance = pluginClassInstance;
     }
 
+    private AssemblyLoadContext CreateAssemblyLoadContext()
+    {
+        AssemblyLoadContext context = new(PluginMetadata.Name, isCollectible: true);
+        context.Resolving += (ctx, assemblyName) =>
+        {
+            string assemblyPath = Path.Combine(PluginFolderPath, assemblyName.Name + ".dll");
+            if (File.Exists(assemblyPath))
+            {
+                return ctx.LoadFromAssemblyPath(assemblyPath);
+            }
+            else
+            {
+                _ = ctx.LoadFromAssemblyName(assemblyName);
+            }
+            return null;
+        };
+        return context;
+    }
+
+    private void InitializeHotReload()
+    {
+        try
+        {
+            pluginFileWatcher = new FileSystemWatcher(PluginFolderPath)
+            {
+                Filter = "main.dll",
+                NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.Size,
+                EnableRaisingEvents = false
+            };
+
+            pluginFileWatcher.Changed += OnPluginFileChanged;
+
+            reloadDebounceTimer = new System.Timers.Timer(500); // 500ms debounce
+            reloadDebounceTimer.Elapsed += async (s, e) =>
+            {
+                reloadDebounceTimer!.Stop();
+                await ReloadPlugin();
+            };
+
+            App.Logger.LogInfo($"\"{PluginMetadata.Name}\" - Hot reload enabled", source: "Plugin");
+        }
+        catch (Exception ex)
+        {
+            App.Logger.LogWarn($"\"{PluginMetadata.Name}\" - Failed to initialize hot reload: {ex.Message}", source: "Plugin");
+        }
+    }
+
+    private void OnPluginFileChanged(object sender, FileSystemEventArgs e)
+    {
+        if (isReloading)
+        {
+            return;
+        }
+
+        App.Logger.LogInfo($"\"{PluginMetadata.Name}\" - Plugin file changed, scheduling reload", source: "Plugin");
+
+        // Debounce multiple file change events
+        reloadDebounceTimer?.Stop();
+        reloadDebounceTimer?.Start();
+    }
+
+    private async Task StopPlugin(bool unloadAssembly = true)
+    {
+        App.Logger.LogInfo($"\"{PluginMetadata.Name}\" - Stopping plugin", source: "Plugin");
+
+        try
+        {
+            pluginCancellationTokenSource?.Cancel();
+
+            if (pluginClassInstance is AsyncPlugin asyncPluginStop)
+            {
+                try
+                {
+                    await asyncPluginStop.StopAsync(pluginCancellationTokenSource?.Token ?? CancellationToken.None);
+                }
+                catch (Exception ex)
+                {
+                    App.Logger.LogError($"\"{PluginMetadata.Name}\" - Error stopping async plugin: {ex.Message}", source: "Plugin");
+                }
+            }
+
+            if (pluginClassInstance is not null)
+            {
+                SaveState(pluginClassInstance);
+                pluginClassInstance.Stop();
+            }
+        }
+        catch (Exception ex)
+        {
+            App.Logger.LogError($"\"{PluginMetadata.Name}\" - Error stopping plugin: {ex}", source: "Plugin");
+        }
+
+        if (unloadAssembly)
+        {
+            assemblyLoadContext.Unload();
+        }
+
+        pluginCancellationTokenSource?.Dispose();
+        pluginCancellationTokenSource = null;
+    }
+
+    private async Task ReloadPlugin()
+    {
+        if (isReloading || !IsRunning)
+        {
+            return;
+        }
+
+        isReloading = true;
+
+        try
+        {
+            App.Logger.LogInfo($"\"{PluginMetadata.Name}\" - Reloading plugin", source: "Plugin");
+
+            // Stop the file watcher during reload
+            if (pluginFileWatcher != null)
+            {
+                pluginFileWatcher.EnableRaisingEvents = false;
+            }
+
+            updateTimer?.Stop();
+
+            await StopPlugin(unloadAssembly: true);
+
+            // Wait for file to be fully written and released
+            await Task.Delay(200);
+
+            // Clear the current instance
+            pluginClassInstance = null;
+
+            // Create a new AssemblyLoadContext since the old one was unloaded
+            assemblyLoadContext = CreateAssemblyLoadContext();
+
+            // Show busy indicator
+            await Dispatcher.InvokeAsync(() => busyMask.IsBusy = true);
+
+            // Reload the plugin
+            await ExecuteSource();
+
+            // Hide busy indicator
+            await Dispatcher.InvokeAsync(() => busyMask.IsBusy = false);
+
+            App.Logger.LogInfo($"\"{PluginMetadata.Name}\" - Plugin reloaded successfully", source: "Plugin");
+        }
+        catch (Exception ex)
+        {
+            App.Logger.LogError($"\"{PluginMetadata.Name}\" - Failed to reload plugin: {ex}", source: "Plugin");
+            
+            await Dispatcher.InvokeAsync(async () =>
+            {
+                Wpf.Ui.Controls.MessageBox messageBox = new Wpf.Ui.Controls.MessageBox
+                {
+                    Title = $"Reload Error \"{PluginMetadata.Name}\"",
+                    Content = $"Failed to reload plugin:\n{ex.Message}",
+                    CloseButtonText = "Ok"
+                };
+                _ = await messageBox.ShowDialogAsync();
+            });
+        }
+        finally
+        {
+            isReloading = false;
+
+            // Re-enable file watcher
+            if (pluginFileWatcher != null && IsRunning)
+            {
+                pluginFileWatcher.EnableRaisingEvents = true;
+            }
+        }
+    }
+
     public void UpdatePluginWindow()
     {
-        Dispatcher.Invoke(ThemeChanged);
         UpdateTimer_Elapsed(updateTimer, null);
+    }
+
+    public void SavePluginState()
+    {
+        if (pluginClassInstance is not null)
+        {
+            SaveState(pluginClassInstance);
+        }
     }
 
     public void Exit()
@@ -150,31 +350,35 @@ public partial class PluginWindow : Window
             bitmapData.Scan0, bitmapData.Stride * bitmapData.Height, bitmapData.Stride);
 
         bitmap.UnlockBits(bitmapData);
+
+        bitmapSource.Freeze();
         return bitmapSource;
     }
 
     private void Window_ContentRendered(object? sender, EventArgs e)
     {
         App.Logger.LogInfo($"\"{PluginMetadata.Name}\" - Starting plugin thread", source: "Plugin");
-        pluginThread = new Thread(LoadPlugin);
+        pluginThread = new Thread(async () => await LoadPlugin());
         pluginThread.Start();
     }
 
-    private void ThemeChanged()
-    {
-        viewBox.Margin = new Thickness(settings.Theme.Margin);
-        border.Background = new SolidColorBrush(MultiColorConverter.ConvertToMediaColor(settings.Theme.BackgroundColor));
-        border.CornerRadius = new CornerRadius(settings.Theme.CornerRadius);
-    }
-
-    private void LoadPlugin()
+    private async Task LoadPlugin()
     {
         App.Logger.LogInfo($"\"{PluginMetadata.Name}\" - Loading plugin", source: "Plugin");
 
         if (pluginClassInstance is null && !File.Exists($"{PluginFolderPath}\\main.dll"))
         {
             App.Logger.LogError($"\"{PluginMetadata.Name}\" - File \"main.dll\" does not exist", source: "Plugin");
-            _ = MessageBox.Show("File \"main.dll\" does not exist!", $"Error \"{PluginMetadata.Name}\"", MessageBoxButton.OK, MessageBoxImage.Error);
+            _ = await Dispatcher.InvokeAsync(async () =>
+            {
+                Wpf.Ui.Controls.MessageBox messageBox = new Wpf.Ui.Controls.MessageBox
+                {
+                    Title = $"Error \"{PluginMetadata.Name}\"",
+                    Content = "File \"main.dll\" does not exist!",
+                    CloseButtonText = "Ok"
+                };
+                _ = await messageBox.ShowDialogAsync();
+            });
 
             Exit();
             return;
@@ -182,31 +386,84 @@ public partial class PluginWindow : Window
 
         try
         {
-            ExecuteSource();
+            await ExecuteSource();
         }
         catch (Exception ex)
         {
             App.Logger.LogError($"\"{PluginMetadata.Name}\" - {ex}", source: "Plugin");
-            _ = MessageBox.Show("File execution error:\n" + ex, $"Error \"{PluginMetadata.Name}\"", MessageBoxButton.OK, MessageBoxImage.Error);
+            _ = await Dispatcher.InvokeAsync(async () =>
+            {
+                Wpf.Ui.Controls.MessageBox messageBox = new Wpf.Ui.Controls.MessageBox
+                {
+                    Title = $"Error \"{PluginMetadata.Name}\"",
+                    Content = "File execution error:\n" + ex,
+                    CloseButtonText = "Ok"
+                };
+                _ = await messageBox.ShowDialogAsync();
+            });
             Exit();
             return;
         }
         PluginLoaded?.Invoke();
+
+        _ = await Dispatcher.InvokeAsync(() => busyMask.IsBusy = false);
+
+        // Enable hot reload after initial load
+        if (pluginFileWatcher != null)
+        {
+            pluginFileWatcher.EnableRaisingEvents = true;
+            App.Logger.LogInfo($"\"{PluginMetadata.Name}\" - Hot reload monitoring started", source: "Plugin");
+        }
     }
 
-    private void ExecuteSource()
+    private void ThemeChanged()
+    {
+        viewBox.Margin = new Thickness(settings.Theme.Margin);
+        border.Background = new SolidColorBrush(MultiColorConverter.ConvertToMediaColor(settings.Theme.BackgroundColor));
+        border.CornerRadius = new CornerRadius(settings.Theme.CornerRadius);
+
+        pluginClassInstance?.OnThemeChanged();
+
+        if (pluginClassInstance?.UpdateInterval is 0 or > 500)
+        {
+            pluginClassInstance.Application.UpdateWindow();
+        }
+    }
+
+    private async Task ExecuteSource()
     {
         object? instance = pluginClassInstance;
         if (instance is null)
         {
-            Assembly dll = Assembly.LoadFrom($"{PluginFolderPath}\\main.dll");
+            Assembly dll;
+
+            if (PluginMetadata.SupportsUnloading)
+            {
+                byte[] assemblyData = await File.ReadAllBytesAsync($"{PluginFolderPath}\\main.dll");
+                using MemoryStream assemblyStream = new(assemblyData);
+
+                dll = assemblyLoadContext.LoadFromStream(assemblyStream);
+            }
+            else
+            {
+                dll = Assembly.LoadFrom($"{PluginFolderPath}\\main.dll");
+            }
+
             Type? instanceType = Array.Find(dll.GetTypes(), type => type.GetTypeInfo().BaseType == typeof(Plugin));
 
             if (instanceType is null)
             {
                 App.Logger.LogError($"\"{PluginMetadata.Name}\" - The \"Plugin\" class could not be found! It has to inherit from \"{typeof(Plugin).FullName}\"", source: "Plugin");
-                _ = MessageBox.Show($"The \"Plugin\" class could not be found! It has to inherit from \"{typeof(Plugin).FullName}\"", $"Error \"{PluginMetadata.Name}\"", MessageBoxButton.OK, MessageBoxImage.Error);
-
+                _ = await Dispatcher.InvokeAsync(async () =>
+                {
+                    Wpf.Ui.Controls.MessageBox messageBox = new Wpf.Ui.Controls.MessageBox
+                    {
+                        Title = $"Error \"{PluginMetadata.Name}\"",
+                        Content = $"The \"Plugin\" class could not be found! It has to inherit from \"{typeof(Plugin).FullName}\"",
+                        CloseButtonText = "Ok"
+                    };
+                    _ = await messageBox.ShowDialogAsync();
+                });
                 Exit();
                 return;
             }
@@ -216,17 +473,27 @@ public partial class PluginWindow : Window
         if (instance is Plugin plugin)
         {
             pluginClassInstance = plugin;
-            pluginClassInstance.Application = new Plugins.PluginData(this, settings);
+            pluginClassInstance.Application = new PluginData(this, settings);
         }
         else
         {
             App.Logger.LogError($"\"{PluginMetadata.Name}\" - The \"Plugin\" class could not be found! It has to inherit from \"{typeof(Plugin).FullName}\"", source: "Plugin");
-            _ = MessageBox.Show($"The \"Plugin\" class has to inherit from \"{typeof(Plugin).FullName}\"", $"Error \"{PluginMetadata.Name}\"", MessageBoxButton.OK, MessageBoxImage.Error);
+            _ = await Dispatcher.InvokeAsync(async () =>
+            {
+                Wpf.Ui.Controls.MessageBox messageBox = new Wpf.Ui.Controls.MessageBox
+                {
+                    Title = $"Error \"{PluginMetadata.Name}\"",
+                    Content = $"The \"Plugin\" class has to inherit from \"{typeof(Plugin).FullName}\"",
+                    CloseButtonText = "Ok"
+                };
+                _ = await messageBox.ShowDialogAsync();
+            });
             Exit();
             return;
         }
 
-        LoadOptions(pluginClassInstance);
+        LoadState(pluginClassInstance);
+        await LoadOptions(pluginClassInstance);
         BindDefaultSettings(pluginClassInstance);
 
         updateTimer = new System.Timers.Timer
@@ -236,7 +503,14 @@ public partial class PluginWindow : Window
         updateTimer.Elapsed += UpdateTimer_Elapsed;
 
         pluginClassInstance.Start();
+        if (pluginClassInstance is AsyncPlugin asyncPluginStart)
+        {
+            pluginCancellationTokenSource?.Dispose();
+            pluginCancellationTokenSource = new CancellationTokenSource();
+            await asyncPluginStart.StartAsync(pluginCancellationTokenSource.Token);
+        }
         UpdatePluginWindow();
+        await Dispatcher.InvokeAsync(ThemeChanged);
 
         if (pluginClassInstance.UpdateInterval > 0)
         {
@@ -316,16 +590,13 @@ public partial class PluginWindow : Window
         }
     }
 
-    private void LoadOptions(object instance)
+    private async Task LoadOptions(object instance)
     {
         App.Logger.LogInfo($"\"{PluginMetadata.Name}\" - Loading plugin options", source: "Plugin");
 
         try
         {
-#pragma warning disable S3011 // Reflection should not be used to increase accessibility of classes, methods, or fields
             FieldInfo[] props = instance.GetType().GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.GetField);
-#pragma warning restore S3011 // Reflection should not be used to increase accessibility of classes, methods, or fields
-
             List<SettingElement> settingElements = [];
             foreach (FieldInfo prop in props)
             {
@@ -344,6 +615,16 @@ public partial class PluginWindow : Window
                                 settingElement.JsonValue = settingsSettingElement.JsonValue;
                             }
 
+                            element.OnValueChanged += () =>
+                            {
+                                pluginClassInstance?.OnSettingsChanged();
+
+                                if (pluginClassInstance?.UpdateInterval is 0 or > 500)
+                                {
+                                    pluginClassInstance.Application.UpdateWindow();
+                                }
+                            };
+
                             settingElements.Add(settingElement);
                             break;
                         }
@@ -357,18 +638,167 @@ public partial class PluginWindow : Window
         {
             IsRunning = false;
             App.Logger.LogError($"\"{PluginMetadata.Name}\" - {ex}", source: "Plugin");
-            _ = MessageBox.Show("File execution error:\n" + ex, $"Error \"{PluginMetadata.Name}\"", MessageBoxButton.OK, MessageBoxImage.Error);
+            _ = await Dispatcher.InvokeAsync(async () =>
+            {
+                Wpf.Ui.Controls.MessageBox messageBox = new Wpf.Ui.Controls.MessageBox
+                {
+                    Title = $"Error \"{PluginMetadata.Name}\"",
+                    Content = "File execution error:\n" + ex,
+                    CloseButtonText = "Ok"
+                };
+                _ = await messageBox.ShowDialogAsync();
+            });
             Exit();
         }
     }
 
-    private void UpdateTimer_Elapsed(object? sender, ElapsedEventArgs? e)
+    private void LoadState(object instance)
+    {
+        App.Logger.LogInfo($"\"{PluginMetadata.Name}\" - Loading plugin state", source: "Plugin");
+
+        try
+        {
+            if (settings.State.Count == 0)
+            {
+                App.Logger.LogInfo($"\"{PluginMetadata.Name}\" - No state found, using defaults", source: "Plugin");
+                return;
+            }
+
+            FieldInfo[] fields = instance.GetType().GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+            PropertyInfo[] properties = instance.GetType().GetProperties(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+
+            // Load fields
+            foreach (FieldInfo field in fields)
+            {
+                PersistStateAttribute? persistAttribute = field.GetCustomAttribute<PersistStateAttribute>();
+                if (persistAttribute is null)
+                {
+                    continue;
+                }
+
+                if (settings.State.TryGetValue(field.Name, out JsonElement jsonElement))
+                {
+                    try
+                    {
+                        object? value = jsonElement.Deserialize(field.FieldType);
+                        field.SetValue(instance, value);
+                        App.Logger.LogInfo($"\"{PluginMetadata.Name}\" - Restored state field: {field.Name}", source: "Plugin");
+                    }
+                    catch (Exception ex)
+                    {
+                        App.Logger.LogWarn($"\"{PluginMetadata.Name}\" - Failed to restore field {field.Name}: {ex.Message}", source: "Plugin");
+                    }
+                }
+            }
+
+            // Load properties
+            foreach (PropertyInfo property in properties)
+            {
+                PersistStateAttribute? persistAttribute = property.GetCustomAttribute<PersistStateAttribute>();
+                if (persistAttribute is null || !property.CanWrite)
+                {
+                    continue;
+                }
+
+                if (settings.State.TryGetValue(property.Name, out JsonElement jsonElement))
+                {
+                    try
+                    {
+                        object? value = jsonElement.Deserialize(property.PropertyType);
+                        property.SetValue(instance, value);
+                        App.Logger.LogInfo($"\"{PluginMetadata.Name}\" - Restored state property: {property.Name}", source: "Plugin");
+                    }
+                    catch (Exception ex)
+                    {
+                        App.Logger.LogWarn($"\"{PluginMetadata.Name}\" - Failed to restore property {property.Name}: {ex.Message}", source: "Plugin");
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            App.Logger.LogError($"\"{PluginMetadata.Name}\" - Error loading state: {ex.Message}", source: "Plugin");
+        }
+    }
+
+    private void SaveState(object instance)
+    {
+        App.Logger.LogInfo($"\"{PluginMetadata.Name}\" - Saving plugin state", source: "Plugin");
+
+        try
+        {
+            FieldInfo[] fields = instance.GetType().GetFields(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+            PropertyInfo[] properties = instance.GetType().GetProperties(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public);
+
+            // Save fields
+            foreach (FieldInfo field in fields)
+            {
+                PersistStateAttribute? persistAttribute = field.GetCustomAttribute<PersistStateAttribute>();
+                if (persistAttribute is null)
+                {
+                    continue;
+                }
+
+                try
+                {
+                    object? value = field.GetValue(instance);
+                    JsonElement jsonElement = JsonSerializer.SerializeToElement(value, field.FieldType);
+                    settings.State[field.Name] = jsonElement;
+                    App.Logger.LogInfo($"\"{PluginMetadata.Name}\" - Saved state field: {field.Name}", source: "Plugin");
+                }
+                catch (Exception ex)
+                {
+                    App.Logger.LogWarn($"\"{PluginMetadata.Name}\" - Failed to save field {field.Name}: {ex.Message}", source: "Plugin");
+                }
+            }
+
+            // Save properties
+            foreach (PropertyInfo property in properties)
+            {
+                PersistStateAttribute? persistAttribute = property.GetCustomAttribute<PersistStateAttribute>();
+                if (persistAttribute is null || !property.CanRead)
+                {
+                    continue;
+                }
+
+                try
+                {
+                    object? value = property.GetValue(instance);
+                    JsonElement jsonElement = JsonSerializer.SerializeToElement(value, property.PropertyType);
+                    settings.State[property.Name] = jsonElement;
+                    App.Logger.LogInfo($"\"{PluginMetadata.Name}\" - Saved state property: {property.Name}", source: "Plugin");
+                }
+                catch (Exception ex)
+                {
+                    App.Logger.LogWarn($"\"{PluginMetadata.Name}\" - Failed to save property {property.Name}: {ex.Message}", source: "Plugin");
+                }
+            }
+
+            App.Logger.LogInfo($"\"{PluginMetadata.Name}\" - State saved successfully ({settings.State.Count} items)", source: "Plugin");
+        }
+        catch (Exception ex)
+        {
+            App.Logger.LogError($"\"{PluginMetadata.Name}\" - Error saving state: {ex.Message}", source: "Plugin");
+        }
+    }
+
+    private async void UpdateTimer_Elapsed(object? sender, ElapsedEventArgs? e)
     {
         try
         {
             if (IsRunning && pluginClassInstance is not null)
             {
-                Bitmap? result = pluginClassInstance.Main();
+                Bitmap? result;
+
+                if (pluginClassInstance is AsyncPlugin asyncPlugin)
+                {
+                    CancellationToken token = pluginCancellationTokenSource?.Token ?? CancellationToken.None;
+                    result = await asyncPlugin.MainAsync(token);
+                }
+                else
+                {
+                    result = pluginClassInstance.Main();
+                }
 
                 if (pluginClassInstance.UpdateInterval > 0)
                 {
@@ -389,11 +819,13 @@ public partial class PluginWindow : Window
                         _ => BitmapScalingMode.Unspecified
                     };
 
-                    //Update Image
-                    Dispatcher.Invoke(() =>
+                    // Update Image
+                    BitmapSource frozenSource = BitmapToImageSource(result);
+
+                    _ = Dispatcher.BeginInvoke(() =>
                     {
                         RenderOptions.SetBitmapScalingMode(image, renderOptions);
-                        image.Source = BitmapToImageSource(result);
+                        image.Source = frozenSource;
                     });
                 }
             }
@@ -402,7 +834,16 @@ public partial class PluginWindow : Window
         {
             IsRunning = false;
             App.Logger.LogError($"\"{PluginMetadata.Name}\" - {ex}", source: "Plugin");
-            _ = MessageBox.Show("File execution error:\n" + ex, $"Error \"{PluginMetadata.Name}\"", MessageBoxButton.OK, MessageBoxImage.Error);
+            _ = await Dispatcher.InvokeAsync(async () =>
+            {
+                Wpf.Ui.Controls.MessageBox messageBox = new Wpf.Ui.Controls.MessageBox
+                {
+                    Title = $"Error \"{PluginMetadata.Name}\"",
+                    Content = "File execution error:\n" + ex,
+                    CloseButtonText = "Ok"
+                };
+                _ = await messageBox.ShowDialogAsync();
+            });
             Exit();
             return;
         }
@@ -426,9 +867,23 @@ public partial class PluginWindow : Window
 
     private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
     {
-        App.Logger.LogInfo($"\"{PluginMetadata.Name}\" - Stopping plugin", source: "Plugin");
         IsRunning = false;
-        pluginClassInstance?.Stop();
+
+        // Cleanup hot reload resources
+        if (pluginFileWatcher != null)
+        {
+            pluginFileWatcher.EnableRaisingEvents = false;
+            pluginFileWatcher.Changed -= OnPluginFileChanged;
+            pluginFileWatcher.Dispose();
+            pluginFileWatcher = null;
+        }
+
+        reloadDebounceTimer?.Stop();
+        reloadDebounceTimer?.Dispose();
+        reloadDebounceTimer = null;
+
+        // Stop plugin using the shared method (no need to await in synchronous event handler)
+        _ = StopPlugin(unloadAssembly: true);
     }
 
     #region Window Events

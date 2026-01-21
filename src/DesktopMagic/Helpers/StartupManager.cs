@@ -3,7 +3,6 @@
 using System;
 using System.IO;
 using System.Reflection;
-using System.Windows;
 
 namespace DesktopMagic.Helpers;
 
@@ -67,16 +66,24 @@ public static class StartupManager
         }
     }
 
-    public static void ToggleAutoStart()
+    public static async void ToggleAutoStart()
     {
         AutoStartStatus status = IsAutoStartEnabled() ? DisableAutoStart() : EnableAutoStart();
 
-        _ = status switch
+        string message = status switch
         {
-            AutoStartStatus.Success => MessageBox.Show("Auto-start setting changed successfully."),
-            AutoStartStatus.AlreadyEnabled => MessageBox.Show("Auto-start is already enabled."),
-            AutoStartStatus.AlreadyDisabled => MessageBox.Show("Auto-start is already disabled."),
-            _ => MessageBox.Show("Failed to change auto-start setting."),
+            AutoStartStatus.Success => "Auto-start setting changed successfully.",
+            AutoStartStatus.AlreadyEnabled => "Auto-start is already enabled.",
+            AutoStartStatus.AlreadyDisabled => "Auto-start is already disabled.",
+            _ => "Failed to change auto-start setting.",
         };
+
+        Wpf.Ui.Controls.MessageBox messageBox = new Wpf.Ui.Controls.MessageBox
+        {
+            Title = App.AppName,
+            Content = message,
+            CloseButtonText = "Ok"
+        };
+        _ = await messageBox.ShowDialogAsync();
     }
 }

@@ -36,4 +36,27 @@ public interface IPluginData
     /// Updates the plugin window.
     /// </summary>
     void UpdateWindow();
+
+    /// <summary>
+    /// Logs a message to the application log.
+    /// </summary>
+    /// <param name="message">The message to log.</param>
+    /// <param name="level">The log level (Info, Warning, Error).</param>
+    void Log(string message, LogLevel level = LogLevel.Info);
+
+    /// <summary>
+    /// Shows a message box to the user.
+    /// </summary>
+    /// <param name="message">The message to display.</param>
+    /// <param name="title">The title of the message box.</param>
+    void ShowMessage(string message, string? title = null);
+
+    /// <summary>
+    /// Saves the current state of fields and properties marked with <see cref="PersistStateAttribute"/>
+    /// </summary>
+    /// <remarks>
+    /// State is automatically saved when the plugin stops, but this method can be called
+    /// to save state at any time, such as after important user interactions.
+    /// </remarks>
+    void SaveState();
 }

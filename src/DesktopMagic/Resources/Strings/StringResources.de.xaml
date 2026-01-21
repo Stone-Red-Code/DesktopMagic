@@ -3,6 +3,9 @@
                     xmlns:col="clr-namespace:System.Collections;assembly=mscorlib"
                     xmlns:system="clr-namespace:System;assembly=mscorlib">
 
+    <system:String x:Key="developedBy">Entwickelt von Stone_Red</system:String>
+    <system:String x:Key="reportBug">Bug Melden</system:String>
+    <system:String x:Key="requestFeature">Feature Anfragen</system:String>
     <system:String x:Key="lineMode">Linie</system:String>
     <system:String x:Key="mirrorMode">Spiegeln</system:String>
     <system:String x:Key="folder">Ordner</system:String>
@@ -15,13 +18,15 @@
     <system:String x:Key="enterModIoEmail">Mod.io Account E-Mail eingeben</system:String>
     <system:String x:Key="enterModIoAccessToken">Geben Sie Ihren mod.io Sicherheitscode ein</system:String>
     <system:String x:Key="toggleEditMode">Bearbeitungsmodus umschalten</system:String>
-    <system:String x:Key="allPlugins">Alle Plugins</system:String>
-    <system:String x:Key="installedPlugins">Installierte Plugins</system:String>
-    <system:String x:Key="updatePlugins">Neu Laden</system:String>
+    <system:String x:Key="searchAllPlugins">Alle Plugins Suchen...</system:String>
+    <system:String x:Key="searchInstalledPlugins">Installierte Plugins Suchen...</system:String>
+    <system:String x:Key="reloadPlugins">Plugins Neu Laden</system:String>
     <system:String x:Key="pluginsFolder">Plugins Ordner</system:String>
     <system:String x:Key="pluginManager">Plugins Manager</system:String>
     <system:String x:Key="createNewPlugin">Neues Plugin erstellen</system:String>
     <system:String x:Key="enterPluginName">Pluginnamen eingeben</system:String>
+    <system:String x:Key="plugins">Plugins</system:String>
+    <system:String x:Key="enablePluginToConfigure">Aktivieren Sie das Plugin, um seine Einstellungen zu konfigurieren.</system:String>
     <system:String x:Key="color">Farbe:</system:String>
     <system:String x:Key="default">Standard</system:String>
     <system:String x:Key="wantToCloseProgram">Wollen sie das Programm wirklich schließen?</system:String>
@@ -31,14 +36,18 @@
     <system:String x:Key="date">Datum</system:String>
     <system:String x:Key="cpuUsage">CPU Auslastung</system:String>
     <system:String x:Key="musicVisualizer">Musik Visualisierer</system:String>
+    <system:String x:Key="weather">Wetter</system:String>
     <system:String x:Key="amplifier">Signalverstärkung:</system:String>
     <system:String x:Key="newLayout">Neues Layout</system:String>
     <system:String x:Key="deleteLayout">Layout Löschen</system:String>
     <system:String x:Key="newTheme">Neues Theme</system:String>
     <system:String x:Key="deleteTheme">Theme Löschen</system:String>
-    <system:String x:Key="changeTheme">Theme Ändern</system:String>
+    <system:String x:Key="editTheme">Theme Bearbeiten</system:String>
+    <system:String x:Key="themes">Themes</system:String>
     <system:String x:Key="ok">Ok</system:String>
     <system:String x:Key="cancel">Abbrechen</system:String>
+    <system:String x:Key="confirmDeleteLayout">Möchten Sie dieses Layout wirklich löschen?</system:String>
+    <system:String x:Key="confirmDeleteTheme">Möchten Sie dieses Theme wirklich löschen?</system:String>
     <system:String x:Key="enterLayoutName">Layoutnamen eingeben:</system:String>
     <system:String x:Key="layoutAlreadyExists">Layout existiert bereits!</system:String>
     <system:String x:Key="enterThemeName">Themenamen eingeben:</system:String>

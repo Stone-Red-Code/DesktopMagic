@@ -13,26 +13,23 @@ internal class TimePlugin : Plugin
     private readonly CheckBox displaySecondsCheckBox = new CheckBox(true);
 
     private string oldTime = string.Empty;
-    private Color oldColor = Color.White;
-    private string oldFont = string.Empty;
-    private bool oldDisplaySecondsCheckBoxValue;
+    private bool themeChanged;
+
     public override int UpdateInterval => 1000;
 
     public override Bitmap? Main()
     {
         string time = displaySecondsCheckBox.Value ? DateTime.Now.ToLongTimeString() : DateTime.Now.ToShortTimeString();
 
-        if (oldTime == time && oldColor == Application.Theme.PrimaryColor && oldFont == Application.Theme.Font && oldDisplaySecondsCheckBoxValue == displaySecondsCheckBox.Value)
+        if (oldTime == time && !themeChanged)
         {
             return null;
         }
 
         oldTime = time;
-        oldColor = Application.Theme.PrimaryColor;
-        oldFont = Application.Theme.Font;
-        oldDisplaySecondsCheckBoxValue = displaySecondsCheckBox.Value;
+        themeChanged = false;
 
-        Font font = new Font(Application.Theme.Font, 200);
+        using Font font = new Font(Application.Theme.Font, 200);
 
         Bitmap bmp = new Bitmap(1, 1);
         bmp.SetResolution(100, 100);
@@ -45,10 +42,21 @@ internal class TimePlugin : Plugin
         bmp.SetResolution(100, 100);
 
         using Graphics gr = Graphics.FromImage(bmp);
+        using SolidBrush brush = new SolidBrush(Application.Theme.PrimaryColor);
 
         gr.TextRenderingHint = TextRenderingHint.AntiAlias;
-        gr.DrawString(time, font, new SolidBrush(Application.Theme.PrimaryColor), 0, 0);
+        gr.DrawString(time, font, brush, 0, 0);
 
         return bmp;
+    }
+
+    public override void OnThemeChanged()
+    {
+        themeChanged = true;
+    }
+
+    public override void OnSettingsChanged()
+    {
+        themeChanged = true;
     }
 }

@@ -4,12 +4,14 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 
+using Wpf.Ui.Controls;
+
 namespace DesktopMagic.Dialogs;
 
 /// <summary>
 /// Interaction logic for ColorDialog.xaml
 /// </summary>
-public partial class ColorDialog : Window
+public partial class ColorDialog : FluentWindow
 {
     public System.Drawing.Color ResultColor { get; private set; }
 
@@ -86,8 +88,8 @@ public partial class ColorDialog : Window
 
             ResultBrush = brush;
             ResultColor = systemColor;
-            colorRechtangle.Fill = brush;
-            colorHexTextBox.Foreground = Brushes.Black;
+            colorRechtangle.Background = brush;
+            colorHexTextBox.Foreground = FindResource("TextFillColorPrimaryBrush") as Brush;
         }
         else
         {

@@ -1,25 +1,21 @@
-﻿<Window x:Class="DesktopMagic.Plugins.PluginManager"
+﻿<Page x:Class="DesktopMagic.Plugins.PluginManager"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
         xmlns:busyIndicator="https://github.com/moh3ngolshani/BusyIndicator"
         xmlns:local="clr-namespace:DesktopMagic.Plugins"
         xmlns:dataContexts="clr-namespace:DesktopMagic.DataContexts"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance Type=dataContexts:PluginManagerDataContext}"
-        Title="{DynamicResource pluginManager}"
-        Height="450"
-        Width="800"
-        MinHeight="520"
-        MinWidth="700"
-        WindowStyle="ToolWindow"
-        Background="{DynamicResource MaterialDesignPaper}"
-        FontFamily="{DynamicResource MaterialDesignFont}">
+        d:DesignHeight="450"
+        d:DesignWidth="800"
+        ScrollViewer.CanContentScroll="False"
+        Title="{DynamicResource pluginManager}">
 
-    <busyIndicator:BusyMask x:Name="BusyIndicator" IsBusy="{Binding IsLoading}"  IndicatorType="Cogs"  BusyContent="Please wait..."  BusyContentMargin="0,20,0,0"  IsBusyAtStartup="False">
-        <Grid Margin="5">
+    <busyIndicator:BusyMask x:Name="BusyIndicator" IsBusy="{Binding IsLoading}" IndicatorType="Cogs" BusyContent="Please wait..." BusyContentMargin="0,20,0,0" IsBusyAtStartup="False" Foreground="{DynamicResource TextFillColorPrimaryBrush}" Background="{DynamicResource ControlStrokeColorDefaultBrush}">
+        <Grid Margin="{StaticResource DefaultMargin}">
             <Grid.RowDefinitions>
                 <RowDefinition Height="auto" />
                 <RowDefinition Height="auto" />
@@ -28,21 +24,29 @@
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition />
+                <ColumnDefinition Width="5" />
                 <ColumnDefinition />
             </Grid.ColumnDefinitions>
 
-            <Label Content="{DynamicResource allPlugins}" FontSize="20" />
+            <ui:Card Grid.ColumnSpan="3" Padding="5" Margin="0 0 0 5">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition />
+                        <ColumnDefinition Width="10" />
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
 
-            <TextBox Grid.Row="1" Text="{Binding AllPluginsSearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TextChanged="AllPluginsSearchTextBox_TextChanged" materialDesign:HintAssist.Hint="Search..." materialDesign:TextFieldAssist.HasLeadingIcon="True"  materialDesign:TextFieldAssist.LeadingIcon="Search" />
+                    <ui:TextBox Grid.Column="0" Text="{Binding AllPluginsSearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TextChanged="AllPluginsSearchTextBox_TextChanged" PlaceholderText="{DynamicResource searchAllPlugins}" />
+                    <ui:TextBox Grid.Column="2" Text="{Binding InstalledPluginsSearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TextChanged="InstalledPluginsSearchTextBox_TextChanged" PlaceholderText="{DynamicResource searchInstalledPlugins}" />
+                </Grid>
+            </ui:Card>
 
-            <busyIndicator:BusyMask Grid.Row="2" IsBusy="{Binding IsSearching}" IndicatorType="Ring"  BusyContent="Searching..."  BusyContentMargin="0,50,0,0"  IsBusyAtStartup="False">
-                <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <busyIndicator:BusyMask Grid.Row="2" IsBusy="{Binding IsSearching}" IndicatorType="Ring" BusyContent="Searching..." BusyContentMargin="0,50,0,0" IsBusyAtStartup="False" Foreground="{DynamicResource TextFillColorPrimaryBrush}" Background="{DynamicResource ControlStrokeColorDefaultBrush}">
+                <ScrollViewer VerticalScrollBarVisibility="Auto" VerticalAlignment="Stretch" Padding="0" VerticalContentAlignment="Top" Margin="0 0 2.5 0">
                     <ItemsControl ItemsSource="{Binding AllPlugins}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <Border BorderBrush="LightGray" BorderThickness="1">
-                                    <local:ModEntry />
-                                </Border>
+                                <local:ModEntry Margin="0 0 0 5" />
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                         <ItemsControl.Style>
@@ -64,17 +68,11 @@
                 </ScrollViewer>
             </busyIndicator:BusyMask>
 
-            <Label Grid.Column="1" Content="{DynamicResource installedPlugins}" FontSize="20" />
-
-            <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding InstalledPluginsSearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TextChanged="InstalledPluginsSearchTextBox_TextChanged" materialDesign:HintAssist.Hint="Search..." materialDesign:TextFieldAssist.HasLeadingIcon="True"  materialDesign:TextFieldAssist.LeadingIcon="Search" />
-
-            <ScrollViewer Grid.Row="2" Grid.Column="1" VerticalScrollBarVisibility="Auto">
-                <ItemsControl  ItemsSource="{Binding InstalledPlugins}">
+            <ScrollViewer VerticalScrollBarVisibility="Auto" Grid.Row="2" Grid.Column="2" VerticalAlignment="Stretch" Padding="0" VerticalContentAlignment="Top">
+                <ItemsControl  ItemsSource="{Binding InstalledPlugins}" Margin="2.5 0 0 0">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <Border BorderBrush="LightGray" BorderThickness="1">
-                                <local:ModEntry />
-                            </Border>
+                            <local:ModEntry Margin="0 0 0 5"/>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                     <ItemsControl.Style>
@@ -95,23 +93,39 @@
                 </ItemsControl>
             </ScrollViewer>
 
-            <Border Grid.Row="3" Grid.ColumnSpan="2" Padding="0 5 0 0" BorderThickness="0 2 0 0" BorderBrush="DarkGray">
-                <DockPanel>
-                    <Image Source="{StaticResource ModioLogoBlueDark}" Cursor="Hand" Height="30" MouseUp="Image_MouseUp" HorizontalAlignment="Left" />
-                    <Button DockPanel.Dock="Right" HorizontalAlignment="Right" Click="LogInButton_Click">
+            <ui:Card Grid.Row="3" Grid.ColumnSpan="3" Padding="5" Margin="0 5 0 0">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="15" />
+                        <ColumnDefinition Width="1.05*" />
+                        <ColumnDefinition Width="5.5" />
+                        <ColumnDefinition Width="1.05*" />
+                        <ColumnDefinition Width="5" />
+                        <ColumnDefinition Width="1.05*" />
+                    </Grid.ColumnDefinitions>
+
+                    <Image Source="{Binding ModIoIcon}" Cursor="Hand" Height="30" MouseUp="Image_MouseUp" HorizontalAlignment="Left" />
+                    <Button Grid.Column="2" HorizontalAlignment="Stretch" Click="CreatePluginButton_Click">
                         <StackPanel Orientation="Horizontal">
-                            <materialDesign:PackIcon Kind="Login" Margin="0 0 10 0" />
-                            <TextBlock Text="{Binding LoginButtonText}" />
-                        </StackPanel>
-                    </Button>
-                    <Button DockPanel.Dock="Right" HorizontalAlignment="Right" Margin="0 0 10 0" Click="CreatePluginButton_Click">
-                        <StackPanel Orientation="Horizontal">
-                            <materialDesign:PackIcon Kind="Add" Margin="0 0 10 0" />
+                            <ui:SymbolIcon Symbol="Add24" Margin="0 0 10 0" />
                             <TextBlock Text="{DynamicResource createNewPlugin}" />
                         </StackPanel>
                     </Button>
-                </DockPanel>
-            </Border>
+                    <Button Grid.Column="4" HorizontalAlignment="Stretch" Click="ReloadPluginsButton_Click">
+                        <StackPanel Orientation="Horizontal">
+                            <ui:SymbolIcon Symbol="ArrowClockwise24" Margin="0 0 10 0" />
+                            <TextBlock Text="{DynamicResource reloadPlugins}" />
+                        </StackPanel>
+                    </Button>
+                    <Button Grid.Column="6" HorizontalAlignment="Stretch" Click="LogInButton_Click">
+                        <StackPanel Orientation="Horizontal">
+                            <ui:SymbolIcon Symbol="PersonKey20" Margin="0 0 10 0" />
+                            <TextBlock Text="{Binding LoginButtonText}" />
+                        </StackPanel>
+                    </Button>
+                </Grid>
+            </ui:Card>
         </Grid>
     </busyIndicator:BusyMask>
-</Window>
+</Page>

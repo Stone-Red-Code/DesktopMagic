@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Windows;
 
@@ -16,13 +17,14 @@ public class PluginSettings : INotifyPropertyChanged
 
     private string? currentThemeName;
     private List<SettingElement> settings = [];
+    private Dictionary<string, JsonElement> state = [];
     private bool enabled = false;
     private Point position = new Point(100, 100);
     private Point size = new Point(300, 300);
 
     // Only for internal use to show the name of the plugin in the main window
     [JsonIgnore]
-    public string Name { get; set; } = string.Empty;
+    public PluginMetadata Metadata { get; set; } = new();
 
     [JsonIgnore]
     public Theme Theme
@@ -56,6 +58,23 @@ public class PluginSettings : INotifyPropertyChanged
             if (settings != value)
             {
                 settings = value;
+                OnPropertyChanged();
+            }
+        }
+    }
+
+    /// <summary>
+    /// Dictionary storing plugin state. Key is the field/property name, value is the JsonElement.
+    /// This is persisted per layout in settings.json.
+    /// </summary>
+    public Dictionary<string, JsonElement> State
+    {
+        get => state;
+        set
+        {
+            if (state != value)
+            {
+                state = value;
                 OnPropertyChanged();
             }
         }

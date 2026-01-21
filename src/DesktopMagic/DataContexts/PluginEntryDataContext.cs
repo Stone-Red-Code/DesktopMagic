@@ -1,18 +1,17 @@
 ﻿using DesktopMagic.Helpers;
 using DesktopMagic.Plugins;
 
-using MaterialDesignThemes.Wpf;
-
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.IO;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Input;
 
 namespace DesktopMagic.DataContexts;
 
-internal class PluginEntryDataContext(PluginMetadata pluginMetadata, ICommand command, PluginEntryDataContext.Mode mode, string? path = null) : INotifyPropertyChanged
+internal class PluginEntryDataContext(PluginMetadata pluginMetadata, ICommand command, PluginEntryDataContext.Mode mode, string? path = null, string? csprojPath = null) : INotifyPropertyChanged
 {
     public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -20,7 +19,7 @@ internal class PluginEntryDataContext(PluginMetadata pluginMetadata, ICommand co
 
     public string Name => pluginMetadata.Name;
 
-    public string? Description => pluginMetadata.Description;
+    public string? Description => pluginMetadata.Description?.Trim();
 
     public string Author => pluginMetadata.Author ?? (string)App.LanguageDictionary["unknown"];
 
@@ -35,22 +34,27 @@ internal class PluginEntryDataContext(PluginMetadata pluginMetadata, ICommand co
 
     public string? Path => path;
 
-    public bool IsLocalPlugin => string.IsNullOrWhiteSpace(pluginMetadata.ProfileUri?.ToString());
+    public bool IsLocalPlugin => pluginMetadata.IsLocalPlugin;
+
     public ICommand Command => command;
 
-    public ButtonData InstallUninstallButtonData => new(mode == Mode.Install ? PackIconKind.Download : PackIconKind.Remove, GetInstallUninstallButtonText(), true, Command);
+    public ButtonData InstallUninstallButtonData => new(mode == Mode.Install ? "Download24" : "Delete24", GetInstallUninstallButtonText(), true, Command);
 
     public ButtonData OpenButtonData
     {
         get
         {
-            if (string.IsNullOrWhiteSpace(pluginMetadata.ProfileUri?.ToString()))
+            if (File.Exists(csprojPath))
             {
-                return new(PackIconKind.FolderOutline, (string)App.LanguageDictionary["folder"], path is not null, new CommandHandler(() => Process.Start("explorer.exe", path!)));
+                return new("Code24", "IDE", true, new CommandHandler(OpenCsprojInIDE));
+            }
+            else if (string.IsNullOrWhiteSpace(pluginMetadata.ProfileUri?.ToString()))
+            {
+                return new("Folder24", (string)App.LanguageDictionary["folder"], path is not null, new CommandHandler(() => Process.Start("explorer.exe", path!)));
             }
             else
             {
-                return new(PackIconKind.ExternalLink, "mod.io", true, new CommandHandler(OpenModIoPage));
+                return new("Open24", "mod.io", true, new CommandHandler(OpenModIoPage));
             }
         }
     }
@@ -79,6 +83,34 @@ internal class PluginEntryDataContext(PluginMetadata pluginMetadata, ICommand co
         _ = Process.Start(psi);
     }
 
+    private void OpenCsprojInIDE()
+    {
+        string? associatedProgram = FileUtilities.GetAssociatedProgram(".csproj");
+        string pluginProjectPath = System.IO.Path.GetDirectoryName(csprojPath)!;
+
+        if (string.IsNullOrWhiteSpace(pluginProjectPath))
+        {
+            App.Logger.LogError("Could not determine plugin project directory.", source: "PluginManager");
+            return;
+        }
+
+        if (associatedProgram is null)
+        {
+            App.Logger.LogInfo($"Opening plugin project in Explorer: {pluginProjectPath}", source: "PluginManager");
+            _ = Process.Start("explorer.exe", pluginProjectPath);
+            return;
+        }
+
+        App.Logger.LogInfo($"Opening plugin project in IDE: {associatedProgram}", source: "PluginManager");
+        ProcessStartInfo psi = new ProcessStartInfo
+        {
+            FileName = associatedProgram,
+            Arguments = csprojPath,
+        };
+
+        _ = Process.Start(psi);
+    }
+
     private string GetInstallUninstallButtonText()
     {
         return mode switch
@@ -94,7 +126,7 @@ internal class PluginEntryDataContext(PluginMetadata pluginMetadata, ICommand co
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 
-    public record ButtonData(PackIconKind IconKind, string Text, bool IsEnabled, ICommand Command);
+    public record ButtonData(string Icon, string Text, bool IsEnabled, ICommand Command);
 
     public enum Mode
     {

@@ -7,8 +7,14 @@ using System.Drawing;
 namespace DesktopMagic.Api;
 
 /// <summary>
-/// The plugin class.
+/// Provides an abstract base class for creating plugins that can be integrated into the application, supporting periodic updates,
+/// rendering, and user interaction.
 /// </summary>
+/// <remarks>Derive from this class to implement custom plugin functionality. The class defines lifecycle methods
+/// such as <see cref="Start"/>, <see cref="Stop"/>, and <see cref="Main"/> for activation, deactivation, and periodic
+/// execution. It also provides event handlers for mouse and theme interactions, as well as access to application data
+/// and rendering configuration. Implementations should override relevant methods to respond to user input, update
+/// intervals, and configuration changes as needed.</remarks>
 public abstract class Plugin
 {
     [Setting("desktopmagic-horizontal-alignment", "Horizontal Alignment", -999)]
@@ -84,6 +90,20 @@ public abstract class Plugin
     /// <param name="position">The x- and y-coordinates of the mouse pointer position relative to the plugin window.</param>
     /// <param name="delta">A value that indicates the amount that the mouse wheel has changed.</param>
     public virtual void OnMouseWheel(Point position, int delta)
+    {
+    }
+
+    /// <summary>
+    /// Occurs when the application's theme has changed.
+    /// </summary>
+    public virtual void OnThemeChanged()
+    {
+    }
+
+    /// <summary>
+    /// Invoked when the settings have changed to allow derived classes to respond to configuration updates.
+    /// </summary>
+    public virtual void OnSettingsChanged()
     {
     }
 }
