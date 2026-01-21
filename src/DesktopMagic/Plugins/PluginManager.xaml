@@ -98,9 +98,11 @@
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="15" />
-                        <ColumnDefinition Width="0.5*" />
+                        <ColumnDefinition Width="1.05*" />
+                        <ColumnDefinition Width="5.5" />
+                        <ColumnDefinition Width="1.05*" />
                         <ColumnDefinition Width="5" />
-                        <ColumnDefinition Width="0.5*" />
+                        <ColumnDefinition Width="1.05*" />
                     </Grid.ColumnDefinitions>
 
                     <Image Source="{Binding ModIoIcon}" Cursor="Hand" Height="30" MouseUp="Image_MouseUp" HorizontalAlignment="Left" />
@@ -110,7 +112,13 @@
                             <TextBlock Text="{DynamicResource createNewPlugin}" />
                         </StackPanel>
                     </Button>
-                    <Button Grid.Column="4" HorizontalAlignment="Stretch" Click="LogInButton_Click">
+                    <Button Grid.Column="4" HorizontalAlignment="Stretch" Click="ReloadPluginsButton_Click">
+                        <StackPanel Orientation="Horizontal">
+                            <ui:SymbolIcon Symbol="ArrowClockwise24" Margin="0 0 10 0" />
+                            <TextBlock Text="{DynamicResource reloadPlugins}" />
+                        </StackPanel>
+                    </Button>
+                    <Button Grid.Column="6" HorizontalAlignment="Stretch" Click="LogInButton_Click">
                         <StackPanel Orientation="Horizontal">
                             <ui:SymbolIcon Symbol="PersonKey20" Margin="0 0 10 0" />
                             <TextBlock Text="{Binding LoginButtonText}" />

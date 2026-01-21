@@ -4,13 +4,14 @@ using DesktopMagic.Plugins;
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.IO;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Input;
 
 namespace DesktopMagic.DataContexts;
 
-internal class PluginEntryDataContext(PluginMetadata pluginMetadata, ICommand command, PluginEntryDataContext.Mode mode, string? path = null) : INotifyPropertyChanged
+internal class PluginEntryDataContext(PluginMetadata pluginMetadata, ICommand command, PluginEntryDataContext.Mode mode, string? path = null, string? csprojPath = null) : INotifyPropertyChanged
 {
     public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -43,7 +44,11 @@ internal class PluginEntryDataContext(PluginMetadata pluginMetadata, ICommand co
     {
         get
         {
-            if (string.IsNullOrWhiteSpace(pluginMetadata.ProfileUri?.ToString()))
+            if (File.Exists(csprojPath))
+            {
+                return new("Code24", "IDE", true, new CommandHandler(OpenCsprojInIDE));
+            }
+            else if (string.IsNullOrWhiteSpace(pluginMetadata.ProfileUri?.ToString()))
             {
                 return new("Folder24", (string)App.LanguageDictionary["folder"], path is not null, new CommandHandler(() => Process.Start("explorer.exe", path!)));
             }
@@ -73,6 +78,34 @@ internal class PluginEntryDataContext(PluginMetadata pluginMetadata, ICommand co
         {
             UseShellExecute = true,
             FileName = pluginMetadata.ProfileUri?.ToString() ?? path
+        };
+
+        _ = Process.Start(psi);
+    }
+
+    private void OpenCsprojInIDE()
+    {
+        string? associatedProgram = FileUtilities.GetAssociatedProgram(".csproj");
+        string pluginProjectPath = System.IO.Path.GetDirectoryName(csprojPath)!;
+
+        if (string.IsNullOrWhiteSpace(pluginProjectPath))
+        {
+            App.Logger.LogError("Could not determine plugin project directory.", source: "PluginManager");
+            return;
+        }
+
+        if (associatedProgram is null)
+        {
+            App.Logger.LogInfo($"Opening plugin project in Explorer: {pluginProjectPath}", source: "PluginManager");
+            _ = Process.Start("explorer.exe", pluginProjectPath);
+            return;
+        }
+
+        App.Logger.LogInfo($"Opening plugin project in IDE: {associatedProgram}", source: "PluginManager");
+        ProcessStartInfo psi = new ProcessStartInfo
+        {
+            FileName = associatedProgram,
+            Arguments = csprojPath,
         };
 
         _ = Process.Start(psi);

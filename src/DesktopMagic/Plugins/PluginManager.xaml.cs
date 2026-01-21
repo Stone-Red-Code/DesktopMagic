@@ -91,8 +91,7 @@ public partial class PluginManager : Page
 
         if (changed)
         {
-            _manager.LoadPlugins();
-            _manager.LoadLayout(Application.Current.MainWindow.Visibility != System.Windows.Visibility.Visible);
+            _manager.ReloadPlugins();
         }
     }
 
@@ -100,6 +99,10 @@ public partial class PluginManager : Page
     {
         App.Logger.LogInfo("Initializing Plugin Manager", source: "PluginManager");
         HashSet<uint> pluginIds = [];
+
+        pluginManagerDataContext.IsLoading = true;
+        pluginManagerDataContext.InstalledPlugins.Clear();
+        pluginManagerDataContext.AllPlugins.Clear();
 
         foreach (string pluginPath in Directory.GetDirectories(pluginsPath))
         {
@@ -119,8 +122,10 @@ public partial class PluginManager : Page
                 continue;
             }
 
+            string csprojPath = GetCsprojPath(pluginMetadata.Name);
+
             App.Logger.LogInfo($"Loaded plugin: {pluginMetadata.Name} (ID: {pluginMetadata.Id})", source: "PluginManager");
-            pluginManagerDataContext.InstalledPlugins.Add(new PluginEntryDataContext(pluginMetadata, new CommandHandler(async () => await Remove(pluginPath, pluginMetadata.Id)), PluginEntryDataContext.Mode.Uninstall, pluginPath));
+            pluginManagerDataContext.InstalledPlugins.Add(new PluginEntryDataContext(pluginMetadata, new CommandHandler(async () => await Remove(pluginPath, pluginMetadata.Id)), PluginEntryDataContext.Mode.Uninstall, pluginPath, csprojPath));
             _ = pluginIds.Add(pluginMetadata.Id);
 
             if (pluginMetadata.IsLocalPlugin)
@@ -388,6 +393,13 @@ public partial class PluginManager : Page
         pluginManagerDataContext.IsSearching = false;
     }
 
+    private async void ReloadPluginsButton_Click(object sender, RoutedEventArgs e)
+    {
+        _manager.ReloadPlugins();
+        await InitializePluginManager();
+        changed = false;
+    }
+
     private async void CreatePluginButton_Click(object sender, RoutedEventArgs e)
     {
         try
@@ -440,11 +452,7 @@ public partial class PluginManager : Page
         }
 
         string pluginName = inputDialog.ResponseText;
-        string pluginSafeName = pluginName.ToLower().Replace("_", " ");
-
-        TextInfo info = CultureInfo.CurrentCulture.TextInfo;
-        pluginSafeName = info.ToTitleCase(pluginSafeName);
-        pluginSafeName = IdentifierNameRegex().Replace(pluginSafeName, "");
+        string pluginSafeName = GetPluginSafeName(pluginName);
 
         App.Logger.LogInfo($"Creating plugin with name: {pluginName} (safe name: {pluginSafeName})", source: "PluginManager");
 
@@ -569,6 +577,9 @@ public class {pluginSafeName}Plugin : Plugin
             _ = await messageBox.ShowDialogAsync();
             return;
         }
+
+        changed = true;
+        await InitializePluginManager();
 
         string? associatedProgram = FileUtilities.GetAssociatedProgram(".csproj");
 
@@ -725,5 +736,22 @@ public class {pluginSafeName}Plugin : Plugin
         {
             App.Logger.LogError($"Plugin sync failed: {ex.Message}", source: "PluginManager");
         }
+    }
+
+    private string GetPluginSafeName(string pluginName)
+    {
+        string pluginSafeName = pluginName.ToLower().Replace("_", " ");
+
+        TextInfo info = CultureInfo.CurrentCulture.TextInfo;
+        pluginSafeName = info.ToTitleCase(pluginSafeName);
+        pluginSafeName = IdentifierNameRegex().Replace(pluginSafeName, "");
+
+        return pluginSafeName;
+    }
+
+    private string GetCsprojPath(string pluginName)
+    {
+        string pluginSafeName = GetPluginSafeName(pluginName);
+        return Path.Combine(pluginDevelopmentPath, pluginSafeName, $"{pluginSafeName}.csproj");
     }
 }

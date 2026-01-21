@@ -217,6 +217,14 @@ public sealed class Manager
         PluginWindows.Add(window);
     }
 
+    public void ReloadPlugins()
+    {
+        App.Logger.LogInfo("Reloading plugins", source: "PluginManager");
+
+        LoadPlugins();
+        LoadLayout(false);
+    }
+
     public void SetEditMode(bool editMode)
     {
         _isEditMode = editMode;
