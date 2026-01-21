@@ -23,8 +23,8 @@
 
 ## Preview
 
-![Screenshot 2023-12-31 164947](https://github.com/Stone-Red-Code/DesktopMagic/assets/56473591/191ac76f-264d-4e9f-8979-7a13b2a1cd12)
-![Screenshot 2023-12-31 164853](https://github.com/Stone-Red-Code/DesktopMagic/assets/56473591/22de55d2-dde3-43a5-b77b-c773a7697e8c)
+![Screenshot 2026-01-22 000348](https://github.com/user-attachments/assets/4617330d-4c4b-4509-80d7-9f6db413e84f)
+![Screenshot 2026-01-22 000434](https://github.com/user-attachments/assets/aebeca87-b305-40a4-a942-d78fce0e9e97)
 
 ## Third party licenses
 
