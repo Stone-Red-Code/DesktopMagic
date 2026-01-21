@@ -112,25 +112,6 @@ public partial class MainWindow : FluentWindow
         Close();
     }
 
-    private void ToggleEditMode()
-    {
-        _manager.SetEditMode(!_manager.IsEditMode);
-    }
-
-    private void OpenPluginManager()
-    {
-        RestoreWindow();
-        _ = NavigationView.Navigate(typeof(Plugins.PluginManager));
-    }
-
-    private void UpdatePlugins()
-    {
-        _mainWindowDataContext.IsLoading = true;
-        _manager.LoadPlugins();
-        _manager.LoadLayout(false);
-        _mainWindowDataContext.IsLoading = false;
-    }
-
     private void ReportBugNavigationViewItem_Click(object sender, RoutedEventArgs e)
     {
         string uri = "https://github.com/Stone-Red-Code/DesktopMagic/issues/new?template=bug_report.md";
