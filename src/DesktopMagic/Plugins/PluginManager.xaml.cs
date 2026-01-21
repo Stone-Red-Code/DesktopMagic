@@ -482,16 +482,16 @@ public partial class PluginManager : Page
         _ = Directory.CreateDirectory(pluginProjectPath);
 
         string pluginMetadataPath = Path.Combine(pluginPath, "metadata.json");
-        File.WriteAllText(pluginMetadataPath, JsonSerializer.Serialize(pluginMetadata));
+        await File.WriteAllTextAsync(pluginMetadataPath, JsonSerializer.Serialize(pluginMetadata));
 
         App.Logger.LogInfo($"Creating .NET project at: {pluginProjectPath}", source: "PluginManager");
         string cmd = $"new classlib -n {pluginSafeName} -o {pluginProjectPath} -f net8.0 --target-framework-override net8.0-windows7";
         Process process = Process.Start("dotnet", cmd);
-        process.WaitForExit();
+        await process.WaitForExitAsync();
 
         App.Logger.LogInfo("Installing NuGet package: DesktopMagic.Api", source: "PluginManager");
         process = Process.Start("dotnet", $"add {pluginProjectPath} package DesktopMagic.Api");
-        process.WaitForExit();
+        await process.WaitForExitAsync();
 
         File.Move(Path.Combine(pluginProjectPath, "Class1.cs"), Path.Combine(pluginProjectPath, $"{pluginSafeName}.cs"));
 
@@ -519,7 +519,7 @@ public class {pluginSafeName}Plugin : Plugin
 
         string csprojPath = Path.Combine(pluginProjectPath, $"{pluginSafeName}.csproj");
 
-        File.WriteAllText(Path.Combine(pluginProjectPath, $"{pluginSafeName}.cs"), code);
+        await File.WriteAllTextAsync(Path.Combine(pluginProjectPath, $"{pluginSafeName}.cs"), code);
 
         XDocument doc = XDocument.Load(csprojPath);
         XElement? propertyGroup = doc.Root?.Element("PropertyGroup");
@@ -574,6 +574,10 @@ public class {pluginSafeName}Plugin : Plugin
             _ = await messageBox.ShowDialogAsync();
             return;
         }
+
+        App.Logger.LogInfo("Building plugin project", source: "PluginManager");
+        process = Process.Start("dotnet", $"build {csprojPath} -c Release");
+        await process.WaitForExitAsync();
 
         changed = true;
         await InitializePluginManager();
@@ -735,7 +739,7 @@ public class {pluginSafeName}Plugin : Plugin
         }
     }
 
-    private string GetPluginSafeName(string pluginName)
+    private static string GetPluginSafeName(string pluginName)
     {
         string pluginSafeName = pluginName.ToLower().Replace("_", " ");
 
