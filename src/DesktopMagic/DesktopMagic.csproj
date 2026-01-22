@@ -43,16 +43,15 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="BusyIndicators" Version="2.1.2" />
+        <PackageReference Include="BusyIndicators" Version="2.1.3" />
         <PackageReference Include="CuteUtils" Version="1.0.0" />
         <PackageReference Include="Interop.IWshRuntimeLibrary" Version="1.0.1" />
-        <PackageReference Include="MaterialDesignThemes" Version="5.1.0" />
-        <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2592.51" />
+        <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.3650.58" />
         <PackageReference Include="Modio" Version="1.0.0" />
         <PackageReference Include="NAudio" Version="2.2.1" />
         <PackageReference Include="System.Management" Version="8.0.0" />
-        <PackageReference Include="WPF-UI" Version="4.1.0" />
-        <PackageReference Include="WPF-UI.Tray" Version="4.1.0" />
+        <PackageReference Include="WPF-UI" Version="4.2.0" />
+        <PackageReference Include="WPF-UI.Tray" Version="4.2.0" />
     </ItemGroup>
 
     <ItemGroup>

@@ -14,7 +14,7 @@
         ScrollViewer.CanContentScroll="False"
         Title="{DynamicResource pluginManager}">
 
-    <busyIndicator:BusyMask x:Name="BusyIndicator" IsBusy="{Binding IsLoading}" IndicatorType="Cogs" BusyContent="Please wait..." BusyContentMargin="0,20,0,0" Foreground="{DynamicResource TextFillColorPrimaryBrush}" Background="{DynamicResource ControlStrokeColorDefaultBrush}">
+    <busyIndicator:BusyMask x:Name="BusyIndicator" IsBusy="{Binding IsLoading}" IndicatorType="ThreeDots" BusyContent="Please wait..." BusyContentMargin="0,20,0,0" Foreground="{DynamicResource TextFillColorPrimaryBrush}" Background="{DynamicResource ControlStrokeColorDefaultBrush}">
         <Grid Margin="{StaticResource DefaultMargin}">
             <Grid.RowDefinitions>
                 <RowDefinition Height="auto" />
@@ -41,7 +41,7 @@
                 </Grid>
             </ui:Card>
 
-            <busyIndicator:BusyMask Grid.Row="2" IsBusy="{Binding IsSearching}" IndicatorType="ThreeDots" BusyContent="Searching..." BusyContentMargin="0,50,0,0" IsBusyAtStartup="False" Foreground="{DynamicResource TextFillColorPrimaryBrush}" Background="{DynamicResource ControlStrokeColorDefaultBrush}">
+            <busyIndicator:BusyMask Grid.Row="2" IsBusy="{Binding IsSearching}" IndicatorType="ThreeDots" BusyContent="Searching..." BusyContentMargin="0,50,0,0" Foreground="{DynamicResource TextFillColorPrimaryBrush}" Background="{DynamicResource ControlStrokeColorDefaultBrush}">
                 <ScrollViewer VerticalScrollBarVisibility="Auto" VerticalAlignment="Stretch" Padding="0" VerticalContentAlignment="Top" Margin="0 0 2.5 0">
                     <ItemsControl ItemsSource="{Binding AllPlugins}">
                         <ItemsControl.ItemTemplate>

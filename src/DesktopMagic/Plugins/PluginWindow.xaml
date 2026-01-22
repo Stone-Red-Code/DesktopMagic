@@ -16,7 +16,7 @@
         Closing="Window_Closing"
         ContentRendered="Window_ContentRendered"
         x:Name="window">
-    <busyIndicator:BusyMask x:Name="busyMask" IsBusyAtStartup="True" Background="Transparent" BusyContent="" BusyContentMargin="-5" IndicatorType="Cogs">
+    <busyIndicator:BusyMask x:Name="busyMask" IsBusy="True" Background="Transparent" BusyContent="" BusyContentMargin="-5" IndicatorType="Cogs">
         <Grid>
             <Rectangle x:Name="panel" Fill="#4CBAFFEF" Stroke="White" Margin="0,0,0,0" Visibility="Collapsed" />
 
