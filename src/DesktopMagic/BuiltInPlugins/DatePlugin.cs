@@ -54,4 +54,9 @@ internal class DatePlugin : Plugin
     {
         themeChanged = true;
     }
+
+    public override void OnSettingsChanged()
+    {
+        themeChanged = true;
+    }
 }
