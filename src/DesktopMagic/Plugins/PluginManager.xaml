@@ -36,8 +36,8 @@
                         <ColumnDefinition />
                     </Grid.ColumnDefinitions>
 
-                    <ui:TextBox Grid.Column="0" Text="{Binding AllPluginsSearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TextChanged="AllPluginsSearchTextBox_TextChanged" PlaceholderText="{DynamicResource searchAllPlugins}" />
-                    <ui:TextBox Grid.Column="2" Text="{Binding InstalledPluginsSearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TextChanged="InstalledPluginsSearchTextBox_TextChanged" PlaceholderText="{DynamicResource searchInstalledPlugins}" />
+                    <ui:TextBox Grid.Column="0" Text="{Binding AllPluginsSearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TextChanged="AllPluginsSearchTextBox_TextChanged" PlaceholderText="{DynamicResource searchAllPlugins}" Icon="{ui:SymbolIcon Search24}" IconPlacement="Right" />
+                    <ui:TextBox Grid.Column="2" Text="{Binding InstalledPluginsSearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TextChanged="InstalledPluginsSearchTextBox_TextChanged" PlaceholderText="{DynamicResource searchInstalledPlugins}" Icon="{ui:SymbolIcon Search24}" IconPlacement="Right" />
                 </Grid>
             </ui:Card>
 
