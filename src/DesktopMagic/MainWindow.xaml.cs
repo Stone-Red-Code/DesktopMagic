@@ -134,6 +134,17 @@ public partial class MainWindow : FluentWindow
         _ = Process.Start(psi);
     }
 
+    private void DocumentationNavigationViewItem_Click(object sender, RoutedEventArgs e)
+    {
+        string uri = "https://github.com/Stone-Red-Code/DesktopMagic";
+        ProcessStartInfo psi = new()
+        {
+            UseShellExecute = true,
+            FileName = uri
+        };
+        _ = Process.Start(psi);
+    }
+
     private void NotifyIcon_LeftClick(Wpf.Ui.Tray.Controls.NotifyIcon sender, RoutedEventArgs e)
     {
         RestoreWindow();

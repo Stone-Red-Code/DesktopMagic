@@ -73,7 +73,12 @@
                 </ui:NavigationView.MenuItems>
 
                 <ui:NavigationView.FooterMenuItems>
-                    <ui:NavigationViewItem Content="{DynamicResource requestFeature}" Click="ReportBugNavigationViewItem_Click">
+                    <ui:NavigationViewItem Content="Documentation" Click="DocumentationNavigationViewItem_Click">
+                        <ui:NavigationViewItem.Icon>
+                            <ui:SymbolIcon Symbol="LightbulbFilament24"/>
+                        </ui:NavigationViewItem.Icon>
+                    </ui:NavigationViewItem>
+                    <ui:NavigationViewItem Content="{DynamicResource requestFeature}" Click="RequestFeatureNavigationViewItem_Click">
                         <ui:NavigationViewItem.Icon>
                             <ui:SymbolIcon Symbol="ChatHelp24"/>
                         </ui:NavigationViewItem.Icon>
@@ -94,10 +99,7 @@
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
 
-                    <StackPanel Orientation="Horizontal" Grid.Column="0">
-                        <ui:HyperlinkButton FontWeight="Bold" Content="{DynamicResource developedBy}" NavigateUri="https://me.stone-red.net"/>
-                    </StackPanel>
-
+                    <ui:HyperlinkButton FontWeight="Bold" Content="{DynamicResource developedBy}" NavigateUri="https://me.stone-red.net"/>
                     <ui:ToggleSwitch x:Name="autoStartCheckBox" Style="{StaticResource ToggleSwitchContentLeftStyle}" Grid.Column="2" Margin="0 0 5 0" Content="{DynamicResource autoStart}" IsChecked="{Binding IsAutoStartEnabled}" VerticalAlignment="Center"/>
                 </Grid>
             </Border>
