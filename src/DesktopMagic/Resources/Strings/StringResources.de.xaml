@@ -6,6 +6,7 @@
     <system:String x:Key="developedBy">Entwickelt von Stone_Red</system:String>
     <system:String x:Key="reportBug">Bug Melden</system:String>
     <system:String x:Key="requestFeature">Feature Anfragen</system:String>
+    <system:String x:Key="email">E-Mail</system:String>
     <system:String x:Key="lineMode">Linie</system:String>
     <system:String x:Key="mirrorMode">Spiegeln</system:String>
     <system:String x:Key="folder">Ordner</system:String>
