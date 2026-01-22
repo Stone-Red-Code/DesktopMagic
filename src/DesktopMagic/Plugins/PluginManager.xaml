@@ -14,7 +14,7 @@
         ScrollViewer.CanContentScroll="False"
         Title="{DynamicResource pluginManager}">
 
-    <busyIndicator:BusyMask x:Name="BusyIndicator" IsBusy="{Binding IsLoading}" IndicatorType="Cogs" BusyContent="Please wait..." BusyContentMargin="0,20,0,0" IsBusyAtStartup="False" Foreground="{DynamicResource TextFillColorPrimaryBrush}" Background="{DynamicResource ControlStrokeColorDefaultBrush}">
+    <busyIndicator:BusyMask x:Name="BusyIndicator" IsBusy="{Binding IsLoading}" IndicatorType="Cogs" BusyContent="Please wait..." BusyContentMargin="0,20,0,0" Foreground="{DynamicResource TextFillColorPrimaryBrush}" Background="{DynamicResource ControlStrokeColorDefaultBrush}">
         <Grid Margin="{StaticResource DefaultMargin}">
             <Grid.RowDefinitions>
                 <RowDefinition Height="auto" />
@@ -41,7 +41,7 @@
                 </Grid>
             </ui:Card>
 
-            <busyIndicator:BusyMask Grid.Row="2" IsBusy="{Binding IsSearching}" IndicatorType="Ring" BusyContent="Searching..." BusyContentMargin="0,50,0,0" IsBusyAtStartup="False" Foreground="{DynamicResource TextFillColorPrimaryBrush}" Background="{DynamicResource ControlStrokeColorDefaultBrush}">
+            <busyIndicator:BusyMask Grid.Row="2" IsBusy="{Binding IsSearching}" IndicatorType="ThreeDots" BusyContent="Searching..." BusyContentMargin="0,50,0,0" IsBusyAtStartup="False" Foreground="{DynamicResource TextFillColorPrimaryBrush}" Background="{DynamicResource ControlStrokeColorDefaultBrush}">
                 <ScrollViewer VerticalScrollBarVisibility="Auto" VerticalAlignment="Stretch" Padding="0" VerticalContentAlignment="Top" Margin="0 0 2.5 0">
                     <ItemsControl ItemsSource="{Binding AllPlugins}">
                         <ItemsControl.ItemTemplate>
@@ -106,24 +106,9 @@
                     </Grid.ColumnDefinitions>
 
                     <Image Source="{Binding ModIoIcon}" Cursor="Hand" Height="30" MouseUp="Image_MouseUp" HorizontalAlignment="Left" />
-                    <Button Grid.Column="2" HorizontalAlignment="Stretch" Click="CreatePluginButton_Click">
-                        <StackPanel Orientation="Horizontal">
-                            <ui:SymbolIcon Symbol="Add24" Margin="0 0 10 0" />
-                            <TextBlock Text="{DynamicResource createNewPlugin}" />
-                        </StackPanel>
-                    </Button>
-                    <Button Grid.Column="4" HorizontalAlignment="Stretch" Click="ReloadPluginsButton_Click">
-                        <StackPanel Orientation="Horizontal">
-                            <ui:SymbolIcon Symbol="ArrowClockwise24" Margin="0 0 10 0" />
-                            <TextBlock Text="{DynamicResource reloadPlugins}" />
-                        </StackPanel>
-                    </Button>
-                    <Button Grid.Column="6" HorizontalAlignment="Stretch" Click="LogInButton_Click">
-                        <StackPanel Orientation="Horizontal">
-                            <ui:SymbolIcon Symbol="PersonKey20" Margin="0 0 10 0" />
-                            <TextBlock Text="{Binding LoginButtonText}" />
-                        </StackPanel>
-                    </Button>
+                    <ui:Button Content="{DynamicResource createNewPlugin}" Icon="{ui:SymbolIcon Add24}" Grid.Column="2" HorizontalAlignment="Stretch" Click="CreatePluginButton_Click"/>
+                    <ui:Button Content="{DynamicResource reloadPlugins}" Icon="{ui:SymbolIcon ArrowClockwise24}" Grid.Column="4" HorizontalAlignment="Stretch" Click="ReloadPluginsButton_Click"/>
+                    <ui:Button Content="{Binding LoginButtonText}" Icon="{ui:SymbolIcon PersonKey20}" Grid.Column="6" HorizontalAlignment="Stretch" Click="LogInButton_Click"/>
                 </Grid>
             </ui:Card>
         </Grid>

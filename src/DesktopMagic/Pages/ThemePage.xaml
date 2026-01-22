@@ -25,12 +25,9 @@
                         </Grid.ColumnDefinitions>
                         <TextBlock Margin="8" VerticalAlignment="Center" FontWeight="SemiBold" Text="{Binding Name, Mode=OneWay}" />
                         <StackPanel Grid.Column="1" VerticalAlignment="Center" Orientation="Horizontal" Margin="{StaticResource DefaultMargin}">
-                            <Button x:Name="editThemeButton" HorizontalAlignment="Stretch" Click="EditThemeButton_Click" FontWeight="Regular" Tag="{Binding}">
-                                <StackPanel Orientation="Horizontal">
-                                    <ui:SymbolIcon Symbol="Color24" Margin="0 0 10 0" />
-                                    <TextBlock Text="{DynamicResource editTheme}" />
-                                </StackPanel>
-                            </Button>
+                            <ui:Button x:Name="editThemeButton" Content="{DynamicResource editTheme}" Icon="{ui:SymbolIcon Color24}" HorizontalAlignment="Stretch" Click="EditThemeButton_Click" FontWeight="Regular" Tag="{Binding}">
+
+                            </ui:Button>
                         </StackPanel>
                     </Grid>
                 </DataTemplate>
@@ -47,18 +44,8 @@
                     <ColumnDefinition Width="0.5*" />
                 </Grid.ColumnDefinitions>
 
-                <Button x:Name="newThemeButton" Grid.Column="2" HorizontalAlignment="Stretch" Click="AddThemeButton_Click" FontWeight="Regular">
-                    <StackPanel Orientation="Horizontal">
-                        <ui:SymbolIcon Symbol="Add24" Margin="0 0 10 0" />
-                        <TextBlock Text="{DynamicResource newTheme}" />
-                    </StackPanel>
-                </Button>
-                <Button x:Name="deleteThemeButton" Grid.Column="4"  HorizontalAlignment="Stretch" Click="DeleteThemeButton_Click" FontWeight="Regular">
-                    <StackPanel Orientation="Horizontal">
-                        <ui:SymbolIcon Symbol="Delete24" Margin="0 0 10 0" />
-                        <TextBlock Text="{DynamicResource deleteTheme}" />
-                    </StackPanel>
-                </Button>
+                <ui:Button x:Name="newThemeButton" Content="{DynamicResource newTheme}" Icon="{ui:SymbolIcon Add24}" Grid.Column="2" HorizontalAlignment="Stretch" Click="AddThemeButton_Click" FontWeight="Regular"/>
+                <ui:Button x:Name="deleteThemeButton" Content="{DynamicResource deleteTheme}" Icon="{ui:SymbolIcon Delete24}"  Grid.Column="4"  HorizontalAlignment="Stretch" Click="DeleteThemeButton_Click" FontWeight="Regular"/>
             </Grid>
         </ui:Card>
     </Grid>

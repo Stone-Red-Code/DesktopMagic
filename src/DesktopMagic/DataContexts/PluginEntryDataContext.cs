@@ -9,6 +9,8 @@ using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Input;
 
+using Wpf.Ui.Controls;
+
 namespace DesktopMagic.DataContexts;
 
 internal class PluginEntryDataContext(PluginMetadata pluginMetadata, ICommand command, PluginEntryDataContext.Mode mode, string? path = null, string? csprojPath = null) : INotifyPropertyChanged
@@ -38,7 +40,20 @@ internal class PluginEntryDataContext(PluginMetadata pluginMetadata, ICommand co
 
     public ICommand Command => command;
 
-    public ButtonData InstallUninstallButtonData => new(mode == Mode.Install ? "Download24" : "Delete24", GetInstallUninstallButtonText(), true, Command);
+    public ButtonData InstallUninstallButtonData
+    {
+        get
+        {
+            if (mode == Mode.Install)
+            {
+                return new(new SymbolIcon(SymbolRegular.ArrowDownload24), GetInstallUninstallButtonText(), true, Command);
+            }
+            else
+            {
+                return new(new SymbolIcon(SymbolRegular.Delete24), GetInstallUninstallButtonText(), true, Command);
+            }
+        }
+    }
 
     public ButtonData OpenButtonData
     {
@@ -46,15 +61,15 @@ internal class PluginEntryDataContext(PluginMetadata pluginMetadata, ICommand co
         {
             if (File.Exists(csprojPath))
             {
-                return new("Code24", "IDE", true, new CommandHandler(OpenCsprojInIDE));
+                return new(new SymbolIcon(SymbolRegular.Code24), "IDE", true, new CommandHandler(OpenCsprojInIDE));
             }
             else if (string.IsNullOrWhiteSpace(pluginMetadata.ProfileUri?.ToString()))
             {
-                return new("Folder24", (string)App.LanguageDictionary["folder"], path is not null, new CommandHandler(() => Process.Start("explorer.exe", path!)));
+                return new(new SymbolIcon(SymbolRegular.Folder24), (string)App.LanguageDictionary["folder"], path is not null, new CommandHandler(() => Process.Start("explorer.exe", path!)));
             }
             else
             {
-                return new("Open24", "mod.io", true, new CommandHandler(OpenModIoPage));
+                return new(new SymbolIcon(SymbolRegular.Open24), "mod.io", true, new CommandHandler(OpenModIoPage));
             }
         }
     }
@@ -126,7 +141,7 @@ internal class PluginEntryDataContext(PluginMetadata pluginMetadata, ICommand co
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 
-    public record ButtonData(string Icon, string Text, bool IsEnabled, ICommand Command);
+    public record ButtonData(SymbolIcon Icon, string Text, bool IsEnabled, ICommand Command);
 
     public enum Mode
     {

@@ -71,18 +71,8 @@
                 </Grid.ColumnDefinitions>
 
                 <ComboBox x:Name="layoutsComboBox" ItemsSource="{Binding Settings.Layouts}" DisplayMemberPath="Name" SelectedValue="{Binding Settings.CurrentLayoutName}" SelectedValuePath="Name" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Padding="4" SelectionChanged="LayoutsComboBox_SelectionChanged" />
-                <Button x:Name="newLayoutButton" Grid.Column="2" HorizontalAlignment="Stretch" Click="NewLayoutButton_Click" FontWeight="Regular">
-                    <StackPanel Orientation="Horizontal">
-                        <ui:SymbolIcon Symbol="Add24" Margin="0 0 10 0" />
-                        <TextBlock Text="{DynamicResource newLayout}" />
-                    </StackPanel>
-                </Button>
-                <Button x:Name="removeLayoutButton" Grid.Column="4" HorizontalAlignment="Stretch" Click="RemoveLayoutButton_Click" FontWeight="Regular">
-                    <StackPanel Orientation="Horizontal">
-                        <ui:SymbolIcon Symbol="Delete24" Margin="0 0 10 0" />
-                        <TextBlock Text="{DynamicResource deleteLayout}" />
-                    </StackPanel>
-                </Button>
+                <ui:Button x:Name="newLayoutButton" Content="{DynamicResource newLayout}" Grid.Column="2" Icon="{ui:SymbolIcon Add24}"  HorizontalAlignment="Stretch" Click="NewLayoutButton_Click" FontWeight="Regular"/>
+                <ui:Button x:Name="removeLayoutButton" Content="{DynamicResource deleteLayout}" Icon="{ui:SymbolIcon Delete24}"  Grid.Column="4" HorizontalAlignment="Stretch" Click="RemoveLayoutButton_Click" FontWeight="Regular"/>
             </Grid>
         </ui:Card>
     </Grid>

@@ -40,18 +40,8 @@
                     <ColumnDefinition />
                 </Grid.ColumnDefinitions>
 
-                <Button Grid.Column="0" Command="{Binding InstallUninstallButtonData.Command}" IsEnabled="{Binding InstallUninstallButtonData.IsEnabled}" VerticalAlignment="Bottom" HorizontalAlignment="Stretch">
-                    <StackPanel Orientation="Horizontal">
-                        <ui:SymbolIcon Symbol="Delete24" Margin="0 0 10 0" />
-                        <TextBlock Text="{Binding InstallUninstallButtonData.Text}" />
-                    </StackPanel>
-                </Button>
-                <Button Grid.Column="1" Command="{Binding OpenButtonData.Command}" IsEnabled="{Binding OpenButtonData.IsEnabled}" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Margin="5 0 5 0">
-                    <StackPanel Orientation="Horizontal">
-                        <ui:SymbolIcon Symbol="{Binding OpenButtonData.Icon}" Margin="0 0 10 0" />
-                        <TextBlock Text="{Binding OpenButtonData.Text}" />
-                    </StackPanel>
-                </Button>
+                <ui:Button Content="{Binding InstallUninstallButtonData.Text}" Icon="{Binding InstallUninstallButtonData.Icon}" Grid.Column="0" Command="{Binding InstallUninstallButtonData.Command}" IsEnabled="{Binding InstallUninstallButtonData.IsEnabled}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+                <ui:Button Content="{Binding OpenButtonData.Text}" Icon="{Binding OpenButtonData.Icon}" Grid.Column="1" Command="{Binding OpenButtonData.Command}" IsEnabled="{Binding OpenButtonData.IsEnabled}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="5 0 5 0"/>
             </Grid>
 
             <StackPanel Grid.Row="2" Grid.ColumnSpan="2" Margin="5">
