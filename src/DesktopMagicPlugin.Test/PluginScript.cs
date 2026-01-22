@@ -14,7 +14,7 @@ namespace DesktopMagic.PluginTest;
 public class GifPlugin : Plugin
 {
     [Setting("gif-path", "GIF path")]
-    private readonly TextBox input = new TextBox("");
+    private readonly FileSelector input = new FileSelector();
 
     [Setting("info")]
     private readonly Label info = new Label("");
