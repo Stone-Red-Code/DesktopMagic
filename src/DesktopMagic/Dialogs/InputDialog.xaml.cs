@@ -17,6 +17,7 @@ public partial class InputDialog : Wpf.Ui.Controls.FluentWindow
         Resources.MergedDictionaries.Add(App.LanguageDictionary);
 
         label.Content = content;
+        titleBar.Title = title;
         Title = title;
     }
 

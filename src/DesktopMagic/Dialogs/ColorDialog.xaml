@@ -28,7 +28,7 @@
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <ui:TitleBar ShowMinimize="False" ShowMaximize="False">
+        <ui:TitleBar x:Name="titleBar" ShowMinimize="False" ShowMaximize="False">
             <ui:TitleBar.Icon>
                 <ui:ImageIcon Source="{StaticResource Icon}" />
             </ui:TitleBar.Icon>

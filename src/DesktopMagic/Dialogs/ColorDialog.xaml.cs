@@ -24,6 +24,7 @@ public partial class ColorDialog : FluentWindow
         Resources.MergedDictionaries.Add(App.LanguageDictionary);
 
         label.Content = content;
+        titleBar.Title = title;
         Title = title;
 
         alphaSlider.Value = defaultColor.A;

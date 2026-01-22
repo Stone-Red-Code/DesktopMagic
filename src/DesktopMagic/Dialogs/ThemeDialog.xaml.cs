@@ -29,6 +29,7 @@ public partial class ThemeDialog : Wpf.Ui.Controls.FluentWindow
         backgroundColorRechtangle.Background = new SolidColorBrush(MultiColorConverter.ConvertToMediaColor(theme.BackgroundColor));
 
         label.Content = content;
+        titleBar.Title = title;
         Title = title;
     }
 
