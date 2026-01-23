@@ -241,21 +241,21 @@ public partial class PluginWindow : Window, IPluginWindow
             assemblyLoadContext = CreateAssemblyLoadContext();
 
             // Show busy indicator
-            await Dispatcher.InvokeAsync(() => busyMask.IsBusy = true);
+            _ = await Dispatcher.InvokeAsync(() => busyMask.IsBusy = true);
 
             // Reload the plugin
             await ExecuteSource();
 
             // Hide busy indicator
-            await Dispatcher.InvokeAsync(() => busyMask.IsBusy = false);
+            _ = await Dispatcher.InvokeAsync(() => busyMask.IsBusy = false);
 
             App.Logger.LogInfo($"\"{PluginMetadata.Name}\" - Plugin reloaded successfully", source: "Plugin");
         }
         catch (Exception ex)
         {
             App.Logger.LogError($"\"{PluginMetadata.Name}\" - Failed to reload plugin: {ex}", source: "Plugin");
-            
-            await Dispatcher.InvokeAsync(async () =>
+
+            _ = await Dispatcher.InvokeAsync(async () =>
             {
                 Wpf.Ui.Controls.MessageBox messageBox = new Wpf.Ui.Controls.MessageBox
                 {
@@ -525,11 +525,13 @@ public partial class PluginWindow : Window, IPluginWindow
         {
             SetHorizontalAlignment();
             SetVerticalAlignment();
+            SetRotation();
             SetThemeOverride();
             SetThemeOverrideItems();
 
             pluginClassInstance.horizontalAlignment.OnValueChanged += SetHorizontalAlignment;
             pluginClassInstance.verticalAlignment.OnValueChanged += SetVerticalAlignment;
+            pluginClassInstance.rotation.OnValueChanged += SetRotation;
             pluginClassInstance.themeOverride.OnValueChanged += SetThemeOverride;
 
             DesktopMagicSettings desktopMagicSettings = MainWindowDataContext.GetSettings();
@@ -562,6 +564,11 @@ public partial class PluginWindow : Window, IPluginWindow
 
             viewBox.HorizontalAlignment = horizontalAlignment;
             border.HorizontalAlignment = horizontalAlignment;
+        }
+
+        void SetRotation()
+        {
+            image.LayoutTransform = new RotateTransform(pluginClassInstance.rotation.Value);
         }
 
         void SetThemeOverride()
