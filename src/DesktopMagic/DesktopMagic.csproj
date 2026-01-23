@@ -15,6 +15,7 @@
         <TargetFramework>net8.0-windows7.0</TargetFramework>
         <RuntimeIdentifier>win-x64</RuntimeIdentifier>
         <Nullable>enable</Nullable>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
         <Platforms>AnyCPU;x64</Platforms>
     </PropertyGroup>
