@@ -3,7 +3,7 @@
                     xmlns:col="clr-namespace:System.Collections;assembly=mscorlib"
                     xmlns:system="clr-namespace:System;assembly=mscorlib">
 
-    <system:String x:Key="developedBy">Developed by Stone_Red</system:String>
+    <system:String x:Key="developedBy">Developed by Stone__Red</system:String>
     <system:String x:Key="reportBug">Report Bug</system:String>
     <system:String x:Key="requestFeature">Request Feature</system:String>
     <system:String x:Key="email">Email</system:String>
