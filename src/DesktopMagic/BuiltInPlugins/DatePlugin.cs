@@ -27,6 +27,12 @@ internal partial class DatePlugin : Plugin
     [Setting("use-date-separators", "Use Date Separators")]
     public CheckBox useDateSeparators = new CheckBox(true);
 
+    [Setting("use-color-override-for-weekend", "Use Color Override For Weekend")]
+    public CheckBox useColorOverrideForWeekend = new CheckBox(false);
+
+    [Setting("weekend-color-override", "Weekend Color Override")]
+    public ColorPicker weekendColorOverride = new ColorPicker(Color.Red);
+
     private DateTime oldDateTime = DateTime.MinValue;
     private bool themeChanged = false;
 
@@ -101,6 +107,10 @@ internal partial class DatePlugin : Plugin
             date = DateSeparatorsRegex().Replace(date, dtf.DateSeparator);
         }
 
+        Color color = useColorOverrideForWeekend.Value && (dateTime.DayOfWeek == DayOfWeek.Saturday || dateTime.DayOfWeek == DayOfWeek.Sunday)
+            ? weekendColorOverride.Value
+            : Application.Theme.PrimaryColor;
+
         using Font font = new Font(Application.Theme.Font, 200);
 
         Bitmap bmp = new Bitmap(1, 1);
@@ -114,7 +124,7 @@ internal partial class DatePlugin : Plugin
         bmp.SetResolution(100, 100);
 
         using Graphics gr = Graphics.FromImage(bmp);
-        using SolidBrush brush = new SolidBrush(Application.Theme.PrimaryColor);
+        using SolidBrush brush = new SolidBrush(color);
 
         gr.TextRenderingHint = TextRenderingHint.AntiAlias;
         gr.DrawString(date, font, brush, 0, 0);
