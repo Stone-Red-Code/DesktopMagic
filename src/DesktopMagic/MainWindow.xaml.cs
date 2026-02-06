@@ -14,6 +14,7 @@ public partial class MainWindow : FluentWindow
     private readonly Manager _manager = Manager.Instance;
     private readonly MainWindowDataContext _mainWindowDataContext = new();
 
+    [Obsolete]
     public MainWindow()
     {
         SystemThemeWatcher.Watch(this);
@@ -123,9 +124,44 @@ public partial class MainWindow : FluentWindow
         _ = Process.Start(psi);
     }
 
+    private void ReportBugEmailNavigationViewItem_Click(object sender, RoutedEventArgs e)
+    {
+        string uri = "mailto:contact@me.stone-red.net";
+        ProcessStartInfo psi = new()
+        {
+            UseShellExecute = true,
+            FileName = uri
+        };
+
+        _ = Process.Start(psi);
+    }
+
     private void RequestFeatureNavigationViewItem_Click(object sender, RoutedEventArgs e)
     {
         string uri = "https://github.com/Stone-Red-Code/DesktopMagic/issues/new?template=feature_request.md";
+        ProcessStartInfo psi = new()
+        {
+            UseShellExecute = true,
+            FileName = uri
+        };
+        _ = Process.Start(psi);
+    }
+
+    private void RequestFeatureEmailNavigationViewItem_Click(object sender, RoutedEventArgs e)
+    {
+        string uri = "mailto:contact@me.stone-red.net";
+        ProcessStartInfo psi = new()
+        {
+            UseShellExecute = true,
+            FileName = uri
+        };
+
+        _ = Process.Start(psi);
+    }
+
+    private void DocumentationNavigationViewItem_Click(object sender, RoutedEventArgs e)
+    {
+        string uri = "https://github.com/Stone-Red-Code/DesktopMagic";
         ProcessStartInfo psi = new()
         {
             UseShellExecute = true,

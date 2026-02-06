@@ -2,7 +2,7 @@
 
 namespace DesktopMagic.Dialogs;
 
-public partial class InputDialog : Wpf.Ui.Controls.FluentWindow
+public partial class CreatePluginDialog : Wpf.Ui.Controls.FluentWindow
 {
     public string ResponseText
     {
@@ -10,15 +10,11 @@ public partial class InputDialog : Wpf.Ui.Controls.FluentWindow
         set => textBox.Text = value;
     }
 
-    public InputDialog(string content, string title = App.AppName)
+    public CreatePluginDialog()
     {
         InitializeComponent();
 
         Resources.MergedDictionaries.Add(App.LanguageDictionary);
-
-        label.Content = content;
-        titleBar.Title = title;
-        Title = title;
     }
 
     private void OkButton_Click(object sender, RoutedEventArgs e)

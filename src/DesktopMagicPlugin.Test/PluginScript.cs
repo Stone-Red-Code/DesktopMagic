@@ -14,10 +14,10 @@ namespace DesktopMagic.PluginTest;
 public class GifPlugin : Plugin
 {
     [Setting("gif-path", "GIF path")]
-    private readonly TextBox input = new TextBox("");
+    private readonly FileSelector input = new FileSelector();
 
     [Setting("info")]
-    private readonly Label info = new Label("");
+    private readonly Label info = new Label("Select a GIF file to load.");
 
     private readonly List<Bitmap> bitmaps = [];
 
@@ -92,7 +92,7 @@ public class GifPlugin : Plugin
                         info.Value = $"Loading frame {i + 1} of {gif.GetFrameCount(FrameDimension.Time)}";
                     }
 
-                    info.Value = string.Empty;
+                    info.Value = $"Loaded {bitmaps.Count} frames.";
                 }
                 else
                 {

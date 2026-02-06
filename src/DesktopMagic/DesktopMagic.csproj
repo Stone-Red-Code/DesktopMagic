@@ -7,14 +7,15 @@
         <ApplicationIcon>icon.ico</ApplicationIcon>
         <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
         <Authors>Stone_Red</Authors>
-        <Version>1.3.0.0</Version>
+        <Version>1.3.1.0</Version>
         <PackageProjectUrl>https://github.com/Stone-Red-Code/DesktopMagic</PackageProjectUrl>
         <RepositoryUrl>https://github.com/Stone-Red-Code/DesktopMagic</RepositoryUrl>
-        <AssemblyVersion>1.3.0.0</AssemblyVersion>
-        <FileVersion>1.3.0.0</FileVersion>
+        <AssemblyVersion>1.3.1.0</AssemblyVersion>
+        <FileVersion>1.3.1.0</FileVersion>
         <TargetFramework>net8.0-windows7.0</TargetFramework>
         <RuntimeIdentifier>win-x64</RuntimeIdentifier>
         <Nullable>enable</Nullable>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
         <Platforms>AnyCPU;x64</Platforms>
     </PropertyGroup>
@@ -43,16 +44,15 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="BusyIndicators" Version="2.1.2" />
+        <PackageReference Include="BusyIndicators" Version="2.1.3" />
         <PackageReference Include="CuteUtils" Version="1.0.0" />
         <PackageReference Include="Interop.IWshRuntimeLibrary" Version="1.0.1" />
-        <PackageReference Include="MaterialDesignThemes" Version="5.1.0" />
-        <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2592.51" />
+        <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.3650.58" />
         <PackageReference Include="Modio" Version="1.0.0" />
         <PackageReference Include="NAudio" Version="2.2.1" />
         <PackageReference Include="System.Management" Version="8.0.0" />
-        <PackageReference Include="WPF-UI" Version="4.1.0" />
-        <PackageReference Include="WPF-UI.Tray" Version="4.1.0" />
+        <PackageReference Include="WPF-UI" Version="4.2.0" />
+        <PackageReference Include="WPF-UI.Tray" Version="4.2.0" />
     </ItemGroup>
 
     <ItemGroup>

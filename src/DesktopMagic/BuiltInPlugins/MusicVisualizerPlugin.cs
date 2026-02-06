@@ -20,6 +20,11 @@ internal class MusicVisualizerPlugin : Plugin
 
     private readonly Bitmap output = new Bitmap(880, 300);
 
+    private readonly System.Diagnostics.Stopwatch frameStopwatch = System.Diagnostics.Stopwatch.StartNew();
+
+    [Setting("fps-limit", "FPS Limit")]
+    private readonly IntegerUpDown fpsLimit = new IntegerUpDown(1, 144, 60);
+
     [Setting("mirror", "Mirror")]
     private readonly CheckBox mirrorMode = new CheckBox(false);
 
@@ -51,8 +56,16 @@ internal class MusicVisualizerPlugin : Plugin
         waveIn.StartRecording();
     }
 
-    public override Bitmap Main()
+    public override Bitmap? Main()
     {
+        double msPerFrame = 1000.0 / Math.Max(1, fpsLimit.Value);
+
+        if (frameStopwatch.Elapsed.TotalMilliseconds < msPerFrame)
+        {
+            return null; // Exit early if we haven't reached the time threshold
+        }
+        frameStopwatch.Restart(); // Reset timer for the next frame
+
         return output;
     }
 

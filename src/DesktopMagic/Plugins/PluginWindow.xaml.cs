@@ -42,6 +42,9 @@ public partial class PluginWindow : Window, IPluginWindow
     private System.Timers.Timer? reloadDebounceTimer;
     private bool isReloading = false;
 
+    private WriteableBitmap? writeableBitmap;
+    private BitmapScalingMode lastBitmapScalingMode = BitmapScalingMode.Unspecified;
+
     public bool IsRunning { get; private set; } = true;
     public PluginMetadata PluginMetadata { get; private set; }
     public string PluginFolderPath { get; private set; }
@@ -241,21 +244,21 @@ public partial class PluginWindow : Window, IPluginWindow
             assemblyLoadContext = CreateAssemblyLoadContext();
 
             // Show busy indicator
-            await Dispatcher.InvokeAsync(() => busyMask.IsBusy = true);
+            _ = await Dispatcher.InvokeAsync(() => busyMask.IsBusy = true);
 
             // Reload the plugin
             await ExecuteSource();
 
             // Hide busy indicator
-            await Dispatcher.InvokeAsync(() => busyMask.IsBusy = false);
+            _ = await Dispatcher.InvokeAsync(() => busyMask.IsBusy = false);
 
             App.Logger.LogInfo($"\"{PluginMetadata.Name}\" - Plugin reloaded successfully", source: "Plugin");
         }
         catch (Exception ex)
         {
             App.Logger.LogError($"\"{PluginMetadata.Name}\" - Failed to reload plugin: {ex}", source: "Plugin");
-            
-            await Dispatcher.InvokeAsync(async () =>
+
+            _ = await Dispatcher.InvokeAsync(async () =>
             {
                 Wpf.Ui.Controls.MessageBox messageBox = new Wpf.Ui.Controls.MessageBox
                 {
@@ -337,22 +340,52 @@ public partial class PluginWindow : Window, IPluginWindow
         WindowPos.GetWindowLong(helper.Handle, WindowPos.GWL_EXSTYLE) | WindowPos.WS_EX_NOACTIVATE);
     }
 
-    private static BitmapSource BitmapToImageSource(Bitmap bitmap)
+    private void UpdateImageFromBitmap(Bitmap bitmap, BitmapScalingMode scalingMode)
     {
-        BitmapData bitmapData = bitmap.LockBits(
-            new Rectangle(0, 0, bitmap.Width, bitmap.Height),
-            ImageLockMode.ReadOnly, bitmap.PixelFormat);
+        BitmapData bitmapData = bitmap.LockBits(new Rectangle(0, 0, bitmap.Width, bitmap.Height), ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
 
-        BitmapSource bitmapSource = BitmapSource.Create(
-            bitmapData.Width, bitmapData.Height,
-            bitmap.HorizontalResolution, bitmap.VerticalResolution,
-            PixelFormats.Bgra32, null,
-            bitmapData.Scan0, bitmapData.Stride * bitmapData.Height, bitmapData.Stride);
+        try
+        {
+            Dispatcher.Invoke(() =>
+            {
+                if (lastBitmapScalingMode != scalingMode)
+                {
+                    RenderOptions.SetBitmapScalingMode(image, scalingMode);
+                    lastBitmapScalingMode = scalingMode;
+                }
 
-        bitmap.UnlockBits(bitmapData);
+                if (writeableBitmap == null || writeableBitmap.PixelWidth != bitmapData.Width || writeableBitmap.PixelHeight != bitmapData.Height)
+                {
+                    writeableBitmap = new WriteableBitmap(
+                        bitmapData.Width, bitmapData.Height,
+                        bitmap.HorizontalResolution, bitmap.VerticalResolution,
+                        PixelFormats.Bgra32, null);
+                    image.Source = writeableBitmap;
+                }
 
-        bitmapSource.Freeze();
-        return bitmapSource;
+                writeableBitmap.Lock();
+                try
+                {
+                    unsafe
+                    {
+                        Buffer.MemoryCopy(
+                            bitmapData.Scan0.ToPointer(),
+                            writeableBitmap.BackBuffer.ToPointer(),
+                            writeableBitmap.BackBufferStride * writeableBitmap.PixelHeight,
+                            bitmapData.Stride * bitmapData.Height);
+                    }
+                    writeableBitmap.AddDirtyRect(new Int32Rect(0, 0, bitmapData.Width, bitmapData.Height));
+                }
+                finally
+                {
+                    writeableBitmap.Unlock();
+                }
+            });
+        }
+        finally
+        {
+            bitmap.UnlockBits(bitmapData);
+        }
     }
 
     private void Window_ContentRendered(object? sender, EventArgs e)
@@ -525,11 +558,13 @@ public partial class PluginWindow : Window, IPluginWindow
         {
             SetHorizontalAlignment();
             SetVerticalAlignment();
+            SetRotation();
             SetThemeOverride();
             SetThemeOverrideItems();
 
             pluginClassInstance.horizontalAlignment.OnValueChanged += SetHorizontalAlignment;
             pluginClassInstance.verticalAlignment.OnValueChanged += SetVerticalAlignment;
+            pluginClassInstance.rotation.OnValueChanged += SetRotation;
             pluginClassInstance.themeOverride.OnValueChanged += SetThemeOverride;
 
             DesktopMagicSettings desktopMagicSettings = MainWindowDataContext.GetSettings();
@@ -562,6 +597,11 @@ public partial class PluginWindow : Window, IPluginWindow
 
             viewBox.HorizontalAlignment = horizontalAlignment;
             border.HorizontalAlignment = horizontalAlignment;
+        }
+
+        void SetRotation()
+        {
+            image.LayoutTransform = new RotateTransform(pluginClassInstance.rotation.Value);
         }
 
         void SetThemeOverride()
@@ -819,14 +859,7 @@ public partial class PluginWindow : Window, IPluginWindow
                         _ => BitmapScalingMode.Unspecified
                     };
 
-                    // Update Image
-                    BitmapSource frozenSource = BitmapToImageSource(result);
-
-                    _ = Dispatcher.BeginInvoke(() =>
-                    {
-                        RenderOptions.SetBitmapScalingMode(image, renderOptions);
-                        image.Source = frozenSource;
-                    });
+                    UpdateImageFromBitmap(result, renderOptions);
                 }
             }
         }

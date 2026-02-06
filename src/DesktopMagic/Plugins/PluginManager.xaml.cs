@@ -440,7 +440,7 @@ public partial class PluginManager : Page
         string pluginPath = Path.Combine(pluginsPath, pluginGuid);
         uint pluginId = (uint)Random.Shared.Next(1000, 9999);
 
-        InputDialog inputDialog = new((string)FindResource("enterPluginName"), "Plugin Manager")
+        CreatePluginDialog inputDialog = new()
         {
             Owner = Window.GetWindow(this),
         };
