@@ -939,8 +939,10 @@ public partial class PluginWindow : Window, IPluginWindow
         tileBar.CaptionHeight = ActualHeight - 10;
     }
 
-    private void Window_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+    private void Image_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
     {
+        _ = image.Focus();
+
         ImageSource imageSource = image.Source;
         BitmapSource bitmapImage = (BitmapSource)imageSource;
         double pixelMousePositionX = e.GetPosition(image).X * bitmapImage.PixelWidth / image.ActualHeight;
@@ -970,7 +972,7 @@ public partial class PluginWindow : Window, IPluginWindow
         pluginClassInstance?.OnMouseClick(point, mouseButton);
     }
 
-    private void Window_MouseMove(object sender, System.Windows.Input.MouseEventArgs e)
+    private void Image_MouseMove(object sender, System.Windows.Input.MouseEventArgs e)
     {
         ImageSource imageSource = image.Source;
         BitmapSource bitmapImage = (BitmapSource)imageSource;
@@ -981,7 +983,7 @@ public partial class PluginWindow : Window, IPluginWindow
         pluginClassInstance?.OnMouseMove(point);
     }
 
-    private void Window_MouseWheel(object sender, System.Windows.Input.MouseWheelEventArgs e)
+    private void Image_MouseWheel(object sender, System.Windows.Input.MouseWheelEventArgs e)
     {
         ImageSource imageSource = image.Source;
         BitmapSource bitmapImage = (BitmapSource)imageSource;
@@ -990,6 +992,40 @@ public partial class PluginWindow : Window, IPluginWindow
 
         System.Drawing.Point point = new System.Drawing.Point((int)pixelMousePositionX, (int)pixelMousePositionY);
         pluginClassInstance?.OnMouseWheel(point, e.Delta);
+    }
+
+    private void Image_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+    {
+        if (pluginClassInstance is null)
+        {
+            return;
+        }
+
+        Keys key = (Keys)e.Key;
+        System.Windows.Input.ModifierKeys modifiers = e.KeyboardDevice.Modifiers;
+        bool alt = modifiers.HasFlag(System.Windows.Input.ModifierKeys.Alt);
+        bool control = modifiers.HasFlag(System.Windows.Input.ModifierKeys.Control);
+        bool shift = modifiers.HasFlag(System.Windows.Input.ModifierKeys.Shift);
+        bool windows = modifiers.HasFlag(System.Windows.Input.ModifierKeys.Windows);
+
+        pluginClassInstance.OnKeyDown(new KeyEventArgs(key, alt, control, shift, windows));
+    }
+
+    private void Image_KeyUp(object sender, System.Windows.Input.KeyEventArgs e)
+    {
+        if (pluginClassInstance is null)
+        {
+            return;
+        }
+
+        Keys key = (Keys)e.Key;
+        System.Windows.Input.ModifierKeys modifiers = e.KeyboardDevice.Modifiers;
+        bool alt = modifiers.HasFlag(System.Windows.Input.ModifierKeys.Alt);
+        bool control = modifiers.HasFlag(System.Windows.Input.ModifierKeys.Control);
+        bool shift = modifiers.HasFlag(System.Windows.Input.ModifierKeys.Shift);
+        bool windows = modifiers.HasFlag(System.Windows.Input.ModifierKeys.Windows);
+
+        pluginClassInstance.OnKeyUp(new KeyEventArgs(key, alt, control, shift, windows));
     }
 
     #endregion Window Events

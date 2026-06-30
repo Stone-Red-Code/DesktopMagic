@@ -26,7 +26,7 @@
                     <RectangleGeometry x:Name="rectangleGeometry" RadiusX="{Binding ElementName=border, Path=CornerRadius.TopLeft}" RadiusY="{Binding ElementName=border, Path=CornerRadius.TopLeft}" />
                 </Viewbox.Clip>
                 <Border x:Name="imageBorder" BorderBrush="#BAFFEF">
-                    <Image x:Name="image" RenderOptions.EdgeMode="Aliased" Margin="0,0,0,0" VerticalAlignment="Top"  RenderTransformOrigin="0.5,0.5" Stretch="Uniform" MouseDown="Window_MouseDown" MouseMove="Window_MouseMove" MouseWheel="Window_MouseWheel" />
+                    <Image x:Name="image" RenderOptions.EdgeMode="Aliased" Margin="0,0,0,0" VerticalAlignment="Top"  RenderTransformOrigin="0.5,0.5" Stretch="Uniform" Focusable="True" MouseDown="Image_MouseDown" MouseMove="Image_MouseMove" MouseWheel="Image_MouseWheel" KeyDown="Image_KeyDown" KeyUp="Image_KeyUp" />
                 </Border>
             </Viewbox>
         </Grid>
