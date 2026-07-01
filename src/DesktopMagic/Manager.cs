@@ -46,6 +46,8 @@ public sealed class Manager
         {new((string)App.LanguageDictionary["weather"], 5) { Author = "Stone_Red" }, typeof(WeatherPlugin)},
         {new((string)App.LanguageDictionary["nextMeetingCountdown"], 6) { Author = "Stone_Red" }, typeof(NextMeetingCountdownPlugin)},
         {new((string)App.LanguageDictionary["agenda"], 7) { Author = "Stone_Red" }, typeof(AgendaPlugin)},
+        {new((string)App.LanguageDictionary["benchmark"], 8) { Author = "Stone_Red" }, typeof(BenchmarkPlugin)},
+        {new((string)App.LanguageDictionary["skiaBenchmark"], 9) { Author = "Stone_Red" }, typeof(SkiaBenchmarkPlugin)},
     };
 
     // Window management

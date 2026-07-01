@@ -51,6 +51,7 @@
         <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.3650.58" />
         <PackageReference Include="Modio" Version="1.0.0" />
         <PackageReference Include="NAudio" Version="2.2.1" />
+        <PackageReference Include="SkiaSharp" Version="4.148.0" />
         <PackageReference Include="System.Management" Version="8.0.0" />
         <PackageReference Include="WPF-UI" Version="4.2.0" />
         <PackageReference Include="WPF-UI.Markdown" Version="4.0.2" />

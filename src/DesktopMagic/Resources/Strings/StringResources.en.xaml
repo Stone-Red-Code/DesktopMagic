@@ -40,6 +40,8 @@
     <system:String x:Key="weather">Weather</system:String>
     <system:String x:Key="nextMeetingCountdown">Next Meeting Countdown</system:String>
     <system:String x:Key="agenda">Agenda</system:String>
+    <system:String x:Key="benchmark">Performance Benchmark</system:String>
+    <system:String x:Key="skiaBenchmark">SkiaSharp Benchmark</system:String>
     <system:String x:Key="amplifier">Signal Amplification:</system:String>
     <system:String x:Key="newLayout">New Layout</system:String>
     <system:String x:Key="deleteLayout">Delete Layout</system:String>

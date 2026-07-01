@@ -6,6 +6,8 @@ using DesktopMagic.Helpers;
 using DesktopMagic.Plugins;
 using DesktopMagic.Settings;
 
+using SkiaSharp;
+
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -834,16 +836,36 @@ public partial class PluginWindow : Window, IPluginWindow
         {
             if (IsRunning && pluginClassInstance is not null)
             {
-                Bitmap? result;
-
-                if (pluginClassInstance is AsyncPlugin asyncPlugin)
+                if (pluginClassInstance is SkiaPlugin or SkiaAsyncPlugin)
                 {
-                    CancellationToken token = pluginCancellationTokenSource?.Token ?? CancellationToken.None;
-                    result = await asyncPlugin.MainAsync(token);
+                    await RenderSkiaFrame();
                 }
                 else
                 {
-                    result = pluginClassInstance.Main();
+                    Bitmap? result;
+
+                    if (pluginClassInstance is AsyncPlugin asyncPlugin)
+                    {
+                        CancellationToken token = pluginCancellationTokenSource?.Token ?? CancellationToken.None;
+                        result = await asyncPlugin.MainAsync(token);
+                    }
+                    else
+                    {
+                        result = pluginClassInstance.Main();
+                    }
+
+                    if (result is not null)
+                    {
+                        BitmapScalingMode renderOptions = pluginClassInstance.RenderQuality switch
+                        {
+                            RenderQuality.High => BitmapScalingMode.HighQuality,
+                            RenderQuality.Low => BitmapScalingMode.LowQuality,
+                            RenderQuality.Performance => BitmapScalingMode.NearestNeighbor,
+                            _ => BitmapScalingMode.Unspecified
+                        };
+
+                        UpdateImageFromBitmap(result, renderOptions);
+                    }
                 }
 
                 if (pluginClassInstance.UpdateInterval > 0)
@@ -853,19 +875,6 @@ public partial class PluginWindow : Window, IPluginWindow
                 else
                 {
                     updateTimer!.Stop();
-                }
-
-                if (result is not null)
-                {
-                    BitmapScalingMode renderOptions = pluginClassInstance.RenderQuality switch
-                    {
-                        RenderQuality.High => BitmapScalingMode.HighQuality,
-                        RenderQuality.Low => BitmapScalingMode.LowQuality,
-                        RenderQuality.Performance => BitmapScalingMode.NearestNeighbor,
-                        _ => BitmapScalingMode.Unspecified
-                    };
-
-                    UpdateImageFromBitmap(result, renderOptions);
                 }
             }
         }
@@ -891,6 +900,66 @@ public partial class PluginWindow : Window, IPluginWindow
         {
             updateTimer!.Stop();
         }
+    }
+
+    private async Task RenderSkiaFrame()
+    {
+        int width = 0;
+        int height = 0;
+
+        await Dispatcher.InvokeAsync(() =>
+        {
+            width = Math.Max(1, (int)ActualWidth);
+            height = Math.Max(1, (int)ActualHeight);
+        });
+
+        using SKSurface surface = SKSurface.Create(new SKImageInfo(width, height, SKColorType.Bgra8888, SKAlphaType.Premul));
+        surface.Canvas.Clear(SKColors.Transparent);
+
+        if (pluginClassInstance is SkiaAsyncPlugin skiaAsyncPlugin)
+        {
+            CancellationToken token = pluginCancellationTokenSource?.Token ?? CancellationToken.None;
+            await skiaAsyncPlugin.MainAsync(surface.Canvas, token);
+        }
+        else if (pluginClassInstance is SkiaPlugin skiaPlugin)
+        {
+            skiaPlugin.Main(surface.Canvas);
+        }
+
+        SKPixmap? pixmap = surface.PeekPixels();
+
+        if (pixmap is null)
+        {
+            return;
+        }
+
+        await Dispatcher.InvokeAsync(() =>
+        {
+            if (writeableBitmap is null || writeableBitmap.PixelWidth != width || writeableBitmap.PixelHeight != height)
+            {
+                writeableBitmap = new WriteableBitmap(width, height, 96, 96, PixelFormats.Bgra32, null);
+                image.Source = writeableBitmap;
+            }
+
+            writeableBitmap.Lock();
+            try
+            {
+                unsafe
+                {
+                    Buffer.MemoryCopy(
+                        pixmap.GetPixels().ToPointer(),
+                        writeableBitmap.BackBuffer.ToPointer(),
+                        writeableBitmap.BackBufferStride * height,
+                        pixmap.RowBytes * pixmap.Height);
+                }
+
+                writeableBitmap.AddDirtyRect(new Int32Rect(0, 0, width, height));
+            }
+            finally
+            {
+                writeableBitmap.Unlock();
+            }
+        });
     }
 
     private void Border_SizeChanged(object sender, SizeChangedEventArgs e)
