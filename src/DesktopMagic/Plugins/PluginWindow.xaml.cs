@@ -120,11 +120,10 @@ public partial class PluginWindow : Window, IPluginWindow
             string assemblyPath = Path.Combine(PluginFolderPath, assemblyName.Name + ".dll");
             if (File.Exists(assemblyPath))
             {
-                return ctx.LoadFromAssemblyPath(assemblyPath);
-            }
-            else
-            {
-                _ = ctx.LoadFromAssemblyName(assemblyName);
+                byte[] assemblyData = File.ReadAllBytes(assemblyPath);
+                using MemoryStream assemblyStream = new(assemblyData);
+
+                return ctx.LoadFromStream(assemblyStream);
             }
             return null;
         };
@@ -483,7 +482,7 @@ public partial class PluginWindow : Window, IPluginWindow
                 dll = Assembly.LoadFrom($"{PluginFolderPath}\\main.dll");
             }
 
-            Type? instanceType = Array.Find(dll.GetTypes(), type => type.GetTypeInfo().BaseType == typeof(Plugin));
+            Type? instanceType = Array.Find(dll.GetTypes(), type => type.IsAssignableTo(typeof(Plugin)));
 
             if (instanceType is null)
             {
