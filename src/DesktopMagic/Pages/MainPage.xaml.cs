@@ -165,7 +165,7 @@ public partial class MainPage : Page
         {
             _isLoadingLayout = true;
             _manager.SaveSettings();
-            _manager.LoadLayout(false);
+            _manager.LoadLayout();
         }
         finally
         {
@@ -200,7 +200,7 @@ public partial class MainPage : Page
                 _manager.Settings.Layouts.Add(new Layout(inputDialog.ResponseText.Trim()));
                 _manager.Settings.CurrentLayoutName = inputDialog.ResponseText.Trim();
                 _manager.SaveSettings();
-                _manager.LoadLayout(false);
+                _manager.LoadLayout();
             }
             finally
             {
@@ -242,7 +242,7 @@ public partial class MainPage : Page
             _isLoadingLayout = true;
             _ = _manager.Settings.Layouts.Remove(_manager.Settings.CurrentLayout);
             _manager.SaveSettings();
-            _manager.LoadLayout(false);
+            _manager.LoadLayout();
         }
         finally
         {

@@ -226,7 +226,7 @@ public sealed class Manager
         App.Logger.LogInfo("Reloading plugins", source: "PluginManager");
 
         LoadPlugins();
-        LoadLayout(false);
+        LoadLayout();
     }
 
     public void SetEditMode(bool editMode)
@@ -292,7 +292,7 @@ public sealed class Manager
 
     #region Layout Management
 
-    public void LoadLayout(bool minimize = true, Action? onComplete = null)
+    public void LoadLayout(Action? onComplete = null)
     {
         App.Logger.LogInfo("Loading layout", source: "Manager");
         BlockWindowsClosing = false;
@@ -304,8 +304,6 @@ public sealed class Manager
 
         BlockWindowsClosing = true;
         PluginWindows.Clear();
-
-        bool showWindow = true;
 
         // Load plugins
         foreach (uint pluginId in _plugins.Keys)
@@ -325,11 +323,6 @@ public sealed class Manager
             {
                 LoadPlugin(pluginId);
             }
-
-            if (showWindow && pluginSettings.Enabled)
-            {
-                showWindow = false;
-            }
         }
 
         // Remove plugins that are not loaded anymore
@@ -340,12 +333,6 @@ public sealed class Manager
         }
 
         Settings.CurrentLayout.UpdatePlugins();
-
-        if (minimize && !showWindow)
-        {
-            Application.Current.MainWindow.WindowState = WindowState.Minimized;
-            Application.Current.MainWindow.ShowInTaskbar = false;
-        }
 
         onComplete?.Invoke();
         App.Logger.LogInfo("Layout loaded", source: "Manager");

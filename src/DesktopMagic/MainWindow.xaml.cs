@@ -47,6 +47,18 @@ public partial class MainWindow : FluentWindow
             _manager.LoadPlugins();
             _manager.LoadLayout();
 
+            if (_manager.Settings.IsFirstRun)
+            {
+                _manager.Settings.IsFirstRun = false;
+                _ = Activate();
+            }
+            else
+            {
+                WindowState = WindowState.Minimized;
+                Visibility = Visibility.Collapsed;
+                ShowInTaskbar = false;
+            }
+
             _manager.IsLoaded = true;
             _mainWindowDataContext.IsLoading = false;
             await ShowLatestReleaseInfoAfterUpdateAsync();

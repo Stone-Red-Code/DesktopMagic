@@ -66,6 +66,8 @@ public class DesktopMagicSettings : INotifyPropertyChanged
 
     public string? ReleaseInfoLastAppVersion { get; set; }
 
+    public bool IsFirstRun { get; set; } = true;
+
     public DesktopMagicSettings()
     {
         themes.CollectionChanged += (s, e) => CurrentLayout.UpdateTheme();
