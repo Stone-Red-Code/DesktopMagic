@@ -7,6 +7,7 @@ using Microsoft.Web.WebView2.Core;
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
@@ -33,6 +34,13 @@ public partial class WebPluginWindow : Window, IPluginWindow
     private readonly string screenDeviceName;
     private bool isUpdatingPosition = false;
 
+    // Event handlers on long-lived settings objects, tracked so they can be unsubscribed on close.
+    private readonly PropertyChangedEventHandler settingsPropertyChangedHandler;
+    private readonly PropertyChangedEventHandler themePropertyChangedHandler;
+    private Theme? subscribedTheme;
+    private readonly List<(Setting Setting, Action Handler)> subscribedSettings = [];
+    private readonly List<(Button Button, Action Handler)> subscribedButtonClicks = [];
+
     public bool IsRunning { get; private set; } = true;
     public PluginMetadata PluginMetadata { get; private set; }
     public string PluginFolderPath { get; private set; }
@@ -58,14 +66,11 @@ public partial class WebPluginWindow : Window, IPluginWindow
 
         Owner = w;
 
-        settings.PropertyChanged += (e, s) =>
+        settingsPropertyChangedHandler = (_, s) =>
         {
             if (s.PropertyName == nameof(PluginSettings.CurrentThemeName))
             {
-                settings.Theme.PropertyChanged += (se, ev) =>
-                {
-                    ThemeChanged();
-                };
+                SubscribeToTheme(settings.Theme);
                 ThemeChanged();
             }
             else if (s.PropertyName == nameof(PluginSettings.Position))
@@ -77,11 +82,10 @@ public partial class WebPluginWindow : Window, IPluginWindow
                 UpdateSize();
             }
         };
+        settings.PropertyChanged += settingsPropertyChangedHandler;
 
-        settings.Theme.PropertyChanged += (se, ev) =>
-        {
-            ThemeChanged();
-        };
+        themePropertyChangedHandler = (_, _) => ThemeChanged();
+        SubscribeToTheme(settings.Theme);
 
         PluginMetadata = pluginMetadata;
         this.settings = settings;
@@ -101,6 +105,22 @@ public partial class WebPluginWindow : Window, IPluginWindow
         {
             InitializeHotReload();
         }
+    }
+
+    private void SubscribeToTheme(Theme theme)
+    {
+        if (ReferenceEquals(subscribedTheme, theme))
+        {
+            return;
+        }
+
+        if (subscribedTheme is not null)
+        {
+            subscribedTheme.PropertyChanged -= themePropertyChangedHandler;
+        }
+
+        subscribedTheme = theme;
+        subscribedTheme.PropertyChanged += themePropertyChangedHandler;
     }
 
     public void Exit()
@@ -266,6 +286,9 @@ public partial class WebPluginWindow : Window, IPluginWindow
 
         reloadDebounceTimer?.Stop();
         reloadDebounceTimer?.Dispose();
+        reloadDebounceTimer = null;
+
+        UnsubscribeEvents();
 
         try
         {
@@ -278,6 +301,29 @@ public partial class WebPluginWindow : Window, IPluginWindow
         {
             App.Logger.LogError($"\"{PluginMetadata.Name}\" - {ex}", source: "WebPlugin");
         }
+    }
+
+    private void UnsubscribeEvents()
+    {
+        settings.PropertyChanged -= settingsPropertyChangedHandler;
+
+        if (subscribedTheme is not null)
+        {
+            subscribedTheme.PropertyChanged -= themePropertyChangedHandler;
+            subscribedTheme = null;
+        }
+
+        foreach ((Setting setting, Action handler) in subscribedSettings)
+        {
+            setting.OnValueChanged -= handler;
+        }
+        subscribedSettings.Clear();
+
+        foreach ((Button button, Action handler) in subscribedButtonClicks)
+        {
+            button.OnClick -= handler;
+        }
+        subscribedButtonClicks.Clear();
     }
 
     private void UpdatePosition()
@@ -415,7 +461,7 @@ public partial class WebPluginWindow : Window, IPluginWindow
                 string capturedId = id;
                 if (setting is Button button)
                 {
-                    button.OnClick += () =>
+                    Action clickHandler = () =>
                     {
                         _ = webView.Dispatcher.InvokeAsync(async () =>
                         {
@@ -429,9 +475,11 @@ public partial class WebPluginWindow : Window, IPluginWindow
                             }
                         });
                     };
+                    button.OnClick += clickHandler;
+                    subscribedButtonClicks.Add((button, clickHandler));
                 }
 
-                setting.OnValueChanged += () =>
+                Action valueChangedHandler = () =>
                 {
                     _ = webView.Dispatcher.InvokeAsync(async () =>
                     {
@@ -445,6 +493,8 @@ public partial class WebPluginWindow : Window, IPluginWindow
                         }
                     });
                 };
+                setting.OnValueChanged += valueChangedHandler;
+                subscribedSettings.Add((setting, valueChangedHandler));
 
                 settingElements.Add(settingElement);
                 orderIndex++;
@@ -614,7 +664,7 @@ public partial class WebPluginWindow : Window, IPluginWindow
         Dictionary<string, object?> dict = [];
         foreach (SettingElement element in settings.Settings)
         {
-            dict[element.Id] = GetSettingValue(element.Input);
+            dict[element.Id] = GetSettingValue(element.Input!);
         }
         return JsonSerializer.Serialize(dict);
     }

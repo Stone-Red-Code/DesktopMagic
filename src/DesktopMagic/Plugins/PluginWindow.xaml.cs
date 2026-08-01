@@ -10,6 +10,8 @@ using SkiaSharp;
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -51,6 +53,14 @@ public partial class PluginWindow : Window, IPluginWindow
     private WriteableBitmap? writeableBitmap;
     private BitmapScalingMode lastBitmapScalingMode = BitmapScalingMode.Unspecified;
 
+    // Event handlers on long-lived settings objects, tracked so they can be unsubscribed on close.
+    private readonly PropertyChangedEventHandler settingsPropertyChangedHandler;
+    private readonly PropertyChangedEventHandler themePropertyChangedHandler;
+    private Theme? subscribedTheme;
+    private NotifyCollectionChangedEventHandler? themesCollectionChangedHandler;
+    private readonly List<Setting> subscribedSettings = [];
+    private readonly List<(Setting Setting, Action Handler)> defaultSettingsSubscriptions = [];
+
     public bool IsRunning { get; private set; } = true;
     public PluginMetadata PluginMetadata { get; private set; }
     public string PluginFolderPath { get; private set; }
@@ -76,14 +86,11 @@ public partial class PluginWindow : Window, IPluginWindow
 
         Owner = w;
 
-        settings.PropertyChanged += (e, s) =>
+        settingsPropertyChangedHandler = (_, s) =>
         {
             if (s.PropertyName == nameof(PluginSettings.CurrentThemeName))
             {
-                settings.Theme.PropertyChanged += (se, ev) =>
-                {
-                    ThemeChanged();
-                };
+                SubscribeToTheme(settings.Theme);
                 ThemeChanged();
             }
             else if (s.PropertyName == nameof(PluginSettings.Position))
@@ -95,11 +102,10 @@ public partial class PluginWindow : Window, IPluginWindow
                 UpdateSize();
             }
         };
+        settings.PropertyChanged += settingsPropertyChangedHandler;
 
-        settings.Theme.PropertyChanged += (se, ev) =>
-        {
-            ThemeChanged();
-        };
+        themePropertyChangedHandler = (_, _) => ThemeChanged();
+        SubscribeToTheme(settings.Theme);
 
         PluginMetadata = pluginMetadata;
         this.settings = settings;
@@ -127,6 +133,22 @@ public partial class PluginWindow : Window, IPluginWindow
     public PluginWindow(Plugin pluginClassInstance, PluginMetadata pluginMetadata, PluginSettings settings, Rectangle screenBounds, string screenDeviceName) : this(pluginMetadata, settings, string.Empty, screenBounds, screenDeviceName)
     {
         this.pluginClassInstance = pluginClassInstance;
+    }
+
+    private void SubscribeToTheme(Theme theme)
+    {
+        if (ReferenceEquals(subscribedTheme, theme))
+        {
+            return;
+        }
+
+        if (subscribedTheme is not null)
+        {
+            subscribedTheme.PropertyChanged -= themePropertyChangedHandler;
+        }
+
+        subscribedTheme = theme;
+        subscribedTheme.PropertyChanged += themePropertyChangedHandler;
     }
 
     private AssemblyLoadContext CreateAssemblyLoadContext()
@@ -580,14 +602,18 @@ public partial class PluginWindow : Window, IPluginWindow
             SetThemeOverride();
             SetThemeOverrideItems();
 
-            pluginClassInstance.horizontalAlignment.OnValueChanged += SetHorizontalAlignment;
-            pluginClassInstance.verticalAlignment.OnValueChanged += SetVerticalAlignment;
-            pluginClassInstance.windowLayer.OnValueChanged += SetWindowLayer;
-            pluginClassInstance.rotation.OnValueChanged += SetRotation;
-            pluginClassInstance.themeOverride.OnValueChanged += SetThemeOverride;
+            SubscribeToDefaultSetting(pluginClassInstance.horizontalAlignment, SetHorizontalAlignment);
+            SubscribeToDefaultSetting(pluginClassInstance.verticalAlignment, SetVerticalAlignment);
+            SubscribeToDefaultSetting(pluginClassInstance.windowLayer, SetWindowLayer);
+            SubscribeToDefaultSetting(pluginClassInstance.rotation, SetRotation);
+            SubscribeToDefaultSetting(pluginClassInstance.themeOverride, SetThemeOverride);
 
-            DesktopMagicSettings desktopMagicSettings = MainWindowDataContext.GetSettings();
-            desktopMagicSettings.Themes.CollectionChanged += (s, e) => SetThemeOverrideItems();
+            if (themesCollectionChangedHandler is null)
+            {
+                themesCollectionChangedHandler = (_, _) => SetThemeOverrideItems();
+                DesktopMagicSettings desktopMagicSettings = MainWindowDataContext.GetSettings();
+                desktopMagicSettings.Themes.CollectionChanged += themesCollectionChangedHandler;
+            }
         });
 
         void SetVerticalAlignment()
@@ -654,6 +680,22 @@ public partial class PluginWindow : Window, IPluginWindow
         }
     }
 
+    private void SubscribeToDefaultSetting(Setting setting, Action handler)
+    {
+        setting.OnValueChanged += handler;
+        defaultSettingsSubscriptions.Add((setting, handler));
+    }
+
+    private void OnPluginSettingValueChanged()
+    {
+        pluginClassInstance?.OnSettingsChanged();
+
+        if (pluginClassInstance?.UpdateInterval is 0 or > 500)
+        {
+            pluginClassInstance.Application.UpdateWindow();
+        }
+    }
+
     private async Task LoadOptions(object instance)
     {
         App.Logger.LogInfo($"\"{PluginMetadata.Name}\" - Loading plugin options", source: "Plugin");
@@ -679,15 +721,8 @@ public partial class PluginWindow : Window, IPluginWindow
                                 settingElement.JsonValue = settingsSettingElement.JsonValue;
                             }
 
-                            element.OnValueChanged += () =>
-                            {
-                                pluginClassInstance?.OnSettingsChanged();
-
-                                if (pluginClassInstance?.UpdateInterval is 0 or > 500)
-                                {
-                                    pluginClassInstance.Application.UpdateWindow();
-                                }
-                            };
+                            element.OnValueChanged += OnPluginSettingValueChanged;
+                            subscribedSettings.Add(element);
 
                             settingElements.Add(settingElement);
                             break;
@@ -848,54 +883,73 @@ public partial class PluginWindow : Window, IPluginWindow
 
     private async void UpdateTimer_Elapsed(object? sender, ElapsedEventArgs? e)
     {
+        // Capture the fields into locals so an in-flight tick keeps the plugin assembly
+        // alive and stays safe when the window is being closed or the plugin reloaded.
+        Plugin? plugin = pluginClassInstance;
+        System.Timers.Timer? timer = updateTimer;
+
+        if (!IsRunning || plugin is null)
+        {
+            return;
+        }
+
         try
         {
-            if (IsRunning && pluginClassInstance is not null)
+            if (plugin is SkiaPlugin or SkiaAsyncPlugin)
             {
-                if (pluginClassInstance is SkiaPlugin or SkiaAsyncPlugin)
+                await RenderSkiaFrame();
+            }
+            else
+            {
+                Bitmap? result;
+
+                if (plugin is AsyncPlugin asyncPlugin)
                 {
-                    await RenderSkiaFrame();
+                    CancellationToken token = pluginCancellationTokenSource?.Token ?? CancellationToken.None;
+                    result = await asyncPlugin.MainAsync(token);
                 }
                 else
                 {
-                    Bitmap? result;
-
-                    if (pluginClassInstance is AsyncPlugin asyncPlugin)
-                    {
-                        CancellationToken token = pluginCancellationTokenSource?.Token ?? CancellationToken.None;
-                        result = await asyncPlugin.MainAsync(token);
-                    }
-                    else
-                    {
-                        result = pluginClassInstance.Main();
-                    }
-
-                    if (result is not null)
-                    {
-                        BitmapScalingMode renderOptions = pluginClassInstance.RenderQuality switch
-                        {
-                            RenderQuality.High => BitmapScalingMode.HighQuality,
-                            RenderQuality.Low => BitmapScalingMode.LowQuality,
-                            RenderQuality.Performance => BitmapScalingMode.NearestNeighbor,
-                            _ => BitmapScalingMode.Unspecified
-                        };
-
-                        UpdateImageFromBitmap(result, renderOptions);
-                    }
+                    result = plugin.Main();
                 }
 
-                if (pluginClassInstance.UpdateInterval > 0)
+                if (result is not null)
                 {
-                    updateTimer!.Interval = pluginClassInstance.UpdateInterval;
+                    BitmapScalingMode renderOptions = plugin.RenderQuality switch
+                    {
+                        RenderQuality.High => BitmapScalingMode.HighQuality,
+                        RenderQuality.Low => BitmapScalingMode.LowQuality,
+                        RenderQuality.Performance => BitmapScalingMode.NearestNeighbor,
+                        _ => BitmapScalingMode.Unspecified
+                    };
+
+                    UpdateImageFromBitmap(result, renderOptions);
                 }
-                else
-                {
-                    updateTimer!.Stop();
-                }
+            }
+
+            if (timer is null)
+            {
+                return;
+            }
+
+            if (plugin.UpdateInterval > 0)
+            {
+                timer.Interval = plugin.UpdateInterval;
+            }
+            else
+            {
+                timer.Stop();
             }
         }
         catch (Exception ex)
         {
+            // If the window is closing, the plugin state is being torn down and the
+            // exception is a teardown race - ignore it instead of showing an error.
+            if (!IsRunning)
+            {
+                return;
+            }
+
             IsRunning = false;
             App.Logger.LogError($"\"{PluginMetadata.Name}\" - {ex}", source: "Plugin");
             _ = await Dispatcher.InvokeAsync(async () =>
@@ -909,17 +963,18 @@ public partial class PluginWindow : Window, IPluginWindow
                 _ = await messageBox.ShowDialogAsync();
             });
             Exit();
-            return;
-        }
-
-        if (!IsRunning)
-        {
-            updateTimer!.Stop();
         }
     }
 
     private async Task RenderSkiaFrame()
     {
+        Plugin? plugin = pluginClassInstance;
+
+        if (plugin is null)
+        {
+            return;
+        }
+
         int width = 0;
         int height = 0;
 
@@ -932,12 +987,12 @@ public partial class PluginWindow : Window, IPluginWindow
         using SKSurface surface = SKSurface.Create(new SKImageInfo(width, height, SKColorType.Bgra8888, SKAlphaType.Premul));
         surface.Canvas.Clear(SKColors.Transparent);
 
-        if (pluginClassInstance is SkiaAsyncPlugin skiaAsyncPlugin)
+        if (plugin is SkiaAsyncPlugin skiaAsyncPlugin)
         {
             CancellationToken token = pluginCancellationTokenSource?.Token ?? CancellationToken.None;
             await skiaAsyncPlugin.MainAsync(surface.Canvas, token);
         }
-        else if (pluginClassInstance is SkiaPlugin skiaPlugin)
+        else if (plugin is SkiaPlugin skiaPlugin)
         {
             skiaPlugin.Main(surface.Canvas);
         }
@@ -1006,8 +1061,54 @@ public partial class PluginWindow : Window, IPluginWindow
         reloadDebounceTimer?.Dispose();
         reloadDebounceTimer = null;
 
+        updateTimer?.Stop();
+        updateTimer?.Dispose();
+        updateTimer = null;
+
         // Stop plugin using the shared method (no need to await in synchronous event handler)
         _ = StopPlugin(unloadAssembly: true);
+
+        UnsubscribeEvents();
+        DetachSettings();
+    }
+
+    private void DetachSettings()
+    {
+        foreach (SettingElement settingElement in settings.Settings)
+        {
+            string value = settingElement.JsonValue;
+            settingElement.Input = null;
+            settingElement.JsonValue = value;
+        }
+    }
+
+    private void UnsubscribeEvents()
+    {
+        settings.PropertyChanged -= settingsPropertyChangedHandler;
+
+        if (subscribedTheme is not null)
+        {
+            subscribedTheme.PropertyChanged -= themePropertyChangedHandler;
+            subscribedTheme = null;
+        }
+
+        if (themesCollectionChangedHandler is not null)
+        {
+            MainWindowDataContext.GetSettings().Themes.CollectionChanged -= themesCollectionChangedHandler;
+            themesCollectionChangedHandler = null;
+        }
+
+        foreach (Setting setting in subscribedSettings)
+        {
+            setting.OnValueChanged -= OnPluginSettingValueChanged;
+        }
+        subscribedSettings.Clear();
+
+        foreach ((Setting Setting, Action Handler) subscription in defaultSettingsSubscriptions)
+        {
+            subscription.Setting.OnValueChanged -= subscription.Handler;
+        }
+        defaultSettingsSubscriptions.Clear();
     }
 
     private void UpdatePosition()

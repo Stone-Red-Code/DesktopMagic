@@ -9,7 +9,7 @@ public class SettingElement
     private string jsonValue = string.Empty;
 
     [JsonIgnore]
-    public Setting Input { get; set; }
+    public Setting? Input { get; set; }
 
     public string Name { get; set; }
     public int OrderIndex { get; set; }
