@@ -29,11 +29,16 @@ public partial class WebPluginWindow : Window, IPluginWindow
     private System.Timers.Timer? reloadDebounceTimer;
     private bool isReloading = false;
 
+    private readonly System.Drawing.Rectangle screenBounds;
+    private readonly string screenDeviceName;
+    private bool isUpdatingPosition = false;
+
     public bool IsRunning { get; private set; } = true;
     public PluginMetadata PluginMetadata { get; private set; }
     public string PluginFolderPath { get; private set; }
+    public string ScreenDeviceName => screenDeviceName;
 
-    public WebPluginWindow(PluginMetadata pluginMetadata, PluginSettings settings, string pluginFolderPath)
+    public WebPluginWindow(PluginMetadata pluginMetadata, PluginSettings settings, string pluginFolderPath, System.Drawing.Rectangle screenBounds, string screenDeviceName)
     {
         InitializeComponent();
 
@@ -63,6 +68,14 @@ public partial class WebPluginWindow : Window, IPluginWindow
                 };
                 ThemeChanged();
             }
+            else if (s.PropertyName == nameof(PluginSettings.Position))
+            {
+                UpdatePosition();
+            }
+            else if (s.PropertyName == nameof(PluginSettings.Size))
+            {
+                UpdateSize();
+            }
         };
 
         settings.Theme.PropertyChanged += (se, ev) =>
@@ -72,11 +85,15 @@ public partial class WebPluginWindow : Window, IPluginWindow
 
         PluginMetadata = pluginMetadata;
         this.settings = settings;
+        this.screenBounds = screenBounds;
+        this.screenDeviceName = screenDeviceName;
 
-        Left = settings.Position.X;
-        Top = settings.Position.Y;
-        Width = settings.Size.X;
-        Height = settings.Size.Y;
+        Point position = ScreenUtilities.PercentToPosition(settings.Position, screenBounds);
+        Point size = ScreenUtilities.PercentSizeToSize(settings.Size, screenBounds);
+        Left = position.X;
+        Top = position.Y;
+        Width = size.X;
+        Height = size.Y;
 
         PluginFolderPath = pluginFolderPath;
 
@@ -263,14 +280,71 @@ public partial class WebPluginWindow : Window, IPluginWindow
         }
     }
 
+    private void UpdatePosition()
+    {
+        if (isUpdatingPosition)
+        {
+            return;
+        }
+
+        Point position = ScreenUtilities.PercentToPosition(settings.Position, screenBounds);
+        if (position == new Point(Left, Top))
+        {
+            return;
+        }
+
+        isUpdatingPosition = true;
+        Left = position.X;
+        Top = position.Y;
+        isUpdatingPosition = false;
+    }
+
+    private void UpdateSize()
+    {
+        if (isUpdatingPosition)
+        {
+            return;
+        }
+
+        Point size = ScreenUtilities.PercentSizeToSize(settings.Size, screenBounds);
+        if (size == new Point(Width, Height))
+        {
+            return;
+        }
+
+        isUpdatingPosition = true;
+        Width = size.X;
+        Height = size.Y;
+        isUpdatingPosition = false;
+    }
+
     private void Window_LocationChanged(object sender, EventArgs e)
     {
-        settings.Position = new System.Windows.Point(Left, Top);
+        if (isUpdatingPosition)
+        {
+            return;
+        }
+
+        Point topLeft = new(Left, Top);
+        Point clamped = ScreenUtilities.ClampToScreenBounds(topLeft, new Size(ActualWidth, ActualHeight), screenBounds);
+
+        if (clamped != topLeft)
+        {
+            isUpdatingPosition = true;
+            Left = clamped.X;
+            Top = clamped.Y;
+            isUpdatingPosition = false;
+        }
+
+        settings.Position = ScreenUtilities.PositionToPercent(new Point(Left, Top), screenBounds);
     }
 
     private void Window_SizeChanged(object sender, SizeChangedEventArgs e)
     {
-        settings.Size = new System.Windows.Point(Width, Height);
+        if (!isUpdatingPosition)
+        {
+            settings.Size = ScreenUtilities.SizeToPercent(new Point(Width, Height), screenBounds);
+        }
 
         tileBar.CaptionHeight = ActualHeight - 10;
     }

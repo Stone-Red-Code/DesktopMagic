@@ -69,7 +69,7 @@ public partial class ThemePage : Page
             }
 
             _manager.Settings.Themes.Add(new Theme(inputDialog.ResponseText.Trim()));
-            _manager.Settings.CurrentLayout.CurrentThemeName = inputDialog.ResponseText.Trim();
+            _manager.SelectedLayout.CurrentThemeName = inputDialog.ResponseText.Trim();
             _manager.SaveSettings();
         }
     }

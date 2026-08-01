@@ -32,7 +32,7 @@
         </ui:Card>
 
         <ScrollViewer Background="#FFBBBBBB" PreviewMouseWheel="ScrollViewer_PreviewMouseWheel" Grid.Row="1" VerticalAlignment="Stretch" VerticalContentAlignment="Top">
-            <ItemsControl x:Name="pluginsItemsControl" ItemsSource="{Binding Settings.CurrentLayout.Plugins}">
+            <ItemsControl x:Name="pluginsItemsControl" ItemsSource="{Binding SelectedLayout.Plugins}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
                         <ui:CardExpander Tag="{Binding}" Margin="0 0 0 5" Expanded="OptionsCardExpander_Expanded">
@@ -69,18 +69,25 @@
         </ScrollViewer>
 
         <ui:Card Grid.Row="2" Grid.ColumnSpan="2" Margin="0 5 0 0" Padding="5">
-            <Grid  >
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto" />
+                    <RowDefinition Height="5" />
+                    <RowDefinition Height="auto" />
+                </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="1*" />
                     <ColumnDefinition Width="5" />
-                    <ColumnDefinition Width="0.5*" />
-                    <ColumnDefinition Width="5" />
-                    <ColumnDefinition Width="0.5*" />
+                    <ColumnDefinition Width="1*" />
                 </Grid.ColumnDefinitions>
 
-                <ComboBox x:Name="layoutsComboBox" ItemsSource="{Binding Settings.Layouts}" DisplayMemberPath="Name" SelectedValue="{Binding Settings.CurrentLayoutName}" SelectedValuePath="Name" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Padding="4" SelectionChanged="LayoutsComboBox_SelectionChanged" />
-                <ui:Button x:Name="newLayoutButton" Content="{DynamicResource newLayout}" Grid.Column="2" Icon="{ui:SymbolIcon Add24}"  HorizontalAlignment="Stretch" Click="NewLayoutButton_Click" FontWeight="Regular"/>
-                <ui:Button x:Name="removeLayoutButton" Content="{DynamicResource deleteLayout}" Icon="{ui:SymbolIcon Delete24}"  Grid.Column="4" HorizontalAlignment="Stretch" Click="RemoveLayoutButton_Click" FontWeight="Regular"/>
+                <ComboBox x:Name="screensComboBox" ItemsSource="{Binding Screens}" DisplayMemberPath="DisplayName" SelectedValue="{Binding SelectedScreenId}" SelectedValuePath="DeviceName" VerticalAlignment="Center" />
+                <ComboBox x:Name="layoutsComboBox" Grid.Column="2" ItemsSource="{Binding Settings.Layouts}" DisplayMemberPath="Name" SelectedValue="{Binding SelectedLayoutName}" SelectedValuePath="Name" VerticalAlignment="Center" SelectionChanged="LayoutsComboBox_SelectionChanged" />
+
+                <StackPanel Grid.Row="2" Grid.ColumnSpan="3" Orientation="Horizontal" HorizontalAlignment="Right">
+                    <ui:Button x:Name="newLayoutButton" Content="{DynamicResource newLayout}" Icon="{ui:SymbolIcon Add24}" Margin="0,0,5,0" Click="NewLayoutButton_Click" FontWeight="Regular" />
+                    <ui:Button x:Name="removeLayoutButton" Content="{DynamicResource deleteLayout}" Icon="{ui:SymbolIcon Delete24}" Margin="0,0,5,0" Click="RemoveLayoutButton_Click" FontWeight="Regular" />
+                </StackPanel>
             </Grid>
         </ui:Card>
     </Grid>

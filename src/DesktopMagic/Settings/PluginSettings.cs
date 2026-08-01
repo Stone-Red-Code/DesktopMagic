@@ -19,12 +19,16 @@ public class PluginSettings : INotifyPropertyChanged
     private List<SettingElement> settings = [];
     private Dictionary<string, JsonElement> state = [];
     private bool enabled = false;
-    private Point position = new Point(100, 100);
-    private Point size = new Point(300, 300);
+    private Point position = new Point(0.05, 0.05);
+    private Point size = new Point(0.3, 0.3);
 
     // Only for internal use to show the name of the plugin in the main window
     [JsonIgnore]
     public PluginMetadata Metadata { get; set; } = new();
+
+    // The layout this plugin belongs to, used to resolve the fallback theme
+    [JsonIgnore]
+    public Layout? Owner { get; set; }
 
     [JsonIgnore]
     public Theme Theme
@@ -32,7 +36,7 @@ public class PluginSettings : INotifyPropertyChanged
         get
         {
             DesktopMagicSettings settings = MainWindowDataContext.GetSettings();
-            return settings.Themes.FirstOrDefault(t => t.Name == currentThemeName) ?? settings.CurrentLayout.Theme;
+            return settings.Themes.FirstOrDefault(t => t.Name == currentThemeName) ?? Owner?.Theme ?? settings.CurrentLayout.Theme;
         }
     }
 
@@ -93,6 +97,9 @@ public class PluginSettings : INotifyPropertyChanged
         }
     }
 
+    /// <summary>
+    /// Position of the plugin window as percentages (0..1) of the owning screen's bounds.
+    /// </summary>
     public Point Position
     {
         get => position;
@@ -106,6 +113,9 @@ public class PluginSettings : INotifyPropertyChanged
         }
     }
 
+    /// <summary>
+    /// Size of the plugin window as percentages (0..1) of the owning screen's bounds.
+    /// </summary>
     public Point Size
     {
         get => size;

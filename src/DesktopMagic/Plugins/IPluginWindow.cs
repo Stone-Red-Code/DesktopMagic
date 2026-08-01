@@ -13,6 +13,7 @@ public interface IPluginWindow
     PluginMetadata PluginMetadata { get; }
     string PluginFolderPath { get; }
     string Title { get; set; }
+    string ScreenDeviceName { get; }
 
     void Exit();
     void SetEditMode(bool enabled);

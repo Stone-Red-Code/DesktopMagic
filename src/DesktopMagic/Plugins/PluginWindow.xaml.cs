@@ -39,6 +39,10 @@ public partial class PluginWindow : Window, IPluginWindow
     private Plugin? pluginClassInstance;
     private AssemblyLoadContext assemblyLoadContext;
 
+    private readonly Rectangle screenBounds;
+    private readonly string screenDeviceName;
+    private bool isUpdatingPosition = false;
+
     private CancellationTokenSource? pluginCancellationTokenSource;
     private FileSystemWatcher? pluginFileWatcher;
     private System.Timers.Timer? reloadDebounceTimer;
@@ -50,8 +54,9 @@ public partial class PluginWindow : Window, IPluginWindow
     public bool IsRunning { get; private set; } = true;
     public PluginMetadata PluginMetadata { get; private set; }
     public string PluginFolderPath { get; private set; }
+    public string ScreenDeviceName => screenDeviceName;
 
-    public PluginWindow(PluginMetadata pluginMetadata, PluginSettings settings, string pluginFolderPath)
+    public PluginWindow(PluginMetadata pluginMetadata, PluginSettings settings, string pluginFolderPath, Rectangle screenBounds, string screenDeviceName)
     {
         InitializeComponent();
 
@@ -81,6 +86,14 @@ public partial class PluginWindow : Window, IPluginWindow
                 };
                 ThemeChanged();
             }
+            else if (s.PropertyName == nameof(PluginSettings.Position))
+            {
+                UpdatePosition();
+            }
+            else if (s.PropertyName == nameof(PluginSettings.Size))
+            {
+                UpdateSize();
+            }
         };
 
         settings.Theme.PropertyChanged += (se, ev) =>
@@ -90,11 +103,15 @@ public partial class PluginWindow : Window, IPluginWindow
 
         PluginMetadata = pluginMetadata;
         this.settings = settings;
+        this.screenBounds = screenBounds;
+        this.screenDeviceName = screenDeviceName;
 
-        Left = settings.Position.X;
-        Top = settings.Position.Y;
-        Width = settings.Size.X;
-        Height = settings.Size.Y;
+        System.Windows.Point position = ScreenUtilities.PercentToPosition(settings.Position, screenBounds);
+        System.Windows.Point size = ScreenUtilities.PercentSizeToSize(settings.Size, screenBounds);
+        Left = position.X;
+        Top = position.Y;
+        Width = size.X;
+        Height = size.Y;
 
         PluginFolderPath = pluginFolderPath;
 
@@ -107,7 +124,7 @@ public partial class PluginWindow : Window, IPluginWindow
         }
     }
 
-    public PluginWindow(Plugin pluginClassInstance, PluginMetadata pluginMetadata, PluginSettings settings) : this(pluginMetadata, settings, string.Empty)
+    public PluginWindow(Plugin pluginClassInstance, PluginMetadata pluginMetadata, PluginSettings settings, Rectangle screenBounds, string screenDeviceName) : this(pluginMetadata, settings, string.Empty, screenBounds, screenDeviceName)
     {
         this.pluginClassInstance = pluginClassInstance;
     }
@@ -993,16 +1010,73 @@ public partial class PluginWindow : Window, IPluginWindow
         _ = StopPlugin(unloadAssembly: true);
     }
 
+    private void UpdatePosition()
+    {
+        if (isUpdatingPosition)
+        {
+            return;
+        }
+
+        System.Windows.Point position = ScreenUtilities.PercentToPosition(settings.Position, screenBounds);
+        if (position == new System.Windows.Point(Left, Top))
+        {
+            return;
+        }
+
+        isUpdatingPosition = true;
+        Left = position.X;
+        Top = position.Y;
+        isUpdatingPosition = false;
+    }
+
+    private void UpdateSize()
+    {
+        if (isUpdatingPosition)
+        {
+            return;
+        }
+
+        System.Windows.Point size = ScreenUtilities.PercentSizeToSize(settings.Size, screenBounds);
+        if (size == new System.Windows.Point(Width, Height))
+        {
+            return;
+        }
+
+        isUpdatingPosition = true;
+        Width = size.X;
+        Height = size.Y;
+        isUpdatingPosition = false;
+    }
+
     #region Window Events
 
     private void Window_LocationChanged(object sender, EventArgs e)
     {
-        settings.Position = new System.Windows.Point(Left, Top);
+        if (isUpdatingPosition)
+        {
+            return;
+        }
+
+        System.Windows.Point topLeft = new(Left, Top);
+        System.Windows.Point clamped = ScreenUtilities.ClampToScreenBounds(topLeft, new System.Windows.Size(ActualWidth, ActualHeight), screenBounds);
+
+        if (clamped != topLeft)
+        {
+            isUpdatingPosition = true;
+            Left = clamped.X;
+            Top = clamped.Y;
+            isUpdatingPosition = false;
+        }
+
+        settings.Position = ScreenUtilities.PositionToPercent(new System.Windows.Point(Left, Top), screenBounds);
     }
 
     private void Window_SizeChanged(object sender, SizeChangedEventArgs e)
     {
-        settings.Size = new System.Windows.Point(Width, Height);
+        if (!isUpdatingPosition)
+        {
+            settings.Size = ScreenUtilities.SizeToPercent(new System.Windows.Point(Width, Height), screenBounds);
+        }
 
         tileBar.CaptionHeight = ActualHeight - 10;
     }

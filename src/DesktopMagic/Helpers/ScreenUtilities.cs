@@ -1,0 +1,266 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.InteropServices;
+using System.Windows;
+
+namespace DesktopMagic.Helpers;
+
+/// <summary>
+/// Helpers for enumerating screens and converting between percentage based
+/// positions/sizes (relative to a screen's bounds) and absolute positions.
+/// All conversions work in WPF DIP space because WPF window <see cref="Window.Left"/>,
+/// <see cref="Window.Top"/>, <see cref="Window.Width"/> and <see cref="Window.Height"/>
+/// are expressed in device independent pixels, while <see cref="System.Windows.Forms.Screen.Bounds"/>
+/// is expressed in physical pixels. Each screen is therefore converted to DIP space
+/// using its own DPI scaling factor.
+/// </summary>
+public static class ScreenUtilities
+{
+    private const uint MonitorDefaultToNearest = 0x00000002;
+
+    private const int MDT_EFFECTIVE_DPI = 0;
+
+    /// <summary>
+    /// Gets the list of all screens currently connected, in the order reported by Windows.
+    /// </summary>
+    public static List<System.Windows.Forms.Screen> GetAllScreens()
+    {
+        return System.Windows.Forms.Screen.AllScreens.ToList();
+    }
+
+    /// <summary>
+    /// Gets the screen matching the given device name (e.g. "\\.\DISPLAY1"), or null.
+    /// </summary>
+    public static System.Windows.Forms.Screen? GetScreenByDeviceName(string? deviceName)
+    {
+        if (string.IsNullOrWhiteSpace(deviceName))
+        {
+            return null;
+        }
+
+        return System.Windows.Forms.Screen.AllScreens.FirstOrDefault(screen => string.Equals(screen.DeviceName, deviceName, StringComparison.OrdinalIgnoreCase));
+    }
+
+    /// <summary>
+    /// Gets the primary screen, or the first available screen as a fallback.
+    /// </summary>
+    public static System.Windows.Forms.Screen GetPrimaryScreen()
+    {
+        return System.Windows.Forms.Screen.PrimaryScreen ?? System.Windows.Forms.Screen.AllScreens.FirstOrDefault()
+            ?? throw new InvalidOperationException("No screens detected.");
+    }
+
+    /// <summary>
+    /// Aspect ratio (Width / Height) of the screen's bounds.
+    /// </summary>
+    public static double GetAspectRatio(System.Windows.Forms.Screen screen)
+    {
+        if (screen.Bounds.Height == 0)
+        {
+            return 0;
+        }
+
+        return screen.Bounds.Width / (double)screen.Bounds.Height;
+    }
+
+    /// <summary>
+    /// Converts a percentage based position (0..1 relative to the screen bounds) to an absolute
+    /// WPF position (DIPs) on that screen.
+    /// </summary>
+    public static Point PercentToPosition(Point percent, System.Drawing.Rectangle bounds)
+    {
+        Rect dips = GetScreenDips(bounds);
+        return new Point(
+            dips.Left + (percent.X * dips.Width),
+            dips.Top + (percent.Y * dips.Height));
+    }
+
+    /// <summary>
+    /// Converts an absolute WPF position (DIPs) to a percentage (0..1) of the screen bounds.
+    /// </summary>
+    public static Point PositionToPercent(Point position, System.Drawing.Rectangle bounds)
+    {
+        Rect dips = GetScreenDips(bounds);
+        if (dips.Width == 0 || dips.Height == 0)
+        {
+            return new Point(0.05, 0.05);
+        }
+
+        return new Point(
+            (position.X - dips.Left) / dips.Width,
+            (position.Y - dips.Top) / dips.Height);
+    }
+
+    /// <summary>
+    /// Converts a percentage based size (0..1 of the screen bounds) to an absolute WPF size (DIPs).
+    /// </summary>
+    public static Point PercentSizeToSize(Point percent, System.Drawing.Rectangle bounds)
+    {
+        Rect dips = GetScreenDips(bounds);
+        return new Point(
+            percent.X * dips.Width,
+            percent.Y * dips.Height);
+    }
+
+    /// <summary>
+    /// Converts an absolute WPF size (DIPs) to a percentage (0..1) of the screen bounds.
+    /// </summary>
+    public static Point SizeToPercent(Point size, System.Drawing.Rectangle bounds)
+    {
+        Rect dips = GetScreenDips(bounds);
+        if (dips.Width == 0 || dips.Height == 0)
+        {
+            return new Point(0.3, 0.3);
+        }
+
+        return new Point(
+            size.X / dips.Width,
+            size.Y / dips.Height);
+    }
+
+    /// <summary>
+    /// Clamps an absolute WPF position (DIPs) so that the window (of the given size)
+    /// stays within the screen bounds. This prevents widgets from being moved to another screen.
+    /// </summary>
+    public static Point ClampToScreenBounds(Point topLeft, Size size, System.Drawing.Rectangle bounds)
+    {
+        Rect dips = GetScreenDips(bounds);
+        double x = topLeft.X;
+        double y = topLeft.Y;
+
+        if (size.Width <= dips.Width)
+        {
+            x = Math.Clamp(x, dips.Left, dips.Right - size.Width);
+        }
+        else
+        {
+            x = dips.Left;
+        }
+
+        if (size.Height <= dips.Height)
+        {
+            y = Math.Clamp(y, dips.Top, dips.Bottom - size.Height);
+        }
+        else
+        {
+            y = dips.Top;
+        }
+
+        return new Point(x, y);
+    }
+
+    /// <summary>
+    /// Builds a human readable label for a screen, e.g. "Display 1 · DELL U2715H · 3840x2160".
+    /// </summary>
+    public static string GetScreenLabel(System.Windows.Forms.Screen screen, int index)
+    {
+        string name = GetFriendlyName(screen);
+        string resolution = $"{screen.Bounds.Width}x{screen.Bounds.Height}";
+
+        return string.IsNullOrWhiteSpace(name) || string.Equals(name, "Generic PnP Monitor", StringComparison.OrdinalIgnoreCase)
+            ? $"Display {index + 1} · {resolution}"
+            : $"Display {index + 1} · {name} · {resolution}";
+    }
+
+    /// <summary>
+    /// Gets the friendly monitor model name (e.g. "DELL U2715H") for the given screen,
+    /// or an empty string when it cannot be determined.
+    /// </summary>
+    public static string GetFriendlyName(System.Windows.Forms.Screen screen)
+    {
+        try
+        {
+            var device = new DISPLAY_DEVICE { cb = (uint)Marshal.SizeOf<DISPLAY_DEVICE>() };
+            if (EnumDisplayDevices(screen.DeviceName, 0, ref device, 0))
+            {
+                var monitor = new DISPLAY_DEVICE { cb = (uint)Marshal.SizeOf<DISPLAY_DEVICE>() };
+                if (EnumDisplayDevices(device.DeviceName, 0, ref monitor, 0))
+                {
+                    return monitor.DeviceString;
+                }
+            }
+        }
+        catch (Exception)
+        {
+            // Fall through to an empty name.
+        }
+
+        return string.Empty;
+    }
+
+    /// <summary>
+    /// Gets the screen bounds converted to WPF DIP space using the screen's own DPI scaling factor.
+    /// </summary>
+    private static Rect GetScreenDips(System.Drawing.Rectangle bounds)
+    {
+        double scale = GetDpiScale(bounds);
+        return new Rect(
+            bounds.Left / scale,
+            bounds.Top / scale,
+            bounds.Width / scale,
+            bounds.Height / scale);
+    }
+
+    /// <summary>
+    /// Gets the DPI scaling factor (relative to 96 DPI) of the screen containing the given bounds.
+    /// </summary>
+    private static double GetDpiScale(System.Drawing.Rectangle bounds)
+    {
+        try
+        {
+            var center = new POINT
+            {
+                X = bounds.Left + (bounds.Width / 2),
+                Y = bounds.Top + (bounds.Height / 2)
+            };
+            IntPtr monitor = MonitorFromPoint(center, MonitorDefaultToNearest);
+            if (GetDpiForMonitor(monitor, MDT_EFFECTIVE_DPI, out uint dpiX, out _) == 0)
+            {
+                return dpiX / 96.0;
+            }
+        }
+        catch (Exception)
+        {
+            // Fall through to no scaling if DPI APIs are unavailable.
+        }
+
+        return 1.0;
+    }
+
+    [DllImport("user32.dll")]
+    private static extern IntPtr MonitorFromPoint(POINT point, uint dwFlags);
+
+    [DllImport("shcore.dll")]
+    private static extern int GetDpiForMonitor(IntPtr hMonitor, int dpiType, out uint dpiX, out uint dpiY);
+
+    [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+    private static extern bool EnumDisplayDevices(string? lpDevice, uint iDevNum, ref DISPLAY_DEVICE lpDisplayDevice, uint dwFlags);
+
+    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+    private struct DISPLAY_DEVICE
+    {
+        public uint cb;
+
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 32)]
+        public string DeviceName;
+
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 128)]
+        public string DeviceString;
+
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 128)]
+        public string DeviceID;
+
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 128)]
+        public string DeviceKey;
+
+        public uint StateFlags;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct POINT
+    {
+        public int X;
+        public int Y;
+    }
+}

@@ -1,5 +1,6 @@
 ﻿using DesktopMagic.Plugins;
 
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
@@ -22,7 +23,13 @@ public class DesktopMagicSettings : INotifyPropertyChanged
         init
         {
             themes = value;
-            themes.CollectionChanged += (s, e) => CurrentLayout.UpdateTheme();
+            themes.CollectionChanged += (s, e) =>
+            {
+                foreach (Layout layout in layouts)
+                {
+                    layout.UpdateTheme();
+                }
+            };
             OnPropertyChanged();
         }
     }
@@ -62,6 +69,18 @@ public class DesktopMagicSettings : INotifyPropertyChanged
         }
     }
 
+    /// <summary>
+    /// Maps screen device names (e.g. "\\.\DISPLAY1") to the layout applied on that screen.
+    /// The layouts themselves are portable and store their target aspect ratio.
+    /// </summary>
+    public Dictionary<string, string> ScreenLayouts { get; set; } = [];
+
+    /// <summary>
+    /// Version of the settings schema, used to migrate older settings files.
+    /// 0 = legacy (layouts not screen aware, pixel based positions).
+    /// </summary>
+    public int SchemaVersion { get; set; }
+
     public string? ModIoAccessToken { get; set; }
 
     public string? ReleaseInfoLastAppVersion { get; set; }
@@ -70,7 +89,13 @@ public class DesktopMagicSettings : INotifyPropertyChanged
 
     public DesktopMagicSettings()
     {
-        themes.CollectionChanged += (s, e) => CurrentLayout.UpdateTheme();
+        themes.CollectionChanged += (s, e) =>
+        {
+            foreach (Layout layout in layouts)
+            {
+                layout.UpdateTheme();
+            }
+        };
 
         layouts.CollectionChanged += (s, e) => OnPropertyChanged(nameof(CurrentLayout));
         layouts.CollectionChanged += (s, e) => OnPropertyChanged(nameof(CurrentLayoutName));

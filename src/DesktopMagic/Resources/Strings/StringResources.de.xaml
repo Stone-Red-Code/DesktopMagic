@@ -55,6 +55,7 @@
     <system:String x:Key="confirmDeleteTheme">Möchten Sie dieses Theme wirklich löschen?</system:String>
     <system:String x:Key="enterLayoutName">Layoutnamen eingeben:</system:String>
     <system:String x:Key="layoutAlreadyExists">Layout existiert bereits!</system:String>
+    <system:String x:Key="cannotDeleteEmptyLayout">Das leere Layout kann nicht gelöscht werden!</system:String>
     <system:String x:Key="enterThemeName">Themenamen eingeben:</system:String>
     <system:String x:Key="themeAlreadyExists">Theme existiert bereits!</system:String>
     <system:String x:Key="install">Installieren</system:String>

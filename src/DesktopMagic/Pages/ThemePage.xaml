@@ -15,7 +15,7 @@
             <RowDefinition Height="auto" />
         </Grid.RowDefinitions>
         
-        <ui:ListView x:Name="themesListBox" Grid.Row="0" Grid.ColumnSpan="1" ItemsSource="{Binding Settings.Themes}" SelectedValue="{Binding Settings.CurrentLayout.CurrentThemeName}" SelectedValuePath="Name" SelectedIndex="2" SelectionMode="Single">
+        <ui:ListView x:Name="themesListBox" Grid.Row="0" Grid.ColumnSpan="1" ItemsSource="{Binding Settings.Themes}" SelectedValue="{Binding SelectedLayout.CurrentThemeName}" SelectedValuePath="Name" SelectedIndex="2" SelectionMode="Single">
             <ui:ListView.ItemTemplate>
                 <DataTemplate>
                     <Grid>

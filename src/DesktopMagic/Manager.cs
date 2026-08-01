@@ -5,6 +5,7 @@ using DesktopMagic.Settings;
 
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
@@ -35,6 +36,9 @@ public sealed class Manager
         }
     }
 
+    // Name of the built-in layout that shows no widgets on a screen.
+    public const string EmptyLayoutName = "Empty";
+
     // Plugin management
     private readonly Dictionary<uint, InternalPluginData> _plugins = [];
     private readonly Dictionary<PluginMetadata, Type> _builtInPlugins = new()
@@ -64,6 +68,13 @@ public sealed class Manager
     // Settings
     public DesktopMagicSettings Settings { get; set; } = new();
     public bool IsLoaded { get; set; } = false;
+
+    // Screen selection (which screen is currently edited in the UI)
+    public string? SelectedScreenDeviceName { get; set; }
+
+    public System.Windows.Forms.Screen SelectedScreen => ScreenUtilities.GetScreenByDeviceName(SelectedScreenDeviceName) ?? ScreenUtilities.GetPrimaryScreen();
+
+    public Layout SelectedLayout => GetLayoutForScreen(SelectedScreen);
 
     private readonly JsonSerializerOptions _jsonSettingsOptions = new()
     {
@@ -137,20 +148,46 @@ public sealed class Manager
         App.Logger.LogInfo($"Loaded {_plugins.Count} plugins", source: "Manager");
     }
 
-    public void LoadPlugin(uint pluginId, Action<InternalPluginData>? onPluginLoaded = null)
+    /// <summary>
+    /// Loads (or unloads) the given plugin on every screen that currently uses the given layout.
+    /// This keeps screens sharing a layout in sync when plugins are enabled or disabled.
+    /// </summary>
+    public void LoadPlugin(uint pluginId, Layout layout, Action<InternalPluginData>? onPluginLoaded = null)
     {
         if (!_plugins.TryGetValue(pluginId, out InternalPluginData? internalPluginData))
         {
             return;
         }
 
-        if (!Settings.CurrentLayout.Plugins.TryGetValue(pluginId, out PluginSettings? pluginSettings))
+        if (!layout.Plugins.TryGetValue(pluginId, out PluginSettings? pluginSettings))
         {
             pluginSettings = new PluginSettings();
-            Settings.CurrentLayout.Plugins.Add(pluginId, pluginSettings);
+            layout.Plugins.Add(pluginId, pluginSettings);
         }
 
-        IPluginWindow? existingWindow = PluginWindows.FirstOrDefault(w => w.PluginMetadata.Id == internalPluginData.Metadata.Id);
+        pluginSettings.Metadata = internalPluginData.Metadata;
+        pluginSettings.Owner = layout;
+
+        foreach (System.Windows.Forms.Screen screen in ScreenUtilities.GetAllScreens())
+        {
+            if (GetLayoutForScreen(screen) == layout)
+            {
+                EnsurePluginWindow(screen, layout, internalPluginData, pluginSettings, onPluginLoaded);
+            }
+        }
+
+        layout.UpdatePlugins();
+    }
+
+    /// <summary>
+    /// Creates or closes the plugin window for a single screen, based on the plugin settings.
+    /// </summary>
+    private void EnsurePluginWindow(System.Windows.Forms.Screen screen, Layout layout, InternalPluginData internalPluginData, PluginSettings pluginSettings, Action<InternalPluginData>? onPluginLoaded)
+    {
+        string screenDeviceName = screen.DeviceName;
+        Rectangle screenBounds = screen.Bounds;
+
+        IPluginWindow? existingWindow = PluginWindows.FirstOrDefault(w => w.PluginMetadata.Id == internalPluginData.Metadata.Id && w.ScreenDeviceName == screenDeviceName);
 
         if (existingWindow is not null || !pluginSettings.Enabled)
         {
@@ -176,21 +213,21 @@ public sealed class Manager
 
         if (_builtInPlugins.TryGetValue(internalPluginData.Metadata, out Type? pluginType))
         {
-            window = new PluginWindow((Api.Plugin)Activator.CreateInstance(pluginType)!, internalPluginData.Metadata, pluginSettings)
+            window = new PluginWindow((Api.Plugin)Activator.CreateInstance(pluginType)!, internalPluginData.Metadata, pluginSettings, screenBounds, screenDeviceName)
             {
                 Title = internalPluginData.Metadata.Id.ToString()
             };
         }
         else if (internalPluginData.Type == PluginType.Web)
         {
-            window = new WebPluginWindow(internalPluginData.Metadata, pluginSettings, internalPluginData.DirectoryPath)
+            window = new WebPluginWindow(internalPluginData.Metadata, pluginSettings, internalPluginData.DirectoryPath, screenBounds, screenDeviceName)
             {
                 Title = internalPluginData.Metadata.Id.ToString()
             };
         }
         else
         {
-            window = new PluginWindow(internalPluginData.Metadata, pluginSettings, internalPluginData.DirectoryPath)
+            window = new PluginWindow(internalPluginData.Metadata, pluginSettings, internalPluginData.DirectoryPath, screenBounds, screenDeviceName)
             {
                 Title = internalPluginData.Metadata.Id.ToString()
             };
@@ -205,10 +242,21 @@ public sealed class Manager
 
         Action exitHandler = () =>
         {
-            PluginWindows.Remove(window);
-            BlockWindowsClosing = false;
-            window.Close();
-            BlockWindowsClosing = true;
+            // Close the widget on every screen using this layout
+            foreach (System.Windows.Forms.Screen sharedScreen in ScreenUtilities.GetAllScreens())
+            {
+                if (GetLayoutForScreen(sharedScreen) == layout)
+                {
+                    IPluginWindow? sharedWindow = PluginWindows.FirstOrDefault(w => w.PluginMetadata.Id == internalPluginData.Metadata.Id && w.ScreenDeviceName == sharedScreen.DeviceName);
+                    if (sharedWindow is not null)
+                    {
+                        PluginWindows.Remove(sharedWindow);
+                        BlockWindowsClosing = false;
+                        sharedWindow.Close();
+                        BlockWindowsClosing = true;
+                    }
+                }
+            }
             pluginSettings.Enabled = false;
         };
 
@@ -255,7 +303,9 @@ public sealed class Manager
         {
             Settings = new DesktopMagicSettings();
             Settings.Layouts.Add(new Layout("Default"));
+            Settings.Layouts.Add(new Layout(EmptyLayoutName));
             Settings.Themes.Add(new Theme("Default"));
+            Settings.SchemaVersion = 1;
             return;
         }
 
@@ -272,7 +322,60 @@ public sealed class Manager
             Settings.Themes.Add(new Theme("Default"));
         }
 
+        if (Settings.SchemaVersion < 1)
+        {
+            MigrateToScreenAwareSettings();
+            Settings.SchemaVersion = 1;
+        }
+
+        if (!Settings.Layouts.Any(layout => layout.Name == EmptyLayoutName))
+        {
+            Settings.Layouts.Add(new Layout(EmptyLayoutName));
+        }
+
         SettingsChanged?.Invoke();
+    }
+
+    /// <summary>
+    /// Migrates legacy settings to screen-aware layouts:
+    /// records the primary screen aspect ratio on each layout and converts
+    /// absolute pixel positions/sizes to percentages of the primary screen bounds.
+    /// </summary>
+    private void MigrateToScreenAwareSettings()
+    {
+        App.Logger.LogInfo("Migrating settings to screen-aware layouts", source: "Manager");
+
+        System.Windows.Forms.Screen primaryScreen = ScreenUtilities.GetPrimaryScreen();
+        double aspectRatio = ScreenUtilities.GetAspectRatio(primaryScreen);
+        Rectangle bounds = primaryScreen.Bounds;
+
+        foreach (Layout layout in Settings.Layouts)
+        {
+            if (layout.ScreenAspectRatio <= 0)
+            {
+                layout.ScreenAspectRatio = aspectRatio;
+            }
+
+            foreach (PluginSettings plugin in layout.Plugins.Values)
+            {
+                if (plugin.Position.X > 1 || plugin.Position.Y > 1 || plugin.Position.X < 0 || plugin.Position.Y < 0)
+                {
+                    plugin.Position = ScreenUtilities.PositionToPercent(new System.Windows.Point(plugin.Position.X, plugin.Position.Y), bounds);
+                }
+
+                if (plugin.Size.X > 1 || plugin.Size.Y > 1)
+                {
+                    plugin.Size = ScreenUtilities.SizeToPercent(new System.Windows.Point(plugin.Size.X, plugin.Size.Y), bounds);
+                }
+            }
+        }
+
+        if (Settings.ScreenLayouts.Count == 0)
+        {
+            Settings.ScreenLayouts[primaryScreen.DeviceName] = Settings.CurrentLayoutName ?? "Default";
+        }
+
+        App.Logger.LogInfo("Settings migrated to screen-aware layouts", source: "Manager");
     }
 
     public void SaveSettings()
@@ -292,9 +395,60 @@ public sealed class Manager
 
     #region Layout Management
 
+    /// <summary>
+    /// Resolves the layout that should be applied to the given screen:
+    /// 1. the layout explicitly bound to this screen's device name,
+    /// 2. the layout with the closest matching aspect ratio,
+    /// 3. the first layout.
+    /// </summary>
+    public Layout GetLayoutForScreen(System.Windows.Forms.Screen screen)
+    {
+        if (Settings.ScreenLayouts.TryGetValue(screen.DeviceName, out string? layoutName))
+        {
+            Layout? bound = Settings.Layouts.FirstOrDefault(layout => layout.Name == layoutName);
+            if (bound is not null)
+            {
+                return bound;
+            }
+        }
+
+        double targetRatio = ScreenUtilities.GetAspectRatio(screen);
+        Layout? byAspectRatio = Settings.Layouts
+            .Where(layout => layout.ScreenAspectRatio > 0)
+            .OrderBy(layout => Math.Abs(layout.ScreenAspectRatio - targetRatio))
+            .FirstOrDefault();
+
+        if (byAspectRatio is not null)
+        {
+            return byAspectRatio;
+        }
+
+        return Settings.Layouts.FirstOrDefault() ?? new Layout("ERROR");
+    }
+
+    /// <summary>
+    /// Binds the given layout to the given screen on this machine.
+    /// </summary>
+    public void BindLayoutToScreen(System.Windows.Forms.Screen screen, Layout layout)
+    {
+        Settings.ScreenLayouts[screen.DeviceName] = layout.Name;
+        SaveSettings();
+    }
+
+    /// <summary>
+    /// Gets all plugin windows currently shown on the given screen.
+    /// </summary>
+    public IEnumerable<IPluginWindow> GetWindowsForScreen(string screenDeviceName)
+    {
+        return PluginWindows.Where(window => window.ScreenDeviceName == screenDeviceName).ToList();
+    }
+
+    /// <summary>
+    /// Loads all screens' layouts at once, opening the enabled widgets of every screen.
+    /// </summary>
     public void LoadLayout(Action? onComplete = null)
     {
-        App.Logger.LogInfo("Loading layout", source: "Manager");
+        App.Logger.LogInfo("Loading layouts", source: "Manager");
         BlockWindowsClosing = false;
 
         foreach (IPluginWindow window in PluginWindows)
@@ -305,37 +459,77 @@ public sealed class Manager
         BlockWindowsClosing = true;
         PluginWindows.Clear();
 
+        foreach (System.Windows.Forms.Screen screen in ScreenUtilities.GetAllScreens())
+        {
+            Layout layout = GetLayoutForScreen(screen);
+            LoadScreen(screen, layout);
+        }
+
+        onComplete?.Invoke();
+        App.Logger.LogInfo("Layouts loaded", source: "Manager");
+    }
+
+    /// <summary>
+    /// Reloads the widgets of a single screen using the layout currently bound to it.
+    /// </summary>
+    public void ReloadScreen(System.Windows.Forms.Screen screen)
+    {
+        App.Logger.LogInfo($"Reloading screen {screen.DeviceName}", source: "Manager");
+
+        List<IPluginWindow> windows = PluginWindows.Where(window => window.ScreenDeviceName == screen.DeviceName).ToList();
+
+        BlockWindowsClosing = false;
+        foreach (IPluginWindow window in windows)
+        {
+            window.Close();
+        }
+
+        BlockWindowsClosing = true;
+        PluginWindows.RemoveAll(window => windows.Contains(window));
+
+        Layout layout = GetLayoutForScreen(screen);
+        LoadScreen(screen, layout);
+    }
+
+    private void LoadScreen(System.Windows.Forms.Screen screen, Layout layout)
+    {
+        App.Logger.LogInfo($"Loading layout \"{layout.Name}\" for screen {screen.DeviceName}", source: "Manager");
+
+        // The empty layout intentionally shows no widgets and is never populated.
+        if (layout.Name == EmptyLayoutName)
+        {
+            return;
+        }
+
         // Load plugins
         foreach (uint pluginId in _plugins.Keys)
         {
             InternalPluginData internalPluginData = _plugins[pluginId];
 
             // Add plugin to layout if it doesn't exist
-            if (!Settings.CurrentLayout.Plugins.TryGetValue(pluginId, out PluginSettings? pluginSettings))
+            if (!layout.Plugins.TryGetValue(pluginId, out PluginSettings? pluginSettings))
             {
-                Settings.CurrentLayout.Plugins.Add(pluginId, new PluginSettings() { Metadata = internalPluginData.Metadata });
+                layout.Plugins.Add(pluginId, new PluginSettings() { Metadata = internalPluginData.Metadata, Owner = layout });
                 continue;
             }
 
             pluginSettings.Metadata = internalPluginData.Metadata;
+            pluginSettings.Owner = layout;
 
             if (pluginSettings.Enabled)
             {
-                LoadPlugin(pluginId);
+                EnsurePluginWindow(screen, layout, internalPluginData, pluginSettings, null);
             }
         }
 
         // Remove plugins that are not loaded anymore
-        List<uint> pluginIdsToRemove = Settings.CurrentLayout.Plugins.Keys.Where(id => !_plugins.ContainsKey(id)).ToList();
+        List<uint> pluginIdsToRemove = layout.Plugins.Keys.Where(id => !_plugins.ContainsKey(id)).ToList();
         foreach (uint pluginId in pluginIdsToRemove)
         {
-            Settings.CurrentLayout.Plugins.Remove(pluginId);
+            layout.Plugins.Remove(pluginId);
         }
 
-        Settings.CurrentLayout.UpdatePlugins();
-
-        onComplete?.Invoke();
-        App.Logger.LogInfo("Layout loaded", source: "Manager");
+        layout.UpdatePlugins();
     }
 
     #endregion

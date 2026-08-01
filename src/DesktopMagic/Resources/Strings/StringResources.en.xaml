@@ -56,6 +56,7 @@
     <system:String x:Key="enterLayoutName">Enter layout name</system:String>
     <system:String x:Key="layoutAlreadyExists">Layout already exists!</system:String>
     <system:String x:Key="cannotDeleteLastLayout">Can't delete last layout!</system:String>
+    <system:String x:Key="cannotDeleteEmptyLayout">Can't delete the empty layout!</system:String>
     <system:String x:Key="enterThemeName">Enter theme name</system:String>
     <system:String x:Key="themeAlreadyExists">Theme already exists!</system:String>
     <system:String x:Key="cannotDeleteLastTheme">Can't delete last theme!</system:String>
