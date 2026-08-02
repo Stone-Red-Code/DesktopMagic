@@ -6,6 +6,7 @@ using DesktopMagic.Settings;
 using Microsoft.Web.WebView2.Core;
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
@@ -40,6 +41,10 @@ public partial class WebPluginWindow : Window, IPluginWindow
     private Theme? subscribedTheme;
     private readonly List<(Setting Setting, Action Handler)> subscribedSettings = [];
     private readonly List<(Button Button, Action Handler)> subscribedButtonClicks = [];
+
+    private readonly ConcurrentDictionary<string, Setting> localSettings = [];
+    private SettingSynchronizer? synchronizer;
+    private bool suppressButtonSync = false;
 
     public bool IsRunning { get; private set; } = true;
     public PluginMetadata PluginMetadata { get; private set; }
@@ -101,6 +106,12 @@ public partial class WebPluginWindow : Window, IPluginWindow
 
         PluginFolderPath = pluginFolderPath;
 
+        if (settings.Owner is not null)
+        {
+            synchronizer = Manager.Instance.GetSettingSynchronizer(settings.Owner, PluginMetadata.Id);
+            synchronizer.Register(this);
+        }
+
         if (pluginMetadata.SupportsUnloading && !string.IsNullOrEmpty(pluginFolderPath))
         {
             InitializeHotReload();
@@ -154,6 +165,32 @@ public partial class WebPluginWindow : Window, IPluginWindow
             WindowPos.SetIsLocked(this, true);
             tileBar.CaptionHeight = 0;
             ResizeMode = ResizeMode.NoResize;
+        }
+    }
+
+    public void ApplySettingValue(string id, string value)
+    {
+        if (localSettings.TryGetValue(id, out Setting? setting) && setting.GetJsonValue() != value)
+        {
+            setting.SetJsonValue(value);
+        }
+    }
+
+    public void ApplyButtonClick(string id)
+    {
+        if (!localSettings.TryGetValue(id, out Setting? setting) || setting is not Button button)
+        {
+            return;
+        }
+
+        suppressButtonSync = true;
+        try
+        {
+            button.Click();
+        }
+        finally
+        {
+            suppressButtonSync = false;
         }
     }
 
@@ -290,6 +327,15 @@ public partial class WebPluginWindow : Window, IPluginWindow
 
         UnsubscribeEvents();
 
+        if (synchronizer is not null && settings.Owner is not null)
+        {
+            if (synchronizer.Unregister(this))
+            {
+                Manager.Instance.ReleaseSettingSynchronizer(settings.Owner, PluginMetadata.Id);
+            }
+            synchronizer = null;
+        }
+
         try
         {
             if (isInitialized && webView.CoreWebView2 != null)
@@ -324,6 +370,8 @@ public partial class WebPluginWindow : Window, IPluginWindow
             button.OnClick -= handler;
         }
         subscribedButtonClicks.Clear();
+
+        localSettings.Clear();
     }
 
     private void UpdatePosition()
@@ -450,12 +498,18 @@ public partial class WebPluginWindow : Window, IPluginWindow
                     continue;
                 }
 
+                localSettings[id] = setting;
+
                 SettingElement settingElement = new(setting, id, name, orderIndex);
 
                 if (settings.Settings.Exists(e => e.Id == id))
                 {
                     SettingElement saved = settings.Settings.First(e => e.Id == id);
-                    settingElement.JsonValue = saved.JsonValue;
+                    string savedValue = saved.JsonValue;
+                    if (!string.IsNullOrEmpty(savedValue) || setting is not Label and not Button)
+                    {
+                        settingElement.JsonValue = savedValue;
+                    }
                 }
 
                 string capturedId = id;
@@ -463,6 +517,11 @@ public partial class WebPluginWindow : Window, IPluginWindow
                 {
                     Action clickHandler = () =>
                     {
+                        if (!suppressButtonSync)
+                        {
+                            synchronizer?.ButtonClicked(this, capturedId);
+                        }
+
                         _ = webView.Dispatcher.InvokeAsync(async () =>
                         {
                             try
@@ -481,6 +540,8 @@ public partial class WebPluginWindow : Window, IPluginWindow
 
                 Action valueChangedHandler = () =>
                 {
+                    synchronizer?.SettingChanged(this, capturedId, setting.GetJsonValue());
+
                     _ = webView.Dispatcher.InvokeAsync(async () =>
                     {
                         try

@@ -21,5 +21,8 @@ public interface IPluginWindow
     void Hide();
     void Close();
 
+    void ApplySettingValue(string id, string value);
+    void ApplyButtonClick(string id);
+
     event System.ComponentModel.CancelEventHandler Closing;
 }

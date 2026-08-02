@@ -9,6 +9,7 @@ using DesktopMagic.Settings;
 using SkiaSharp;
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
@@ -44,6 +45,7 @@ public partial class PluginWindow : Window, IPluginWindow
     private readonly Rectangle screenBounds;
     private readonly string screenDeviceName;
     private bool isUpdatingPosition = false;
+    private bool _editMode = false;
 
     private CancellationTokenSource? pluginCancellationTokenSource;
     private FileSystemWatcher? pluginFileWatcher;
@@ -58,8 +60,13 @@ public partial class PluginWindow : Window, IPluginWindow
     private readonly PropertyChangedEventHandler themePropertyChangedHandler;
     private Theme? subscribedTheme;
     private NotifyCollectionChangedEventHandler? themesCollectionChangedHandler;
-    private readonly List<Setting> subscribedSettings = [];
+    private readonly List<(Setting Setting, Action Handler)> subscribedSettings = [];
     private readonly List<(Setting Setting, Action Handler)> defaultSettingsSubscriptions = [];
+    private readonly List<(Button Button, Action Handler)> subscribedButtonClicks = [];
+
+    private readonly ConcurrentDictionary<string, Setting> localSettings = [];
+    private SettingSynchronizer? synchronizer;
+    private bool suppressButtonSync = false;
 
     public bool IsRunning { get; private set; } = true;
     public PluginMetadata PluginMetadata { get; private set; }
@@ -120,6 +127,12 @@ public partial class PluginWindow : Window, IPluginWindow
         Height = size.Y;
 
         PluginFolderPath = pluginFolderPath;
+
+        if (settings.Owner is not null)
+        {
+            synchronizer = Manager.Instance.GetSettingSynchronizer(settings.Owner, PluginMetadata.Id);
+            synchronizer.Register(this);
+        }
 
         assemblyLoadContext = CreateAssemblyLoadContext();
 
@@ -346,6 +359,8 @@ public partial class PluginWindow : Window, IPluginWindow
 
     public void SetEditMode(bool enabled)
     {
+        _editMode = enabled;
+
         if (enabled)
         {
             Topmost = true;
@@ -646,7 +661,14 @@ public partial class PluginWindow : Window, IPluginWindow
 
         void SetWindowLayer()
         {
-            WindowPos.SetWindowLayer(this, pluginClassInstance.windowLayer.Value);
+            if (_editMode)
+            {
+                Topmost = true;
+            }
+            else
+            {
+                WindowPos.SetWindowLayer(this, pluginClassInstance.windowLayer.Value);
+            }
         }
 
         void SetRotation()
@@ -686,13 +708,41 @@ public partial class PluginWindow : Window, IPluginWindow
         defaultSettingsSubscriptions.Add((setting, handler));
     }
 
-    private void OnPluginSettingValueChanged()
+    private void OnPluginSettingValueChanged(Setting setting, string id)
     {
         pluginClassInstance?.OnSettingsChanged();
 
         if (pluginClassInstance?.UpdateInterval is 0 or > 500)
         {
             pluginClassInstance.Application.UpdateWindow();
+        }
+
+        synchronizer?.SettingChanged(this, id, setting.GetJsonValue());
+    }
+
+    public void ApplySettingValue(string id, string value)
+    {
+        if (localSettings.TryGetValue(id, out Setting? setting) && setting.GetJsonValue() != value)
+        {
+            setting.SetJsonValue(value);
+        }
+    }
+
+    public void ApplyButtonClick(string id)
+    {
+        if (!localSettings.TryGetValue(id, out Setting? setting) || setting is not Button button)
+        {
+            return;
+        }
+
+        suppressButtonSync = true;
+        try
+        {
+            button.Click();
+        }
+        finally
+        {
+            suppressButtonSync = false;
         }
     }
 
@@ -713,16 +763,36 @@ public partial class PluginWindow : Window, IPluginWindow
                     {
                         if (attribute is SettingAttribute elementAttribute)
                         {
+                            localSettings[elementAttribute.Id] = element;
+
                             SettingElement settingElement = new SettingElement(element, elementAttribute.Id, elementAttribute.Name, elementAttribute.OrderIndex);
 
                             if (settings.Settings.Exists(e => e.Id == elementAttribute.Id))
                             {
                                 SettingElement settingsSettingElement = settings.Settings.First(e => e.Id == elementAttribute.Id);
-                                settingElement.JsonValue = settingsSettingElement.JsonValue;
+                                string savedValue = settingsSettingElement.JsonValue;
+                                if (!string.IsNullOrEmpty(savedValue) || element is not Label and not Button)
+                                {
+                                    settingElement.JsonValue = savedValue;
+                                }
                             }
 
-                            element.OnValueChanged += OnPluginSettingValueChanged;
-                            subscribedSettings.Add(element);
+                            Action valueChangedHandler = () => OnPluginSettingValueChanged(element, elementAttribute.Id);
+                            element.OnValueChanged += valueChangedHandler;
+                            subscribedSettings.Add((element, valueChangedHandler));
+
+                            if (element is Button button)
+                            {
+                                Action clickHandler = () =>
+                                {
+                                    if (!suppressButtonSync)
+                                    {
+                                        synchronizer?.ButtonClicked(this, elementAttribute.Id);
+                                    }
+                                };
+                                button.OnClick += clickHandler;
+                                subscribedButtonClicks.Add((button, clickHandler));
+                            }
 
                             settingElements.Add(settingElement);
                             break;
@@ -1070,6 +1140,15 @@ public partial class PluginWindow : Window, IPluginWindow
 
         UnsubscribeEvents();
         DetachSettings();
+
+        if (synchronizer is not null && settings.Owner is not null)
+        {
+            if (synchronizer.Unregister(this))
+            {
+                Manager.Instance.ReleaseSettingSynchronizer(settings.Owner, PluginMetadata.Id);
+            }
+            synchronizer = null;
+        }
     }
 
     private void DetachSettings()
@@ -1098,9 +1177,9 @@ public partial class PluginWindow : Window, IPluginWindow
             themesCollectionChangedHandler = null;
         }
 
-        foreach (Setting setting in subscribedSettings)
+        foreach ((Setting Setting, Action Handler) subscription in subscribedSettings)
         {
-            setting.OnValueChanged -= OnPluginSettingValueChanged;
+            subscription.Setting.OnValueChanged -= subscription.Handler;
         }
         subscribedSettings.Clear();
 
@@ -1109,6 +1188,14 @@ public partial class PluginWindow : Window, IPluginWindow
             subscription.Setting.OnValueChanged -= subscription.Handler;
         }
         defaultSettingsSubscriptions.Clear();
+
+        foreach ((Button Button, Action Handler) subscription in subscribedButtonClicks)
+        {
+            subscription.Button.OnClick -= subscription.Handler;
+        }
+        subscribedButtonClicks.Clear();
+
+        localSettings.Clear();
     }
 
     private void UpdatePosition()

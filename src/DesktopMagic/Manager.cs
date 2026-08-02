@@ -291,6 +291,32 @@ public sealed class Manager
         SaveSettings();
     }
 
+    private readonly Dictionary<(Layout, uint), SettingSynchronizer> settingSynchronizers = [];
+
+    /// <summary>
+    /// Gets (or creates) the synchronizer that keeps the settings of all windows showing the
+    /// given plugin in the given layout in sync.
+    /// </summary>
+    internal SettingSynchronizer GetSettingSynchronizer(Layout layout, uint pluginId)
+    {
+        (Layout, uint) key = (layout, pluginId);
+        if (!settingSynchronizers.TryGetValue(key, out SettingSynchronizer? synchronizer))
+        {
+            synchronizer = new SettingSynchronizer();
+            settingSynchronizers.Add(key, synchronizer);
+        }
+
+        return synchronizer;
+    }
+
+    /// <summary>
+    /// Drops the synchronizer for the given plugin in the given layout once no windows use it anymore.
+    /// </summary>
+    internal void ReleaseSettingSynchronizer(Layout layout, uint pluginId)
+    {
+        _ = settingSynchronizers.Remove((layout, pluginId));
+    }
+
     #endregion
 
     #region Settings Management
