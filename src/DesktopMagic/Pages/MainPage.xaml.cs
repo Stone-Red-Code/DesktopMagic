@@ -77,6 +77,16 @@ public partial class MainPage : Page
         _manager.SetEditMode(editCheckBox.IsChecked == true);
     }
 
+    private void ScreenSelectorButton_Click(object sender, RoutedEventArgs e)
+    {
+        ScreenSelectorDialog dialog = new(_dataContext)
+        {
+            Owner = Window.GetWindow(this)
+        };
+
+        _ = dialog.ShowDialog();
+    }
+
     private void PluginCheckBox_Click(object sender, RoutedEventArgs e)
     {
         if (sender is not Control checkBox)

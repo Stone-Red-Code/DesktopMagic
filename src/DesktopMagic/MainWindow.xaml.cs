@@ -39,6 +39,8 @@ public partial class MainWindow : FluentWindow
         {
             App.Logger.LogInfo("Loading application", source: "MainWindow");
 
+            Microsoft.Win32.SystemEvents.DisplaySettingsChanged += SystemEvents_DisplaySettingsChanged;
+
             _mainWindowDataContext.IsLoading = true;
 
             // Load plugins and settings through manager
@@ -99,6 +101,8 @@ public partial class MainWindow : FluentWindow
 
     private void Window_Closed(object sender, EventArgs e)
     {
+        Microsoft.Win32.SystemEvents.DisplaySettingsChanged -= SystemEvents_DisplaySettingsChanged;
+
         Visibility = Visibility.Collapsed;
         UpdateLayout();
         _manager.CloseAllPluginWindows();
@@ -111,6 +115,16 @@ public partial class MainWindow : FluentWindow
         {
             RestoreWindow();
         }
+    }
+
+    private void SystemEvents_DisplaySettingsChanged(object? sender, EventArgs e)
+    {
+        // Re-enumerate screens and reload all widget windows when monitors are added or removed.
+        _ = Application.Current.Dispatcher.BeginInvoke(() =>
+        {
+            _mainWindowDataContext.RefreshScreens();
+            _manager.LoadLayout();
+        });
     }
 
     internal void RestoreWindow()

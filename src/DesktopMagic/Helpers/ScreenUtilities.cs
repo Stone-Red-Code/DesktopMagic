@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Security.Cryptography;
+using System.Text;
 using System.Windows;
 
 namespace DesktopMagic.Helpers;
@@ -169,24 +171,105 @@ public static class ScreenUtilities
     /// </summary>
     public static string GetFriendlyName(System.Windows.Forms.Screen screen)
     {
+        return GetMonitorDisplayDevice(screen)?.DeviceString ?? string.Empty;
+    }
+
+    /// <summary>
+    /// Gets a stable hardware identifier for the screen: the PnP device instance ID of its
+    /// monitor (e.g. "MONITOR\DEL41F1\{...}\{0001}"), which is derived from the monitor's
+    /// EDID and survives disconnects and reconnects of the same monitor. When no hardware ID
+    /// is available (e.g. virtual or remote displays), a deterministic SHA-256 hash of the
+    /// bounds is used so the identifier is never empty.
+    /// </summary>
+    public static string GetMonitorHardwareId(System.Windows.Forms.Screen screen)
+    {
+        string? deviceId = GetMonitorDisplayDevice(screen)?.DeviceID;
+        if (!string.IsNullOrWhiteSpace(deviceId))
+        {
+            return deviceId;
+        }
+
+        System.Drawing.Rectangle bounds = screen.Bounds;
+        string boundsString = $"{bounds.X}-{bounds.Y}-{bounds.Width}-{bounds.Height}";
+        string hashString = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(boundsString))).ToLowerInvariant();
+        return $"DISPLAY#{hashString}";
+    }
+
+    /// <summary>
+    /// Gets the monitor device info (second-level <see cref="EnumDisplayDevices"/> entry) for
+    /// the given screen, or null when it cannot be determined.
+    /// </summary>
+    private static DISPLAY_DEVICE? GetMonitorDisplayDevice(System.Windows.Forms.Screen screen)
+    {
         try
         {
-            var device = new DISPLAY_DEVICE { cb = (uint)Marshal.SizeOf<DISPLAY_DEVICE>() };
+            DISPLAY_DEVICE device = new DISPLAY_DEVICE { cb = (uint)Marshal.SizeOf<DISPLAY_DEVICE>() };
             if (EnumDisplayDevices(screen.DeviceName, 0, ref device, 0))
             {
-                var monitor = new DISPLAY_DEVICE { cb = (uint)Marshal.SizeOf<DISPLAY_DEVICE>() };
+                DISPLAY_DEVICE monitor = new DISPLAY_DEVICE { cb = (uint)Marshal.SizeOf<DISPLAY_DEVICE>() };
                 if (EnumDisplayDevices(device.DeviceName, 0, ref monitor, 0))
                 {
-                    return monitor.DeviceString;
+                    return monitor;
                 }
             }
         }
         catch (Exception)
         {
-            // Fall through to an empty name.
+            // Fall through to null.
         }
 
-        return string.Empty;
+        return null;
+    }
+
+    /// <summary>
+    /// Enumerates monitors in a Per-Monitor V2 DPI awareness context and returns each
+    /// monitor's bounds in physical (device) pixels on the virtual screen, keyed by device
+    /// name (e.g. "\\.\DISPLAY1"). This uses the same coordinate space as DPI-aware apps
+    /// such as Lively Wallpaper, keeping multi-screen layouts with mixed DPI scaling
+    /// consistent regardless of this app's own DPI awareness mode.
+    /// </summary>
+    public static Dictionary<string, System.Drawing.Rectangle> GetDisplayPhysicalBounds()
+    {
+        Dictionary<string, System.Drawing.Rectangle> result = new Dictionary<string, System.Drawing.Rectangle>();
+
+        IntPtr prevContext = IntPtr.Zero;
+        bool contextChanged = false;
+        try
+        {
+            prevContext = SetThreadDpiAwarenessContext((IntPtr)DpiAwarenessContextPerMonitorV2);
+            contextChanged = prevContext != IntPtr.Zero;
+        }
+        catch (Exception)
+        {
+            // SetThreadDpiAwarenessContext unavailable; fall back to default context.
+        }
+
+        try
+        {
+            _ = EnumDisplayMonitors(IntPtr.Zero, IntPtr.Zero, (hMonitor, hdcMonitor, lprcMonitor, dwData) =>
+            {
+                MONITORINFOEX info = new MONITORINFOEX { cbSize = (uint)Marshal.SizeOf<MONITORINFOEX>() };
+                if (GetMonitorInfo(hMonitor, ref info))
+                {
+                    string deviceName = info.szDevice.TrimEnd('\0');
+                    result[deviceName] = new System.Drawing.Rectangle(
+                        info.rcMonitor.Left, info.rcMonitor.Top,
+                        info.rcMonitor.Right - info.rcMonitor.Left,
+                        info.rcMonitor.Bottom - info.rcMonitor.Top);
+                }
+
+                return true;
+            }, IntPtr.Zero);
+        }
+        finally
+        {
+            if (contextChanged)
+            {
+                _ = SetThreadDpiAwarenessContext(prevContext);
+            }
+        }
+
+        return result;
     }
 
     /// <summary>
@@ -195,11 +278,7 @@ public static class ScreenUtilities
     private static Rect GetScreenDips(System.Drawing.Rectangle bounds)
     {
         double scale = GetDpiScale(bounds);
-        return new Rect(
-            bounds.Left / scale,
-            bounds.Top / scale,
-            bounds.Width / scale,
-            bounds.Height / scale);
+        return new Rect(bounds.Left / scale, bounds.Top / scale, bounds.Width / scale, bounds.Height / scale);
     }
 
     /// <summary>
@@ -209,7 +288,7 @@ public static class ScreenUtilities
     {
         try
         {
-            var center = new POINT
+            POINT center = new POINT
             {
                 X = bounds.Left + (bounds.Width / 2),
                 Y = bounds.Top + (bounds.Height / 2)
@@ -262,5 +341,42 @@ public static class ScreenUtilities
     {
         public int X;
         public int Y;
+    }
+
+    private const long DpiAwarenessContextPerMonitorV2 = -4;
+
+    private delegate bool EnumMonitorsProc(IntPtr hMonitor, IntPtr hdcMonitor, IntPtr lprcMonitor, IntPtr dwData);
+
+    [DllImport("user32.dll")]
+    private static extern IntPtr SetThreadDpiAwarenessContext(IntPtr dpiContext);
+
+    [DllImport("user32.dll")]
+    private static extern bool EnumDisplayMonitors(IntPtr hdc, IntPtr lprcClip, EnumMonitorsProc lpfnEnum, IntPtr dwData);
+
+    [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+    private static extern bool GetMonitorInfo(IntPtr hMonitor, ref MONITORINFOEX lpmi);
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct MONITORRECT
+    {
+        public int Left;
+        public int Top;
+        public int Right;
+        public int Bottom;
+    }
+
+    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+    private struct MONITORINFOEX
+    {
+        public uint cbSize;
+
+        public MONITORRECT rcMonitor;
+
+        public MONITORRECT rcWork;
+
+        public uint dwFlags;
+
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 32)]
+        public string szDevice;
     }
 }

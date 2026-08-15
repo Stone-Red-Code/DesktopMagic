@@ -51,6 +51,19 @@ internal class MainWindowDataContext : INotifyPropertyChanged
         }
     }
 
+    public ScreenDisplay? SelectedScreen
+    {
+        get => Screens.FirstOrDefault(screen => screen.DeviceName == SelectedScreenId);
+        set
+        {
+            if (value is not null)
+            {
+                SelectedScreenId = value.DeviceName;
+            }
+            OnPropertyChanged();
+        }
+    }
+
     public Layout SelectedLayout => Manager.Instance.SelectedLayout;
 
     public string? SelectedLayoutName
@@ -111,16 +124,26 @@ internal class MainWindowDataContext : INotifyPropertyChanged
     public void RefreshScreens()
     {
         List<System.Windows.Forms.Screen> allScreens = ScreenUtilities.GetAllScreens();
+        Dictionary<string, System.Drawing.Rectangle> physicalBounds = ScreenUtilities.GetDisplayPhysicalBounds();
+
+        // Capture the hardware id of the currently selected screen so the selection can be
+        // preserved across display changes (e.g. unplug/replug renumbers device names).
+        ScreenDisplay? previousSelected = SelectedScreen;
 
         Screens.Clear();
         for (int i = 0; i < allScreens.Count; i++)
         {
-            Screens.Add(new ScreenDisplay(allScreens[i], i));
+            System.Windows.Forms.Screen screen = allScreens[i];
+            physicalBounds.TryGetValue(screen.DeviceName, out System.Drawing.Rectangle physicalBoundsRect);
+            Screens.Add(new ScreenDisplay(screen, i, physicalBoundsRect, ScreenUtilities.GetMonitorHardwareId(screen)));
         }
 
         if (selectedScreenDeviceName is null || !Screens.Any(screen => screen.DeviceName == selectedScreenDeviceName))
         {
-            SelectedScreenId = Screens.FirstOrDefault()?.DeviceName;
+            ScreenDisplay? byHardwareId = previousSelected is null
+                ? null
+                : Screens.FirstOrDefault(screen => screen.HardwareId == previousSelected.HardwareId);
+            SelectedScreenId = byHardwareId?.DeviceName ?? Screens.FirstOrDefault()?.DeviceName;
         }
         else
         {
@@ -144,6 +167,7 @@ internal class MainWindowDataContext : INotifyPropertyChanged
         Manager.Instance.SelectedScreenDeviceName = selectedScreenDeviceName;
         selectedLayoutName = Manager.Instance.SelectedLayout.Name;
         OnPropertyChanged(nameof(SelectedScreenId));
+        OnPropertyChanged(nameof(SelectedScreen));
         OnPropertyChanged(nameof(SelectedLayout));
         OnPropertyChanged(nameof(SelectedLayoutName));
     }
@@ -157,15 +181,100 @@ internal class MainWindowDataContext : INotifyPropertyChanged
 /// <summary>
 /// A detected screen displayed in the UI.
 /// </summary>
-public class ScreenDisplay
+public class ScreenDisplay : INotifyPropertyChanged
 {
-    public ScreenDisplay(System.Windows.Forms.Screen screen, int index)
+    public event PropertyChangedEventHandler? PropertyChanged;
+
+    private bool isSelected;
+    private double x;
+    private double y;
+    private double width;
+    private double height;
+
+    public ScreenDisplay(System.Windows.Forms.Screen screen, int index, System.Drawing.Rectangle physicalBounds, string hardwareId)
     {
         DeviceName = screen.DeviceName;
         DisplayName = ScreenUtilities.GetScreenLabel(screen, index);
+        Bounds = physicalBounds.Width > 0 && physicalBounds.Height > 0 ? physicalBounds : screen.Bounds;
+        IsPrimary = screen.Primary;
+        Index = index + 1;
+        HardwareId = hardwareId;
     }
 
     public string DeviceName { get; }
 
+    /// <summary>
+    /// Stable hardware identifier of the monitor (see <see cref="ScreenUtilities.GetMonitorHardwareId"/>),
+    /// used to persist screen bindings across display changes.
+    /// </summary>
+    public string HardwareId { get; }
+
     public string DisplayName { get; }
+
+    public System.Drawing.Rectangle Bounds { get; }
+
+    public bool IsPrimary { get; }
+
+    public int Index { get; }
+
+    public string ToolTipText => IsPrimary ? $"{DisplayName} · Primary" : DisplayName;
+
+    /// <summary>
+    /// Whether this screen is currently selected in the screen selector.
+    /// </summary>
+    public bool IsSelected
+    {
+        get => isSelected;
+        set
+        {
+            isSelected = value;
+            OnPropertyChanged();
+        }
+    }
+
+    // Normalized (control-local) position/size set by the screen selector.
+    public double X
+    {
+        get => x;
+        set
+        {
+            x = value;
+            OnPropertyChanged();
+        }
+    }
+
+    public double Y
+    {
+        get => y;
+        set
+        {
+            y = value;
+            OnPropertyChanged();
+        }
+    }
+
+    public double Width
+    {
+        get => width;
+        set
+        {
+            width = value;
+            OnPropertyChanged();
+        }
+    }
+
+    public double Height
+    {
+        get => height;
+        set
+        {
+            height = value;
+            OnPropertyChanged();
+        }
+    }
+
+    private void OnPropertyChanged([CallerMemberName] string? name = null)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+    }
 }

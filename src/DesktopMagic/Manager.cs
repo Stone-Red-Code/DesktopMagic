@@ -398,7 +398,7 @@ public sealed class Manager
 
         if (Settings.ScreenLayouts.Count == 0)
         {
-            Settings.ScreenLayouts[primaryScreen.DeviceName] = Settings.CurrentLayoutName ?? "Default";
+            Settings.ScreenLayouts[ScreenUtilities.GetMonitorHardwareId(primaryScreen)] = Settings.CurrentLayoutName ?? "Default";
         }
 
         App.Logger.LogInfo("Settings migrated to screen-aware layouts", source: "Manager");
@@ -429,7 +429,7 @@ public sealed class Manager
     /// </summary>
     public Layout GetLayoutForScreen(System.Windows.Forms.Screen screen)
     {
-        if (Settings.ScreenLayouts.TryGetValue(screen.DeviceName, out string? layoutName))
+        if (Settings.ScreenLayouts.TryGetValue(ScreenUtilities.GetMonitorHardwareId(screen), out string? layoutName))
         {
             Layout? bound = Settings.Layouts.FirstOrDefault(layout => layout.Name == layoutName);
             if (bound is not null)
@@ -457,7 +457,7 @@ public sealed class Manager
     /// </summary>
     public void BindLayoutToScreen(System.Windows.Forms.Screen screen, Layout layout)
     {
-        Settings.ScreenLayouts[screen.DeviceName] = layout.Name;
+        Settings.ScreenLayouts[ScreenUtilities.GetMonitorHardwareId(screen)] = layout.Name;
         SaveSettings();
     }
 
