@@ -194,6 +194,23 @@ public partial class WebPluginWindow : Window, IPluginWindow
         }
     }
 
+    public void SetRenderPaused(bool paused)
+    {
+        if (webView.CoreWebView2 is null)
+        {
+            return;
+        }
+
+        if (paused)
+        {
+            _ = webView.CoreWebView2.TrySuspendAsync();
+        }
+        else
+        {
+            webView.CoreWebView2.Resume();
+        }
+    }
+
     protected override void OnSourceInitialized(EventArgs e)
     {
         base.OnSourceInitialized(e);

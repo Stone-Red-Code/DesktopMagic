@@ -1,62 +1,56 @@
 ﻿using DesktopMagic.Api;
 using DesktopMagic.Api.Settings;
 
+using SkiaSharp;
+
 using System;
-using System.Drawing;
-using System.Drawing.Text;
 
 namespace DesktopMagic.BuiltInPlugins;
 
-internal class TimePlugin : Plugin
+internal class TimePlugin : SkiaPlugin
 {
+    private const float FontSize = 200;
+    private const float ContentPadding = 8;
+
     [Setting("display-seconds", "Show Seconds")]
     private readonly CheckBox displaySecondsCheckBox = new CheckBox(true);
 
-    private string oldTime = string.Empty;
-    private bool themeChanged;
-
     public override int UpdateInterval => 1000;
 
-    public override Bitmap? Main()
+    public override SKImage? Render()
     {
-        string time = displaySecondsCheckBox.Value ? DateTime.Now.ToLongTimeString() : DateTime.Now.ToShortTimeString();
+        string time = GetTime();
 
-        if (oldTime == time && !themeChanged)
+        using SKTypeface typeface = SKTypeface.FromFamilyName(Application.Theme.Font);
+        using SKFont font = new(typeface, FontSize);
+        using SKPaint paint = new()
         {
-            return null;
-        }
+            Color = new SKColor(
+                Application.Theme.PrimaryColor.R,
+                Application.Theme.PrimaryColor.G,
+                Application.Theme.PrimaryColor.B,
+                Application.Theme.PrimaryColor.A),
+            IsAntialias = true
+        };
 
-        oldTime = time;
-        themeChanged = false;
+        float textWidth = font.MeasureText(time, paint);
+        SKFontMetrics metrics = font.Metrics;
+        float textHeight = metrics.Descent - metrics.Ascent;
 
-        using Font font = new Font(Application.Theme.Font, 200);
+        int width = (int)Math.Ceiling(textWidth) + (int)(ContentPadding * 2);
+        int height = (int)Math.Ceiling(textHeight) + (int)(ContentPadding * 2);
 
-        Bitmap bmp = new Bitmap(1, 1);
-        bmp.SetResolution(100, 100);
-        using Graphics tmpGr = Graphics.FromImage(bmp);
-        tmpGr.TextRenderingHint = TextRenderingHint.AntiAlias;
+        using SKSurface surface = SKSurface.Create(new SKImageInfo(width, height, SKColorType.Bgra8888, SKAlphaType.Premul));
+        surface.Canvas.Clear(SKColors.Transparent);
 
-        SizeF size = tmpGr.MeasureString(time, font);
+        // Draw the text at a fixed size into a content-sized image; the window scales it to fit.
+        surface.Canvas.DrawText(time, ContentPadding, -metrics.Ascent + ContentPadding, SKTextAlign.Left, font, paint);
 
-        bmp = new Bitmap((int)size.Width, (int)size.Height);
-        bmp.SetResolution(100, 100);
-
-        using Graphics gr = Graphics.FromImage(bmp);
-        using SolidBrush brush = new SolidBrush(Application.Theme.PrimaryColor);
-
-        gr.TextRenderingHint = TextRenderingHint.AntiAlias;
-        gr.DrawString(time, font, brush, 0, 0);
-
-        return bmp;
+        return surface.Snapshot();
     }
 
-    public override void OnThemeChanged()
+    private string GetTime()
     {
-        themeChanged = true;
-    }
-
-    public override void OnSettingsChanged()
-    {
-        themeChanged = true;
+        return displaySecondsCheckBox.Value ? DateTime.Now.ToLongTimeString() : DateTime.Now.ToShortTimeString();
     }
 }

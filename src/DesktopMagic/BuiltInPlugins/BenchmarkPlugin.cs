@@ -9,9 +9,6 @@ namespace DesktopMagic.BuiltInPlugins;
 
 internal class BenchmarkPlugin : Plugin
 {
-    private const int BitmapWidth = 400;
-    private const int BitmapHeight = 300;
-
     private readonly Random rng = new(42);
     private readonly object rngLock = new();
 
@@ -28,7 +25,7 @@ internal class BenchmarkPlugin : Plugin
     [Setting("fps-counter", "Fps")]
     private readonly Label fpsCounter = new("");
 
-    public override int UpdateInterval => 16;
+    public override int UpdateInterval => 1;
 
     public override Bitmap? Main()
     {
@@ -40,8 +37,10 @@ internal class BenchmarkPlugin : Plugin
         }
         lastFrameMs = now;
 
-        int w = BitmapWidth;
-        int h = BitmapHeight;
+        // Render at the full device-pixel window size so both benchmarks cover the
+        // same on-screen area at the same resolution for a fair comparison.
+        int w = Application.WindowPixelSize.Width;
+        int h = Application.WindowPixelSize.Height;
 
         Bitmap bmp = new Bitmap(w, h);
         using Graphics g = Graphics.FromImage(bmp);

@@ -40,12 +40,14 @@ public partial class PluginWindow : Window, IPluginWindow
     private Thread? pluginThread;
     private System.Timers.Timer? updateTimer;
     private Plugin? pluginClassInstance;
+    private PluginData? pluginData;
     private AssemblyLoadContext assemblyLoadContext;
 
     private readonly Rectangle screenBounds;
     private readonly string screenDeviceName;
     private bool isUpdatingPosition = false;
     private bool _editMode = false;
+    private volatile bool renderPaused = false;
 
     private CancellationTokenSource? pluginCancellationTokenSource;
     private FileSystemWatcher? pluginFileWatcher;
@@ -54,6 +56,18 @@ public partial class PluginWindow : Window, IPluginWindow
 
     private WriteableBitmap? writeableBitmap;
     private BitmapScalingMode lastBitmapScalingMode = BitmapScalingMode.Unspecified;
+
+    // Last presented frame bytes; used to skip re-uploading identical frames so WPF does not
+    // re-upload the texture or re-composite the window (GPU stays idle for static widgets).
+    private byte[]? lastFramePixels;
+    private int lastFrameWidth;
+    private int lastFrameHeight;
+    private int lastFrameStride;
+
+    // Guards against overlapping render ticks. The timer can re-enter while an async
+    // render awaits the UI thread, which would run the plugin concurrently and present
+    // frames out of order. Only one render may be in flight at a time.
+    private long renderInProgress;
 
     // Event handlers on long-lived settings objects, tracked so they can be unsubscribed on close.
     private readonly PropertyChangedEventHandler settingsPropertyChangedHandler;
@@ -334,6 +348,21 @@ public partial class PluginWindow : Window, IPluginWindow
         }
     }
 
+    public void SetRenderPaused(bool paused)
+    {
+        renderPaused = paused;
+
+        if (paused)
+        {
+            updateTimer?.Stop();
+        }
+        else if (IsRunning && pluginClassInstance is { UpdateInterval: > 0 } && updateTimer is not null)
+        {
+            updateTimer.Interval = pluginClassInstance.UpdateInterval;
+            updateTimer.Start();
+        }
+    }
+
     public void UpdatePluginWindow()
     {
         UpdateTimer_Elapsed(updateTimer, null);
@@ -400,8 +429,28 @@ public partial class PluginWindow : Window, IPluginWindow
 
         try
         {
-            Dispatcher.Invoke(() =>
+            int stride = bitmapData.Stride;
+            int height = bitmapData.Height;
+            int byteCount = stride * height;
+
+            unsafe
             {
+                byte* scan0 = (byte*)bitmapData.Scan0.ToPointer();
+
+                // Skip the present when the frame is byte-identical to the last presented one so WPF
+                // does not re-upload the texture or re-composite the window (GPU stays idle for
+                // static widgets that keep ticking).
+                if (lastFramePixels is { Length: > 0 }
+                    && lastFrameWidth == bitmapData.Width
+                    && lastFrameHeight == height
+                    && lastFrameStride == stride
+                    && lastFramePixels.AsSpan().SequenceEqual(new ReadOnlySpan<byte>(scan0, byteCount)))
+                {
+                    return;
+                }
+
+                Dispatcher.Invoke(() =>
+                {
                 if (lastBitmapScalingMode != scalingMode)
                 {
                     RenderOptions.SetBitmapScalingMode(image, scalingMode);
@@ -410,9 +459,19 @@ public partial class PluginWindow : Window, IPluginWindow
 
                 if (writeableBitmap == null || writeableBitmap.PixelWidth != bitmapData.Width || writeableBitmap.PixelHeight != bitmapData.Height)
                 {
+                    // A frame sized to the window maps 1:1 to the display when the bitmap uses the
+                    // actual monitor DPI, so WPF skips the (expensive) per-frame scaling filter.
+                    // Smaller content-sized frames keep 96 DPI to preserve their on-screen semantics.
+                    DpiScale dpi = VisualTreeHelper.GetDpi(this);
+                    bool fullWindowFrame = pluginData != null
+                        && bitmapData.Width == pluginData.WindowPixelSize.Width
+                        && bitmapData.Height == pluginData.WindowPixelSize.Height;
+                    double dpiX = fullWindowFrame ? dpi.DpiScaleX * 96 : bitmap.HorizontalResolution;
+                    double dpiY = fullWindowFrame ? dpi.DpiScaleY * 96 : bitmap.VerticalResolution;
+
                     writeableBitmap = new WriteableBitmap(
                         bitmapData.Width, bitmapData.Height,
-                        bitmap.HorizontalResolution, bitmap.VerticalResolution,
+                        dpiX, dpiY,
                         PixelFormats.Bgra32, null);
                     image.Source = writeableBitmap;
                 }
@@ -434,7 +493,17 @@ public partial class PluginWindow : Window, IPluginWindow
                 {
                     writeableBitmap.Unlock();
                 }
-            });
+                });
+
+                if (lastFramePixels is null || lastFramePixels.Length != byteCount)
+                {
+                    lastFramePixels = new byte[byteCount];
+                }
+                lastFrameWidth = bitmapData.Width;
+                lastFrameHeight = height;
+                lastFrameStride = stride;
+                new ReadOnlySpan<byte>(scan0, byteCount).CopyTo(lastFramePixels);
+            }
         }
         finally
         {
@@ -560,7 +629,8 @@ public partial class PluginWindow : Window, IPluginWindow
         if (instance is Plugin plugin)
         {
             pluginClassInstance = plugin;
-            pluginClassInstance.Application = new PluginData(this, settings);
+            pluginData = new PluginData(this, settings);
+            pluginClassInstance.Application = pluginData;
         }
         else
         {
@@ -589,6 +659,8 @@ public partial class PluginWindow : Window, IPluginWindow
         };
         updateTimer.Elapsed += UpdateTimer_Elapsed;
 
+        await Dispatcher.InvokeAsync(RefreshWindowPixelSize);
+
         pluginClassInstance.Start();
         if (pluginClassInstance is AsyncPlugin asyncPluginStart)
         {
@@ -599,7 +671,7 @@ public partial class PluginWindow : Window, IPluginWindow
         UpdatePluginWindow();
         await Dispatcher.InvokeAsync(ThemeChanged);
 
-        if (pluginClassInstance.UpdateInterval > 0)
+        if (pluginClassInstance.UpdateInterval > 0 && !renderPaused)
         {
             updateTimer.Interval = pluginClassInstance.UpdateInterval;
             updateTimer.Start();
@@ -963,6 +1035,13 @@ public partial class PluginWindow : Window, IPluginWindow
             return;
         }
 
+        // Drop the tick when a render is still in flight instead of running the plugin
+        // concurrently (the timer can re-enter while the async render awaits the UI thread).
+        if (Interlocked.CompareExchange(ref renderInProgress, 1, 0) != 0)
+        {
+            return;
+        }
+
         try
         {
             if (plugin is SkiaPlugin or SkiaAsyncPlugin)
@@ -1034,6 +1113,10 @@ public partial class PluginWindow : Window, IPluginWindow
             });
             Exit();
         }
+        finally
+        {
+            Interlocked.Exchange(ref renderInProgress, 0);
+        }
     }
 
     private async Task RenderSkiaFrame()
@@ -1045,62 +1128,128 @@ public partial class PluginWindow : Window, IPluginWindow
             return;
         }
 
-        int width = 0;
-        int height = 0;
-
-        await Dispatcher.InvokeAsync(() =>
-        {
-            width = Math.Max(1, (int)ActualWidth);
-            height = Math.Max(1, (int)ActualHeight);
-        });
-
-        using SKSurface surface = SKSurface.Create(new SKImageInfo(width, height, SKColorType.Bgra8888, SKAlphaType.Premul));
-        surface.Canvas.Clear(SKColors.Transparent);
+        SKImage? skImage;
 
         if (plugin is SkiaAsyncPlugin skiaAsyncPlugin)
         {
             CancellationToken token = pluginCancellationTokenSource?.Token ?? CancellationToken.None;
-            await skiaAsyncPlugin.MainAsync(surface.Canvas, token);
+            skImage = await skiaAsyncPlugin.RenderAsync(token);
         }
         else if (plugin is SkiaPlugin skiaPlugin)
         {
-            skiaPlugin.Main(surface.Canvas);
+            skImage = skiaPlugin.Render();
         }
-
-        SKPixmap? pixmap = surface.PeekPixels();
-
-        if (pixmap is null)
+        else
         {
             return;
         }
 
-        await Dispatcher.InvokeAsync(() =>
+        // Null keeps the previous frame, matching how GDI plugins return null from Main().
+        if (skImage is null)
         {
-            if (writeableBitmap is null || writeableBitmap.PixelWidth != width || writeableBitmap.PixelHeight != height)
+            return;
+        }
+
+        using (skImage)
+        {
+            using SKImage raster = skImage.ToRasterImage();
+            using SKPixmap? pixmap = raster.PeekPixels();
+
+            if (pixmap is null)
             {
-                writeableBitmap = new WriteableBitmap(width, height, 96, 96, PixelFormats.Bgra32, null);
-                image.Source = writeableBitmap;
+                return;
             }
 
-            writeableBitmap.Lock();
-            try
+            int width = pixmap.Width;
+            int height = pixmap.Height;
+            int byteCount = pixmap.RowBytes * height;
+
+            // Skip the present when the frame is byte-identical to the last presented one so WPF
+            // does not re-upload the texture or re-composite the window (GPU stays idle for
+            // static widgets that keep ticking).
+            if (lastFramePixels is { Length: > 0 }
+                && lastFrameWidth == width
+                && lastFrameHeight == height
+                && lastFrameStride == pixmap.RowBytes
+                && lastFramePixels.AsSpan().SequenceEqual(pixmap.GetPixelSpan()))
             {
-                unsafe
+                return;
+            }
+
+            BitmapScalingMode scalingMode = plugin.RenderQuality switch
+            {
+                RenderQuality.High => BitmapScalingMode.HighQuality,
+                RenderQuality.Low => BitmapScalingMode.LowQuality,
+                RenderQuality.Performance => BitmapScalingMode.NearestNeighbor,
+                _ => BitmapScalingMode.Unspecified
+            };
+
+            await Dispatcher.InvokeAsync(() =>
+            {
+                if (lastBitmapScalingMode != scalingMode)
                 {
-                    Buffer.MemoryCopy(
-                        pixmap.GetPixels().ToPointer(),
-                        writeableBitmap.BackBuffer.ToPointer(),
-                        writeableBitmap.BackBufferStride * height,
-                        pixmap.RowBytes * pixmap.Height);
+                    RenderOptions.SetBitmapScalingMode(image, scalingMode);
+                    lastBitmapScalingMode = scalingMode;
                 }
 
-                writeableBitmap.AddDirtyRect(new Int32Rect(0, 0, width, height));
-            }
-            finally
+                if (writeableBitmap is null || writeableBitmap.PixelWidth != width || writeableBitmap.PixelHeight != height)
+                {
+                    // A frame sized to the window maps 1:1 to the display when the bitmap uses the
+                    // actual monitor DPI, so WPF skips the (expensive) per-frame scaling filter.
+                    // Smaller content-sized frames keep 96 DPI to preserve their on-screen semantics.
+                    DpiScale dpi = VisualTreeHelper.GetDpi(this);
+                    bool fullWindowFrame = pluginData != null
+                        && width == pluginData.WindowPixelSize.Width
+                        && height == pluginData.WindowPixelSize.Height;
+                    double dpiX = fullWindowFrame ? dpi.DpiScaleX * 96 : 96;
+                    double dpiY = fullWindowFrame ? dpi.DpiScaleY * 96 : 96;
+
+                    // Skia outputs premultiplied alpha, so use Pbgra32 (premultiplied BGRA).
+                    // Bgra32 is straight alpha and would render semi-transparent pixels too dark.
+                    writeableBitmap = new WriteableBitmap(width, height, dpiX, dpiY, PixelFormats.Pbgra32, null);
+                    image.Source = writeableBitmap;
+                }
+
+                writeableBitmap.Lock();
+                try
+                {
+                    int destStride = writeableBitmap.BackBufferStride;
+                    int srcStride = pixmap.RowBytes;
+                    int copyWidth = Math.Min(srcStride, destStride);
+                    int copyRows = Math.Min(pixmap.Height, height);
+
+                    unsafe
+                    {
+                        byte* src = (byte*)pixmap.GetPixels().ToPointer();
+                        byte* dst = (byte*)writeableBitmap.BackBuffer.ToPointer();
+
+                        for (int row = 0; row < copyRows; row++)
+                        {
+                            Buffer.MemoryCopy(
+                                src + (row * srcStride),
+                                dst + (row * destStride),
+                                destStride,
+                                copyWidth);
+                        }
+                    }
+
+                    writeableBitmap.AddDirtyRect(new Int32Rect(0, 0, width, height));
+                }
+                finally
+                {
+                    writeableBitmap.Unlock();
+                }
+            });
+
+            if (lastFramePixels is null || lastFramePixels.Length != byteCount)
             {
-                writeableBitmap.Unlock();
+                lastFramePixels = new byte[byteCount];
             }
-        });
+            lastFrameWidth = width;
+            lastFrameHeight = height;
+            lastFrameStride = pixmap.RowBytes;
+            pixmap.GetPixelSpan().CopyTo(lastFramePixels);
+        }
     }
 
     private void Border_SizeChanged(object sender, SizeChangedEventArgs e)
@@ -1257,6 +1406,7 @@ public partial class PluginWindow : Window, IPluginWindow
         }
 
         settings.Position = ScreenUtilities.PositionToPercent(new System.Windows.Point(Left, Top), screenBounds);
+        RefreshWindowPixelSize();
     }
 
     private void Window_SizeChanged(object sender, SizeChangedEventArgs e)
@@ -1267,6 +1417,13 @@ public partial class PluginWindow : Window, IPluginWindow
         }
 
         tileBar.CaptionHeight = ActualHeight - 10;
+        RefreshWindowPixelSize();
+    }
+
+    private void RefreshWindowPixelSize()
+    {
+        DpiScale dpi = VisualTreeHelper.GetDpi(this);
+        pluginData?.UpdateWindowPixelSize((int)Math.Ceiling(ActualWidth * dpi.DpiScaleX), (int)Math.Ceiling(ActualHeight * dpi.DpiScaleY));
     }
 
     private void Image_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
@@ -1275,8 +1432,15 @@ public partial class PluginWindow : Window, IPluginWindow
 
         ImageSource imageSource = image.Source;
         BitmapSource bitmapImage = (BitmapSource)imageSource;
-        double pixelMousePositionX = e.GetPosition(image).X * bitmapImage.PixelWidth / image.ActualHeight;
-        double pixelMousePositionY = e.GetPosition(image).Y * bitmapImage.PixelHeight / image.ActualHeight;
+        double actualWidth = image.ActualWidth;
+        double actualHeight = image.ActualHeight;
+        if (actualWidth <= 0 || actualHeight <= 0)
+        {
+            return;
+        }
+
+        double pixelMousePositionX = e.GetPosition(image).X * bitmapImage.PixelWidth / actualWidth;
+        double pixelMousePositionY = e.GetPosition(image).Y * bitmapImage.PixelHeight / actualHeight;
 
         MouseButton mouseButton;
 
@@ -1306,8 +1470,15 @@ public partial class PluginWindow : Window, IPluginWindow
     {
         ImageSource imageSource = image.Source;
         BitmapSource bitmapImage = (BitmapSource)imageSource;
-        double pixelMousePositionX = e.GetPosition(image).X * bitmapImage.PixelWidth / image.ActualHeight;
-        double pixelMousePositionY = e.GetPosition(image).Y * bitmapImage.PixelHeight / image.ActualHeight;
+        double actualWidth = image.ActualWidth;
+        double actualHeight = image.ActualHeight;
+        if (actualWidth <= 0 || actualHeight <= 0)
+        {
+            return;
+        }
+
+        double pixelMousePositionX = e.GetPosition(image).X * bitmapImage.PixelWidth / actualWidth;
+        double pixelMousePositionY = e.GetPosition(image).Y * bitmapImage.PixelHeight / actualHeight;
 
         System.Drawing.Point point = new System.Drawing.Point((int)pixelMousePositionX, (int)pixelMousePositionY);
         pluginClassInstance?.OnMouseMove(point);
@@ -1317,8 +1488,15 @@ public partial class PluginWindow : Window, IPluginWindow
     {
         ImageSource imageSource = image.Source;
         BitmapSource bitmapImage = (BitmapSource)imageSource;
-        double pixelMousePositionX = e.GetPosition(image).X * bitmapImage.PixelWidth / image.ActualHeight;
-        double pixelMousePositionY = e.GetPosition(image).Y * bitmapImage.PixelHeight / image.ActualHeight;
+        double actualWidth = image.ActualWidth;
+        double actualHeight = image.ActualHeight;
+        if (actualWidth <= 0 || actualHeight <= 0)
+        {
+            return;
+        }
+
+        double pixelMousePositionX = e.GetPosition(image).X * bitmapImage.PixelWidth / actualWidth;
+        double pixelMousePositionY = e.GetPosition(image).Y * bitmapImage.PixelHeight / actualHeight;
 
         System.Drawing.Point point = new System.Drawing.Point((int)pixelMousePositionX, (int)pixelMousePositionY);
         pluginClassInstance?.OnMouseWheel(point, e.Delta);

@@ -4,6 +4,7 @@ using DesktopMagic.Api.Settings;
 using SkiaSharp;
 
 using System;
+using System.Drawing;
 
 namespace DesktopMagic.BuiltInPlugins;
 
@@ -22,9 +23,23 @@ internal class SkiaBenchmarkPlugin : SkiaPlugin
     [Setting("skia-shape-type", "Shape Type")]
     private readonly ComboBox shapeType = new("Rectangles", "Ellipses", "Lines", "Text", "Mixed");
 
-    public override int UpdateInterval => 16;
+    [Setting("skia-fps-counter", "Fps")]
+    private readonly Label fpsCounter = new("");
 
-    public override void Main(SKCanvas canvas)
+    public override int UpdateInterval => 1;
+
+    SKSurface surface;
+
+
+    public override void Start()
+    {
+        Size pixelSize = Application.WindowPixelSize;
+        int w = Math.Max(1, pixelSize.Width);
+        int h = Math.Max(1, pixelSize.Height);
+        surface = SKSurface.Create(new SKImageInfo(w, h, SKColorType.Bgra8888, SKAlphaType.Premul));
+    }
+
+    public override SKImage? Render()
     {
         long now = frameTimer.ElapsedMilliseconds;
         if (lastFrameMs > 0)
@@ -34,8 +49,14 @@ internal class SkiaBenchmarkPlugin : SkiaPlugin
         }
         lastFrameMs = now;
 
-        int w = (int)canvas.DeviceClipBounds.Width;
-        int h = (int)canvas.DeviceClipBounds.Height;
+        // Render at the full device-pixel window size so the benchmark measures
+        // real on-screen resolution instead of being scaled down.
+        Size pixelSize = Application.WindowPixelSize;
+        int w = Math.Max(1, pixelSize.Width);
+        int h = Math.Max(1, pixelSize.Height);
+
+        
+        SKCanvas canvas = surface.Canvas;
 
         canvas.Clear(SKColors.Transparent);
 
@@ -112,12 +133,8 @@ internal class SkiaBenchmarkPlugin : SkiaPlugin
             }
         }
 
-        using var fpsFont = new SKFont(SKTypeface.Default, 14);
-        using var fpsPaint = new SKPaint
-        {
-            Color = color,
-            IsAntialias = false
-        };
-        canvas.DrawText($"FPS: {fps:F1} | Shapes: {count} | Type: {type}", 8, 18, SKTextAlign.Left, fpsFont, fpsPaint);
+        fpsCounter.Value = fps.ToString();
+
+        return surface.Snapshot();
     }
 }
