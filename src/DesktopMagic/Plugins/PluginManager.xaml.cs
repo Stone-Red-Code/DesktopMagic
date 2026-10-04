@@ -1,6 +1,7 @@
 ﻿using DesktopMagic.DataContexts;
 using DesktopMagic.Dialogs;
 using DesktopMagic.Helpers;
+using DesktopMagic.Settings;
 
 using Modio;
 using Modio.Filters;
@@ -32,8 +33,7 @@ namespace DesktopMagic.Plugins;
 /// </summary>
 public partial class PluginManager : Page
 {
-    private const int ModIoGameId = 5665;
-    private const string ModIoApiKey = "88e6ea774c3a502b06114e7fee0829ac";
+    private const uint ModIoGameId = ModIoService.GameId;
     private readonly HttpClient httpClient = new();
     private readonly PluginManagerDataContext pluginManagerDataContext = new();
     private readonly string pluginsPath = Path.Combine(App.ApplicationDataPath, "Plugins");
@@ -48,23 +48,16 @@ public partial class PluginManager : Page
     private bool changed = false;
     private Client modIoClient;
 
+    // mod.io data of the local layouts and themes linked to a mod, by mod ID.
+    private readonly Dictionary<uint, Mod> linkedMods = [];
+
     public PluginManager()
     {
         Resources.MergedDictionaries.Add(App.LanguageDictionary);
 
-        string? modIoAccessToken = MainWindowDataContext.GetSettings().ModIoAccessToken;
-
-        if (modIoAccessToken is null)
-        {
-            modIoClient = new Client(new Credentials(ModIoApiKey));
-            App.Logger.LogInfo("Initialized mod.io client without authentication", source: "PluginManager");
-        }
-        else
-        {
-            modIoClient = new Client(new Credentials(ModIoApiKey, modIoAccessToken));
-            pluginManagerDataContext.IsAuthenticated = true;
-            App.Logger.LogInfo("Initialized mod.io client with authentication", source: "PluginManager");
-        }
+        modIoClient = ModIoService.CreateClient();
+        pluginManagerDataContext.IsAuthenticated = ModIoService.IsAuthenticated;
+        App.Logger.LogInfo($"Initialized mod.io client {(ModIoService.IsAuthenticated ? "with" : "without")} authentication", source: "PluginManager");
 
         InitializeComponent();
 
@@ -72,7 +65,15 @@ public partial class PluginManager : Page
         searchTimer.Tick += async (sender, e) =>
         {
             searchTimer.Stop();
-            await SearchAllPlugins(pluginManagerDataContext.AllPluginsSearchText);
+
+            if (pluginManagerDataContext.Category == ModCategory.Plugins)
+            {
+                await SearchAllPlugins(pluginManagerDataContext.AllPluginsSearchText);
+            }
+            else
+            {
+                await SearchShared(pluginManagerDataContext.AllPluginsSearchText);
+            }
         };
 
         Loaded += PluginManager_Loaded;
@@ -222,7 +223,7 @@ public partial class PluginManager : Page
             IAsyncEnumerable<Mod> mods = modIoClient.Games[ModIoGameId].Mods.Search(filter).ToEnumerable();
             await foreach (Mod mod in mods)
             {
-                if (pluginIds.Contains(mod.Id))
+                if (pluginIds.Contains(mod.Id) || !ModIoService.IsPluginMod(mod))
                 {
                     continue;
                 }
@@ -237,6 +238,8 @@ public partial class PluginManager : Page
         }
 
         await SyncPlugins();
+        await UpdateLinkedItems();
+        await PopulateShared();
 
         pluginManagerDataContext.IsLoading = false;
         App.Logger.LogInfo("Plugin Manager initialization complete", source: "PluginManager");
@@ -353,20 +356,177 @@ public partial class PluginManager : Page
 
     private void InstalledPluginsSearchTextBox_TextChanged(object sender, System.Windows.Controls.TextChangedEventArgs e)
     {
-        if (string.IsNullOrWhiteSpace(pluginManagerDataContext.InstalledPluginsSearchText))
+        FilterInstalled();
+    }
+
+    private void FilterInstalled()
+    {
+        string searchText = pluginManagerDataContext.InstalledPluginsSearchText;
+
+        foreach (PluginEntryDataContext pluginEntryDataContext in pluginManagerDataContext.ShownInstalled)
         {
-            foreach (PluginEntryDataContext pluginEntryDataContext in pluginManagerDataContext.InstalledPlugins)
+            pluginEntryDataContext.IsVisible = string.IsNullOrWhiteSpace(searchText) || pluginEntryDataContext.Name.Contains(searchText, StringComparison.OrdinalIgnoreCase);
+        }
+    }
+
+    private async void CategoryComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (!IsLoaded)
+        {
+            return;
+        }
+
+        pluginManagerDataContext.CategoryIndex = categoryComboBox.SelectedIndex;
+        pluginManagerDataContext.IsLoading = true;
+        await PopulateShared();
+        FilterInstalled();
+        pluginManagerDataContext.IsLoading = false;
+    }
+
+    /// <summary>
+    /// Fetches the mods of all linked layouts and themes and applies newer versions.
+    /// Subscribed items are also updated by the subscription sync, this covers items installed while logged out.
+    /// </summary>
+    private async Task UpdateLinkedItems()
+    {
+        linkedMods.Clear();
+
+        foreach (IModIoShareable item in ModIoService.GetSharedItems().Where(item => item.ModIo is not null).ToList())
+        {
+            uint modId = item.ModIo!.ModId;
+
+            try
             {
-                pluginEntryDataContext.IsVisible = true;
+                Mod mod = await modIoClient.Games[ModIoGameId].Mods[modId].Get();
+                linkedMods[modId] = mod;
+
+                if (await ModIoService.UpdateAsync(item, mod, EnsurePluginInstalled))
+                {
+                    changed = true;
+                }
+            }
+            catch (Exception ex)
+            {
+                App.Logger.LogError($"Failed to check \"{item.Name}\" (mod {modId}) for updates: {ex.Message}", source: "PluginManager");
             }
         }
-        else
+    }
+
+    /// <summary>
+    /// Fills the lists of the selected layout or theme category.
+    /// </summary>
+    private async Task PopulateShared()
+    {
+        pluginManagerDataContext.InstalledShared.Clear();
+        pluginManagerDataContext.AllShared.Clear();
+
+        if (pluginManagerDataContext.Category == ModCategory.Plugins)
         {
-            foreach (PluginEntryDataContext pluginEntryDataContext in pluginManagerDataContext.InstalledPlugins)
+            return;
+        }
+
+        IEnumerable<IModIoShareable> items = pluginManagerDataContext.Category == ModCategory.Layouts
+            ? _manager.Settings.Layouts
+            : _manager.Settings.Themes;
+
+        foreach (IModIoShareable item in items.Where(item => item.ModIo is not null).ToList())
+        {
+            uint modId = item.ModIo!.ModId;
+
+            if (!linkedMods.TryGetValue(modId, out Mod? mod))
             {
-                pluginEntryDataContext.IsVisible = pluginEntryDataContext.Name.Contains(pluginManagerDataContext.InstalledPluginsSearchText, StringComparison.OrdinalIgnoreCase);
+                try
+                {
+                    mod = await modIoClient.Games[ModIoGameId].Mods[modId].Get();
+                    linkedMods[modId] = mod;
+                }
+                catch (Exception ex)
+                {
+                    App.Logger.LogError($"Failed to fetch mod {modId} of \"{item.Name}\": {ex.Message}", source: "PluginManager");
+                }
+            }
+
+            // Show the local name, it can differ from the mod name (e.g. "Default (2)").
+            PluginMetadata metadata = mod is null ? new PluginMetadata(item.Name, modId) : new PluginMetadata(mod) { Name = item.Name };
+            pluginManagerDataContext.InstalledShared.Add(new PluginEntryDataContext(metadata, new CommandHandler(async () => await RemoveShared(item)), PluginEntryDataContext.Mode.Uninstall));
+        }
+
+        await SearchShared(pluginManagerDataContext.AllPluginsSearchText);
+    }
+
+    private async Task SearchShared(string searchString)
+    {
+        pluginManagerDataContext.AllShared.Clear();
+
+        if (pluginManagerDataContext.Category == ModCategory.Plugins)
+        {
+            pluginManagerDataContext.IsSearching = false;
+            return;
+        }
+
+        string tag = pluginManagerDataContext.Category == ModCategory.Layouts ? SharePackage.LayoutTag : SharePackage.ThemeTag;
+        Filter filter = ModFilter.Tags.Eq(tag);
+
+        if (!string.IsNullOrWhiteSpace(searchString))
+        {
+            if (!searchString.Contains('*'))
+            {
+                searchString = $"*{searchString.Trim()}*";
+            }
+
+            filter = filter.And(ModFilter.Name.Like(searchString));
+        }
+
+        filter = filter.And(ModFilter.Popular.Desc()).Limit(100);
+
+        try
+        {
+            App.Logger.LogInfo($"Fetching shared {tag} mods from mod.io", source: "PluginManager");
+            IAsyncEnumerable<Mod> mods = modIoClient.Games[ModIoGameId].Mods.Search(filter).ToEnumerable();
+            await foreach (Mod mod in mods)
+            {
+                if (ModIoService.FindLinkedItem(mod.Id) is not null)
+                {
+                    continue;
+                }
+
+                pluginManagerDataContext.AllShared.Add(new PluginEntryDataContext(new(mod), new CommandHandler(async () => await InstallShared(mod)), PluginEntryDataContext.Mode.Install));
             }
         }
+        catch (Exception ex)
+        {
+            App.Logger.LogError($"Failed to fetch shared {tag} mods from mod.io: {ex.Message}", source: "PluginManager");
+        }
+
+        pluginManagerDataContext.IsSearching = false;
+    }
+
+    private async Task InstallShared(Mod mod)
+    {
+        pluginManagerDataContext.IsLoading = true;
+
+        if (await ModIoService.InstallAsync(mod, EnsurePluginInstalled))
+        {
+            linkedMods[mod.Id] = mod;
+            changed = true;
+        }
+
+        await PopulateShared();
+        FilterInstalled();
+        pluginManagerDataContext.IsLoading = false;
+    }
+
+    private async Task RemoveShared(IModIoShareable item)
+    {
+        if (!await ModIoService.RemoveAsync(item))
+        {
+            return;
+        }
+
+        pluginManagerDataContext.IsLoading = true;
+        await PopulateShared();
+        FilterInstalled();
+        pluginManagerDataContext.IsLoading = false;
     }
 
     private async Task SearchAllPlugins(string searchString)
@@ -386,7 +546,7 @@ public partial class PluginManager : Page
             IAsyncEnumerable<Mod> mods = modIoClient.Games[ModIoGameId].Mods.Search(filter).ToEnumerable();
             await foreach (Mod mod in mods)
             {
-                if (pluginManagerDataContext.InstalledPlugins.Any(p => p.Id == mod.Id))
+                if (pluginManagerDataContext.InstalledPlugins.Any(p => p.Id == mod.Id) || !ModIoService.IsPluginMod(mod))
                 {
                     continue;
                 }
@@ -674,52 +834,21 @@ public class {pluginSafeName}Plugin : Plugin
     {
         if (pluginManagerDataContext.IsAuthenticated)
         {
-            App.Logger.LogInfo("Logging out from mod.io", source: "PluginManager");
-            MainWindowDataContext.GetSettings().ModIoAccessToken = null;
+            ModIoService.LogOut();
+            modIoClient = ModIoService.CreateClient();
             pluginManagerDataContext.IsAuthenticated = false;
             return;
         }
 
-        App.Logger.LogInfo("Starting mod.io authentication", source: "PluginManager");
-
         try
         {
-            InputDialog inputDialog = new((string)FindResource("enterModIoEmail"), "Plugin Manager")
+            if (!await ModIoService.LogInAsync(Window.GetWindow(this), "Plugin Manager"))
             {
-                Owner = Window.GetWindow(this),
-            };
-
-            if (inputDialog.ShowDialog() != true)
-            {
-                App.Logger.LogInfo("Authentication cancelled by user", source: "PluginManager");
-                return;
-            }
-
-            App.Logger.LogInfo($"Requesting authentication code for email: {inputDialog.ResponseText}", source: "PluginManager");
-            await modIoClient.Auth.RequestCode(ModIoApiKey, inputDialog.ResponseText);
-
-            inputDialog = new((string)FindResource("enterModIoAccessToken"), "Plugin Manager")
-            {
-                Owner = Window.GetWindow(this),
-            };
-
-            if (inputDialog.ShowDialog() != true)
-            {
-                App.Logger.LogInfo("Authentication cancelled by user", source: "PluginManager");
                 return;
             }
 
             pluginManagerDataContext.IsLoading = true;
-
-            AccessToken accessToken = await modIoClient.Auth.SecurityCode(ModIoApiKey, inputDialog.ResponseText);
-
-            if (accessToken.Value is not null)
-            {
-                modIoClient = new Client(new Credentials(ModIoApiKey, accessToken.Value));
-                App.Logger.LogInfo("Successfully authenticated with mod.io", source: "PluginManager");
-            }
-
-            MainWindowDataContext.GetSettings().ModIoAccessToken = accessToken.Value;
+            modIoClient = ModIoService.CreateClient();
             pluginManagerDataContext.IsAuthenticated = true;
 
             App.Logger.LogInfo("Subscribing to installed plugins on mod.io", source: "PluginManager");
@@ -739,7 +868,9 @@ public class {pluginSafeName}Plugin : Plugin
                 }
             }
 
+            await ModIoService.SubscribeToLinkedItemsAsync();
             await SyncPlugins();
+            await PopulateShared();
         }
         catch (Exception ex)
         {
@@ -767,7 +898,8 @@ public class {pluginSafeName}Plugin : Plugin
 
         try
         {
-            IReadOnlyList<Mod> mods = await modIoClient.User.GetSubscriptions(ModFilter.GameId.Eq(ModIoGameId)).ToList();
+            IReadOnlyList<Mod> subscriptions = await modIoClient.User.GetSubscriptions(ModFilter.GameId.Eq(ModIoGameId)).ToList();
+            List<Mod> mods = subscriptions.Where(ModIoService.IsPluginMod).ToList();
             App.Logger.LogInfo($"Found {mods.Count} subscribed plugins on mod.io", source: "PluginManager");
 
             List<PluginEntryDataContext> pluginsToRemove = [];
@@ -800,11 +932,30 @@ public class {pluginSafeName}Plugin : Plugin
             }
 
             App.Logger.LogInfo("Plugin sync completed", source: "PluginManager");
+
+            // Shared layouts and themes are synced after the plugins, so the plugins they use are installed first.
+            if (await ModIoService.SyncSubscriptionsAsync(subscriptions, EnsurePluginInstalled))
+            {
+                changed = true;
+            }
         }
         catch (Exception ex)
         {
             App.Logger.LogError($"Plugin sync failed: {ex.Message}", source: "PluginManager");
         }
+    }
+
+    private async Task EnsurePluginInstalled(uint pluginId)
+    {
+        if (pluginManagerDataContext.InstalledPlugins.Any(p => p.Id == pluginId))
+        {
+            return;
+        }
+
+        App.Logger.LogInfo($"Installing plugin {pluginId} required by a shared layout", source: "PluginManager");
+        Mod mod = await modIoClient.Games[ModIoGameId].Mods[pluginId].Get();
+        await Install(mod);
+        pluginManagerDataContext.IsLoading = true;
     }
 
     private string GetCsprojPath(string pluginName)

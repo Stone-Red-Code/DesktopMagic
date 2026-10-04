@@ -18,6 +18,7 @@ internal class MainWindowDataContext : INotifyPropertyChanged
     private string? selectedLayoutName;
 
     private bool isLoading = true;
+    private bool isSharing;
     private string? pluginsSearchText;
 
     public string Title =>
@@ -28,6 +29,19 @@ internal class MainWindowDataContext : INotifyPropertyChanged
 #endif
 
     public string AppName => App.AppName;
+
+    /// <summary>
+    /// Whether a layout or theme is currently being uploaded to mod.io.
+    /// </summary>
+    public bool IsSharing
+    {
+        get => isSharing;
+        set
+        {
+            isSharing = value;
+            OnPropertyChanged();
+        }
+    }
 
     public DesktopMagicSettings Settings
     {

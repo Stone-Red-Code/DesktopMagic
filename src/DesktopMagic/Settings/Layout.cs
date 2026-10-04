@@ -9,7 +9,7 @@ using System.Text.Json.Serialization;
 
 namespace DesktopMagic.Settings;
 
-public class Layout(string name) : INotifyPropertyChanged
+public class Layout(string name) : INotifyPropertyChanged, IModIoShareable
 {
     public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -17,6 +17,23 @@ public class Layout(string name) : INotifyPropertyChanged
     private string? currentThemeName = null;
     private Dictionary<uint, PluginSettings> plugins = [];
     private double screenAspectRatio = 0;
+    private ModIoShareState shareState;
+
+    public ModIoLink? ModIo { get; set; }
+
+    [JsonIgnore]
+    public ModIoShareState ShareState
+    {
+        get => shareState;
+        set
+        {
+            if (shareState != value)
+            {
+                shareState = value;
+                OnPropertyChanged();
+            }
+        }
+    }
 
     [JsonIgnore]
     public Theme Theme

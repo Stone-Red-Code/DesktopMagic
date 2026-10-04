@@ -462,6 +462,27 @@ public sealed class Manager
     }
 
     /// <summary>
+    /// Deletes the layout, drops the screen bindings pointing to it and reloads the screens.
+    /// </summary>
+    public void RemoveLayout(Layout layout)
+    {
+        _ = Settings.Layouts.Remove(layout);
+
+        List<string> boundScreens = Settings.ScreenLayouts
+            .Where(kvp => kvp.Value == layout.Name)
+            .Select(kvp => kvp.Key)
+            .ToList();
+
+        foreach (string screenId in boundScreens)
+        {
+            _ = Settings.ScreenLayouts.Remove(screenId);
+        }
+
+        SaveSettings();
+        LoadLayout();
+    }
+
+    /// <summary>
     /// Gets all plugin windows currently shown on the given screen.
     /// </summary>
     public IEnumerable<IPluginWindow> GetWindowsForScreen(string screenDeviceName)

@@ -31,19 +31,26 @@
             <ui:Card Grid.ColumnSpan="3" Padding="5" Margin="0 0 0 5">
                 <Grid>
                     <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="auto" />
+                        <ColumnDefinition Width="10" />
                         <ColumnDefinition />
                         <ColumnDefinition Width="10" />
                         <ColumnDefinition />
                     </Grid.ColumnDefinitions>
 
-                    <ui:TextBox Grid.Column="0" Text="{Binding AllPluginsSearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TextChanged="AllPluginsSearchTextBox_TextChanged" PlaceholderText="{DynamicResource searchAllPlugins}" Icon="{ui:SymbolIcon Search24}" IconPlacement="Right" />
-                    <ui:TextBox Grid.Column="2" Text="{Binding InstalledPluginsSearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TextChanged="InstalledPluginsSearchTextBox_TextChanged" PlaceholderText="{DynamicResource searchInstalledPlugins}" Icon="{ui:SymbolIcon Search24}" IconPlacement="Right" />
+                    <ComboBox x:Name="categoryComboBox" Grid.Column="0" MinWidth="130" VerticalAlignment="Center" SelectedIndex="{Binding CategoryIndex, Mode=TwoWay}" SelectionChanged="CategoryComboBox_SelectionChanged">
+                        <ComboBoxItem Content="{DynamicResource plugins}" />
+                        <ComboBoxItem Content="{DynamicResource layouts}" />
+                        <ComboBoxItem Content="{DynamicResource themes}" />
+                    </ComboBox>
+                    <ui:TextBox Grid.Column="2" Text="{Binding AllPluginsSearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TextChanged="AllPluginsSearchTextBox_TextChanged" PlaceholderText="{DynamicResource searchModIo}" Icon="{ui:SymbolIcon Search24}" IconPlacement="Right" />
+                    <ui:TextBox Grid.Column="4" Text="{Binding InstalledPluginsSearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TextChanged="InstalledPluginsSearchTextBox_TextChanged" PlaceholderText="{DynamicResource searchInstalled}" Icon="{ui:SymbolIcon Search24}" IconPlacement="Right" />
                 </Grid>
             </ui:Card>
 
             <busyIndicator:BusyMask Grid.Row="2" IsBusy="{Binding IsSearching}" IndicatorType="ThreeDots" BusyContent="Searching..." BusyContentMargin="0,50,0,0" Foreground="{DynamicResource TextFillColorPrimaryBrush}" Background="{DynamicResource ControlStrokeColorDefaultBrush}">
                 <ScrollViewer VerticalScrollBarVisibility="Auto" VerticalAlignment="Stretch" Padding="0" VerticalContentAlignment="Top" Margin="0 0 2.5 0">
-                    <ItemsControl ItemsSource="{Binding AllPlugins}">
+                    <ItemsControl ItemsSource="{Binding ShownAll}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <local:ModEntry Margin="0 0 0 5" />
@@ -56,7 +63,7 @@
                                         <Setter Property="Template">
                                             <Setter.Value>
                                                 <ControlTemplate>
-                                                    <TextBlock Text="No plugins found!" FontSize="20" VerticalAlignment="Center" HorizontalAlignment="Center" />
+                                                    <TextBlock Text="{DynamicResource nothingFound}" FontSize="20" VerticalAlignment="Center" HorizontalAlignment="Center" />
                                                 </ControlTemplate>
                                             </Setter.Value>
                                         </Setter>
@@ -69,7 +76,7 @@
             </busyIndicator:BusyMask>
 
             <ScrollViewer VerticalScrollBarVisibility="Auto" Grid.Row="2" Grid.Column="2" VerticalAlignment="Stretch" Padding="0" VerticalContentAlignment="Top">
-                <ItemsControl  ItemsSource="{Binding InstalledPlugins}" Margin="2.5 0 0 0">
+                <ItemsControl  ItemsSource="{Binding ShownInstalled}" Margin="2.5 0 0 0">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
                             <local:ModEntry Margin="0 0 0 5"/>
@@ -82,7 +89,7 @@
                                     <Setter Property="Template">
                                         <Setter.Value>
                                             <ControlTemplate>
-                                                <TextBlock Text="No plugins found!" FontSize="20" VerticalAlignment="Center" HorizontalAlignment="Center" />
+                                                <TextBlock Text="{DynamicResource nothingFound}" FontSize="20" VerticalAlignment="Center" HorizontalAlignment="Center" />
                                             </ControlTemplate>
                                         </Setter.Value>
                                     </Setter>

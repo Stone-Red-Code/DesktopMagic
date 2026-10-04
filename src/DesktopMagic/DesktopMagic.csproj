@@ -49,7 +49,6 @@
         <PackageReference Include="Interop.IWshRuntimeLibrary" Version="1.0.1" />
         <PackageReference Include="Ical.Net" Version="4.3.1" />
         <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.3650.58" />
-        <PackageReference Include="Modio" Version="1.0.0" />
         <PackageReference Include="NAudio" Version="2.2.1" />
         <PackageReference Include="SkiaSharp" Version="4.148.0" />
         <PackageReference Include="System.Management" Version="8.0.0" />
@@ -60,6 +59,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\DesktopMagicPluginAPI\DesktopMagic.Api.csproj" />
+        <ProjectReference Include="..\..\lib\modio.net\Modio\Modio.csproj" />
     </ItemGroup>
 
     <ItemGroup>

@@ -35,6 +35,7 @@ public partial class MainPage : Page
         // Subscribe to manager events
         _manager.PluginsChanged += OnPluginsChanged;
         _manager.EditModeChanged += OnEditModeChanged;
+        _manager.SettingsChanged += OnSettingsChanged;
 
         Loaded += MainPage_Loaded;
         Unloaded += MainPage_Unloaded;
@@ -46,6 +47,7 @@ public partial class MainPage : Page
         editCheckBox.IsChecked = _manager.IsEditMode;
 
         _dataContext.RefreshScreens();
+        RefreshShareState();
     }
 
     private void MainPage_Unloaded(object sender, RoutedEventArgs e)
@@ -53,6 +55,7 @@ public partial class MainPage : Page
         // Unsubscribe from events
         _manager.PluginsChanged -= OnPluginsChanged;
         _manager.EditModeChanged -= OnEditModeChanged;
+        _manager.SettingsChanged -= OnSettingsChanged;
     }
 
     private void OnPluginsChanged()
@@ -61,7 +64,18 @@ public partial class MainPage : Page
         {
             _dataContext.Settings = _manager.Settings;
             ApplyPluginsFilter();
+            RefreshShareState();
         });
+    }
+
+    private void OnSettingsChanged()
+    {
+        Dispatcher.Invoke(RefreshShareState);
+    }
+
+    private void RefreshShareState()
+    {
+        ModIoService.RefreshShareState(_manager.SelectedLayout);
     }
 
     private void OnEditModeChanged(bool editMode)
@@ -157,6 +171,21 @@ public partial class MainPage : Page
     private void LayoutsComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
         ApplySelectedLayout();
+        RefreshShareState();
+    }
+
+    private async void ShareLayoutButton_Click(object sender, RoutedEventArgs e)
+    {
+        shareLayoutButton.IsEnabled = false;
+
+        try
+        {
+            await ModIoService.ShareAsync(_manager.SelectedLayout, Window.GetWindow(this), isBusy => _dataContext.IsSharing = isBusy);
+        }
+        finally
+        {
+            shareLayoutButton.IsEnabled = true;
+        }
     }
 
     /// <summary>
@@ -273,21 +302,10 @@ public partial class MainPage : Page
             return;
         }
 
-        _ = _manager.Settings.Layouts.Remove(layout);
+        // A subscribed layout would be downloaded again on the next sync.
+        await ModIoService.UnsubscribeAsync(layout);
 
-        // Remove any screen bindings pointing to the deleted layout
-        List<string> boundScreens = _manager.Settings.ScreenLayouts
-            .Where(kvp => kvp.Value == layout.Name)
-            .Select(kvp => kvp.Key)
-            .ToList();
-
-        foreach (string screenId in boundScreens)
-        {
-            _ = _manager.Settings.ScreenLayouts.Remove(screenId);
-        }
-
-        _manager.SaveSettings();
-        _manager.LoadLayout();
+        _manager.RemoveLayout(layout);
         _dataContext.RefreshSelection();
     }
 

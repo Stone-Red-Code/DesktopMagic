@@ -17,8 +17,37 @@ internal class PluginManagerDataContext : INotifyPropertyChanged
     private bool isLoading = true;
     private bool isSearching;
     private bool isAuthenticated = false;
+    private ModCategory category = ModCategory.Plugins;
+
     public ObservableCollection<PluginEntryDataContext> AllPlugins { get; } = [];
     public ObservableCollection<PluginEntryDataContext> InstalledPlugins { get; } = [];
+
+    // Layouts or themes, depending on the selected category.
+    public ObservableCollection<PluginEntryDataContext> AllShared { get; } = [];
+    public ObservableCollection<PluginEntryDataContext> InstalledShared { get; } = [];
+
+    public ModCategory Category
+    {
+        get => category;
+        set
+        {
+            category = value;
+            OnPropertyChanged();
+            OnPropertyChanged(nameof(CategoryIndex));
+            OnPropertyChanged(nameof(ShownAll));
+            OnPropertyChanged(nameof(ShownInstalled));
+        }
+    }
+
+    public int CategoryIndex
+    {
+        get => (int)category;
+        set => Category = (ModCategory)value;
+    }
+
+    public ObservableCollection<PluginEntryDataContext> ShownAll => category == ModCategory.Plugins ? AllPlugins : AllShared;
+
+    public ObservableCollection<PluginEntryDataContext> ShownInstalled => category == ModCategory.Plugins ? InstalledPlugins : InstalledShared;
 
     public bool IsLoading
     {
@@ -97,4 +126,11 @@ internal class PluginManagerDataContext : INotifyPropertyChanged
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
     }
+}
+
+internal enum ModCategory
+{
+    Plugins,
+    Layouts,
+    Themes
 }

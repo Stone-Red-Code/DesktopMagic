@@ -70,6 +70,30 @@
     <system:String x:Key="releaseInfoPublishedFormat">Veröffentlicht: {0}</system:String>
     <system:String x:Key="releaseInfoBodyLabel">Release Notes:</system:String>
     <system:String x:Key="openReleasePage">Release-Seite öffnen</system:String>
+    <system:String x:Key="close">Schließen</system:String>
+    <system:String x:Key="overwrite">Überschreiben</system:String>
+    <system:String x:Key="keepMine">Meine behalten</system:String>
+    <system:String x:Key="shareOnModIo">Auf mod.io teilen</system:String>
+    <system:String x:Key="updateOnModIo">Auf mod.io aktualisieren</system:String>
+    <system:String x:Key="sharedOnModIo">Auf mod.io ansehen</system:String>
+    <system:String x:Key="shareCopyOnModIo">Als neu auf mod.io teilen</system:String>
+    <system:String x:Key="enterModIoSummary">Kurze Zusammenfassung für mod.io eingeben:</system:String>
+    <system:String x:Key="enterModIoChangelog">Was hat sich geändert? (optional)</system:String>
+    <system:String x:Key="modIoShareLayoutWarning">Jeder auf mod.io kann dieses Layout herunterladen. Es enthält die aktivierten Widgets, ihre Positionen, die verwendeten Themes und ihre Nicht-Text-Einstellungen. Text-Einstellungen (z. B. URLs, Orte oder Dateipfade) und gespeicherte Widget-Daten werden nicht geteilt.</system:String>
+    <system:String x:Key="modIoShareThemeWarning">Jeder auf mod.io kann dieses Theme herunterladen.</system:String>
+    <system:String x:Key="modIoLocalPluginsWarning">Diese Widgets sind lokale Plugins, die andere nicht installieren können: {0}</system:String>
+    <system:String x:Key="modIoShareSuccess">"{0}" wurde auf mod.io veröffentlicht.</system:String>
+    <system:String x:Key="modIoUpdateSuccess">Das Update von "{0}" wurde auf mod.io veröffentlicht.</system:String>
+    <system:String x:Key="modIoShareFailed">Teilen auf mod.io fehlgeschlagen: {0}</system:String>
+    <system:String x:Key="modIoSessionExpired">Ihre mod.io-Sitzung ist abgelaufen. Bitte melden Sie sich erneut an.</system:String>
+    <system:String x:Key="modIoUpdateConflict">"{0}" wurde auf mod.io aktualisiert, aber Sie haben es auch lokal geändert. Ihre Änderungen mit der neuen Version überschreiben?</system:String>
+    <system:String x:Key="cannotShareEmptyLayout">Das leere Layout kann nicht geteilt werden!</system:String>
+    <system:String x:Key="layouts">Layouts</system:String>
+    <system:String x:Key="searchModIo">mod.io durchsuchen...</system:String>
+    <system:String x:Key="searchInstalled">Installierte durchsuchen...</system:String>
+    <system:String x:Key="nothingFound">Nichts gefunden!</system:String>
+    <system:String x:Key="modIoInstallFailed">Installation von "{0}" fehlgeschlagen: {1}</system:String>
+    <system:String x:Key="uploadingToModIo">Wird auf mod.io hochgeladen...</system:String>
     <col:ArrayList x:Key="musicVisualizerOptionsComboboxItems">
         <system:String>Unten</system:String>
         <system:String>Mitte</system:String>

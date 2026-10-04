@@ -72,6 +72,30 @@
     <system:String x:Key="releaseInfoPublishedFormat">Published: {0}</system:String>
     <system:String x:Key="releaseInfoBodyLabel">Release notes:</system:String>
     <system:String x:Key="openReleasePage">Open release page</system:String>
+    <system:String x:Key="close">Close</system:String>
+    <system:String x:Key="overwrite">Overwrite</system:String>
+    <system:String x:Key="keepMine">Keep mine</system:String>
+    <system:String x:Key="shareOnModIo">Share on mod.io</system:String>
+    <system:String x:Key="updateOnModIo">Update on mod.io</system:String>
+    <system:String x:Key="sharedOnModIo">View on mod.io</system:String>
+    <system:String x:Key="shareCopyOnModIo">Share as new on mod.io</system:String>
+    <system:String x:Key="enterModIoSummary">Enter a short summary shown on mod.io:</system:String>
+    <system:String x:Key="enterModIoChangelog">What changed? (optional)</system:String>
+    <system:String x:Key="modIoShareLayoutWarning">Everyone on mod.io will be able to download this layout. It includes the enabled widgets, their positions, the used themes and their non-text settings. Text settings (e.g. URLs, locations or file paths) and saved widget data are not shared.</system:String>
+    <system:String x:Key="modIoShareThemeWarning">Everyone on mod.io will be able to download this theme.</system:String>
+    <system:String x:Key="modIoLocalPluginsWarning">These widgets are local plugins that others cannot install: {0}</system:String>
+    <system:String x:Key="modIoShareSuccess">"{0}" was published on mod.io.</system:String>
+    <system:String x:Key="modIoUpdateSuccess">The update of "{0}" was published on mod.io.</system:String>
+    <system:String x:Key="modIoShareFailed">Sharing on mod.io failed: {0}</system:String>
+    <system:String x:Key="modIoSessionExpired">Your mod.io session has expired. Please log in again.</system:String>
+    <system:String x:Key="modIoUpdateConflict">"{0}" was updated on mod.io, but you also changed it locally. Overwrite your changes with the new version?</system:String>
+    <system:String x:Key="cannotShareEmptyLayout">The empty layout cannot be shared!</system:String>
+    <system:String x:Key="layouts">Layouts</system:String>
+    <system:String x:Key="searchModIo">Search mod.io...</system:String>
+    <system:String x:Key="searchInstalled">Search installed...</system:String>
+    <system:String x:Key="nothingFound">Nothing found!</system:String>
+    <system:String x:Key="modIoInstallFailed">Installing "{0}" failed: {1}</system:String>
+    <system:String x:Key="uploadingToModIo">Uploading to mod.io...</system:String>
     <col:ArrayList x:Key="musicVisualizerOptionsComboboxItems">
         <system:String>Bottom</system:String>
         <system:String>Middle</system:String>
