@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 
 namespace DesktopMagic.Api.Settings;
 
@@ -64,12 +65,17 @@ public class IntegerUpDown : Setting
 
     internal override string GetJsonValue()
     {
-        return Value.ToString();
+        return Value.ToString(CultureInfo.InvariantCulture);
     }
 
     internal override void SetJsonValue(string value)
     {
-        _ = int.TryParse(value, out int result);
+        // Values saved by older versions use the current culture (e.g. a culture specific minus sign), so fall back to it.
+        if (!int.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out int result))
+        {
+            _ = int.TryParse(value, NumberStyles.Integer, CultureInfo.CurrentCulture, out result);
+        }
+
         Value = result;
     }
 }
