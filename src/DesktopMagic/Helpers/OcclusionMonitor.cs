@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading;
 using System.Windows;
 using System.Windows.Interop;
+using System.Windows.Threading;
 
 namespace DesktopMagic.Helpers;
 
@@ -27,6 +28,10 @@ internal sealed class OcclusionMonitor : IDisposable
     private readonly Dictionary<IPluginWindow, bool> lastPaused = [];
     private readonly object gate = new();
     private bool disposed;
+
+    // (window, handle) pairs of the plugin windows, refreshed asynchronously on the UI thread.
+    private volatile IReadOnlyList<(IPluginWindow Window, nint Hwnd)> windowSnapshot = [];
+    private int snapshotRefreshPending;
 
     public bool IsRunning { get; private set; }
 
@@ -50,7 +55,7 @@ internal sealed class OcclusionMonitor : IDisposable
         }
 
         // System.Timers.Timer can re-enter this handler on another ThreadPool thread when the
-        // previous invocation is still blocked in Dispatcher.Invoke, so serialize the whole pass.
+        // previous invocation is still running, so serialize the whole pass.
         if (!Monitor.TryEnter(gate))
         {
             return;
@@ -68,48 +73,23 @@ internal sealed class OcclusionMonitor : IDisposable
 
     private void RunOcclusionPass()
     {
-        uint currentProcessId = (uint)Environment.ProcessId;
+        RequestSnapshotRefresh();
 
-        // The manager mutates PluginWindows on the UI thread, and the window handle can only be
-        // obtained there, so snapshot (window, handle) pairs over the dispatcher.
-        List<(IPluginWindow Window, nint Hwnd)> windows;
+        IReadOnlyList<(IPluginWindow Window, nint Hwnd)> windows = windowSnapshot;
+        HashSet<IPluginWindow> live = [.. windows.Select(item => item.Window)];
+
+        Dictionary<IPluginWindow, bool> pausedStates;
         try
         {
-            windows = Application.Current.Dispatcher.Invoke(() => Manager.Instance.PluginWindows
-                .Where(window => window.IsRunning)
-                .Select(window => (Window: window, Hwnd: new WindowInteropHelper((Window)window).Handle))
-                .Where(item => item.Hwnd != nint.Zero)
-                .ToList());
+            pausedStates = ComputePausedStates(windows);
         }
         catch
         {
             return;
         }
 
-        HashSet<IPluginWindow> live = [.. windows.Select(item => item.Window)];
-
-        foreach ((IPluginWindow window, nint hwnd) in windows)
+        foreach ((IPluginWindow window, bool paused) in pausedStates)
         {
-            bool paused;
-
-            try
-            {
-                if (!W32.GetWindowRect(hwnd, out W32.RECT windowRect))
-                {
-                    continue;
-                }
-
-                Rectangle windowArea = windowRect;
-                double coverage = ComputeCoverage(windowArea, hwnd, currentProcessId);
-                bool foregroundCovers = IsForegroundCovering(windowArea, hwnd);
-
-                paused = foregroundCovers || coverage >= CoverageThreshold;
-            }
-            catch
-            {
-                continue;
-            }
-
             if (lastPaused.TryGetValue(window, out bool previous) && previous == paused)
             {
                 continue;
@@ -135,58 +115,147 @@ internal sealed class OcclusionMonitor : IDisposable
     }
 
     /// <summary>
-    /// Computes how much of <paramref name="target"/> (in virtual screen coordinates) is covered by
-    /// visible top-level windows from other processes that are above it in z-order.
+    /// Posts a refresh of <see cref="windowSnapshot"/> to the UI thread without waiting for it.
+    /// The manager mutates PluginWindows on the UI thread and window handles can only be obtained
+    /// there; a snapshot that is one pass old is good enough, and the timer thread never blocks.
     /// </summary>
-    private static double ComputeCoverage(Rectangle target, nint selfHwnd, uint currentProcessId)
+    private void RequestSnapshotRefresh()
     {
-        List<Rectangle> coveringRects = [];
+        // Skip when the previous refresh has not run yet (e.g. the UI thread is busy).
+        if (Interlocked.Exchange(ref snapshotRefreshPending, 1) != 0)
+        {
+            return;
+        }
+
+        try
+        {
+            _ = Application.Current.Dispatcher.InvokeAsync(() =>
+            {
+                try
+                {
+                    windowSnapshot = Manager.Instance.PluginWindows
+                        .Where(window => window.IsRunning)
+                        .Select(window => (Window: window, Hwnd: new WindowInteropHelper((Window)window).Handle))
+                        .Where(item => item.Hwnd != nint.Zero)
+                        .ToList();
+                }
+                finally
+                {
+                    _ = Interlocked.Exchange(ref snapshotRefreshPending, 0);
+                }
+            }, DispatcherPriority.Background);
+        }
+        catch
+        {
+            // The application is shutting down.
+            _ = Interlocked.Exchange(ref snapshotRefreshPending, 0);
+        }
+    }
+
+    /// <summary>
+    /// Decides for every plugin window whether it is occluded, using a single top-to-bottom pass
+    /// over all top-level windows. EnumWindows enumerates in z-order (front to back), so every
+    /// window seen before a plugin window is above it. The pass stops at the lowest plugin window.
+    /// </summary>
+    private static Dictionary<IPluginWindow, bool> ComputePausedStates(IReadOnlyList<(IPluginWindow Window, nint Hwnd)> windows)
+    {
+        Dictionary<IPluginWindow, bool> pausedStates = [];
+
+        // Plugin windows that have not been reached in z-order yet.
+        Dictionary<nint, (IPluginWindow Window, Rectangle Area)> remaining = [];
+        foreach ((IPluginWindow window, nint hwnd) in windows)
+        {
+            if (W32.GetWindowRect(hwnd, out W32.RECT rect))
+            {
+                remaining[hwnd] = (window, rect);
+            }
+        }
+
+        if (remaining.Count == 0)
+        {
+            return pausedStates;
+        }
+
+        uint currentProcessId = (uint)Environment.ProcessId;
+
+        // Visible windows above the current z-order position that overlap a remaining plugin window.
+        List<Rectangle> occluders = [];
 
         _ = W32.EnumWindows((hwnd, _) =>
         {
-            if (hwnd == selfHwnd || !W32.IsWindowVisible(hwnd))
+            if (remaining.Remove(hwnd, out (IPluginWindow Window, Rectangle Area) target))
             {
-                return true;
+                double coverage = ComputeCoverage(target.Area, occluders);
+                pausedStates[target.Window] = IsForegroundCovering(target.Area, hwnd) || coverage >= CoverageThreshold;
+
+                // Windows below the lowest plugin window cannot occlude anything.
+                return remaining.Count > 0;
             }
 
-            // Only windows from other processes occlude our widgets; only non-cloaked windows are
-            // actually visible (exclusive-fullscreen games cloak the desktop).
-            if (W32.GetWindowThreadProcessId(hwnd, out uint processId) == 0
-                || processId == currentProcessId
-                || IsCloaked(hwnd)
-                || !W32.GetWindowRect(hwnd, out W32.RECT rect))
+            if (TryGetOccluderRect(hwnd, currentProcessId, remaining.Values, out Rectangle occluderRect))
             {
-                return true;
-            }
-
-            // Explorer's desktop/wallpaper host windows (WorkerW, Progman, ...) report as visible
-            // and span the whole screen but never occlude anything, so ignore them.
-            if (IsDesktopShellWindow(hwnd))
-            {
-                return true;
-            }
-
-            // Fully transparent layered overlays (game overlays etc.) span the whole screen but
-            // cannot be seen, so they never occlude anything.
-            if (IsFullyTransparent(hwnd))
-            {
-                return true;
-            }
-
-            // Ignore windows that are behind ours in z-order.
-            if (!IsWindowAbove(hwnd, selfHwnd))
-            {
-                return true;
-            }
-
-            Rectangle intersection = Rectangle.Intersect(target, rect);
-            if (intersection.Width > 0 && intersection.Height > 0)
-            {
-                coveringRects.Add(intersection);
+                occluders.Add(occluderRect);
             }
 
             return true;
         }, nint.Zero);
+
+        return pausedStates;
+    }
+
+    /// <summary>
+    /// Returns the bounds of <paramref name="hwnd"/> when it is a visible window from another process
+    /// that overlaps at least one of <paramref name="targets"/>. Cheap checks run first so the more
+    /// expensive ones only run for windows that actually overlap a plugin window.
+    /// </summary>
+    private static bool TryGetOccluderRect(nint hwnd, uint currentProcessId, IEnumerable<(IPluginWindow Window, Rectangle Area)> targets, out Rectangle occluderRect)
+    {
+        occluderRect = Rectangle.Empty;
+
+        // Only windows from other processes occlude our widgets.
+        if (!W32.IsWindowVisible(hwnd)
+            || W32.GetWindowThreadProcessId(hwnd, out uint processId) == 0
+            || processId == currentProcessId
+            || !W32.GetWindowRect(hwnd, out W32.RECT rect))
+        {
+            return false;
+        }
+
+        Rectangle bounds = rect;
+        if (!targets.Any(target => target.Area.IntersectsWith(bounds)))
+        {
+            return false;
+        }
+
+        // Only non-cloaked windows are actually visible (exclusive-fullscreen games cloak the desktop).
+        // Explorer's desktop/wallpaper host windows (WorkerW, Progman, ...) report as visible and span
+        // the whole screen but never occlude anything. Fully transparent layered overlays (game
+        // overlays etc.) span the whole screen but cannot be seen either.
+        if (IsCloaked(hwnd) || IsDesktopShellWindow(hwnd) || IsFullyTransparent(hwnd))
+        {
+            return false;
+        }
+
+        occluderRect = bounds;
+        return true;
+    }
+
+    /// <summary>
+    /// Computes how much of <paramref name="target"/> (in virtual screen coordinates) is covered by
+    /// <paramref name="occluders"/>.
+    /// </summary>
+    private static double ComputeCoverage(Rectangle target, List<Rectangle> occluders)
+    {
+        List<Rectangle> coveringRects = [];
+
+        foreach (Rectangle occluder in occluders)
+        {
+            Rectangle intersection = Rectangle.Intersect(target, occluder);
+            if (intersection.Width > 0 && intersection.Height > 0)
+            {
+                coveringRects.Add(intersection);
+            }
+        }
 
         if (coveringRects.Count == 0 || target.Width <= 0 || target.Height <= 0)
         {
@@ -249,25 +318,6 @@ internal sealed class OcclusionMonitor : IDisposable
         _ = W32.GetClassName(hwnd, className, className.Capacity);
 
         return className.ToString() is "WorkerW" or "Progman" or "SHELLDLL_DefView" or "SysListView32";
-    }
-
-    /// <summary>
-    /// Returns true when <paramref name="other"/> is above <paramref name="self"/> in z-order, i.e.
-    /// when walking toward the front (GW_HWNDPREV) from <paramref name="self"/> we reach
-    /// <paramref name="other"/>.
-    /// </summary>
-    private static bool IsWindowAbove(nint other, nint self)
-    {
-        nint current = self;
-        while ((current = W32.GetWindow(current, W32.GW_HWNDPREV)) != nint.Zero)
-        {
-            if (current == other)
-            {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     /// <summary>
