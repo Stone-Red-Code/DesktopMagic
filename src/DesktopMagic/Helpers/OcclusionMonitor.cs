@@ -24,7 +24,7 @@ internal sealed class OcclusionMonitor : IDisposable
     private const double CoverageThreshold = 0.95;
 
     private readonly System.Timers.Timer timer = new(CheckIntervalMs);
-    private readonly Dictionary<PluginWindow, bool> lastPaused = [];
+    private readonly Dictionary<IPluginWindow, bool> lastPaused = [];
     private readonly object gate = new();
     private bool disposed;
 
@@ -72,13 +72,12 @@ internal sealed class OcclusionMonitor : IDisposable
 
         // The manager mutates PluginWindows on the UI thread, and the window handle can only be
         // obtained there, so snapshot (window, handle) pairs over the dispatcher.
-        List<(PluginWindow Window, nint Hwnd)> windows;
+        List<(IPluginWindow Window, nint Hwnd)> windows;
         try
         {
             windows = Application.Current.Dispatcher.Invoke(() => Manager.Instance.PluginWindows
-                .OfType<PluginWindow>()
                 .Where(window => window.IsRunning)
-                .Select(window => (Window: window, Hwnd: new WindowInteropHelper(window).Handle))
+                .Select(window => (Window: window, Hwnd: new WindowInteropHelper((Window)window).Handle))
                 .Where(item => item.Hwnd != nint.Zero)
                 .ToList());
         }
@@ -87,9 +86,9 @@ internal sealed class OcclusionMonitor : IDisposable
             return;
         }
 
-        HashSet<PluginWindow> live = [.. windows.Select(item => item.Window)];
+        HashSet<IPluginWindow> live = [.. windows.Select(item => item.Window)];
 
-        foreach ((PluginWindow window, nint hwnd) in windows)
+        foreach ((IPluginWindow window, nint hwnd) in windows)
         {
             bool paused;
 
@@ -120,7 +119,7 @@ internal sealed class OcclusionMonitor : IDisposable
 
             try
             {
-                _ = window.Dispatcher.InvokeAsync(() => window.SetRenderPaused(paused));
+                _ = ((Window)window).Dispatcher.InvokeAsync(() => window.SetRenderPaused(paused));
             }
             catch
             {
@@ -129,7 +128,7 @@ internal sealed class OcclusionMonitor : IDisposable
         }
 
         // Drop tracking for windows that no longer exist.
-        foreach (PluginWindow stale in lastPaused.Keys.Where(key => !live.Contains(key)).ToArray())
+        foreach (IPluginWindow stale in lastPaused.Keys.Where(key => !live.Contains(key)).ToArray())
         {
             _ = lastPaused.Remove(stale);
         }
