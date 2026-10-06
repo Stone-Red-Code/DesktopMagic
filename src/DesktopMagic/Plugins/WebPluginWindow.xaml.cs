@@ -218,6 +218,9 @@ public partial class WebPluginWindow : Window, IPluginWindow
         WindowInteropHelper helper = new(this);
         _ = WindowPos.SetWindowLong(helper.Handle, WindowPos.GWL_EXSTYLE,
         WindowPos.GetWindowLong(helper.Handle, WindowPos.GWL_EXSTYLE) | WindowPos.WS_EX_NOACTIVATE);
+
+        HwndSource.FromHwnd(helper.Handle)?.AddHook((IntPtr hwnd, int msg, IntPtr _, IntPtr lParam, ref bool _) =>
+            ScreenUtilities.ClampToScreenHook(hwnd, msg, lParam, screenBounds));
     }
 
     private async void Window_ContentRendered(object? sender, EventArgs e)
@@ -434,17 +437,6 @@ public partial class WebPluginWindow : Window, IPluginWindow
         if (isUpdatingPosition)
         {
             return;
-        }
-
-        Point topLeft = new(Left, Top);
-        Point clamped = ScreenUtilities.ClampToScreenBounds(topLeft, new Size(ActualWidth, ActualHeight), screenBounds);
-
-        if (clamped != topLeft)
-        {
-            isUpdatingPosition = true;
-            Left = clamped.X;
-            Top = clamped.Y;
-            isUpdatingPosition = false;
         }
 
         settings.Position = ScreenUtilities.PositionToPercent(new Point(Left, Top), screenBounds);

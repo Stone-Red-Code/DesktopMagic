@@ -421,6 +421,9 @@ public partial class PluginWindow : Window, IPluginWindow
         WindowInteropHelper helper = new(this);
         _ = WindowPos.SetWindowLong(helper.Handle, WindowPos.GWL_EXSTYLE,
         WindowPos.GetWindowLong(helper.Handle, WindowPos.GWL_EXSTYLE) | WindowPos.WS_EX_NOACTIVATE);
+
+        HwndSource.FromHwnd(helper.Handle)?.AddHook((IntPtr hwnd, int msg, IntPtr _, IntPtr lParam, ref bool _) =>
+            ScreenUtilities.ClampToScreenHook(hwnd, msg, lParam, screenBounds));
     }
 
     private void UpdateImageFromBitmap(Bitmap bitmap, BitmapScalingMode scalingMode)
@@ -1392,17 +1395,6 @@ public partial class PluginWindow : Window, IPluginWindow
         if (isUpdatingPosition)
         {
             return;
-        }
-
-        System.Windows.Point topLeft = new(Left, Top);
-        System.Windows.Point clamped = ScreenUtilities.ClampToScreenBounds(topLeft, new System.Windows.Size(ActualWidth, ActualHeight), screenBounds);
-
-        if (clamped != topLeft)
-        {
-            isUpdatingPosition = true;
-            Left = clamped.X;
-            Top = clamped.Y;
-            isUpdatingPosition = false;
         }
 
         settings.Position = ScreenUtilities.PositionToPercent(new System.Windows.Point(Left, Top), screenBounds);

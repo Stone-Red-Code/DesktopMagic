@@ -122,34 +122,49 @@ public static class ScreenUtilities
     }
 
     /// <summary>
-    /// Clamps an absolute WPF position (DIPs) so that the window (of the given size)
-    /// stays within the screen bounds. This prevents widgets from being moved to another screen.
+    /// Window hook that keeps a window inside the given screen bounds. <see cref="Window.LocationChanged"/>
+    /// fires only after a move has already happened, and the system move loop overrides any correction
+    /// made there on the next mouse move, so the proposed position is adjusted in WM_WINDOWPOSCHANGING
+    /// instead, which every move and resize goes through. The position and the bounds are both in this
+    /// process' screen coordinates, so no DIP conversion is needed.
     /// </summary>
-    public static Point ClampToScreenBounds(Point topLeft, Size size, System.Drawing.Rectangle bounds)
+    public static IntPtr ClampToScreenHook(IntPtr hwnd, int msg, IntPtr lParam, System.Drawing.Rectangle bounds)
     {
-        Rect dips = GetScreenDips(bounds);
-        double x = topLeft.X;
-        double y = topLeft.Y;
-
-        if (size.Width <= dips.Width)
+        if (msg != NativeMethods.WM_WINDOWPOSCHANGING || bounds.Width == 0 || bounds.Height == 0)
         {
-            x = Math.Clamp(x, dips.Left, dips.Right - size.Width);
-        }
-        else
-        {
-            x = dips.Left;
+            return IntPtr.Zero;
         }
 
-        if (size.Height <= dips.Height)
+        NativeMethods.WINDOWPOS pos = Marshal.PtrToStructure<NativeMethods.WINDOWPOS>(lParam);
+        if ((pos.flags & NativeMethods.SWP_NOMOVE) != 0)
         {
-            y = Math.Clamp(y, dips.Top, dips.Bottom - size.Height);
-        }
-        else
-        {
-            y = dips.Top;
+            return IntPtr.Zero;
         }
 
-        return new Point(x, y);
+        int width = pos.cx;
+        int height = pos.cy;
+        if ((pos.flags & NativeMethods.SWP_NOSIZE) != 0)
+        {
+            if (!W32.GetWindowRect(hwnd, out W32.RECT current))
+            {
+                return IntPtr.Zero;
+            }
+
+            width = current.Width;
+            height = current.Height;
+        }
+
+        int x = width <= bounds.Width ? Math.Clamp(pos.x, bounds.Left, bounds.Right - width) : bounds.Left;
+        int y = height <= bounds.Height ? Math.Clamp(pos.y, bounds.Top, bounds.Bottom - height) : bounds.Top;
+
+        if (x != pos.x || y != pos.y)
+        {
+            pos.x = x;
+            pos.y = y;
+            Marshal.StructureToPtr(pos, lParam, false);
+        }
+
+        return IntPtr.Zero;
     }
 
     /// <summary>
