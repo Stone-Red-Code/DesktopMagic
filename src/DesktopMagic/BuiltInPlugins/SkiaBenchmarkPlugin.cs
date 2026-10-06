@@ -8,6 +8,8 @@ using System.Drawing;
 
 namespace DesktopMagic.BuiltInPlugins;
 
+#if DEBUG
+
 internal class SkiaBenchmarkPlugin : SkiaPlugin
 {
     private readonly Random rng = new(42);
@@ -28,8 +30,7 @@ internal class SkiaBenchmarkPlugin : SkiaPlugin
 
     public override int UpdateInterval => 1;
 
-    SKSurface surface;
-
+    private SKSurface? surface;
 
     public override void Start()
     {
@@ -45,7 +46,7 @@ internal class SkiaBenchmarkPlugin : SkiaPlugin
         if (lastFrameMs > 0)
         {
             double elapsed = now - lastFrameMs;
-            fps = fps * 0.9 + (1000.0 / Math.Max(elapsed, 1)) * 0.1;
+            fps = (fps * 0.9) + (1000.0 / Math.Max(elapsed, 1) * 0.1);
         }
         lastFrameMs = now;
 
@@ -55,7 +56,6 @@ internal class SkiaBenchmarkPlugin : SkiaPlugin
         int w = Math.Max(1, pixelSize.Width);
         int h = Math.Max(1, pixelSize.Height);
 
-        
         SKCanvas canvas = surface.Canvas;
 
         canvas.Clear(SKColors.Transparent);
@@ -81,7 +81,7 @@ internal class SkiaBenchmarkPlugin : SkiaPlugin
             }
 
             byte alpha = (byte)rng.Next(100, 255);
-            using var paint = new SKPaint
+            using SKPaint paint = new SKPaint
             {
                 Color = color.WithAlpha(alpha),
                 IsAntialias = false,
@@ -94,7 +94,7 @@ internal class SkiaBenchmarkPlugin : SkiaPlugin
                     canvas.DrawRect(x, y, rw, rh, paint);
                     break;
                 case "Ellipses":
-                    canvas.DrawOval(x + rw / 2f, y + rh / 2f, rw / 2f, rh / 2f, paint);
+                    canvas.DrawOval(x + (rw / 2f), y + (rh / 2f), rw / 2f, rh / 2f, paint);
                     break;
                 case "Lines":
                     paint.Style = SKPaintStyle.Stroke;
@@ -102,7 +102,7 @@ internal class SkiaBenchmarkPlugin : SkiaPlugin
                     canvas.DrawLine(x, y, x + rw, y + rh, paint);
                     break;
                 case "Text":
-                    using (var textFont = new SKFont(SKTypeface.Default, 16))
+                    using (SKFont textFont = new SKFont(SKTypeface.Default, 16))
                     {
                         canvas.DrawText("Mg", x, y + 16, SKTextAlign.Left, textFont, paint);
                     }
@@ -116,7 +116,7 @@ internal class SkiaBenchmarkPlugin : SkiaPlugin
                     }
                     else if (shape == 1)
                     {
-                        canvas.DrawOval(x + rw / 2f, y + rh / 2f, rw / 2f, rh / 2f, paint);
+                        canvas.DrawOval(x + (rw / 2f), y + (rh / 2f), rw / 2f, rh / 2f, paint);
                     }
                     else if (shape == 2)
                     {
@@ -126,7 +126,7 @@ internal class SkiaBenchmarkPlugin : SkiaPlugin
                     }
                     else
                     {
-                        using var textFont2 = new SKFont(SKTypeface.Default, 16);
+                        using SKFont textFont2 = new SKFont(SKTypeface.Default, 16);
                         canvas.DrawText("Mg", x, y + 16, SKTextAlign.Left, textFont2, paint);
                     }
                     break;
@@ -138,3 +138,5 @@ internal class SkiaBenchmarkPlugin : SkiaPlugin
         return surface.Snapshot();
     }
 }
+
+#endif

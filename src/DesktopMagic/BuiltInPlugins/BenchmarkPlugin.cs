@@ -7,6 +7,8 @@ using System.Drawing.Drawing2D;
 
 namespace DesktopMagic.BuiltInPlugins;
 
+#if DEBUG
+
 internal class BenchmarkPlugin : Plugin
 {
     private readonly Random rng = new(42);
@@ -125,3 +127,5 @@ internal class BenchmarkPlugin : Plugin
         return bmp;
     }
 }
+
+#endif
