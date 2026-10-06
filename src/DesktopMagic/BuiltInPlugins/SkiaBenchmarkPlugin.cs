@@ -39,7 +39,7 @@ internal class SkiaBenchmarkPlugin : SkiaPlugin
         surface = SKSurface.Create(new SKImageInfo(w, h, SKColorType.Bgra8888, SKAlphaType.Premul));
     }
 
-    public override SKImage? Render()
+    public override SKImage? Main()
     {
         long now = frameTimer.ElapsedMilliseconds;
         if (lastFrameMs > 0)

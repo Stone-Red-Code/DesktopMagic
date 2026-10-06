@@ -17,7 +17,7 @@ internal class TimePlugin : SkiaPlugin
 
     public override int UpdateInterval => 1000;
 
-    public override SKImage? Render()
+    public override SKImage? Main()
     {
         string time = GetTime();
 

@@ -1136,11 +1136,11 @@ public partial class PluginWindow : Window, IPluginWindow
         if (plugin is SkiaAsyncPlugin skiaAsyncPlugin)
         {
             CancellationToken token = pluginCancellationTokenSource?.Token ?? CancellationToken.None;
-            skImage = await skiaAsyncPlugin.RenderAsync(token);
+            skImage = await skiaAsyncPlugin.MainAsync(token);
         }
         else if (plugin is SkiaPlugin skiaPlugin)
         {
-            skImage = skiaPlugin.Render();
+            skImage = skiaPlugin.Main();
         }
         else
         {
