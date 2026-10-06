@@ -46,4 +46,14 @@ public class Button : Setting
     {
         OnClick?.Invoke();
     }
+
+    internal override string GetJsonValue()
+    {
+        return Value;
+    }
+
+    internal override void SetJsonValue(string value)
+    {
+        Value = value;
+    }
 }

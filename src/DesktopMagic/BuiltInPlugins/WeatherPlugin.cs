@@ -58,9 +58,6 @@ public class WeatherPlugin : AsyncPlugin
         showTime.OnValueChanged += Application.UpdateWindow;
         fontSizeSlider.OnValueChanged += Application.UpdateWindow;
 
-        await UpdateLocationAndWeather();
-        Application.UpdateWindow();
-
         searchButton.OnClick += () =>
         {
             isLoading = true;
@@ -73,6 +70,9 @@ public class WeatherPlugin : AsyncPlugin
                 Application.UpdateWindow();
             });
         };
+
+        await UpdateLocationAndWeather();
+        Application.UpdateWindow();
     }
 
     public override async Task<Bitmap?> MainAsync(CancellationToken cancellationToken)

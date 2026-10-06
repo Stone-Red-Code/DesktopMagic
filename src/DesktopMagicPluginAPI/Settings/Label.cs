@@ -38,4 +38,14 @@ public class Label : Setting
         Value = value;
         Bold = bold;
     }
+
+    internal override string GetJsonValue()
+    {
+        return Value;
+    }
+
+    internal override void SetJsonValue(string value)
+    {
+        Value = value;
+    }
 }

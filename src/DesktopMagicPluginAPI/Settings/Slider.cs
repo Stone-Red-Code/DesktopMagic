@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 
 namespace DesktopMagic.Api.Settings;
 
@@ -65,12 +66,18 @@ public sealed class Slider : Setting
 
     internal override string GetJsonValue()
     {
-        return Value.ToString();
+        return Value.ToString(CultureInfo.InvariantCulture);
     }
 
     internal override void SetJsonValue(string value)
     {
-        _ = double.TryParse(value, out double result);
+        // Values saved by older versions use the current culture (e.g. "30,5"), so fall back to it.
+        // Thousands separators are not allowed, otherwise "30,5" would be read as 305 by the invariant culture.
+        if (!double.TryParse(value, NumberStyles.Float, CultureInfo.InvariantCulture, out double result))
+        {
+            _ = double.TryParse(value, NumberStyles.Float, CultureInfo.CurrentCulture, out result);
+        }
+
         Value = result;
     }
 }

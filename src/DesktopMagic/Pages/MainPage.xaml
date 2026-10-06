@@ -2,6 +2,7 @@
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+      xmlns:busyIndicator="https://github.com/moh3ngolshani/BusyIndicator"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:DesktopMagic.Pages"
@@ -12,76 +13,119 @@
       ScrollViewer.CanContentScroll="False"
       Title="MainPage">
 
-    <Grid Margin="{StaticResource DefaultMargin}">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="auto" />
-            <RowDefinition Height="*" />
-            <RowDefinition Height="auto" />
-        </Grid.RowDefinitions>
+    <busyIndicator:BusyMask IsBusy="{Binding IsSharing}" IndicatorType="ThreeDots" BusyContent="{DynamicResource uploadingToModIo}" BusyContentMargin="0,20,0,0" Foreground="{DynamicResource TextFillColorPrimaryBrush}" Background="{DynamicResource ControlStrokeColorDefaultBrush}">
+        <Grid Margin="{StaticResource DefaultMargin}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="auto" />
+            </Grid.RowDefinitions>
 
-        <ui:Card Padding="5" Margin="0 0 0 5">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition />
-                    <ColumnDefinition Width="10" />
-                    <ColumnDefinition />
-                </Grid.ColumnDefinitions>
-                <ui:ToggleSwitch x:Name="editCheckBox" Height="30" VerticalAlignment="Center" Margin="5 0 0 0" Content="{DynamicResource editLayout}" Click="EditCheckBox_Click" />
-                <ui:TextBox Grid.Column="2" Text="{Binding PluginsSearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TextChanged="AllPluginsSearchTextBox_TextChanged" PlaceholderText="{DynamicResource searchInstalledPlugins}" Icon="{ui:SymbolIcon Search24}" IconPlacement="Right" />
-            </Grid>
-        </ui:Card>
+            <ui:Card Padding="5" Margin="0 0 0 5">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition />
+                        <ColumnDefinition Width="10" />
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+                    <ui:ToggleSwitch x:Name="editCheckBox" Height="30" VerticalAlignment="Center" Margin="5 0 0 0" Content="{DynamicResource editLayout}" Click="EditCheckBox_Click" />
+                    <ui:TextBox Grid.Column="2" Text="{Binding PluginsSearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" TextChanged="AllPluginsSearchTextBox_TextChanged" PlaceholderText="{DynamicResource searchInstalledPlugins}" Icon="{ui:SymbolIcon Search24}" IconPlacement="Right" />
+                </Grid>
+            </ui:Card>
 
-        <ScrollViewer Background="#FFBBBBBB" PreviewMouseWheel="ScrollViewer_PreviewMouseWheel" Grid.Row="1" VerticalAlignment="Stretch" VerticalContentAlignment="Top">
-            <ItemsControl x:Name="pluginsItemsControl" ItemsSource="{Binding Settings.CurrentLayout.Plugins}">
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <ui:CardExpander Tag="{Binding}" Margin="0 0 0 5" Expanded="OptionsCardExpander_Expanded">
-                            <ui:CardExpander.Header>
-                                <Grid>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto" />
-                                        <RowDefinition Height="Auto" />
-                                    </Grid.RowDefinitions>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*" />
-                                        <ColumnDefinition Width="Auto" />
-                                    </Grid.ColumnDefinitions>
-                                    <ui:TextBlock Grid.Row="0" Grid.Column="0" FontTypography="Body" Text="{Binding Value.Metadata.Name}" />
-                                    <Label Grid.Row="1" Grid.Column="0" Foreground="{ui:ThemeResource TextFillColorTertiaryBrush}" FontSize="12" ContentStringFormat="{DynamicResource authorFormat}">
-                                        <Label.Style>
-                                            <Style TargetType="Label" BasedOn="{StaticResource {x:Type Label}}">
-                                                <Setter Property="Content" Value="{Binding Value.Metadata.Author, Converter={StaticResource UnderscoreEscapingConverter}}" />
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding Value.Metadata.Author}" Value="{x:Null}">
-                                                        <Setter Property="Content" Value="{DynamicResource unknown}" />
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </Label.Style>
-                                    </Label>
-                                    <ui:ToggleSwitch Grid.Row="0" Grid.RowSpan="2" Grid.Column="1" Click="PluginCheckBox_Click" IsChecked="{Binding Value.Enabled}" Tag="{Binding Key}" Margin="0,0,16,0" VerticalAlignment="Center" />
-                                </Grid>
-                            </ui:CardExpander.Header>
-                        </ui:CardExpander>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
-        </ScrollViewer>
+            <ScrollViewer Background="#FFBBBBBB" PreviewMouseWheel="ScrollViewer_PreviewMouseWheel" Grid.Row="1" VerticalAlignment="Stretch" VerticalContentAlignment="Top">
+                <ItemsControl x:Name="pluginsItemsControl" ItemsSource="{Binding SelectedLayout.Plugins}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <ui:CardExpander Tag="{Binding}" Margin="0 0 0 5" Expanded="OptionsCardExpander_Expanded">
+                                <ui:CardExpander.Header>
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto" />
+                                            <RowDefinition Height="Auto" />
+                                        </Grid.RowDefinitions>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <ui:TextBlock Grid.Row="0" Grid.Column="0" FontTypography="Body" Text="{Binding Value.Metadata.Name}" />
+                                        <Label Grid.Row="1" Grid.Column="0" Foreground="{ui:ThemeResource TextFillColorTertiaryBrush}" FontSize="12" ContentStringFormat="{DynamicResource authorFormat}">
+                                            <Label.Style>
+                                                <Style TargetType="Label" BasedOn="{StaticResource {x:Type Label}}">
+                                                    <Setter Property="Content" Value="{Binding Value.Metadata.Author, Converter={StaticResource UnderscoreEscapingConverter}}" />
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding Value.Metadata.Author}" Value="{x:Null}">
+                                                            <Setter Property="Content" Value="{DynamicResource unknown}" />
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Label.Style>
+                                        </Label>
+                                        <ui:ToggleSwitch Grid.Row="0" Grid.RowSpan="2" Grid.Column="1" Click="PluginCheckBox_Click" IsChecked="{Binding Value.Enabled}" Tag="{Binding Key}" Margin="0,0,16,0" VerticalAlignment="Center" />
+                                    </Grid>
+                                </ui:CardExpander.Header>
+                            </ui:CardExpander>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
 
-        <ui:Card Grid.Row="2" Grid.ColumnSpan="2" Margin="0 5 0 0" Padding="5">
-            <Grid  >
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="1*" />
-                    <ColumnDefinition Width="5" />
-                    <ColumnDefinition Width="0.5*" />
-                    <ColumnDefinition Width="5" />
-                    <ColumnDefinition Width="0.5*" />
-                </Grid.ColumnDefinitions>
+            <ui:Card Grid.Row="2" Grid.ColumnSpan="2" Margin="0 5 0 0" Padding="5">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto" />
+                        <RowDefinition Height="5" />
+                        <RowDefinition Height="auto" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="auto" />
+                        <ColumnDefinition Width="5" />
+                        <ColumnDefinition Width="1*" />
+                    </Grid.ColumnDefinitions>
 
-                <ComboBox x:Name="layoutsComboBox" ItemsSource="{Binding Settings.Layouts}" DisplayMemberPath="Name" SelectedValue="{Binding Settings.CurrentLayoutName}" SelectedValuePath="Name" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Padding="4" SelectionChanged="LayoutsComboBox_SelectionChanged" />
-                <ui:Button x:Name="newLayoutButton" Content="{DynamicResource newLayout}" Grid.Column="2" Icon="{ui:SymbolIcon Add24}"  HorizontalAlignment="Stretch" Click="NewLayoutButton_Click" FontWeight="Regular"/>
-                <ui:Button x:Name="removeLayoutButton" Content="{DynamicResource deleteLayout}" Icon="{ui:SymbolIcon Delete24}"  Grid.Column="4" HorizontalAlignment="Stretch" Click="RemoveLayoutButton_Click" FontWeight="Regular"/>
-            </Grid>
-        </ui:Card>
-    </Grid>
+                    <ui:Button x:Name="screenSelectorButton" VerticalAlignment="Stretch" Padding="10,4" Click="ScreenSelectorButton_Click">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock x:Name="screenSelectorButtonText" VerticalAlignment="Center" Text="{Binding SelectedScreen.DisplayName}" />
+                            <ui:SymbolIcon Symbol="ChevronDown24" Margin="8,0,0,0" FontSize="12" />
+                        </StackPanel>
+                    </ui:Button>
+
+                    <ComboBox x:Name="layoutsComboBox" Grid.Column="2" ItemsSource="{Binding Settings.Layouts}" DisplayMemberPath="Name" SelectedValue="{Binding SelectedLayoutName}" SelectedValuePath="Name" VerticalAlignment="Center" SelectionChanged="LayoutsComboBox_SelectionChanged" />
+
+                    <Grid Grid.Row="2" Grid.ColumnSpan="3">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1*" />
+                            <ColumnDefinition Width="5" />
+                            <ColumnDefinition Width="0.5*" />
+                            <ColumnDefinition Width="5" />
+                            <ColumnDefinition Width="0.5*" />
+                        </Grid.ColumnDefinitions>
+
+                        <ui:Button x:Name="shareLayoutButton" Icon="{ui:SymbolIcon Share24}" Grid.Column="0" HorizontalAlignment="Stretch" Click="ShareLayoutButton_Click" FontWeight="Regular">
+                            <TextBlock>
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Text" Value="{DynamicResource shareOnModIo}" />
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding SelectedLayout.ShareState}" Value="Modified">
+                                                <Setter Property="Text" Value="{DynamicResource updateOnModIo}" />
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding SelectedLayout.ShareState}" Value="UpToDate">
+                                                <Setter Property="Text" Value="{DynamicResource sharedOnModIo}" />
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding SelectedLayout.ShareState}" Value="NotOwner">
+                                                <Setter Property="Text" Value="{DynamicResource shareCopyOnModIo}" />
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </ui:Button>
+                        <ui:Button x:Name="newLayoutButton" Content="{DynamicResource newLayout}" Icon="{ui:SymbolIcon Add24}" Grid.Column="2" HorizontalAlignment="Stretch" Click="NewLayoutButton_Click" FontWeight="Regular" />
+                        <ui:Button x:Name="removeLayoutButton" Content="{DynamicResource deleteLayout}" Icon="{ui:SymbolIcon Delete24}" Grid.Column="4" HorizontalAlignment="Stretch" Click="RemoveLayoutButton_Click" FontWeight="Regular" />
+                    </Grid>
+                </Grid>
+            </ui:Card>
+        </Grid>
+    </busyIndicator:BusyMask>
 </Page>

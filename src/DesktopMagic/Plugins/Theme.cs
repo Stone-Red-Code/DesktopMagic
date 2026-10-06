@@ -1,5 +1,6 @@
 ﻿using DesktopMagic.Api;
 using DesktopMagic.Helpers;
+using DesktopMagic.Settings;
 
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
@@ -11,7 +12,7 @@ using Color = System.Drawing.Color;
 
 namespace DesktopMagic.Plugins;
 
-public class Theme(string name) : ITheme, INotifyPropertyChanged
+public class Theme(string name) : ITheme, INotifyPropertyChanged, IModIoShareable
 {
     public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -21,6 +22,23 @@ public class Theme(string name) : ITheme, INotifyPropertyChanged
     private string font = "Segoe UI";
     private int cornerRadius;
     private int margin;
+    private ModIoShareState shareState;
+
+    public ModIoLink? ModIo { get; set; }
+
+    [JsonIgnore]
+    public ModIoShareState ShareState
+    {
+        get => shareState;
+        set
+        {
+            if (shareState != value)
+            {
+                shareState = value;
+                OnPropertyChanged();
+            }
+        }
+    }
 
     public string Name
     {

@@ -6,7 +6,9 @@ using DesktopMagic.Settings;
 using Microsoft.Web.WebView2.Core;
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
@@ -29,11 +31,27 @@ public partial class WebPluginWindow : Window, IPluginWindow
     private System.Timers.Timer? reloadDebounceTimer;
     private bool isReloading = false;
 
+    private readonly System.Drawing.Rectangle screenBounds;
+    private readonly string screenDeviceName;
+    private bool isUpdatingPosition = false;
+
+    // Event handlers on long-lived settings objects, tracked so they can be unsubscribed on close.
+    private readonly PropertyChangedEventHandler settingsPropertyChangedHandler;
+    private readonly PropertyChangedEventHandler themePropertyChangedHandler;
+    private Theme? subscribedTheme;
+    private readonly List<(Setting Setting, Action Handler)> subscribedSettings = [];
+    private readonly List<(Button Button, Action Handler)> subscribedButtonClicks = [];
+
+    private readonly ConcurrentDictionary<string, Setting> localSettings = [];
+    private SettingSynchronizer? synchronizer;
+    private bool suppressButtonSync = false;
+
     public bool IsRunning { get; private set; } = true;
     public PluginMetadata PluginMetadata { get; private set; }
     public string PluginFolderPath { get; private set; }
+    public string ScreenDeviceName => screenDeviceName;
 
-    public WebPluginWindow(PluginMetadata pluginMetadata, PluginSettings settings, string pluginFolderPath)
+    public WebPluginWindow(PluginMetadata pluginMetadata, PluginSettings settings, string pluginFolderPath, System.Drawing.Rectangle screenBounds, string screenDeviceName)
     {
         InitializeComponent();
 
@@ -53,37 +71,67 @@ public partial class WebPluginWindow : Window, IPluginWindow
 
         Owner = w;
 
-        settings.PropertyChanged += (e, s) =>
+        settingsPropertyChangedHandler = (_, s) =>
         {
             if (s.PropertyName == nameof(PluginSettings.CurrentThemeName))
             {
-                settings.Theme.PropertyChanged += (se, ev) =>
-                {
-                    ThemeChanged();
-                };
+                SubscribeToTheme(settings.Theme);
                 ThemeChanged();
             }
+            else if (s.PropertyName == nameof(PluginSettings.Position))
+            {
+                UpdatePosition();
+            }
+            else if (s.PropertyName == nameof(PluginSettings.Size))
+            {
+                UpdateSize();
+            }
         };
+        settings.PropertyChanged += settingsPropertyChangedHandler;
 
-        settings.Theme.PropertyChanged += (se, ev) =>
-        {
-            ThemeChanged();
-        };
+        themePropertyChangedHandler = (_, _) => ThemeChanged();
+        SubscribeToTheme(settings.Theme);
 
         PluginMetadata = pluginMetadata;
         this.settings = settings;
+        this.screenBounds = screenBounds;
+        this.screenDeviceName = screenDeviceName;
 
-        Left = settings.Position.X;
-        Top = settings.Position.Y;
-        Width = settings.Size.X;
-        Height = settings.Size.Y;
+        Point position = ScreenUtilities.PercentToPosition(settings.Position, screenBounds);
+        Point size = ScreenUtilities.PercentSizeToSize(settings.Size, screenBounds);
+        Left = position.X;
+        Top = position.Y;
+        Width = size.X;
+        Height = size.Y;
 
         PluginFolderPath = pluginFolderPath;
+
+        if (settings.Owner is not null)
+        {
+            synchronizer = Manager.Instance.GetSettingSynchronizer(settings.Owner, PluginMetadata.Id);
+            synchronizer.Register(this);
+        }
 
         if (pluginMetadata.SupportsUnloading && !string.IsNullOrEmpty(pluginFolderPath))
         {
             InitializeHotReload();
         }
+    }
+
+    private void SubscribeToTheme(Theme theme)
+    {
+        if (ReferenceEquals(subscribedTheme, theme))
+        {
+            return;
+        }
+
+        if (subscribedTheme is not null)
+        {
+            subscribedTheme.PropertyChanged -= themePropertyChangedHandler;
+        }
+
+        subscribedTheme = theme;
+        subscribedTheme.PropertyChanged += themePropertyChangedHandler;
     }
 
     public void Exit()
@@ -120,6 +168,49 @@ public partial class WebPluginWindow : Window, IPluginWindow
         }
     }
 
+    public void ApplySettingValue(string id, string value)
+    {
+        if (localSettings.TryGetValue(id, out Setting? setting) && setting.GetJsonValue() != value)
+        {
+            setting.SetJsonValue(value);
+        }
+    }
+
+    public void ApplyButtonClick(string id)
+    {
+        if (!localSettings.TryGetValue(id, out Setting? setting) || setting is not Button button)
+        {
+            return;
+        }
+
+        suppressButtonSync = true;
+        try
+        {
+            button.Click();
+        }
+        finally
+        {
+            suppressButtonSync = false;
+        }
+    }
+
+    public void SetRenderPaused(bool paused)
+    {
+        if (webView.CoreWebView2 is null)
+        {
+            return;
+        }
+
+        if (paused)
+        {
+            _ = webView.CoreWebView2.TrySuspendAsync();
+        }
+        else
+        {
+            webView.CoreWebView2.Resume();
+        }
+    }
+
     protected override void OnSourceInitialized(EventArgs e)
     {
         base.OnSourceInitialized(e);
@@ -127,6 +218,9 @@ public partial class WebPluginWindow : Window, IPluginWindow
         WindowInteropHelper helper = new(this);
         _ = WindowPos.SetWindowLong(helper.Handle, WindowPos.GWL_EXSTYLE,
         WindowPos.GetWindowLong(helper.Handle, WindowPos.GWL_EXSTYLE) | WindowPos.WS_EX_NOACTIVATE);
+
+        HwndSource.FromHwnd(helper.Handle)?.AddHook((IntPtr hwnd, int msg, IntPtr _, IntPtr lParam, ref bool _) =>
+            ScreenUtilities.ClampToScreenHook(hwnd, msg, lParam, screenBounds));
     }
 
     private async void Window_ContentRendered(object? sender, EventArgs e)
@@ -249,6 +343,18 @@ public partial class WebPluginWindow : Window, IPluginWindow
 
         reloadDebounceTimer?.Stop();
         reloadDebounceTimer?.Dispose();
+        reloadDebounceTimer = null;
+
+        UnsubscribeEvents();
+
+        if (synchronizer is not null && settings.Owner is not null)
+        {
+            if (synchronizer.Unregister(this))
+            {
+                Manager.Instance.ReleaseSettingSynchronizer(settings.Owner, PluginMetadata.Id);
+            }
+            synchronizer = null;
+        }
 
         try
         {
@@ -263,14 +369,85 @@ public partial class WebPluginWindow : Window, IPluginWindow
         }
     }
 
+    private void UnsubscribeEvents()
+    {
+        settings.PropertyChanged -= settingsPropertyChangedHandler;
+
+        if (subscribedTheme is not null)
+        {
+            subscribedTheme.PropertyChanged -= themePropertyChangedHandler;
+            subscribedTheme = null;
+        }
+
+        foreach ((Setting setting, Action handler) in subscribedSettings)
+        {
+            setting.OnValueChanged -= handler;
+        }
+        subscribedSettings.Clear();
+
+        foreach ((Button button, Action handler) in subscribedButtonClicks)
+        {
+            button.OnClick -= handler;
+        }
+        subscribedButtonClicks.Clear();
+
+        localSettings.Clear();
+    }
+
+    private void UpdatePosition()
+    {
+        if (isUpdatingPosition)
+        {
+            return;
+        }
+
+        Point position = ScreenUtilities.PercentToPosition(settings.Position, screenBounds);
+        if (position == new Point(Left, Top))
+        {
+            return;
+        }
+
+        isUpdatingPosition = true;
+        Left = position.X;
+        Top = position.Y;
+        isUpdatingPosition = false;
+    }
+
+    private void UpdateSize()
+    {
+        if (isUpdatingPosition)
+        {
+            return;
+        }
+
+        Point size = ScreenUtilities.PercentSizeToSize(settings.Size, screenBounds);
+        if (size == new Point(Width, Height))
+        {
+            return;
+        }
+
+        isUpdatingPosition = true;
+        Width = size.X;
+        Height = size.Y;
+        isUpdatingPosition = false;
+    }
+
     private void Window_LocationChanged(object sender, EventArgs e)
     {
-        settings.Position = new System.Windows.Point(Left, Top);
+        if (isUpdatingPosition)
+        {
+            return;
+        }
+
+        settings.Position = ScreenUtilities.PositionToPercent(new Point(Left, Top), screenBounds);
     }
 
     private void Window_SizeChanged(object sender, SizeChangedEventArgs e)
     {
-        settings.Size = new System.Windows.Point(Width, Height);
+        if (!isUpdatingPosition)
+        {
+            settings.Size = ScreenUtilities.SizeToPercent(new Point(Width, Height), screenBounds);
+        }
 
         tileBar.CaptionHeight = ActualHeight - 10;
     }
@@ -330,19 +507,30 @@ public partial class WebPluginWindow : Window, IPluginWindow
                     continue;
                 }
 
+                localSettings[id] = setting;
+
                 SettingElement settingElement = new(setting, id, name, orderIndex);
 
                 if (settings.Settings.Exists(e => e.Id == id))
                 {
                     SettingElement saved = settings.Settings.First(e => e.Id == id);
-                    settingElement.JsonValue = saved.JsonValue;
+                    string savedValue = saved.JsonValue;
+                    if (!string.IsNullOrEmpty(savedValue) || setting is not Label and not Button)
+                    {
+                        settingElement.JsonValue = savedValue;
+                    }
                 }
 
                 string capturedId = id;
                 if (setting is Button button)
                 {
-                    button.OnClick += () =>
+                    Action clickHandler = () =>
                     {
+                        if (!suppressButtonSync)
+                        {
+                            synchronizer?.ButtonClicked(this, capturedId);
+                        }
+
                         _ = webView.Dispatcher.InvokeAsync(async () =>
                         {
                             try
@@ -355,10 +543,14 @@ public partial class WebPluginWindow : Window, IPluginWindow
                             }
                         });
                     };
+                    button.OnClick += clickHandler;
+                    subscribedButtonClicks.Add((button, clickHandler));
                 }
 
-                setting.OnValueChanged += () =>
+                Action valueChangedHandler = () =>
                 {
+                    synchronizer?.SettingChanged(this, capturedId, setting.GetJsonValue());
+
                     _ = webView.Dispatcher.InvokeAsync(async () =>
                     {
                         try
@@ -371,6 +563,8 @@ public partial class WebPluginWindow : Window, IPluginWindow
                         }
                     });
                 };
+                setting.OnValueChanged += valueChangedHandler;
+                subscribedSettings.Add((setting, valueChangedHandler));
 
                 settingElements.Add(settingElement);
                 orderIndex++;
@@ -540,7 +734,7 @@ public partial class WebPluginWindow : Window, IPluginWindow
         Dictionary<string, object?> dict = [];
         foreach (SettingElement element in settings.Settings)
         {
-            dict[element.Id] = GetSettingValue(element.Input);
+            dict[element.Id] = GetSettingValue(element.Input!);
         }
         return JsonSerializer.Serialize(dict);
     }

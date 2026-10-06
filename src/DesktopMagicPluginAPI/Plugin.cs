@@ -100,6 +100,22 @@ public abstract class Plugin
     }
 
     /// <summary>
+    /// Occurs when a key is pressed while the plugin window has keyboard focus.
+    /// </summary>
+    /// <param name="e">The key event data.</param>
+    public virtual void OnKeyDown(KeyEventArgs e)
+    {
+    }
+
+    /// <summary>
+    /// Occurs when a key is released while the plugin window has keyboard focus.
+    /// </summary>
+    /// <param name="e">The key event data.</param>
+    public virtual void OnKeyUp(KeyEventArgs e)
+    {
+    }
+
+    /// <summary>
     /// Occurs when the application's theme has changed.
     /// </summary>
     public virtual void OnThemeChanged()

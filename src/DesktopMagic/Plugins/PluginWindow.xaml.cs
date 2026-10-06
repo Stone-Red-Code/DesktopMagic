@@ -6,8 +6,13 @@ using DesktopMagic.Helpers;
 using DesktopMagic.Plugins;
 using DesktopMagic.Settings;
 
+using SkiaSharp;
+
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -35,7 +40,14 @@ public partial class PluginWindow : Window, IPluginWindow
     private Thread? pluginThread;
     private System.Timers.Timer? updateTimer;
     private Plugin? pluginClassInstance;
+    private PluginData? pluginData;
     private AssemblyLoadContext assemblyLoadContext;
+
+    private readonly Rectangle screenBounds;
+    private readonly string screenDeviceName;
+    private bool isUpdatingPosition = false;
+    private bool _editMode = false;
+    private volatile bool renderPaused = false;
 
     private CancellationTokenSource? pluginCancellationTokenSource;
     private FileSystemWatcher? pluginFileWatcher;
@@ -45,11 +57,37 @@ public partial class PluginWindow : Window, IPluginWindow
     private WriteableBitmap? writeableBitmap;
     private BitmapScalingMode lastBitmapScalingMode = BitmapScalingMode.Unspecified;
 
+    // Last presented frame bytes; used to skip re-uploading identical frames so WPF does not
+    // re-upload the texture or re-composite the window (GPU stays idle for static widgets).
+    private byte[]? lastFramePixels;
+    private int lastFrameWidth;
+    private int lastFrameHeight;
+    private int lastFrameStride;
+
+    // Guards against overlapping render ticks. The timer can re-enter while an async
+    // render awaits the UI thread, which would run the plugin concurrently and present
+    // frames out of order. Only one render may be in flight at a time.
+    private long renderInProgress;
+
+    // Event handlers on long-lived settings objects, tracked so they can be unsubscribed on close.
+    private readonly PropertyChangedEventHandler settingsPropertyChangedHandler;
+    private readonly PropertyChangedEventHandler themePropertyChangedHandler;
+    private Theme? subscribedTheme;
+    private NotifyCollectionChangedEventHandler? themesCollectionChangedHandler;
+    private readonly List<(Setting Setting, Action Handler)> subscribedSettings = [];
+    private readonly List<(Setting Setting, Action Handler)> defaultSettingsSubscriptions = [];
+    private readonly List<(Button Button, Action Handler)> subscribedButtonClicks = [];
+
+    private readonly ConcurrentDictionary<string, Setting> localSettings = [];
+    private SettingSynchronizer? synchronizer;
+    private bool suppressButtonSync = false;
+
     public bool IsRunning { get; private set; } = true;
     public PluginMetadata PluginMetadata { get; private set; }
     public string PluginFolderPath { get; private set; }
+    public string ScreenDeviceName => screenDeviceName;
 
-    public PluginWindow(PluginMetadata pluginMetadata, PluginSettings settings, string pluginFolderPath)
+    public PluginWindow(PluginMetadata pluginMetadata, PluginSettings settings, string pluginFolderPath, Rectangle screenBounds, string screenDeviceName)
     {
         InitializeComponent();
 
@@ -69,32 +107,46 @@ public partial class PluginWindow : Window, IPluginWindow
 
         Owner = w;
 
-        settings.PropertyChanged += (e, s) =>
+        settingsPropertyChangedHandler = (_, s) =>
         {
             if (s.PropertyName == nameof(PluginSettings.CurrentThemeName))
             {
-                settings.Theme.PropertyChanged += (se, ev) =>
-                {
-                    ThemeChanged();
-                };
+                SubscribeToTheme(settings.Theme);
                 ThemeChanged();
             }
+            else if (s.PropertyName == nameof(PluginSettings.Position))
+            {
+                UpdatePosition();
+            }
+            else if (s.PropertyName == nameof(PluginSettings.Size))
+            {
+                UpdateSize();
+            }
         };
+        settings.PropertyChanged += settingsPropertyChangedHandler;
 
-        settings.Theme.PropertyChanged += (se, ev) =>
-        {
-            ThemeChanged();
-        };
+        themePropertyChangedHandler = (_, _) => ThemeChanged();
+        SubscribeToTheme(settings.Theme);
 
         PluginMetadata = pluginMetadata;
         this.settings = settings;
+        this.screenBounds = screenBounds;
+        this.screenDeviceName = screenDeviceName;
 
-        Left = settings.Position.X;
-        Top = settings.Position.Y;
-        Width = settings.Size.X;
-        Height = settings.Size.Y;
+        System.Windows.Point position = ScreenUtilities.PercentToPosition(settings.Position, screenBounds);
+        System.Windows.Point size = ScreenUtilities.PercentSizeToSize(settings.Size, screenBounds);
+        Left = position.X;
+        Top = position.Y;
+        Width = size.X;
+        Height = size.Y;
 
         PluginFolderPath = pluginFolderPath;
+
+        if (settings.Owner is not null)
+        {
+            synchronizer = Manager.Instance.GetSettingSynchronizer(settings.Owner, PluginMetadata.Id);
+            synchronizer.Register(this);
+        }
 
         assemblyLoadContext = CreateAssemblyLoadContext();
 
@@ -105,9 +157,25 @@ public partial class PluginWindow : Window, IPluginWindow
         }
     }
 
-    public PluginWindow(Plugin pluginClassInstance, PluginMetadata pluginMetadata, PluginSettings settings) : this(pluginMetadata, settings, string.Empty)
+    public PluginWindow(Plugin pluginClassInstance, PluginMetadata pluginMetadata, PluginSettings settings, Rectangle screenBounds, string screenDeviceName) : this(pluginMetadata, settings, string.Empty, screenBounds, screenDeviceName)
     {
         this.pluginClassInstance = pluginClassInstance;
+    }
+
+    private void SubscribeToTheme(Theme theme)
+    {
+        if (ReferenceEquals(subscribedTheme, theme))
+        {
+            return;
+        }
+
+        if (subscribedTheme is not null)
+        {
+            subscribedTheme.PropertyChanged -= themePropertyChangedHandler;
+        }
+
+        subscribedTheme = theme;
+        subscribedTheme.PropertyChanged += themePropertyChangedHandler;
     }
 
     private AssemblyLoadContext CreateAssemblyLoadContext()
@@ -118,11 +186,10 @@ public partial class PluginWindow : Window, IPluginWindow
             string assemblyPath = Path.Combine(PluginFolderPath, assemblyName.Name + ".dll");
             if (File.Exists(assemblyPath))
             {
-                return ctx.LoadFromAssemblyPath(assemblyPath);
-            }
-            else
-            {
-                _ = ctx.LoadFromAssemblyName(assemblyName);
+                byte[] assemblyData = File.ReadAllBytes(assemblyPath);
+                using MemoryStream assemblyStream = new(assemblyData);
+
+                return ctx.LoadFromStream(assemblyStream);
             }
             return null;
         };
@@ -281,6 +348,21 @@ public partial class PluginWindow : Window, IPluginWindow
         }
     }
 
+    public void SetRenderPaused(bool paused)
+    {
+        renderPaused = paused;
+
+        if (paused)
+        {
+            updateTimer?.Stop();
+        }
+        else if (IsRunning && pluginClassInstance is { UpdateInterval: > 0 } && updateTimer is not null)
+        {
+            updateTimer.Interval = pluginClassInstance.UpdateInterval;
+            updateTimer.Start();
+        }
+    }
+
     public void UpdatePluginWindow()
     {
         UpdateTimer_Elapsed(updateTimer, null);
@@ -306,6 +388,8 @@ public partial class PluginWindow : Window, IPluginWindow
 
     public void SetEditMode(bool enabled)
     {
+        _editMode = enabled;
+
         if (enabled)
         {
             Topmost = true;
@@ -337,6 +421,9 @@ public partial class PluginWindow : Window, IPluginWindow
         WindowInteropHelper helper = new(this);
         _ = WindowPos.SetWindowLong(helper.Handle, WindowPos.GWL_EXSTYLE,
         WindowPos.GetWindowLong(helper.Handle, WindowPos.GWL_EXSTYLE) | WindowPos.WS_EX_NOACTIVATE);
+
+        HwndSource.FromHwnd(helper.Handle)?.AddHook((IntPtr hwnd, int msg, IntPtr _, IntPtr lParam, ref bool _) =>
+            ScreenUtilities.ClampToScreenHook(hwnd, msg, lParam, screenBounds));
     }
 
     private void UpdateImageFromBitmap(Bitmap bitmap, BitmapScalingMode scalingMode)
@@ -345,8 +432,28 @@ public partial class PluginWindow : Window, IPluginWindow
 
         try
         {
-            Dispatcher.Invoke(() =>
+            int stride = bitmapData.Stride;
+            int height = bitmapData.Height;
+            int byteCount = stride * height;
+
+            unsafe
             {
+                byte* scan0 = (byte*)bitmapData.Scan0.ToPointer();
+
+                // Skip the present when the frame is byte-identical to the last presented one so WPF
+                // does not re-upload the texture or re-composite the window (GPU stays idle for
+                // static widgets that keep ticking).
+                if (lastFramePixels is { Length: > 0 }
+                    && lastFrameWidth == bitmapData.Width
+                    && lastFrameHeight == height
+                    && lastFrameStride == stride
+                    && lastFramePixels.AsSpan().SequenceEqual(new ReadOnlySpan<byte>(scan0, byteCount)))
+                {
+                    return;
+                }
+
+                Dispatcher.Invoke(() =>
+                {
                 if (lastBitmapScalingMode != scalingMode)
                 {
                     RenderOptions.SetBitmapScalingMode(image, scalingMode);
@@ -355,9 +462,19 @@ public partial class PluginWindow : Window, IPluginWindow
 
                 if (writeableBitmap == null || writeableBitmap.PixelWidth != bitmapData.Width || writeableBitmap.PixelHeight != bitmapData.Height)
                 {
+                    // A frame sized to the window maps 1:1 to the display when the bitmap uses the
+                    // actual monitor DPI, so WPF skips the (expensive) per-frame scaling filter.
+                    // Smaller content-sized frames keep 96 DPI to preserve their on-screen semantics.
+                    DpiScale dpi = VisualTreeHelper.GetDpi(this);
+                    bool fullWindowFrame = pluginData != null
+                        && bitmapData.Width == pluginData.WindowPixelSize.Width
+                        && bitmapData.Height == pluginData.WindowPixelSize.Height;
+                    double dpiX = fullWindowFrame ? dpi.DpiScaleX * 96 : bitmap.HorizontalResolution;
+                    double dpiY = fullWindowFrame ? dpi.DpiScaleY * 96 : bitmap.VerticalResolution;
+
                     writeableBitmap = new WriteableBitmap(
                         bitmapData.Width, bitmapData.Height,
-                        bitmap.HorizontalResolution, bitmap.VerticalResolution,
+                        dpiX, dpiY,
                         PixelFormats.Bgra32, null);
                     image.Source = writeableBitmap;
                 }
@@ -379,7 +496,17 @@ public partial class PluginWindow : Window, IPluginWindow
                 {
                     writeableBitmap.Unlock();
                 }
-            });
+                });
+
+                if (lastFramePixels is null || lastFramePixels.Length != byteCount)
+                {
+                    lastFramePixels = new byte[byteCount];
+                }
+                lastFrameWidth = bitmapData.Width;
+                lastFrameHeight = height;
+                lastFrameStride = stride;
+                new ReadOnlySpan<byte>(scan0, byteCount).CopyTo(lastFramePixels);
+            }
         }
         finally
         {
@@ -481,7 +608,7 @@ public partial class PluginWindow : Window, IPluginWindow
                 dll = Assembly.LoadFrom($"{PluginFolderPath}\\main.dll");
             }
 
-            Type? instanceType = Array.Find(dll.GetTypes(), type => type.GetTypeInfo().BaseType == typeof(Plugin));
+            Type? instanceType = Array.Find(dll.GetTypes(), type => type.IsAssignableTo(typeof(Plugin)));
 
             if (instanceType is null)
             {
@@ -505,7 +632,8 @@ public partial class PluginWindow : Window, IPluginWindow
         if (instance is Plugin plugin)
         {
             pluginClassInstance = plugin;
-            pluginClassInstance.Application = new PluginData(this, settings);
+            pluginData = new PluginData(this, settings);
+            pluginClassInstance.Application = pluginData;
         }
         else
         {
@@ -534,6 +662,8 @@ public partial class PluginWindow : Window, IPluginWindow
         };
         updateTimer.Elapsed += UpdateTimer_Elapsed;
 
+        await Dispatcher.InvokeAsync(RefreshWindowPixelSize);
+
         pluginClassInstance.Start();
         if (pluginClassInstance is AsyncPlugin asyncPluginStart)
         {
@@ -544,7 +674,7 @@ public partial class PluginWindow : Window, IPluginWindow
         UpdatePluginWindow();
         await Dispatcher.InvokeAsync(ThemeChanged);
 
-        if (pluginClassInstance.UpdateInterval > 0)
+        if (pluginClassInstance.UpdateInterval > 0 && !renderPaused)
         {
             updateTimer.Interval = pluginClassInstance.UpdateInterval;
             updateTimer.Start();
@@ -562,14 +692,18 @@ public partial class PluginWindow : Window, IPluginWindow
             SetThemeOverride();
             SetThemeOverrideItems();
 
-            pluginClassInstance.horizontalAlignment.OnValueChanged += SetHorizontalAlignment;
-            pluginClassInstance.verticalAlignment.OnValueChanged += SetVerticalAlignment;
-            pluginClassInstance.windowLayer.OnValueChanged += SetWindowLayer;
-            pluginClassInstance.rotation.OnValueChanged += SetRotation;
-            pluginClassInstance.themeOverride.OnValueChanged += SetThemeOverride;
+            SubscribeToDefaultSetting(pluginClassInstance.horizontalAlignment, SetHorizontalAlignment);
+            SubscribeToDefaultSetting(pluginClassInstance.verticalAlignment, SetVerticalAlignment);
+            SubscribeToDefaultSetting(pluginClassInstance.windowLayer, SetWindowLayer);
+            SubscribeToDefaultSetting(pluginClassInstance.rotation, SetRotation);
+            SubscribeToDefaultSetting(pluginClassInstance.themeOverride, SetThemeOverride);
 
-            DesktopMagicSettings desktopMagicSettings = MainWindowDataContext.GetSettings();
-            desktopMagicSettings.Themes.CollectionChanged += (s, e) => SetThemeOverrideItems();
+            if (themesCollectionChangedHandler is null)
+            {
+                themesCollectionChangedHandler = (_, _) => SetThemeOverrideItems();
+                DesktopMagicSettings desktopMagicSettings = MainWindowDataContext.GetSettings();
+                desktopMagicSettings.Themes.CollectionChanged += themesCollectionChangedHandler;
+            }
         });
 
         void SetVerticalAlignment()
@@ -602,7 +736,14 @@ public partial class PluginWindow : Window, IPluginWindow
 
         void SetWindowLayer()
         {
-            WindowPos.SetWindowLayer(this, pluginClassInstance.windowLayer.Value);
+            if (_editMode)
+            {
+                Topmost = true;
+            }
+            else
+            {
+                WindowPos.SetWindowLayer(this, pluginClassInstance.windowLayer.Value);
+            }
         }
 
         void SetRotation()
@@ -636,6 +777,50 @@ public partial class PluginWindow : Window, IPluginWindow
         }
     }
 
+    private void SubscribeToDefaultSetting(Setting setting, Action handler)
+    {
+        setting.OnValueChanged += handler;
+        defaultSettingsSubscriptions.Add((setting, handler));
+    }
+
+    private void OnPluginSettingValueChanged(Setting setting, string id)
+    {
+        pluginClassInstance?.OnSettingsChanged();
+
+        if (pluginClassInstance?.UpdateInterval is 0 or > 500)
+        {
+            pluginClassInstance.Application.UpdateWindow();
+        }
+
+        synchronizer?.SettingChanged(this, id, setting.GetJsonValue());
+    }
+
+    public void ApplySettingValue(string id, string value)
+    {
+        if (localSettings.TryGetValue(id, out Setting? setting) && setting.GetJsonValue() != value)
+        {
+            setting.SetJsonValue(value);
+        }
+    }
+
+    public void ApplyButtonClick(string id)
+    {
+        if (!localSettings.TryGetValue(id, out Setting? setting) || setting is not Button button)
+        {
+            return;
+        }
+
+        suppressButtonSync = true;
+        try
+        {
+            button.Click();
+        }
+        finally
+        {
+            suppressButtonSync = false;
+        }
+    }
+
     private async Task LoadOptions(object instance)
     {
         App.Logger.LogInfo($"\"{PluginMetadata.Name}\" - Loading plugin options", source: "Plugin");
@@ -653,23 +838,36 @@ public partial class PluginWindow : Window, IPluginWindow
                     {
                         if (attribute is SettingAttribute elementAttribute)
                         {
+                            localSettings[elementAttribute.Id] = element;
+
                             SettingElement settingElement = new SettingElement(element, elementAttribute.Id, elementAttribute.Name, elementAttribute.OrderIndex);
 
                             if (settings.Settings.Exists(e => e.Id == elementAttribute.Id))
                             {
                                 SettingElement settingsSettingElement = settings.Settings.First(e => e.Id == elementAttribute.Id);
-                                settingElement.JsonValue = settingsSettingElement.JsonValue;
+                                string savedValue = settingsSettingElement.JsonValue;
+                                if (!string.IsNullOrEmpty(savedValue) || element is not Label and not Button)
+                                {
+                                    settingElement.JsonValue = savedValue;
+                                }
                             }
 
-                            element.OnValueChanged += () =>
-                            {
-                                pluginClassInstance?.OnSettingsChanged();
+                            Action valueChangedHandler = () => OnPluginSettingValueChanged(element, elementAttribute.Id);
+                            element.OnValueChanged += valueChangedHandler;
+                            subscribedSettings.Add((element, valueChangedHandler));
 
-                                if (pluginClassInstance?.UpdateInterval is 0 or > 500)
+                            if (element is Button button)
+                            {
+                                Action clickHandler = () =>
                                 {
-                                    pluginClassInstance.Application.UpdateWindow();
-                                }
-                            };
+                                    if (!suppressButtonSync)
+                                    {
+                                        synchronizer?.ButtonClicked(this, elementAttribute.Id);
+                                    }
+                                };
+                                button.OnClick += clickHandler;
+                                subscribedButtonClicks.Add((button, clickHandler));
+                            }
 
                             settingElements.Add(settingElement);
                             break;
@@ -830,34 +1028,46 @@ public partial class PluginWindow : Window, IPluginWindow
 
     private async void UpdateTimer_Elapsed(object? sender, ElapsedEventArgs? e)
     {
+        // Capture the fields into locals so an in-flight tick keeps the plugin assembly
+        // alive and stays safe when the window is being closed or the plugin reloaded.
+        Plugin? plugin = pluginClassInstance;
+        System.Timers.Timer? timer = updateTimer;
+
+        if (!IsRunning || plugin is null)
+        {
+            return;
+        }
+
+        // Drop the tick when a render is still in flight instead of running the plugin
+        // concurrently (the timer can re-enter while the async render awaits the UI thread).
+        if (Interlocked.CompareExchange(ref renderInProgress, 1, 0) != 0)
+        {
+            return;
+        }
+
         try
         {
-            if (IsRunning && pluginClassInstance is not null)
+            if (plugin is SkiaPlugin or SkiaAsyncPlugin)
+            {
+                await RenderSkiaFrame();
+            }
+            else
             {
                 Bitmap? result;
 
-                if (pluginClassInstance is AsyncPlugin asyncPlugin)
+                if (plugin is AsyncPlugin asyncPlugin)
                 {
                     CancellationToken token = pluginCancellationTokenSource?.Token ?? CancellationToken.None;
                     result = await asyncPlugin.MainAsync(token);
                 }
                 else
                 {
-                    result = pluginClassInstance.Main();
-                }
-
-                if (pluginClassInstance.UpdateInterval > 0)
-                {
-                    updateTimer!.Interval = pluginClassInstance.UpdateInterval;
-                }
-                else
-                {
-                    updateTimer!.Stop();
+                    result = plugin.Main();
                 }
 
                 if (result is not null)
                 {
-                    BitmapScalingMode renderOptions = pluginClassInstance.RenderQuality switch
+                    BitmapScalingMode renderOptions = plugin.RenderQuality switch
                     {
                         RenderQuality.High => BitmapScalingMode.HighQuality,
                         RenderQuality.Low => BitmapScalingMode.LowQuality,
@@ -868,9 +1078,30 @@ public partial class PluginWindow : Window, IPluginWindow
                     UpdateImageFromBitmap(result, renderOptions);
                 }
             }
+
+            if (timer is null)
+            {
+                return;
+            }
+
+            if (plugin.UpdateInterval > 0)
+            {
+                timer.Interval = plugin.UpdateInterval;
+            }
+            else
+            {
+                timer.Stop();
+            }
         }
         catch (Exception ex)
         {
+            // If the window is closing, the plugin state is being torn down and the
+            // exception is a teardown race - ignore it instead of showing an error.
+            if (!IsRunning)
+            {
+                return;
+            }
+
             IsRunning = false;
             App.Logger.LogError($"\"{PluginMetadata.Name}\" - {ex}", source: "Plugin");
             _ = await Dispatcher.InvokeAsync(async () =>
@@ -884,12 +1115,143 @@ public partial class PluginWindow : Window, IPluginWindow
                 _ = await messageBox.ShowDialogAsync();
             });
             Exit();
+        }
+        finally
+        {
+            Interlocked.Exchange(ref renderInProgress, 0);
+        }
+    }
+
+    private async Task RenderSkiaFrame()
+    {
+        Plugin? plugin = pluginClassInstance;
+
+        if (plugin is null)
+        {
             return;
         }
 
-        if (!IsRunning)
+        SKImage? skImage;
+
+        if (plugin is SkiaAsyncPlugin skiaAsyncPlugin)
         {
-            updateTimer!.Stop();
+            CancellationToken token = pluginCancellationTokenSource?.Token ?? CancellationToken.None;
+            skImage = await skiaAsyncPlugin.MainAsync(token);
+        }
+        else if (plugin is SkiaPlugin skiaPlugin)
+        {
+            skImage = skiaPlugin.Main();
+        }
+        else
+        {
+            return;
+        }
+
+        // Null keeps the previous frame, matching how GDI plugins return null from Main().
+        if (skImage is null)
+        {
+            return;
+        }
+
+        using (skImage)
+        {
+            using SKImage raster = skImage.ToRasterImage();
+            using SKPixmap? pixmap = raster.PeekPixels();
+
+            if (pixmap is null)
+            {
+                return;
+            }
+
+            int width = pixmap.Width;
+            int height = pixmap.Height;
+            int byteCount = pixmap.RowBytes * height;
+
+            // Skip the present when the frame is byte-identical to the last presented one so WPF
+            // does not re-upload the texture or re-composite the window (GPU stays idle for
+            // static widgets that keep ticking).
+            if (lastFramePixels is { Length: > 0 }
+                && lastFrameWidth == width
+                && lastFrameHeight == height
+                && lastFrameStride == pixmap.RowBytes
+                && lastFramePixels.AsSpan().SequenceEqual(pixmap.GetPixelSpan()))
+            {
+                return;
+            }
+
+            BitmapScalingMode scalingMode = plugin.RenderQuality switch
+            {
+                RenderQuality.High => BitmapScalingMode.HighQuality,
+                RenderQuality.Low => BitmapScalingMode.LowQuality,
+                RenderQuality.Performance => BitmapScalingMode.NearestNeighbor,
+                _ => BitmapScalingMode.Unspecified
+            };
+
+            await Dispatcher.InvokeAsync(() =>
+            {
+                if (lastBitmapScalingMode != scalingMode)
+                {
+                    RenderOptions.SetBitmapScalingMode(image, scalingMode);
+                    lastBitmapScalingMode = scalingMode;
+                }
+
+                if (writeableBitmap is null || writeableBitmap.PixelWidth != width || writeableBitmap.PixelHeight != height)
+                {
+                    // A frame sized to the window maps 1:1 to the display when the bitmap uses the
+                    // actual monitor DPI, so WPF skips the (expensive) per-frame scaling filter.
+                    // Smaller content-sized frames keep 96 DPI to preserve their on-screen semantics.
+                    DpiScale dpi = VisualTreeHelper.GetDpi(this);
+                    bool fullWindowFrame = pluginData != null
+                        && width == pluginData.WindowPixelSize.Width
+                        && height == pluginData.WindowPixelSize.Height;
+                    double dpiX = fullWindowFrame ? dpi.DpiScaleX * 96 : 96;
+                    double dpiY = fullWindowFrame ? dpi.DpiScaleY * 96 : 96;
+
+                    // Skia outputs premultiplied alpha, so use Pbgra32 (premultiplied BGRA).
+                    // Bgra32 is straight alpha and would render semi-transparent pixels too dark.
+                    writeableBitmap = new WriteableBitmap(width, height, dpiX, dpiY, PixelFormats.Pbgra32, null);
+                    image.Source = writeableBitmap;
+                }
+
+                writeableBitmap.Lock();
+                try
+                {
+                    int destStride = writeableBitmap.BackBufferStride;
+                    int srcStride = pixmap.RowBytes;
+                    int copyWidth = Math.Min(srcStride, destStride);
+                    int copyRows = Math.Min(pixmap.Height, height);
+
+                    unsafe
+                    {
+                        byte* src = (byte*)pixmap.GetPixels().ToPointer();
+                        byte* dst = (byte*)writeableBitmap.BackBuffer.ToPointer();
+
+                        for (int row = 0; row < copyRows; row++)
+                        {
+                            Buffer.MemoryCopy(
+                                src + (row * srcStride),
+                                dst + (row * destStride),
+                                destStride,
+                                copyWidth);
+                        }
+                    }
+
+                    writeableBitmap.AddDirtyRect(new Int32Rect(0, 0, width, height));
+                }
+                finally
+                {
+                    writeableBitmap.Unlock();
+                }
+            });
+
+            if (lastFramePixels is null || lastFramePixels.Length != byteCount)
+            {
+                lastFramePixels = new byte[byteCount];
+            }
+            lastFrameWidth = width;
+            lastFrameHeight = height;
+            lastFrameStride = pixmap.RowBytes;
+            pixmap.GetPixelSpan().CopyTo(lastFramePixels);
         }
     }
 
@@ -921,30 +1283,156 @@ public partial class PluginWindow : Window, IPluginWindow
         reloadDebounceTimer?.Dispose();
         reloadDebounceTimer = null;
 
+        updateTimer?.Stop();
+        updateTimer?.Dispose();
+        updateTimer = null;
+
         // Stop plugin using the shared method (no need to await in synchronous event handler)
         _ = StopPlugin(unloadAssembly: true);
+
+        UnsubscribeEvents();
+        DetachSettings();
+
+        if (synchronizer is not null && settings.Owner is not null)
+        {
+            if (synchronizer.Unregister(this))
+            {
+                Manager.Instance.ReleaseSettingSynchronizer(settings.Owner, PluginMetadata.Id);
+            }
+            synchronizer = null;
+        }
+    }
+
+    private void DetachSettings()
+    {
+        foreach (SettingElement settingElement in settings.Settings)
+        {
+            string value = settingElement.JsonValue;
+            settingElement.Input = null;
+            settingElement.JsonValue = value;
+        }
+    }
+
+    private void UnsubscribeEvents()
+    {
+        settings.PropertyChanged -= settingsPropertyChangedHandler;
+
+        if (subscribedTheme is not null)
+        {
+            subscribedTheme.PropertyChanged -= themePropertyChangedHandler;
+            subscribedTheme = null;
+        }
+
+        if (themesCollectionChangedHandler is not null)
+        {
+            MainWindowDataContext.GetSettings().Themes.CollectionChanged -= themesCollectionChangedHandler;
+            themesCollectionChangedHandler = null;
+        }
+
+        foreach ((Setting Setting, Action Handler) subscription in subscribedSettings)
+        {
+            subscription.Setting.OnValueChanged -= subscription.Handler;
+        }
+        subscribedSettings.Clear();
+
+        foreach ((Setting Setting, Action Handler) subscription in defaultSettingsSubscriptions)
+        {
+            subscription.Setting.OnValueChanged -= subscription.Handler;
+        }
+        defaultSettingsSubscriptions.Clear();
+
+        foreach ((Button Button, Action Handler) subscription in subscribedButtonClicks)
+        {
+            subscription.Button.OnClick -= subscription.Handler;
+        }
+        subscribedButtonClicks.Clear();
+
+        localSettings.Clear();
+    }
+
+    private void UpdatePosition()
+    {
+        if (isUpdatingPosition)
+        {
+            return;
+        }
+
+        System.Windows.Point position = ScreenUtilities.PercentToPosition(settings.Position, screenBounds);
+        if (position == new System.Windows.Point(Left, Top))
+        {
+            return;
+        }
+
+        isUpdatingPosition = true;
+        Left = position.X;
+        Top = position.Y;
+        isUpdatingPosition = false;
+    }
+
+    private void UpdateSize()
+    {
+        if (isUpdatingPosition)
+        {
+            return;
+        }
+
+        System.Windows.Point size = ScreenUtilities.PercentSizeToSize(settings.Size, screenBounds);
+        if (size == new System.Windows.Point(Width, Height))
+        {
+            return;
+        }
+
+        isUpdatingPosition = true;
+        Width = size.X;
+        Height = size.Y;
+        isUpdatingPosition = false;
     }
 
     #region Window Events
 
     private void Window_LocationChanged(object sender, EventArgs e)
     {
-        settings.Position = new System.Windows.Point(Left, Top);
+        if (isUpdatingPosition)
+        {
+            return;
+        }
+
+        settings.Position = ScreenUtilities.PositionToPercent(new System.Windows.Point(Left, Top), screenBounds);
+        RefreshWindowPixelSize();
     }
 
     private void Window_SizeChanged(object sender, SizeChangedEventArgs e)
     {
-        settings.Size = new System.Windows.Point(Width, Height);
+        if (!isUpdatingPosition)
+        {
+            settings.Size = ScreenUtilities.SizeToPercent(new System.Windows.Point(Width, Height), screenBounds);
+        }
 
         tileBar.CaptionHeight = ActualHeight - 10;
+        RefreshWindowPixelSize();
     }
 
-    private void Window_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+    private void RefreshWindowPixelSize()
     {
+        DpiScale dpi = VisualTreeHelper.GetDpi(this);
+        pluginData?.UpdateWindowPixelSize((int)Math.Ceiling(ActualWidth * dpi.DpiScaleX), (int)Math.Ceiling(ActualHeight * dpi.DpiScaleY));
+    }
+
+    private void Image_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+    {
+        _ = image.Focus();
+
         ImageSource imageSource = image.Source;
         BitmapSource bitmapImage = (BitmapSource)imageSource;
-        double pixelMousePositionX = e.GetPosition(image).X * bitmapImage.PixelWidth / image.ActualHeight;
-        double pixelMousePositionY = e.GetPosition(image).Y * bitmapImage.PixelHeight / image.ActualHeight;
+        double actualWidth = image.ActualWidth;
+        double actualHeight = image.ActualHeight;
+        if (actualWidth <= 0 || actualHeight <= 0)
+        {
+            return;
+        }
+
+        double pixelMousePositionX = e.GetPosition(image).X * bitmapImage.PixelWidth / actualWidth;
+        double pixelMousePositionY = e.GetPosition(image).Y * bitmapImage.PixelHeight / actualHeight;
 
         MouseButton mouseButton;
 
@@ -970,26 +1458,74 @@ public partial class PluginWindow : Window, IPluginWindow
         pluginClassInstance?.OnMouseClick(point, mouseButton);
     }
 
-    private void Window_MouseMove(object sender, System.Windows.Input.MouseEventArgs e)
+    private void Image_MouseMove(object sender, System.Windows.Input.MouseEventArgs e)
     {
         ImageSource imageSource = image.Source;
         BitmapSource bitmapImage = (BitmapSource)imageSource;
-        double pixelMousePositionX = e.GetPosition(image).X * bitmapImage.PixelWidth / image.ActualHeight;
-        double pixelMousePositionY = e.GetPosition(image).Y * bitmapImage.PixelHeight / image.ActualHeight;
+        double actualWidth = image.ActualWidth;
+        double actualHeight = image.ActualHeight;
+        if (actualWidth <= 0 || actualHeight <= 0)
+        {
+            return;
+        }
+
+        double pixelMousePositionX = e.GetPosition(image).X * bitmapImage.PixelWidth / actualWidth;
+        double pixelMousePositionY = e.GetPosition(image).Y * bitmapImage.PixelHeight / actualHeight;
 
         System.Drawing.Point point = new System.Drawing.Point((int)pixelMousePositionX, (int)pixelMousePositionY);
         pluginClassInstance?.OnMouseMove(point);
     }
 
-    private void Window_MouseWheel(object sender, System.Windows.Input.MouseWheelEventArgs e)
+    private void Image_MouseWheel(object sender, System.Windows.Input.MouseWheelEventArgs e)
     {
         ImageSource imageSource = image.Source;
         BitmapSource bitmapImage = (BitmapSource)imageSource;
-        double pixelMousePositionX = e.GetPosition(image).X * bitmapImage.PixelWidth / image.ActualHeight;
-        double pixelMousePositionY = e.GetPosition(image).Y * bitmapImage.PixelHeight / image.ActualHeight;
+        double actualWidth = image.ActualWidth;
+        double actualHeight = image.ActualHeight;
+        if (actualWidth <= 0 || actualHeight <= 0)
+        {
+            return;
+        }
+
+        double pixelMousePositionX = e.GetPosition(image).X * bitmapImage.PixelWidth / actualWidth;
+        double pixelMousePositionY = e.GetPosition(image).Y * bitmapImage.PixelHeight / actualHeight;
 
         System.Drawing.Point point = new System.Drawing.Point((int)pixelMousePositionX, (int)pixelMousePositionY);
         pluginClassInstance?.OnMouseWheel(point, e.Delta);
+    }
+
+    private void Image_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
+    {
+        if (pluginClassInstance is null)
+        {
+            return;
+        }
+
+        Keys key = (Keys)e.Key;
+        System.Windows.Input.ModifierKeys modifiers = e.KeyboardDevice.Modifiers;
+        bool alt = modifiers.HasFlag(System.Windows.Input.ModifierKeys.Alt);
+        bool control = modifiers.HasFlag(System.Windows.Input.ModifierKeys.Control);
+        bool shift = modifiers.HasFlag(System.Windows.Input.ModifierKeys.Shift);
+        bool windows = modifiers.HasFlag(System.Windows.Input.ModifierKeys.Windows);
+
+        pluginClassInstance.OnKeyDown(new KeyEventArgs(key, alt, control, shift, windows));
+    }
+
+    private void Image_KeyUp(object sender, System.Windows.Input.KeyEventArgs e)
+    {
+        if (pluginClassInstance is null)
+        {
+            return;
+        }
+
+        Keys key = (Keys)e.Key;
+        System.Windows.Input.ModifierKeys modifiers = e.KeyboardDevice.Modifiers;
+        bool alt = modifiers.HasFlag(System.Windows.Input.ModifierKeys.Alt);
+        bool control = modifiers.HasFlag(System.Windows.Input.ModifierKeys.Control);
+        bool shift = modifiers.HasFlag(System.Windows.Input.ModifierKeys.Shift);
+        bool windows = modifiers.HasFlag(System.Windows.Input.ModifierKeys.Windows);
+
+        pluginClassInstance.OnKeyUp(new KeyEventArgs(key, alt, control, shift, windows));
     }
 
     #endregion Window Events

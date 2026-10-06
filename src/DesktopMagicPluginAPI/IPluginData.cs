@@ -13,9 +13,15 @@ public interface IPluginData
     ITheme Theme { get; }
 
     /// <summary>
-    /// Gets the window size of the plugin window.
+    /// Gets the window size of the plugin window in device independent pixels.
     /// </summary>
     Size WindowSize { get; }
+
+    /// <summary>
+    /// Gets the window size of the plugin window in physical (device) pixels.
+    /// Use this to create a rendering surface that maps 1:1 to the display.
+    /// </summary>
+    Size WindowPixelSize { get; }
 
     /// <summary>
     /// Gets the window position of the plugin window.

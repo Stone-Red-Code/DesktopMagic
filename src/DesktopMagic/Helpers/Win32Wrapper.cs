@@ -10,6 +10,18 @@ internal class W32
 
     public const int SM_CYSCREEN = 1;
 
+    public const int DWMWA_CLOAKED = 14;
+
+    public const int GWL_EXSTYLE = -20;
+
+    public const uint GW_HWNDNEXT = 2;
+
+    public const uint GW_HWNDPREV = 3;
+
+    public const int LWA_ALPHA = 0x2;
+
+    public const long WS_EX_LAYERED = 0x00080000L;
+
     public const int SPI_SETDESKWALLPAPER = 20;
     public const int SPIF_SENDWININICHANGE = 0x02;
     public const int SPIF_UPDATEINIFILE = 0x01;
@@ -54,6 +66,26 @@ internal class W32
 
     [DllImport("dwmapi.dll")]
     public static extern int DwmSetWindowAttribute(nint hwnd, int attr, ref int attrValue, int attrSize);
+
+    [DllImport("dwmapi.dll")]
+    public static extern int DwmGetWindowAttribute(nint hwnd, int dwAttribute, out int pvAttribute, int cbAttribute);
+
+    [DllImport("user32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static extern bool GetWindowRect(nint hWnd, out RECT lpRect);
+
+    [DllImport("user32.dll")]
+    public static extern int GetWindowLong(nint hWnd, int nIndex);
+
+    [DllImport("user32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static extern bool GetLayeredWindowAttributes(nint hWnd, out int colorKey, out byte alpha, out int dwFlags);
+
+    [DllImport("user32.dll")]
+    public static extern nint GetWindow(nint hWnd, uint uCmd);
+
+    [DllImport("user32.dll")]
+    public static extern uint GetWindowThreadProcessId(nint hWnd, out uint processId);
 
     [DllImport("user32.dll")]
     [return: MarshalAs(UnmanagedType.Bool)]

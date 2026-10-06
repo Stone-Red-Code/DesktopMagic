@@ -3,6 +3,7 @@
 using DesktopMagic.Api;
 using DesktopMagic.Settings;
 
+using System;
 using System.Drawing;
 
 using Wpf.Ui.Controls;
@@ -12,10 +13,22 @@ namespace DesktopMagic.Plugins;
 internal class PluginData(PluginWindow window, PluginSettings pluginSettings) : IPluginData
 {
     private readonly PluginWindow window = window;
+    private Size windowPixelSize = new(1, 1);
 
     public ITheme Theme => pluginSettings.Theme;
 
     public Size WindowSize => new Size((int)window.ActualWidth, (int)window.ActualHeight);
+
+    public Size WindowPixelSize => windowPixelSize;
+
+    /// <summary>
+    /// Refreshes the cached device-pixel window size. Must be called from the UI thread
+    /// so the value can be read safely by plugins on their render thread.
+    /// </summary>
+    internal void UpdateWindowPixelSize(int width, int height)
+    {
+        windowPixelSize = new Size(Math.Max(1, width), Math.Max(1, height));
+    }
 
     public Point WindowPosition => new Point((int)window.Left, (int)window.Top);
 

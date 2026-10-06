@@ -22,7 +22,7 @@
         MinHeight="600"
         MinWidth="940"
         ExtendsContentIntoTitleBar="True"
-        WindowState="Minimized"
+        WindowState="Normal"
         Loaded="Window_Loaded">
 
     <Grid>

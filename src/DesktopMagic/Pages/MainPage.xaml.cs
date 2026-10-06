@@ -20,7 +20,6 @@ public partial class MainPage : Page
 {
     private readonly Manager _manager = Manager.Instance;
     private readonly MainWindowDataContext _dataContext;
-    private bool _isLoadingLayout = false;
 
     public MainPage()
     {
@@ -36,6 +35,7 @@ public partial class MainPage : Page
         // Subscribe to manager events
         _manager.PluginsChanged += OnPluginsChanged;
         _manager.EditModeChanged += OnEditModeChanged;
+        _manager.SettingsChanged += OnSettingsChanged;
 
         Loaded += MainPage_Loaded;
         Unloaded += MainPage_Unloaded;
@@ -45,6 +45,9 @@ public partial class MainPage : Page
     {
         // Initialize edit checkbox state
         editCheckBox.IsChecked = _manager.IsEditMode;
+
+        _dataContext.RefreshScreens();
+        RefreshShareState();
     }
 
     private void MainPage_Unloaded(object sender, RoutedEventArgs e)
@@ -52,6 +55,7 @@ public partial class MainPage : Page
         // Unsubscribe from events
         _manager.PluginsChanged -= OnPluginsChanged;
         _manager.EditModeChanged -= OnEditModeChanged;
+        _manager.SettingsChanged -= OnSettingsChanged;
     }
 
     private void OnPluginsChanged()
@@ -60,7 +64,18 @@ public partial class MainPage : Page
         {
             _dataContext.Settings = _manager.Settings;
             ApplyPluginsFilter();
+            RefreshShareState();
         });
+    }
+
+    private void OnSettingsChanged()
+    {
+        Dispatcher.Invoke(RefreshShareState);
+    }
+
+    private void RefreshShareState()
+    {
+        ModIoService.RefreshShareState(_manager.SelectedLayout);
     }
 
     private void OnEditModeChanged(bool editMode)
@@ -76,6 +91,16 @@ public partial class MainPage : Page
         _manager.SetEditMode(editCheckBox.IsChecked == true);
     }
 
+    private void ScreenSelectorButton_Click(object sender, RoutedEventArgs e)
+    {
+        ScreenSelectorDialog dialog = new(_dataContext)
+        {
+            Owner = Window.GetWindow(this)
+        };
+
+        _ = dialog.ShowDialog();
+    }
+
     private void PluginCheckBox_Click(object sender, RoutedEventArgs e)
     {
         if (sender is not Control checkBox)
@@ -85,7 +110,7 @@ public partial class MainPage : Page
 
         uint pluginId = uint.Parse(checkBox.Tag.ToString()!);
 
-        _manager.LoadPlugin(pluginId, (internalPluginData) =>
+        _manager.LoadPlugin(pluginId, _manager.SelectedLayout, (internalPluginData) =>
         {
             Dispatcher.Invoke(() =>
             {
@@ -145,32 +170,61 @@ public partial class MainPage : Page
 
     private void LayoutsComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
-        // Prevent recursive calls and only process if fully loaded
-        if (_isLoadingLayout || !_manager.IsLoaded || !IsLoaded)
+        ApplySelectedLayout();
+        RefreshShareState();
+    }
+
+    private async void ShareLayoutButton_Click(object sender, RoutedEventArgs e)
+    {
+        shareLayoutButton.IsEnabled = false;
+
+        try
+        {
+            await ModIoService.ShareAsync(_manager.SelectedLayout, Window.GetWindow(this), isBusy => _dataContext.IsSharing = isBusy);
+        }
+        finally
+        {
+            shareLayoutButton.IsEnabled = true;
+        }
+    }
+
+    /// <summary>
+    /// Binds the currently selected layout to the currently selected screen and reloads it.
+    /// No-op when the layout is already the one bound to the screen (e.g. programmatic resets).
+    /// </summary>
+    private void ApplySelectedLayout()
+    {
+        if (_dataContext.SelectedScreenId is null)
         {
             return;
         }
 
-        // Check if this is actually a user-initiated change
-        // by verifying that the removed and added items are different
-        if (e.RemovedItems.Count > 0 && e.AddedItems.Count > 0)
+        System.Windows.Forms.Screen? screen = ScreenUtilities.GetScreenByDeviceName(_dataContext.SelectedScreenId);
+        if (screen is null)
         {
-            if (e.RemovedItems[0] == e.AddedItems[0])
-            {
-                return;
-            }
+            return;
         }
 
-        try
+        string? layoutName = _dataContext.SelectedLayoutName;
+        if (layoutName is null)
         {
-            _isLoadingLayout = true;
-            _manager.SaveSettings();
-            _manager.LoadLayout(false);
+            return;
         }
-        finally
+
+        Layout? layout = _manager.Settings.Layouts.FirstOrDefault(l => l.Name == layoutName);
+        if (layout is null)
         {
-            _isLoadingLayout = false;
+            return;
         }
+
+        if (_manager.GetLayoutForScreen(screen) == layout)
+        {
+            return;
+        }
+
+        _manager.BindLayoutToScreen(screen, layout);
+        _manager.ReloadScreen(screen);
+        _dataContext.RefreshSelection();
     }
 
     private async void NewLayoutButton_Click(object sender, RoutedEventArgs e)
@@ -194,18 +248,11 @@ public partial class MainPage : Page
                 return;
             }
 
-            try
-            {
-                _isLoadingLayout = true;
-                _manager.Settings.Layouts.Add(new Layout(inputDialog.ResponseText.Trim()));
-                _manager.Settings.CurrentLayoutName = inputDialog.ResponseText.Trim();
-                _manager.SaveSettings();
-                _manager.LoadLayout(false);
-            }
-            finally
-            {
-                _isLoadingLayout = false;
-            }
+            _manager.Settings.Layouts.Add(new Layout(inputDialog.ResponseText.Trim()));
+            _manager.SaveSettings();
+
+            // Select the new layout so the user can apply it to the current screen
+            _dataContext.SelectedLayoutName = inputDialog.ResponseText.Trim();
         }
     }
 
@@ -237,17 +284,29 @@ public partial class MainPage : Page
             return;
         }
 
-        try
+        Layout? layout = _manager.Settings.Layouts.FirstOrDefault(l => l.Name == _dataContext.SelectedLayoutName);
+        if (layout is null)
         {
-            _isLoadingLayout = true;
-            _ = _manager.Settings.Layouts.Remove(_manager.Settings.CurrentLayout);
-            _manager.SaveSettings();
-            _manager.LoadLayout(false);
+            return;
         }
-        finally
+
+        if (layout.Name == Manager.EmptyLayoutName)
         {
-            _isLoadingLayout = false;
+            Wpf.Ui.Controls.MessageBox cannotDeleteMessageBox = new Wpf.Ui.Controls.MessageBox
+            {
+                Title = App.AppName,
+                Content = (string)FindResource("cannotDeleteEmptyLayout"),
+                CloseButtonText = "Ok"
+            };
+            _ = await cannotDeleteMessageBox.ShowDialogAsync();
+            return;
         }
+
+        // A subscribed layout would be downloaded again on the next sync.
+        await ModIoService.UnsubscribeAsync(layout);
+
+        _manager.RemoveLayout(layout);
+        _dataContext.RefreshSelection();
     }
 
     #endregion

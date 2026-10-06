@@ -1,5 +1,6 @@
 ﻿using DesktopMagic.DataContexts;
 using DesktopMagic.Dialogs;
+using DesktopMagic.Helpers;
 using DesktopMagic.Plugins;
 
 using System.Linq;
@@ -30,7 +31,13 @@ public partial class ThemePage : Page
         // Subscribe to manager events
         _manager.SettingsChanged += OnSettingsChanged;
 
+        Loaded += ThemePage_Loaded;
         Unloaded += ThemePage_Unloaded;
+    }
+
+    private void ThemePage_Loaded(object sender, RoutedEventArgs e)
+    {
+        RefreshShareStates();
     }
 
     private void ThemePage_Unloaded(object sender, RoutedEventArgs e)
@@ -44,7 +51,35 @@ public partial class ThemePage : Page
         Dispatcher.Invoke(() =>
         {
             _dataContext.Settings = _manager.Settings;
+            RefreshShareStates();
         });
+    }
+
+    private void RefreshShareStates()
+    {
+        foreach (Theme theme in _manager.Settings.Themes)
+        {
+            ModIoService.RefreshShareState(theme);
+        }
+    }
+
+    private async void ShareThemeButton_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is not System.Windows.Controls.Button button || button.Tag is not Theme theme)
+        {
+            return;
+        }
+
+        button.IsEnabled = false;
+
+        try
+        {
+            await ModIoService.ShareAsync(theme, Window.GetWindow(this), isBusy => _dataContext.IsSharing = isBusy);
+        }
+        finally
+        {
+            button.IsEnabled = true;
+        }
     }
 
     private async void AddThemeButton_Click(object sender, RoutedEventArgs e)
@@ -69,7 +104,7 @@ public partial class ThemePage : Page
             }
 
             _manager.Settings.Themes.Add(new Theme(inputDialog.ResponseText.Trim()));
-            _manager.Settings.CurrentLayout.CurrentThemeName = inputDialog.ResponseText.Trim();
+            _manager.SelectedLayout.CurrentThemeName = inputDialog.ResponseText.Trim();
             _manager.SaveSettings();
         }
     }
@@ -104,6 +139,9 @@ public partial class ThemePage : Page
 
         if (themesListBox.SelectedItem is Theme theme)
         {
+            // A subscribed theme would be downloaded again on the next sync.
+            await ModIoService.UnsubscribeAsync(theme);
+
             _ = _manager.Settings.Themes.Remove(theme);
             _manager.SaveSettings();
         }
@@ -122,5 +160,6 @@ public partial class ThemePage : Page
         };
 
         _ = themeDialog.ShowDialog();
+        ModIoService.RefreshShareState(theme);
     }
 }

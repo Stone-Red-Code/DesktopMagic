@@ -19,6 +19,7 @@ public partial class MainWindow : FluentWindow
 {
     private readonly Manager _manager = Manager.Instance;
     private readonly MainWindowDataContext _mainWindowDataContext = new();
+    private OcclusionMonitor? occlusionMonitor;
 
     [Obsolete]
     public MainWindow()
@@ -39,6 +40,8 @@ public partial class MainWindow : FluentWindow
         {
             App.Logger.LogInfo("Loading application", source: "MainWindow");
 
+            Microsoft.Win32.SystemEvents.DisplaySettingsChanged += SystemEvents_DisplaySettingsChanged;
+
             _mainWindowDataContext.IsLoading = true;
 
             // Load plugins and settings through manager
@@ -46,6 +49,22 @@ public partial class MainWindow : FluentWindow
             _mainWindowDataContext.Settings = _manager.Settings;
             _manager.LoadPlugins();
             _manager.LoadLayout();
+
+            // Pause plugin rendering while widgets are fully occluded by other windows.
+            occlusionMonitor = new OcclusionMonitor();
+            occlusionMonitor.Start();
+
+            if (_manager.Settings.IsFirstRun)
+            {
+                _manager.Settings.IsFirstRun = false;
+                _ = Activate();
+            }
+            else
+            {
+                WindowState = WindowState.Minimized;
+                Visibility = Visibility.Collapsed;
+                ShowInTaskbar = false;
+            }
 
             _manager.IsLoaded = true;
             _mainWindowDataContext.IsLoading = false;
@@ -87,6 +106,11 @@ public partial class MainWindow : FluentWindow
 
     private void Window_Closed(object sender, EventArgs e)
     {
+        Microsoft.Win32.SystemEvents.DisplaySettingsChanged -= SystemEvents_DisplaySettingsChanged;
+
+        occlusionMonitor?.Dispose();
+        occlusionMonitor = null;
+
         Visibility = Visibility.Collapsed;
         UpdateLayout();
         _manager.CloseAllPluginWindows();
@@ -99,6 +123,16 @@ public partial class MainWindow : FluentWindow
         {
             RestoreWindow();
         }
+    }
+
+    private void SystemEvents_DisplaySettingsChanged(object? sender, EventArgs e)
+    {
+        // Re-enumerate screens and reload all widget windows when monitors are added or removed.
+        _ = Application.Current.Dispatcher.BeginInvoke(() =>
+        {
+            _mainWindowDataContext.RefreshScreens();
+            _manager.LoadLayout();
+        });
     }
 
     internal void RestoreWindow()

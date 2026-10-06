@@ -1,0 +1,3 @@
+[submodule "lib/modio.net"]
+	path = lib/modio.net
+	url = https://github.com/nickelc/modio.net.git
